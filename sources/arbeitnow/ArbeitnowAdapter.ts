@@ -3,6 +3,12 @@ import { NormalizedJob } from "@/lib/types/job";
 import { normalizeRemoteType, normalizeEmploymentType } from "@/normalization";
 
 /**
+ * Keyword pattern for sponsorship signal scanning.
+ * Used as fallback when the visa_sponsorship flag is absent.
+ */
+const SPONSORSHIP_KEYWORDS = /\b(visa\s+sponsor|work\s+permit|certificate\s+of\s+sponsor|skilled\s+worker|h-?1b|tss\s+482|subclass\s+482|lmia|aewv|relocation\s+(package|support|assistance)|sponsorship\s+available|sponsor\s+international)\b/i;
+
+/**
  * Arbeitnow Free Job Board API Adapter
  *
  * ✅ No API key required
@@ -72,14 +78,18 @@ export class ArbeitnowAdapter implements JobSourceAdapter {
         if (jobs.length === 0) break;
 
         for (const job of jobs) {
-          // CRITICAL: Only ingest jobs with explicit visa sponsorship flag
-          // or strong sponsorship indicators in the description
           const hasSponsorshipTag = job.visa_sponsorship === true;
           const hasRelocationTag  = job.relocation === true;
 
-          if (!hasSponsorshipTag && !hasRelocationTag) continue;
+          // Primary filter: explicit visa / relocation flags (highest precision)
+          // Fallback: keyword scan on title + description when flags are absent
+          // (Arbeitnow's flag is sparsely populated on current live data)
+          const descText = ((job.title || "") + " " + (job.description || "")).toLowerCase();
+          const hasKeywordSignal = SPONSORSHIP_KEYWORDS.test(descText);
 
-        const norm = this.normalizeJob(job);
+          if (!hasSponsorshipTag && !hasRelocationTag && !hasKeywordSignal) continue;
+
+          const norm = this.normalizeJob(job);
           if (norm && this.validateJob(norm)) {
             allJobs.push(norm);
           }
