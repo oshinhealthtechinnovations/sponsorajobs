@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sponsorajobs",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2024-09-23",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "sponsorajobs-db",
+      "database_id": "sponsorajobs-d1-id-placeholder",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "NODE_ENV": "production",
+    "ENABLE_ADZUNA": "false",
+    "ENABLE_USAJOBS": "false",
+    "ENABLE_ATS": "false",
+    "ENABLE_SAVED_JOBS": "false",
+    "ENABLE_EMPLOYER_POSTING": "false"
+  }
+}
