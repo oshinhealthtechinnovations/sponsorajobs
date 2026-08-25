@@ -5,17 +5,22 @@ import initSqlJs from "sql.js";
 import { INITIAL_COUNTRIES } from "../config/countries";
 import { INITIAL_CATEGORIES } from "../config/categories";
 import { classifyJobSponsorship } from "../scoring/classifier";
+import { computeQualityScore } from "../scoring/qualityScorer";
+import { generateRichDescription } from "../lib/services/descriptionFormatter";
 import { generateCanonicalHash } from "../normalization";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const SEED_SOURCES = [
-  { id: "seed_direct", name: "SponsorAJobs Direct Feed", type: "feed", active: 1, terms: "https://sponsorajobs.com/terms", attribution: 0 },
-  { id: "usajobs", name: "USAJobs Federal API", type: "api", active: 0, terms: "https://developer.usajobs.gov/API-Terms", attribution: 0 },
-  { id: "adzuna", name: "Adzuna Job API", type: "api", active: 0, terms: "https://developer.adzuna.com/terms", attribution: 1 },
-  { id: "ashby", name: "Ashby ATS Feeds", type: "ats", active: 0, terms: "https://www.ashbyhq.com/terms", attribution: 0 },
-  { id: "workable", name: "Workable ATS Feeds", type: "ats", active: 0, terms: "https://www.workable.com/terms", attribution: 0 },
+  { id: "seed_direct",  name: "SponsorAJobs Direct Feed",  type: "feed", active: 1, terms: "https://sponsorajobs.com/terms",             attribution: 0 },
+  { id: "usajobs",      name: "USAJobs Federal API",         type: "api",  active: 0, terms: "https://developer.usajobs.gov/API-Terms",     attribution: 0 },
+  { id: "adzuna",       name: "Adzuna Job API",              type: "api",  active: 0, terms: "https://developer.adzuna.com/terms",           attribution: 1 },
+  { id: "ashby",        name: "Ashby ATS Feeds",             type: "ats",  active: 0, terms: "https://www.ashbyhq.com/terms",               attribution: 0 },
+  { id: "workable",     name: "Workable ATS Feeds",          type: "ats",  active: 0, terms: "https://www.workable.com/terms",             attribution: 0 },
+  { id: "remotive",     name: "Remotive Remote Jobs API",    type: "api",  active: 1, terms: "https://remotive.com/api/terms",               attribution: 1 },
+  { id: "arbeitnow",   name: "Arbeitnow Visa Jobs API",     type: "api",  active: 1, terms: "https://www.arbeitnow.com/terms-conditions",   attribution: 0 },
+  { id: "jooble",       name: "Jooble Global Jobs API",      type: "api",  active: 0, terms: "https://jooble.org/api-terms",                 attribution: 1 },
 ];
 
 const SEED_COMPANIES = [
@@ -564,7 +569,39 @@ export async function runSeed(dbInstance?: any) {
     const jobUrl = `https://sponsorajobs.com/job/${jobId}`;
     const hash = generateCanonicalHash(companyName, raw.title, `${raw.city}, ${raw.country}`, applyUrl);
 
-    const classification = classifyJobSponsorship(raw.desc, raw.country);
+    // Generate rich 400-600 word description using category template
+    const richDesc = generateRichDescription(raw.categorySlug, {
+      title:            raw.title,
+      companyName,
+      city:             raw.city,
+      countryCode:      raw.country,
+      salaryMin:        raw.salaryMin,
+      salaryMax:        raw.salaryMax,
+      currency:         raw.currency,
+      remoteType:       raw.remoteType,
+      sponsorshipLabel: "",
+    });
+
+    const classification = classifyJobSponsorship(richDesc, raw.country);
+
+    // Compute real quality score using the 5-dimension engine
+    const qualityBreakdown = computeQualityScore({
+      title:            raw.title,
+      description:      richDesc,
+      sponsorshipScore: classification.score,
+      salaryMin:        raw.salaryMin,
+      salaryMax:        raw.salaryMax,
+      salaryCurrency:   raw.currency,
+      applyUrl,
+      city:             raw.city,
+      region:           raw.region,
+      countryCode:      raw.country,
+      employmentType:   raw.employmentType,
+      categorySlug:     raw.categorySlug,
+      companyName,
+      remoteType:       raw.remoteType,
+      publishedAt:      new Date(Date.now() - i * 86400000 * 0.7).toISOString(),
+    });
 
     db.run(
       `INSERT OR REPLACE INTO jobs (
@@ -583,8 +620,8 @@ export async function runSeed(dbInstance?: any) {
         hash,
         raw.title,
         raw.companyId,
-        raw.desc,
-        raw.desc,
+        richDesc,          // rich 400-600 word description
+        richDesc,          // description_clean (same for seed data)
         `${raw.city}, ${raw.country}`,
         raw.city,
         raw.region,
@@ -604,7 +641,7 @@ export async function runSeed(dbInstance?: any) {
         JSON.stringify(classification.positiveEvidence),
         JSON.stringify(classification.negativeEvidence),
         JSON.stringify(classification.keywords),
-        100,
+        qualityBreakdown.total,   // real computed score, not hardcoded 100
         i % 5 === 0 ? 1 : 0
       ]
     );

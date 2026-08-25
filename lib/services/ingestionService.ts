@@ -3,6 +3,7 @@ import { JobSourceAdapter, IngestionResult } from "@/sources/base/JobSourceAdapt
 import { SourceRegistry } from "@/sources/registry";
 import { NormalizedJob } from "../types/job";
 import { classifyJobSponsorship } from "@/scoring/classifier";
+import { computeQualityScore, MINIMUM_QUALITY_SCORE } from "@/scoring/qualityScorer";
 import { generateCanonicalHash } from "@/normalization";
 
 export interface PipelineRunReport {
@@ -124,6 +125,32 @@ export class IngestionService {
         // 4. Sponsorship Intelligence Classification (Section 18-21)
         const classification = classifyJobSponsorship(rawJob.description, rawJob.countryCode);
 
+        // 4b. Quality Score Computation — 5-dimension engine
+        const qualityBreakdown = computeQualityScore({
+          title:            rawJob.title,
+          description:      rawJob.description,
+          sponsorshipScore: classification.score,
+          salaryMin:        rawJob.salaryMin,
+          salaryMax:        rawJob.salaryMax,
+          salaryCurrency:   rawJob.salaryCurrency,
+          applyUrl:         rawJob.applyUrl,
+          jobUrl:           rawJob.jobUrl,
+          city:             rawJob.city,
+          region:           rawJob.region,
+          countryCode:      rawJob.countryCode,
+          employmentType:   rawJob.employmentType,
+          categorySlug:     rawJob.categorySlug,
+          companyName:      rawJob.companyName,
+          remoteType:       rawJob.remoteType,
+          publishedAt:      rawJob.publishedAt,
+        });
+
+        // Reject jobs that score below minimum quality threshold
+        if (qualityBreakdown.total < MINIMUM_QUALITY_SCORE) {
+          jobsRejected++;
+          continue;
+        }
+
         // Check if job exists by canonical_hash
         const existing = await this.db.prepare(
           "SELECT id, status FROM jobs WHERE canonical_hash = ?"
@@ -145,6 +172,7 @@ export class IngestionService {
                 sponsorship_positive_evidence = ?,
                 sponsorship_negative_evidence = ?,
                 visa_keywords = ?,
+                quality_score = ?,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
           `).bind(
@@ -156,6 +184,7 @@ export class IngestionService {
             JSON.stringify(classification.positiveEvidence),
             JSON.stringify(classification.negativeEvidence),
             JSON.stringify(classification.keywords),
+            qualityBreakdown.total,
             existing.id
           ).run();
         } else {
@@ -209,6 +238,7 @@ export class IngestionService {
             JSON.stringify(classification.positiveEvidence),
             JSON.stringify(classification.negativeEvidence),
             JSON.stringify(classification.keywords),
+            qualityBreakdown.total,
             classification.requiresReview ? "review_required" : "active"
           ).run();
         }

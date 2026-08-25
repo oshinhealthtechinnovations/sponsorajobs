@@ -207,15 +207,19 @@ export class JobRepository {
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-    // 10. Sorting
-    let orderClause = "ORDER BY j.published_at DESC, j.created_at DESC";
-    if (params.sort === "sponsorship") {
-      orderClause = "ORDER BY j.sponsorship_score DESC, j.published_at DESC";
+    // 10. Sorting — quality_score integrated as a signal in relevance & sponsorship sorts
+    let orderClause = "ORDER BY j.quality_score DESC, j.published_at DESC, j.created_at DESC";
+    if (params.sort === "newest") {
+      // Pure recency — used for "Latest" feed
+      orderClause = "ORDER BY j.published_at DESC, j.first_seen_at DESC";
+    } else if (params.sort === "sponsorship") {
+      // Highest sponsorship signal + quality as tiebreaker
+      orderClause = "ORDER BY j.sponsorship_score DESC, j.quality_score DESC, j.published_at DESC";
     } else if (params.sort === "salary") {
-      orderClause = "ORDER BY j.salary_max DESC NULLS LAST, j.salary_min DESC NULLS LAST";
+      orderClause = "ORDER BY j.salary_max DESC NULLS LAST, j.salary_min DESC NULLS LAST, j.quality_score DESC";
     } else if (params.sort === "relevance" && params.q) {
-      // Prioritize title exact matches and sponsorship confidence
-      orderClause = "ORDER BY j.sponsorship_score DESC, j.published_at DESC";
+      // Weighted relevance = 40% quality + 60% sponsorship signal — best overall listing
+      orderClause = "ORDER BY (CAST(j.quality_score AS REAL) * 0.4 + CAST(j.sponsorship_score AS REAL) * 0.6) DESC, j.published_at DESC";
     }
 
     // Count query
