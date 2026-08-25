@@ -1,6 +1,8 @@
 import { INITIAL_COUNTRIES } from "@/config/countries";
 import { INITIAL_CATEGORIES } from "@/config/categories";
 import { classifyJobSponsorship } from "@/scoring/classifier";
+import { computeQualityScore } from "@/scoring/qualityScorer";
+import { generateRichDescription } from "@/lib/services/descriptionFormatter";
 import { generateCanonicalHash } from "@/normalization";
 
 export const STATIC_SOURCES = [
@@ -9,19 +11,22 @@ export const STATIC_SOURCES = [
   { id: "adzuna", name: "Adzuna Job API", type: "api", active: 0, terms_url: "https://developer.adzuna.com/terms", attribution_required: 1 },
   { id: "ashby", name: "Ashby ATS Feeds", type: "ats", active: 0, terms_url: "https://www.ashbyhq.com/terms", attribution_required: 0 },
   { id: "workable", name: "Workable ATS Feeds", type: "ats", active: 0, terms_url: "https://www.workable.com/terms", attribution_required: 0 },
+  { id: "remotive", name: "Remotive Remote Jobs API", type: "api", active: 1, terms_url: "https://remotive.com/api/terms", attribution_required: 1 },
+  { id: "arbeitnow", name: "Arbeitnow Visa Jobs API", type: "api", active: 1, terms_url: "https://www.arbeitnow.com/terms-conditions", attribution_required: 0 },
+  { id: "jooble", name: "Jooble Global Jobs API", type: "api", active: 1, terms_url: "https://jooble.org/api-terms", attribution_required: 1 },
 ];
 
 export const STATIC_COMPANIES = [
-  { id: "comp_atlassian", name: "Atlassian", normalized_name: "atlassian", country_code: "AU", industry: "Technology", website: "https://atlassian.com", logo_url: null, careers_url: null, description: null, sponsorship_signal: null, created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
-  { id: "comp_canva", name: "Canva", normalized_name: "canva", country_code: "AU", industry: "Technology", website: "https://canva.com", logo_url: null, careers_url: null, description: null, sponsorship_signal: null, created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
-  { id: "comp_revolut", name: "Revolut", normalized_name: "revolut", country_code: "GB", industry: "Fintech", website: "https://revolut.com", logo_url: null, careers_url: null, description: null, sponsorship_signal: null, created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
-  { id: "comp_monzo", name: "Monzo Bank", normalized_name: "monzo bank", country_code: "GB", industry: "Fintech", website: "https://monzo.com", logo_url: null, careers_url: null, description: null, sponsorship_signal: null, created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
-  { id: "comp_nhs", name: "NHS England Trust", normalized_name: "nhs england trust", country_code: "GB", industry: "Healthcare", website: "https://nhs.uk", logo_url: null, careers_url: null, description: null, sponsorship_signal: null, created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
-  { id: "comp_arup", name: "Arup Engineering", normalized_name: "arup engineering", country_code: "GB", industry: "Engineering", website: "https://arup.com", logo_url: null, careers_url: null, description: null, sponsorship_signal: null, created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
-  { id: "comp_shopify", name: "Shopify", normalized_name: "shopify", country_code: "CA", industry: "E-Commerce", website: "https://shopify.com", logo_url: null, careers_url: null, description: null, sponsorship_signal: null, created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
-  { id: "comp_xero", name: "Xero", normalized_name: "xero", country_code: "NZ", industry: "Technology", website: "https://xero.com", logo_url: null, careers_url: null, description: null, sponsorship_signal: null, created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
-  { id: "comp_bhp", name: "BHP Mining", normalized_name: "bhp mining", country_code: "AU", industry: "Engineering", website: "https://bhp.com", logo_url: null, careers_url: null, description: null, sponsorship_signal: null, created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
-  { id: "comp_datacom", name: "Datacom NZ", normalized_name: "datacom nz", country_code: "NZ", industry: "Technology", website: "https://datacom.com", logo_url: null, careers_url: null, description: null, sponsorship_signal: null, created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
+  { id: "comp_atlassian", name: "Atlassian", normalized_name: "atlassian", country_code: "AU", industry: "Technology", website: "https://atlassian.com", careers_url: "https://www.atlassian.com/company/careers/all-jobs", logo_url: null, description: "Global leader in team collaboration and developer software (Jira, Confluence, Trello).", sponsorship_signal: "high", created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
+  { id: "comp_canva", name: "Canva", normalized_name: "canva", country_code: "AU", industry: "Technology", website: "https://canva.com", careers_url: "https://www.canva.com/careers/", logo_url: null, description: "Empowering the world to design with easy-to-use creative visual communication tools.", sponsorship_signal: "high", created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
+  { id: "comp_revolut", name: "Revolut", normalized_name: "revolut", country_code: "GB", industry: "Fintech", website: "https://revolut.com", careers_url: "https://jobs.lever.co/revolut", logo_url: null, description: "Global financial superapp offering banking, crypto, trading, and cross-border money transfers.", sponsorship_signal: "high", created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
+  { id: "comp_monzo", name: "Monzo Bank", normalized_name: "monzo bank", country_code: "GB", industry: "Fintech", website: "https://monzo.com", careers_url: "https://boards.greenhouse.io/monzo", logo_url: null, description: "Award-winning UK digital bank with millions of customers.", sponsorship_signal: "medium", created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
+  { id: "comp_nhs", name: "NHS England Trust", normalized_name: "nhs england trust", country_code: "GB", industry: "Healthcare", website: "https://nhs.uk", careers_url: "https://www.jobs.nhs.uk/candidate/search", logo_url: null, description: "The National Health Service, providing world-class comprehensive healthcare across the UK.", sponsorship_signal: "high", created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
+  { id: "comp_arup", name: "Arup Engineering", normalized_name: "arup engineering", country_code: "GB", industry: "Engineering", website: "https://arup.com", careers_url: "https://careers.arup.com/", logo_url: null, description: "Global collective of designers, civil engineers, consultants and technical specialists.", sponsorship_signal: "high", created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
+  { id: "comp_shopify", name: "Shopify", normalized_name: "shopify", country_code: "CA", industry: "E-Commerce", website: "https://shopify.com", careers_url: "https://www.shopify.com/careers", logo_url: null, description: "Leading global commerce platform powering millions of merchants worldwide.", sponsorship_signal: "high", created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
+  { id: "comp_xero", name: "Xero", normalized_name: "xero", country_code: "NZ", industry: "Technology", website: "https://xero.com", careers_url: "https://www.xero.com/uk/about/careers/", logo_url: null, description: "Beautiful cloud-based accounting software for small business and their advisors.", sponsorship_signal: "high", created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
+  { id: "comp_bhp", name: "BHP Mining", normalized_name: "bhp mining", country_code: "AU", industry: "Engineering", website: "https://bhp.com", careers_url: "https://careers.bhp.com/en-US", logo_url: null, description: "World-leading resources company extracting copper, nickel, potash, and iron ore.", sponsorship_signal: "high", created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
+  { id: "comp_datacom", name: "Datacom NZ", normalized_name: "datacom nz", country_code: "NZ", industry: "Technology", website: "https://datacom.com", careers_url: "https://careers.datacom.com/nz/en", logo_url: null, description: "One of Australasia's largest homegrown technology and IT solutions companies.", sponsorship_signal: "high", created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" },
 ];
 
 export const STATIC_COUNTRIES = INITIAL_COUNTRIES.map((c) => ({
@@ -516,14 +521,53 @@ export const STATIC_JOBS = STATIC_JOBS_RAW.map((raw, i) => {
   const jobId = `job_seed_${i + 1}`;
   const comp = STATIC_COMPANIES.find((c) => c.id === raw.companyId);
   const companyName = comp ? comp.name : "Employer";
-  const applyUrl = comp?.website 
-    ? (comp.website.includes("nhs.uk") ? "https://www.jobs.nhs.uk" : `${comp.website.replace(/\/$/, "")}/careers`)
-    : `https://sponsorajobs.com/job/${jobId}`;
+  
+  // Real employer career link or fallback to company careers
+  const applyUrl = comp?.careers_url 
+    ? comp.careers_url
+    : comp?.website 
+      ? `${comp.website.replace(/\/$/, "")}/careers`
+      : `https://sponsorajobs.com/job/${jobId}`;
+
   const jobUrl = `https://sponsorajobs.com/job/${jobId}`;
   const hash = generateCanonicalHash(companyName, raw.title, `${raw.city}, ${raw.country}`, applyUrl);
-  const classification = classifyJobSponsorship(raw.desc, raw.country);
+
+  // Generate full 400-600 word rich description with sections (About, Responsibilities, Requirements, Visa, Benefits, How to Apply)
+  const richDescription = generateRichDescription(raw.categorySlug, {
+    title: raw.title,
+    companyName: companyName,
+    city: raw.city,
+    countryCode: raw.country,
+    salaryMin: raw.salaryMin,
+    salaryMax: raw.salaryMax,
+    currency: raw.currency,
+    remoteType: raw.remoteType,
+    sponsorshipLabel: "",
+  });
+
+  const classification = classifyJobSponsorship(richDescription, raw.country);
   const categoryId = `cat_${raw.categorySlug === 'engineering' ? 'eng' : raw.categorySlug === 'healthcare' ? 'health' : raw.categorySlug === 'construction' ? 'const' : raw.categorySlug === 'finance' ? 'fin' : raw.categorySlug === 'logistics' ? 'logistics' : 'tech'}`;
   const category = STATIC_CATEGORIES.find((c) => c.id === categoryId);
+
+  // Compute 5-dimension quality score
+  const quality = computeQualityScore({
+    title: raw.title,
+    description: richDescription,
+    sponsorshipScore: classification.score,
+    salaryMin: raw.salaryMin,
+    salaryMax: raw.salaryMax,
+    salaryCurrency: raw.currency,
+    applyUrl: applyUrl,
+    jobUrl: jobUrl,
+    city: raw.city,
+    region: raw.region,
+    countryCode: raw.country,
+    employmentType: raw.employmentType,
+    categorySlug: raw.categorySlug,
+    companyName: companyName,
+    remoteType: raw.remoteType,
+    publishedAt: new Date(Date.now() - i * 86400000 * 0.7).toISOString(),
+  });
 
   return {
     id: jobId,
@@ -539,8 +583,8 @@ export const STATIC_JOBS = STATIC_JOBS_RAW.map((raw, i) => {
     category_id: categoryId,
     category_name: category?.name || raw.categorySlug,
     category_slug: raw.categorySlug,
-    description: raw.desc,
-    description_clean: raw.desc,
+    description: richDescription,
+    description_clean: richDescription,
     location: `${raw.city}, ${raw.country}`,
     city: raw.city,
     region: raw.region,
@@ -561,7 +605,7 @@ export const STATIC_JOBS = STATIC_JOBS_RAW.map((raw, i) => {
     sponsorship_positive_evidence: JSON.stringify(classification.positiveEvidence),
     sponsorship_negative_evidence: JSON.stringify(classification.negativeEvidence),
     visa_keywords: JSON.stringify(classification.keywords),
-    quality_score: 100,
+    quality_score: quality.total,
     status: "active",
     is_featured: i % 5 === 0 ? 1 : 0,
     created_at: new Date().toISOString(),
