@@ -516,7 +516,9 @@ export const STATIC_JOBS = STATIC_JOBS_RAW.map((raw, i) => {
   const jobId = `job_seed_${i + 1}`;
   const comp = STATIC_COMPANIES.find((c) => c.id === raw.companyId);
   const companyName = comp ? comp.name : "Employer";
-  const applyUrl = `https://careers.example.com/apply/${jobId}?source=sponsorajobs`;
+  const applyUrl = comp?.website 
+    ? (comp.website.includes("nhs.uk") ? "https://www.jobs.nhs.uk" : `${comp.website.replace(/\/$/, "")}/careers`)
+    : `https://sponsorajobs.com/job/${jobId}`;
   const jobUrl = `https://sponsorajobs.com/job/${jobId}`;
   const hash = generateCanonicalHash(companyName, raw.title, `${raw.city}, ${raw.country}`, applyUrl);
   const classification = classifyJobSponsorship(raw.desc, raw.country);
