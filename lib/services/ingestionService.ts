@@ -297,4 +297,56 @@ export class IngestionService {
 
     return result.meta?.changes ?? 0;
   }
+
+  /**
+   * Automated Storage Washout & Zero-Cost Guard
+   * Guarantees storage never fills up:
+   * 1. Permanently purges expired jobs
+   * 2. Caps active database to the most recent highest-quality jobs (default: 3000)
+   * 3. Prunes old ingestion run logs older than 14 days
+   */
+  async runStorageWashout(options?: {
+    expiredDaysCutoff?: number;
+    maxActiveRetention?: number;
+    logRetentionDays?: number;
+  }): Promise<{
+    expiredPurged: number;
+    excessPruned: number;
+    logsPurged: number;
+  }> {
+    const expiredDays = options?.expiredDaysCutoff ?? 30;
+    const maxActive = options?.maxActiveRetention ?? 3000;
+    const logDays = options?.logRetentionDays ?? 14;
+
+    const expiredCutoff = new Date(Date.now() - expiredDays * 24 * 60 * 60 * 1000).toISOString();
+    const logCutoff = new Date(Date.now() - logDays * 24 * 60 * 60 * 1000).toISOString();
+
+    // 1. Purge expired jobs
+    const purgeExpiredRes = await this.db.prepare(`
+      DELETE FROM jobs
+      WHERE status = 'expired' OR (last_seen_at < ? AND status != 'active')
+    `).bind(expiredCutoff).run();
+
+    // 2. Washout excess jobs over max retention cap
+    const excessPruneRes = await this.db.prepare(`
+      DELETE FROM jobs
+      WHERE id NOT IN (
+        SELECT id FROM jobs
+        ORDER BY posted_at DESC
+        LIMIT ?
+      )
+    `).bind(maxActive).run();
+
+    // 3. Purge old execution logs
+    const purgeLogsRes = await this.db.prepare(`
+      DELETE FROM ingestion_runs
+      WHERE started_at < ?
+    `).bind(logCutoff).run();
+
+    return {
+      expiredPurged: purgeExpiredRes.meta?.changes ?? 0,
+      excessPruned: excessPruneRes.meta?.changes ?? 0,
+      logsPurged: purgeLogsRes.meta?.changes ?? 0,
+    };
+  }
 }

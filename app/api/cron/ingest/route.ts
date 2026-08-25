@@ -27,11 +27,19 @@ export async function GET(request: NextRequest) {
   // Run conservative stale job expiration (30 days)
   const expiredCount = await service.expireStaleJobs(30);
 
+  // Automatic Storage Washout: Purge stale data and cap maximum retained jobs to prevent storage growth
+  const washoutReport = await service.runStorageWashout({
+    expiredDaysCutoff: 30,
+    maxActiveRetention: 3000,
+    logRetentionDays: 14,
+  });
+
   return NextResponse.json({
     success: true,
     timestamp: new Date().toISOString(),
     activeSourcesProcessed: activeAdapters.length,
     reports,
     staleJobsExpired: expiredCount,
+    storageWashout: washoutReport,
   });
 }
