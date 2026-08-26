@@ -12,7 +12,7 @@ export interface TelegramConfig {
 
 export class TelegramService {
   private botToken: string;
-  private chatId: string;
+  private adminChatId: string;
   private communityChannelId: string;
 
   constructor(config?: TelegramConfig) {
@@ -20,21 +20,21 @@ export class TelegramService {
       config?.botToken !== undefined
         ? config.botToken
         : (process.env.TELEGRAM_BOT_TOKEN || "8728617267:AAHahZaci_FgFjRQpgmpyCZYV7D_gX3ZX40");
-    this.chatId =
+    this.adminChatId =
       config?.chatId !== undefined
         ? config.chatId
         : (process.env.TELEGRAM_CHAT_ID || "8569757426");
     this.communityChannelId =
       config?.communityChannelId !== undefined
         ? config.communityChannelId
-        : (process.env.TELEGRAM_COMMUNITY_CHANNEL_ID || "8569757426");
+        : (process.env.TELEGRAM_COMMUNITY_CHANNEL_ID || "");
   }
 
   /**
    * Check if Telegram integration is configured
    */
   isConfigured(): boolean {
-    return Boolean(this.botToken && this.chatId);
+    return Boolean(this.botToken && this.adminChatId);
   }
 
   /**
@@ -52,7 +52,7 @@ export class TelegramService {
     const token = this.botToken || process.env.TELEGRAM_BOT_TOKEN;
     const destChatId =
       options?.targetChatId ||
-      this.chatId ||
+      this.adminChatId ||
       process.env.TELEGRAM_CHAT_ID;
 
     if (!token || !destChatId) {
