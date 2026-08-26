@@ -7,15 +7,15 @@ import { JobRepository } from "@/lib/repositories/jobRepository";
 export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
-  const startTime = Date.now();
-  // Verify optional cron secret header for security
+  // MED-001: Strictly enforce cron secret. Never allow unauthenticated access.
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET || process.env.ADMIN_SECRET;
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized cron execution." }, { status: 401 });
   }
 
+  const startTime = Date.now();
   const registry = new SourceRegistry();
   const service = new IngestionService(undefined, registry);
 

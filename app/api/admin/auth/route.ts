@@ -17,7 +17,7 @@ function isRateLimited(ip: string): boolean {
     return false;
   }
 
-  return record.attempts >= 10;
+  return record.attempts >= 5;
 }
 
 function recordFailedAttempt(ip: string) {
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 401 }
     );
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  } catch {
+    return NextResponse.json({ success: false, error: "Authentication request failed." }, { status: 500 });
   }
 }

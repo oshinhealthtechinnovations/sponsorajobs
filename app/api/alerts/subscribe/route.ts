@@ -19,7 +19,14 @@ interface AlertSubscriptionPayload {
 }
 
 export async function POST(req: NextRequest) {
+  const isDev = process.env.NODE_ENV !== "production";
   try {
+    // MED-005: CSRF — validate origin
+    const origin = req.headers.get("origin");
+    if (origin && !origin.includes("sponsorajobs.com") && !origin.includes("localhost")) {
+      return NextResponse.json({ success: false, error: "Request origin not allowed." }, { status: 403 });
+    }
+
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || req.headers.get("cf-connecting-ip") || "anonymous_subscriber";
     const limitCheck = publicApiRateLimiter.check(`alert_${ip}`);
     if (!limitCheck.allowed) {
@@ -31,11 +38,16 @@ export async function POST(req: NextRequest) {
 
     const body = (await req.json()) as AlertSubscriptionPayload;
 
-    if (!body?.email || !body.email.includes("@")) {
+    if (!body?.email || !body.email.includes("@") || body.email.length > 254) {
       return NextResponse.json(
         { success: false, error: "A valid email address is required" },
         { status: 400 }
       );
+    }
+
+    // HIGH-006: Input length limits
+    if (body.keyword && body.keyword.length > 100) {
+      return NextResponse.json({ success: false, error: "Keyword too long (max 100 chars)." }, { status: 400 });
     }
 
     const keyword = body.keyword || body.role;
@@ -113,8 +125,9 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("[Alerts:Subscribe] Error handling subscription:", err);
+    const isDev = process.env.NODE_ENV !== "production";
     return NextResponse.json(
-      { success: false, error: err?.message || "Internal server error" },
+      { success: false, error: isDev ? (err?.message || "Internal server error") : "Subscription failed. Please try again." },
       { status: 500 }
     );
   }

@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     });
 
     response.cookies.set("sa_user_session", JSON.stringify(sessionPayload), {
-      httpOnly: false,
+      httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60,
@@ -48,8 +48,9 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (err: any) {
+    const isDev = process.env.NODE_ENV !== "production";
     return NextResponse.json(
-      { success: false, error: err.message || "Authentication failed." },
+      { success: false, error: isDev ? (err.message || "Authentication failed.") : "Authentication failed. Please try again." },
       { status: 500 }
     );
   }

@@ -4,10 +4,15 @@ const nextConfig = {
   poweredByHeader: false, // Section 56: Remove X-Powered-By
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**",
-      },
+      { protocol: "https", hostname: "**.greenhouse.io" },
+      { protocol: "https", hostname: "**.lever.co" },
+      { protocol: "https", hostname: "**.workday.com" },
+      { protocol: "https", hostname: "**.ashbyhq.com" },
+      { protocol: "https", hostname: "**.recruitee.com" },
+      { protocol: "https", hostname: "**.teamtailor.com" },
+      { protocol: "https", hostname: "**.smartrecruiters.com" },
+      { protocol: "https", hostname: "fonts.gstatic.com" },
+      { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
   async headers() {
@@ -39,12 +44,14 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+              "script-src 'self' 'unsafe-inline'",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "img-src 'self' https: data: blob:",
-              "connect-src 'self' https: http: data: blob:",
+              "connect-src 'self' https: data:",
               "frame-ancestors 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
             ].join("; "),
           },
         ],
