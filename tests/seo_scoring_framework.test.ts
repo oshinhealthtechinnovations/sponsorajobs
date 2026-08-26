@@ -82,4 +82,22 @@ describe("SEO Scoring Engine & Page Audit Framework", () => {
       expect(r.pillars.technicalIndexability.score).toBe(25);
     }
   });
+
+  it("should have all 16 parameter definitions totaling 100 max points across 4 pillars", async () => {
+    const { SEO_SCORING_PARAMETERS } = await import("../lib/seo/scoringEngine");
+    expect(SEO_SCORING_PARAMETERS.length).toBe(16);
+    const totalMax = SEO_SCORING_PARAMETERS.reduce((acc, p) => acc + p.maxPoints, 0);
+    expect(totalMax).toBe(100);
+  });
+
+  it("should calculate high keyword match score and rank potential for keyword-targeted content", () => {
+    const kwMatch = seoScoringEngine.calculateKeywordMatch(
+      "UK Skilled Worker visa jobs with visa sponsorship in London and Manchester.",
+      ["uk skilled worker visa", "jobs with visa sponsorship"]
+    );
+    expect(kwMatch).toBeGreaterThanOrEqual(90);
+
+    const rankPotential = seoScoringEngine.calculateRankPotential(100, kwMatch, 850, true);
+    expect(rankPotential).toBeGreaterThanOrEqual(95);
+  });
 });

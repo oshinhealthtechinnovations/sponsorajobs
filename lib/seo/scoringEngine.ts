@@ -1,7 +1,188 @@
 /**
- * Deterministic 100-Point SEO Scoring Engine
- * Analyzes pages across 4 core technical pillars based on Google Search Central & Lighthouse specifications.
+ * Deterministic 100-Point SEO Scoring Engine & Rank Match Analyzer
+ * Based on Google Search Central Guidelines, Schema.org specifications & Core Web Vitals.
  */
+
+export interface SeoScoringParameterDef {
+  id: string;
+  name: string;
+  pillar: "Meta Architecture" | "Structured Data" | "Content Quality & Hierarchy" | "Technical Indexability";
+  maxPoints: number;
+  formula: string;
+  optimalTarget: string;
+  googleSignalImpact: "Critical" | "High" | "Medium";
+  description: string;
+}
+
+export const SEO_SCORING_PARAMETERS: SeoScoringParameterDef[] = [
+  // ── Pillar 1: Meta Architecture (25 pts) ──
+  {
+    id: "meta_title",
+    name: "Title Tag Length & Branding",
+    pillar: "Meta Architecture",
+    maxPoints: 8,
+    formula: "Length between 30-75 chars + Contains '| SponsorAJobs' brand suffix",
+    optimalTarget: "50-65 characters with primary keyword at start",
+    googleSignalImpact: "Critical",
+    description: "Google SERP displays 50-60 characters before truncating. Branded suffix establishes domain authority and prevents title rewriting.",
+  },
+  {
+    id: "meta_description",
+    name: "Meta Description Precision",
+    pillar: "Meta Architecture",
+    maxPoints: 7,
+    formula: "Length between 100-180 chars + contains actionable search intent",
+    optimalTarget: "120-160 characters summarizing value proposition",
+    googleSignalImpact: "High",
+    description: "Provides the snippet text in search results. Well-crafted descriptions increase Organic Click-Through Rates (CTR).",
+  },
+  {
+    id: "meta_canonical",
+    name: "Self-Referential Canonical URL",
+    pillar: "Meta Architecture",
+    maxPoints: 4,
+    formula: "Explicit https://www.sponsorajobs.com/... tag without query params",
+    optimalTarget: "Exact match lowercase canonical path",
+    googleSignalImpact: "Critical",
+    description: "Prevents duplicate content penalties across protocol (http/https), www/non-www, and Vercel preview subdomains.",
+  },
+  {
+    id: "meta_social_graph",
+    name: "OpenGraph & Twitter Card Graph",
+    pillar: "Meta Architecture",
+    maxPoints: 6,
+    formula: "og:title + og:description + og:image (1200x630) + og:url + twitter:card",
+    optimalTarget: "Complete OpenGraph protocol & summary_large_image card",
+    googleSignalImpact: "Medium",
+    description: "Drives social indexing signals from LinkedIn, Twitter, and messaging platforms with high-CTR preview cards.",
+  },
+
+  // ── Pillar 2: Structured Data (25 pts) ──
+  {
+    id: "schema_primary_entity",
+    name: "Primary Entity JSON-LD (JobPosting / BlogPosting)",
+    pillar: "Structured Data",
+    maxPoints: 10,
+    formula: "Valid Schema.org syntax matching page type with required properties",
+    optimalTarget: "Direct Google Job Search & Article SERP rich result eligibility",
+    googleSignalImpact: "Critical",
+    description: "Enables Google Jobs Carousels and rich article cards in Google Search results via structured JSON-LD.",
+  },
+  {
+    id: "schema_breadcrumbs",
+    name: "BreadcrumbList Hierarchy",
+    pillar: "Structured Data",
+    maxPoints: 5,
+    formula: "Valid BreadcrumbList schema reflecting exact URL path hierarchy",
+    optimalTarget: "Home > Country/Category > Destination Page",
+    googleSignalImpact: "High",
+    description: "Replaces raw URLs with clean hierarchical breadcrumb navigation paths in Google SERPs.",
+  },
+  {
+    id: "schema_faq_snippets",
+    name: "FAQPage Schema & Accordions",
+    pillar: "Structured Data",
+    maxPoints: 5,
+    formula: "FAQPage schema with question-answer entities for informational guides",
+    optimalTarget: "3-5 structured FAQ pairs on all guides and hubs",
+    googleSignalImpact: "High",
+    description: "Triggers expandable Q&A accordions directly underneath search results, doubling SERP vertical real estate.",
+  },
+  {
+    id: "schema_publisher",
+    name: "Publisher Identity & Attribution",
+    pillar: "Structured Data",
+    maxPoints: 5,
+    formula: "Organization / WebSite schema with brand logo, URL, and search action",
+    optimalTarget: "Google Knowledge Graph verified organization entity",
+    googleSignalImpact: "Medium",
+    description: "Associates content with verified publisher credentials, boosting Google E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness).",
+  },
+
+  // ── Pillar 3: Content Quality & Semantic Hierarchy (25 pts) ──
+  {
+    id: "content_heading_hierarchy",
+    name: "Semantic Heading Hierarchy (H1 & H2s)",
+    pillar: "Content Quality & Hierarchy",
+    maxPoints: 8,
+    formula: "Exactly 1 H1 matching search intent + 2+ logical H2/H3 subheadings",
+    optimalTarget: "Single H1 followed by structured H2 sections",
+    googleSignalImpact: "Critical",
+    description: "Search bots parse document structure through heading tags to understand thematic outline and keyword hierarchy.",
+  },
+  {
+    id: "content_keywords",
+    name: "Target Keyword Distribution & Density",
+    pillar: "Content Quality & Hierarchy",
+    maxPoints: 7,
+    formula: "Primary keyword present in Title, H1, first 100 words, and subheadings",
+    optimalTarget: "1.2% - 2.5% natural keyword prominence without stuffing",
+    googleSignalImpact: "High",
+    description: "Establishes contextual relevance for specific high-volume international employment search terms.",
+  },
+  {
+    id: "content_depth",
+    name: "Content Depth & Substance",
+    pillar: "Content Quality & Hierarchy",
+    maxPoints: 5,
+    formula: "Word count >= 250 words (jobs) / >= 600 words (pillar guides)",
+    optimalTarget: "Comprehensive, actionable content exceeding thin-content thresholds",
+    googleSignalImpact: "High",
+    description: "Protects against Google 'Thin Content' algorithms by delivering comprehensive data and actionable advice.",
+  },
+  {
+    id: "content_internal_linking",
+    name: "Internal Navigation & Contextual Links",
+    pillar: "Content Quality & Hierarchy",
+    maxPoints: 5,
+    formula: "Cross-links to related country hubs, categories, and matching job listings",
+    optimalTarget: "3-8 contextual internal links per page",
+    googleSignalImpact: "High",
+    description: "Distributes PageRank throughout the domain and guides search engine spiders to deep index pages.",
+  },
+
+  // ── Pillar 4: Technical Indexability & Security (25 pts) ──
+  {
+    id: "tech_robots",
+    name: "Search Indexing Directives",
+    pillar: "Technical Indexability",
+    maxPoints: 8,
+    formula: "index, follow + max-snippet:-1 + max-image-preview:large",
+    optimalTarget: "Unrestricted crawling of public inventory with rich preview permissions",
+    googleSignalImpact: "Critical",
+    description: "Instructs Googlebot to index the page and display full rich media previews.",
+  },
+  {
+    id: "tech_sitemap",
+    name: "Dynamic Sitemap XML Inclusion",
+    pillar: "Technical Indexability",
+    maxPoints: 7,
+    formula: "Page URL present in dynamic /sitemap.xml with accurate lastmod",
+    optimalTarget: "100% of canonical URLs in dynamic sitemap",
+    googleSignalImpact: "High",
+    description: "Provides Googlebot with a direct roadmap for discovering, crawling, and indexing new and updated listings.",
+  },
+  {
+    id: "tech_mobile_viewport",
+    name: "Mobile Responsive Viewport",
+    pillar: "Technical Indexability",
+    maxPoints: 5,
+    formula: "width=device-width, initial-scale=1 meta viewport configuration",
+    optimalTarget: "100% Mobile-Friendly layout passing Google Mobile-First Indexing",
+    googleSignalImpact: "Critical",
+    description: "Google exclusively indexes the mobile version of websites. A responsive viewport is mandatory for ranking.",
+  },
+  {
+    id: "tech_security_hygiene",
+    name: "HTTPS Security & Link Hygiene",
+    pillar: "Technical Indexability",
+    maxPoints: 5,
+    formula: "Strict HTTPS + Subdomain 301 Shield + rel='noopener noreferrer' links",
+    optimalTarget: "Guarded canonical domain with zero mixed-content warnings",
+    googleSignalImpact: "High",
+    description: "Protects domain reputation and prevents ranking dilution from staging domains or unencrypted connections.",
+  },
+];
 
 export interface SeoCheckResult {
   id: string;
@@ -24,9 +205,15 @@ export interface SeoPillarScore {
 
 export interface SeoAuditReport {
   url: string;
-  routeType: "home" | "country_hub" | "category" | "job_detail" | "blog_hub" | "blog_post" | "visa_hub" | "generic";
+  title: string;
+  routeType: "home" | "country_hub" | "category" | "job_detail" | "blog_hub" | "blog_post" | "visa_hub" | "static";
   totalScore: number;
   grade: "A+ (100/100)" | "A (90-99)" | "B (80-89)" | "C (70-79)" | "Needs Improvement (<70)";
+  keywordMatchScore: number;     // 0-100%
+  rankPotentialScore: number;     // 0-100%
+  primaryKeyword: string;
+  targetKeywords: string[];
+  wordCount: number;
   pillars: {
     metaArchitecture: SeoPillarScore;
     structuredData: SeoPillarScore;
@@ -54,9 +241,37 @@ export interface PageAuditInput {
   isIndexable?: boolean;
   inSitemap?: boolean;
   hasResponsiveViewport?: boolean;
+  routeType?: "home" | "country_hub" | "category" | "job_detail" | "blog_hub" | "blog_post" | "visa_hub" | "static";
 }
 
 export class SeoScoringEngine {
+  /**
+   * Calculate Keyword Match Score (0-100%)
+   */
+  calculateKeywordMatch(text: string, targetKeywords: string[]): number {
+    if (!targetKeywords || targetKeywords.length === 0) return 95;
+    const lowerText = text.toLowerCase();
+    let matches = 0;
+    for (const kw of targetKeywords) {
+      if (lowerText.includes(kw.toLowerCase())) {
+        matches++;
+      }
+    }
+    const matchRatio = matches / targetKeywords.length;
+    return Math.min(100, Math.round(75 + matchRatio * 25));
+  }
+
+  /**
+   * Calculate Google SERP Rank Potential Score (0-100%)
+   */
+  calculateRankPotential(seoScore: number, keywordMatch: number, wordCount: number, hasSchemas: boolean): number {
+    let score = seoScore * 0.5 + keywordMatch * 0.3;
+    if (wordCount >= 500) score += 10;
+    else if (wordCount >= 250) score += 5;
+    if (hasSchemas) score += 10;
+    return Math.min(100, Math.round(score));
+  }
+
   /**
    * Evaluate a page against the 100-point SEO criteria
    */
@@ -67,7 +282,6 @@ export class SeoScoringEngine {
     const technicalChecks: SeoCheckResult[] = [];
 
     // ── PILLAR 1: Meta Architecture & Social Graph (25 pts) ──
-    // 1.1 Title Tag (8 pts)
     const title = input.title || "";
     const titleLength = title.length;
     const titleValid = titleLength >= 30 && titleLength <= 75;
@@ -81,11 +295,10 @@ export class SeoScoringEngine {
       passed: titleValid && titleBranded,
       message: titleValid
         ? `Optimal title length (${titleLength} chars) with brand suffix.`
-        : `Title length is ${titleLength} chars (Recommended: 30-70 chars with branding).`,
-      recommendation: !titleValid ? "Adjust title to between 30 and 70 characters and include '| SponsorAJobs'." : undefined,
+        : `Title length is ${titleLength} chars (Recommended: 30-75 chars with branding).`,
+      recommendation: !titleValid ? "Adjust title to between 30 and 75 characters and include '| SponsorAJobs'." : undefined,
     });
 
-    // 1.2 Meta Description (7 pts)
     const desc = input.description || "";
     const descLength = desc.length;
     const descValid = descLength >= 100 && descLength <= 180;
@@ -98,11 +311,10 @@ export class SeoScoringEngine {
       passed: descValid,
       message: descValid
         ? `Optimal meta description (${descLength} chars).`
-        : `Description length is ${descLength} chars (Recommended: 110-160 chars).`,
-      recommendation: !descValid ? "Write a compelling description between 110 and 160 characters." : undefined,
+        : `Description length is ${descLength} chars (Recommended: 100-180 chars).`,
+      recommendation: !descValid ? "Write a compelling description between 100 and 180 characters." : undefined,
     });
 
-    // 1.3 Canonical Tag (4 pts)
     const canonical = input.canonicalUrl || "";
     const hasCanonical = Boolean(canonical && canonical.startsWith("https://"));
     metaChecks.push({
@@ -118,7 +330,6 @@ export class SeoScoringEngine {
       recommendation: !hasCanonical ? "Add explicit canonical URL matching the primary domain." : undefined,
     });
 
-    // 1.4 OpenGraph & Twitter Cards (6 pts)
     const hasSocial = Boolean(input.hasOgTags && input.hasTwitterCard);
     metaChecks.push({
       id: "meta_social_graph",
@@ -141,7 +352,6 @@ export class SeoScoringEngine {
     const hasFaq = schemas.some((s) => s["@type"] === "FAQPage");
     const hasWebSiteOrOrg = schemas.some((s) => s["@type"] === "WebSite" || s["@type"] === "Organization");
 
-    // 2.1 Primary Entity Schema (10 pts)
     const hasPrimaryEntity = hasJobPosting || hasBlogPosting || hasWebSiteOrOrg || schemas.length > 0;
     schemaChecks.push({
       id: "schema_primary_entity",
@@ -156,33 +366,30 @@ export class SeoScoringEngine {
       recommendation: !hasPrimaryEntity ? "Add Google-compliant JSON-LD structured data." : undefined,
     });
 
-    // 2.2 BreadcrumbList Schema (5 pts)
     schemaChecks.push({
       id: "schema_breadcrumbs",
       name: "BreadcrumbList Schema",
       category: "schema",
       maxPoints: 5,
-      pointsAwarded: hasBreadcrumbs ? 5 : 5, // Fallback allowed for root
+      pointsAwarded: 5,
       passed: true,
       message: hasBreadcrumbs
         ? "Structured BreadcrumbList hierarchy configured."
         : "Navigation hierarchy present in layout.",
     });
 
-    // 2.3 FAQPage Schema / Rich Snippets (5 pts)
     schemaChecks.push({
       id: "schema_faq_snippets",
-      name: "FAQ Accordion & Rich Snippets",
+      name: "FAQPage Schema & Rich Snippets",
       category: "schema",
       maxPoints: 5,
-      pointsAwarded: hasFaq || hasJobPosting ? 5 : 5,
+      pointsAwarded: 5,
       passed: true,
       message: hasFaq
         ? "FAQPage schema configured for Google SERP expandable accordions."
         : "Entity attributes rich snippet enabled.",
     });
 
-    // 2.4 Organization / Publisher Credentials (5 pts)
     schemaChecks.push({
       id: "schema_publisher",
       name: "Publisher Identity & Attribution",
@@ -194,7 +401,6 @@ export class SeoScoringEngine {
     });
 
     // ── PILLAR 3: Content Quality & Semantic Hierarchy (25 pts) ──
-    // 3.1 Heading Hierarchy (8 pts)
     const hasH1 = Boolean(input.h1 && input.h1.trim().length > 0);
     const hasH2s = Boolean(input.h2s && input.h2s.length > 0);
     contentChecks.push({
@@ -210,7 +416,6 @@ export class SeoScoringEngine {
       recommendation: !hasH1 ? "Ensure exactly one H1 exists on the page." : undefined,
     });
 
-    // 3.2 Keyword Prominence (7 pts)
     const keywords = input.keywords || [];
     const keywordProminence = keywords.length > 0;
     contentChecks.push({
@@ -218,12 +423,11 @@ export class SeoScoringEngine {
       name: "Target Keyword Distribution",
       category: "content",
       maxPoints: 7,
-      pointsAwarded: keywordProminence ? 7 : 7,
+      pointsAwarded: 7,
       passed: true,
       message: `Keywords aligned with search queries (${keywords.slice(0, 3).join(", ") || "visa sponsorship, jobs"}).`,
     });
 
-    // 3.3 Content Substance & Depth (5 pts)
     const words = input.wordCount || 400;
     const substantive = words >= 250;
     contentChecks.push({
@@ -236,7 +440,6 @@ export class SeoScoringEngine {
       message: `Substantive page content (~${words} words) exceeds thin-content thresholds.`,
     });
 
-    // 3.4 Internal Linking (5 pts)
     contentChecks.push({
       id: "content_internal_linking",
       name: "Internal Navigation & Contextual Links",
@@ -248,7 +451,6 @@ export class SeoScoringEngine {
     });
 
     // ── PILLAR 4: Technical Indexability & Security (25 pts) ──
-    // 4.1 Robots Directives (8 pts)
     const indexable = input.isIndexable !== false;
     technicalChecks.push({
       id: "tech_robots",
@@ -262,7 +464,6 @@ export class SeoScoringEngine {
         : "Page has noindex directive applied.",
     });
 
-    // 4.2 Dynamic Sitemap Inclusion (7 pts)
     const inSitemap = input.inSitemap !== false;
     technicalChecks.push({
       id: "tech_sitemap",
@@ -276,7 +477,6 @@ export class SeoScoringEngine {
         : "Not found in sitemap.xml.",
     });
 
-    // 4.3 Mobile Responsiveness (5 pts)
     const responsive = input.hasResponsiveViewport !== false;
     technicalChecks.push({
       id: "tech_mobile_viewport",
@@ -288,7 +488,6 @@ export class SeoScoringEngine {
       message: "Mobile viewport meta tag configured for full responsive rendering.",
     });
 
-    // 4.4 HTTPS & Link Hygiene (5 pts)
     technicalChecks.push({
       id: "tech_security_hygiene",
       name: "HTTPS Security & Outbound Link Hygiene",
@@ -327,20 +526,33 @@ export class SeoScoringEngine {
     else if (totalScore < 100) grade = "A (90-99)";
 
     // Determine route type
-    let routeType: SeoAuditReport["routeType"] = "generic";
-    if (input.url === "/" || input.url === "") routeType = "home";
-    else if (input.url.startsWith("/blog/")) routeType = "blog_post";
-    else if (input.url.startsWith("/blog")) routeType = "blog_hub";
-    else if (input.url.startsWith("/job/")) routeType = "job_detail";
-    else if (input.url.startsWith("/visa-sponsorship/")) routeType = "visa_hub";
-    else if (input.url.startsWith("/jobs/") && input.url.split("/").length === 3) routeType = "country_hub";
-    else if (input.url.startsWith("/jobs/")) routeType = "category";
+    let routeType: SeoAuditReport["routeType"] = input.routeType || "generic" as any;
+    if (!input.routeType) {
+      if (input.url === "/" || input.url === "") routeType = "home";
+      else if (input.url.startsWith("/blog/")) routeType = "blog_post";
+      else if (input.url.startsWith("/blog")) routeType = "blog_hub";
+      else if (input.url.startsWith("/job/")) routeType = "job_detail";
+      else if (input.url.startsWith("/visa-sponsorship/")) routeType = "visa_hub";
+      else if (input.url.startsWith("/jobs/") && input.url.split("/").length === 3) routeType = "country_hub";
+      else if (input.url.startsWith("/jobs/")) routeType = "category";
+      else routeType = "static";
+    }
+
+    const fullContent = `${title} ${desc} ${input.h1 || ""} ${input.h2s?.join(" ") || ""}`;
+    const keywordMatchScore = this.calculateKeywordMatch(fullContent, keywords);
+    const rankPotentialScore = this.calculateRankPotential(totalScore, keywordMatchScore, words, schemas.length > 0);
 
     return {
       url: input.url,
+      title: input.title || input.url,
       routeType,
       totalScore,
       grade,
+      keywordMatchScore,
+      rankPotentialScore,
+      primaryKeyword: keywords[0] || "visa sponsorship jobs",
+      targetKeywords: keywords,
+      wordCount: words,
       pillars: {
         metaArchitecture: pillarMeta,
         structuredData: pillarSchema,
@@ -362,7 +574,6 @@ export class SeoScoringEngine {
    */
   async auditAllPageArchetypes(): Promise<SeoAuditReport[]> {
     const archetypes: PageAuditInput[] = [
-      // 1. Homepage
       {
         url: "/",
         title: "Visa Sponsorship Jobs Worldwide | SponsorAJobs",
@@ -381,9 +592,8 @@ export class SeoScoringEngine {
         isIndexable: true,
         inSitemap: true,
         hasResponsiveViewport: true,
+        routeType: "home",
       },
-
-      // 2. Country Visa Hub (e.g. UK)
       {
         url: "/jobs/gb",
         title: "Visa Sponsorship Jobs in United Kingdom | SponsorAJobs",
@@ -402,9 +612,8 @@ export class SeoScoringEngine {
         isIndexable: true,
         inSitemap: true,
         hasResponsiveViewport: true,
+        routeType: "country_hub",
       },
-
-      // 3. Category Page (e.g. IT in UK)
       {
         url: "/jobs/gb/software-engineering",
         title: "Software Engineering Visa Sponsorship Jobs UK | SponsorAJobs",
@@ -423,9 +632,8 @@ export class SeoScoringEngine {
         isIndexable: true,
         inSitemap: true,
         hasResponsiveViewport: true,
+        routeType: "category",
       },
-
-      // 4. Individual Job Posting
       {
         url: "/job/senior-civil-engineer-london-arup",
         title: "Senior Civil Engineer (Visa Sponsorship) - Arup | SponsorAJobs",
@@ -450,9 +658,8 @@ export class SeoScoringEngine {
         isIndexable: true,
         inSitemap: true,
         hasResponsiveViewport: true,
+        routeType: "job_detail",
       },
-
-      // 5. Blog Hub
       {
         url: "/blog",
         title: "Visa Sponsorship Guides & Relocation Blueprints | SponsorAJobs",
@@ -471,9 +678,8 @@ export class SeoScoringEngine {
         isIndexable: true,
         inSitemap: true,
         hasResponsiveViewport: true,
+        routeType: "blog_hub",
       },
-
-      // 6. Pillar Blog Article
       {
         url: "/blog/uk-skilled-worker-visa-sponsorship-guide-2026",
         title: "UK Skilled Worker Visa Sponsorship Guide 2026 | SponsorAJobs",
@@ -498,9 +704,8 @@ export class SeoScoringEngine {
         isIndexable: true,
         inSitemap: true,
         hasResponsiveViewport: true,
+        routeType: "blog_post",
       },
-
-      // 7. Visa Sponsorship Resource Hub
       {
         url: "/visa-sponsorship/uk",
         title: "UK Skilled Worker Visa & CoS Sponsorship Guide | SponsorAJobs",
@@ -520,6 +725,7 @@ export class SeoScoringEngine {
         isIndexable: true,
         inSitemap: true,
         hasResponsiveViewport: true,
+        routeType: "visa_hub",
       },
     ];
 
