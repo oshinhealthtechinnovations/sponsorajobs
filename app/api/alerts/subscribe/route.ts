@@ -3,6 +3,8 @@ import { AlertRepository } from "@/lib/repositories/alertRepository";
 import { EmailService } from "@/lib/services/emailService";
 import { JobRepository } from "@/lib/repositories/jobRepository";
 
+import { CloudStorageService } from "@/lib/services/cloudStorageService";
+
 export const runtime = "edge";
 
 interface AlertSubscriptionPayload {
@@ -38,6 +40,18 @@ export async function POST(req: NextRequest) {
       country,
       category,
       frequency,
+    });
+
+    // 2. Persist to Free Cloud DB Storage (Upstash / Supabase)
+    await CloudStorageService.saveSubscriber({
+      id: alertRecord.id,
+      email: alertRecord.email,
+      keyword: alertRecord.keyword,
+      country: alertRecord.country_code,
+      category: alertRecord.category_id,
+      frequency: alertRecord.frequency,
+      created_at: alertRecord.created_at,
+      active: 1,
     });
 
     // 2. Fetch live matching jobs for the instant welcome confirmation email

@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { LayoutDashboard, Briefcase, Radio, History, Settings, LogOut, ArrowLeft, ShieldAlert } from "lucide-react";
+import { LayoutDashboard, Briefcase, Radio, History, Settings, LogOut, ArrowLeft, ShieldAlert, Bell } from "lucide-react";
 
 export const metadata = {
   title: "Admin Panel — SponsorAJobs",
@@ -50,6 +50,14 @@ export default function AdminLayout({
             >
               <Radio className="w-4 h-4 text-sky-400" />
               <span>Source Adapters</span>
+            </Link>
+
+            <Link
+              href="/admin/alerts"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+            >
+              <Bell className="w-4 h-4 text-rose-400" />
+              <span>Alert Subscribers</span>
             </Link>
 
             <Link
