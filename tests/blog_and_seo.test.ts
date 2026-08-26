@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { blogRepository } from "../lib/repositories/blogRepository";
 import { blogGenerator } from "../lib/blog/generator";
 import { generateBlogPostingSchema, generateFaqSchema } from "../lib/seo/schema";
+import { parseInlineMarkdown } from "../components/MarkdownContent";
 import sitemap from "../app/sitemap";
 
 describe("Automated SEO Blog Engine & Schema Verification", () => {
@@ -88,4 +89,19 @@ describe("Automated SEO Blog Engine & Schema Verification", () => {
     expect(urls).toContain("https://sponsorajobs.com/blog");
     expect(urls).toContain("https://sponsorajobs.com/blog/uk-skilled-worker-visa-sponsorship-guide-2026");
   });
+
+  // 8. Markdown Parser Test (No raw asterisks)
+  it("should parse bold and links without leaving raw asterisks", () => {
+    const parsed = parseInlineMarkdown(
+      "Securing a job in the United Kingdom as an international professional requires navigating the **UK Skilled Worker Visa route**. In this definitive guide..."
+    );
+
+    // Should return React nodes containing a strong element
+    expect(parsed.length).toBeGreaterThan(1);
+    const hasBold = parsed.some(
+      (node: any) => node && typeof node === "object" && node.type === "strong"
+    );
+    expect(hasBold).toBe(true);
+  });
 });
+
