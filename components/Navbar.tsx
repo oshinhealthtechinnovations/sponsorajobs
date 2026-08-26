@@ -5,16 +5,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Search, Menu, X, Globe, Briefcase, Building2, HelpCircle,
-  Bell, BookOpen, ArrowRight, Send,
+  Bell, BookOpen, ArrowRight, Send, FileText, Sparkles,
 } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
 
 // Streamlined, clean primary desktop links to prevent crowding
 const navLinks = [
-  { href: "/jobs",       label: "Find Jobs",     icon: Search },
-  { href: "/countries",  label: "Countries",     icon: Globe },
-  { href: "/companies",  label: "Top Sponsors",  icon: Building2 },
-  { href: "/blog",       label: "Visa Guides",   icon: BookOpen },
+  { href: "/jobs",               label: "Find Jobs",          icon: Search },
+  { href: "/tools/ats-checker",  label: "ATS Resume Checker", icon: FileText, badge: "AI Tool" },
+  { href: "/countries",          label: "Countries",          icon: Globe },
+  { href: "/companies",          label: "Top Sponsors",       icon: Building2 },
+  { href: "/blog",               label: "Visa Guides",        icon: BookOpen },
 ];
 
 export const Navbar: React.FC = () => {
@@ -95,13 +96,18 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 ${
                     isActive
                       ? "text-brand-600 bg-brand-50 shadow-2xs"
                       : "text-slate-600 hover:text-brand-600 hover:bg-slate-50"
                   }`}
                 >
-                  {link.label}
+                  <span>{link.label}</span>
+                  {link.badge && (
+                    <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-brand-600 text-[10px] font-extrabold text-white leading-none shadow-2xs">
+                      {link.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}

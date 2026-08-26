@@ -166,9 +166,14 @@ export const Footer: React.FC = () => {
           {/* Platform & Trust */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-3 font-display">
-              Trust & Legal
+              Candidate Tools & Trust
             </h4>
             <ul className="space-y-2 text-xs text-slate-400">
+              <li>
+                <Link href="/tools/ats-checker" className="text-amber-400 hover:text-amber-300 font-semibold transition-colors flex items-center gap-1">
+                  <span>✨ ATS Resume Score Predictor</span>
+                </Link>
+              </li>
               <li><Link href="/about" className="hover:text-brand-400 transition-colors">About Us</Link></li>
               <li><Link href="/disclaimer" className="hover:text-brand-400 transition-colors">Sponsorship Disclaimer</Link></li>
               <li><Link href="/privacy" className="hover:text-brand-400 transition-colors">Privacy Policy</Link></li>
