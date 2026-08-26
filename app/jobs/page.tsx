@@ -5,6 +5,8 @@ import { JobCard } from "@/components/JobCard";
 import { JobFilterSidebar } from "@/components/JobFilterSidebar";
 import { EmptyState } from "@/components/EmptyState";
 import { JobRepository } from "@/lib/repositories/jobRepository";
+import { INITIAL_CATEGORIES } from "@/config/categories";
+import { normalizeSearchQuery } from "@/lib/utils/searchNormalizer";
 import Link from "next/link";
 import { Search, ChevronLeft, ChevronRight, X, Sparkles, SlidersHorizontal } from "lucide-react";
 import { MobileFilterDrawer } from "@/components/MobileFilterDrawer";
@@ -90,6 +92,12 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
               <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
                 {total.toLocaleString()} opportunities with sponsorship intelligence
               </p>
+              {searchParams.q && normalizeSearchQuery(searchParams.q).isCorrected && (
+                <div className="mt-1.5 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1 inline-flex items-center gap-1.5">
+                  <span>Showing results matching:</span>
+                  <span className="font-bold text-slate-900">{normalizeSearchQuery(searchParams.q).normalized}</span>
+                </div>
+              )}
             </div>
 
             {/* Keyword Search Form */}

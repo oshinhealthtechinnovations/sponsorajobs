@@ -2,6 +2,7 @@ import { getDatabase, DatabaseClient } from "../db/client";
 import { JobRecord, CompanyRecord, CategoryRecord, CountryRecord } from "../types/database";
 import { PublicJobDTO } from "../types/job";
 import { INITIAL_CATEGORIES } from "@/config/categories";
+import { normalizeSearchQuery } from "@/lib/utils/searchNormalizer";
 
 export interface JobSearchParams {
   q?: string;
@@ -121,9 +122,10 @@ export class JobRepository {
     const conditions: string[] = ["j.status = 'active'"];
     const bindings: any[] = [];
 
-    // 1. Keyword search with multi-word tokenization
+    // 1. Keyword search with smart typo tolerance and multi-word tokenization
     if (params.q) {
-      const words = params.q.trim().split(/\s+/).filter(Boolean);
+      const { tokens } = normalizeSearchQuery(params.q);
+      const words = tokens.length > 0 ? tokens : params.q.trim().split(/\s+/).filter(Boolean);
       if (words.length === 1) {
         conditions.push("(LOWER(j.title) LIKE ? OR LOWER(j.description) LIKE ? OR LOWER(c.name) LIKE ?)");
         const term = `%${words[0].toLowerCase()}%`;

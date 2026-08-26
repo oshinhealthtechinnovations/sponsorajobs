@@ -176,19 +176,14 @@ function createEdgeMemoryClient(): DatabaseClient {
               return { results: match as unknown as T[], success: true };
             }
 
-            // Keyword filter
+            // Keyword filter with token matching
             const kwParams = boundValues.filter((v) => typeof v === "string" && v.startsWith("%") && v.endsWith("%"));
             if (kwParams.length > 0) {
-              for (const kw of kwParams) {
-                const term = String(kw).slice(1, -1).toLowerCase();
-                res = res.filter(
-                  (j) =>
-                    j.title?.toLowerCase().includes(term) ||
-                    j.description?.toLowerCase().includes(term) ||
-                    j.company_name?.toLowerCase().includes(term) ||
-                    j.location?.toLowerCase().includes(term)
-                );
-              }
+              const terms = kwParams.map((kw) => String(kw).slice(1, -1).toLowerCase()).filter(Boolean);
+              res = res.filter((j) => {
+                const text = `${j.title || ""} ${j.description || ""} ${j.company_name || ""} ${j.location || ""}`.toLowerCase();
+                return terms.every((term) => text.includes(term));
+              });
             }
 
             // Country filter
@@ -252,15 +247,11 @@ function createEdgeMemoryClient(): DatabaseClient {
 
               const kwParams = boundValues.filter((v) => typeof v === "string" && v.startsWith("%") && v.endsWith("%"));
               if (kwParams.length > 0) {
-                for (const kw of kwParams) {
-                  const term = String(kw).slice(1, -1).toLowerCase();
-                  res = res.filter(
-                    (j) =>
-                      j.title?.toLowerCase().includes(term) ||
-                      j.description?.toLowerCase().includes(term) ||
-                      j.company_name?.toLowerCase().includes(term)
-                  );
-                }
+                const terms = kwParams.map((kw) => String(kw).slice(1, -1).toLowerCase()).filter(Boolean);
+                res = res.filter((j) => {
+                  const text = `${j.title || ""} ${j.description || ""} ${j.company_name || ""} ${j.location || ""}`.toLowerCase();
+                  return terms.every((term) => text.includes(term));
+                });
               }
 
               const countryParam = boundValues.find(
