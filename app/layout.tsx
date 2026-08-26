@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://sponsorajobs.com";
@@ -135,6 +136,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col antialiased bg-slate-50 text-slate-900">
         {children}
+        <Analytics />
       </body>
     </html>
   );
