@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Bookmark, Share2, Bell, Check, ExternalLink } from "lucide-react";
+import { Bookmark, Share2, Bell, Check, ExternalLink, AlertCircle } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
 
 interface JobDetailActionsProps {
@@ -11,6 +11,30 @@ interface JobDetailActionsProps {
   countryCode: string;
   categorySlug?: string;
   applyUrl: string;
+}
+
+/**
+ * Detects if a URL is a direct job listing or a generic careers page.
+ */
+function isDirectJobUrl(url: string): boolean {
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    const path = u.pathname.toLowerCase();
+    const genericPatterns = [
+      /^\/careers\/?$/,
+      /^\/jobs\/?$/,
+      /^\/job-openings\/?$/,
+      /^\/openings\/?$/,
+      /^\/opportunities\/?$/,
+      /^\/work-with-us\/?$/,
+      /^\/join-us\/?$/,
+    ];
+    if (genericPatterns.some((p) => p.test(path))) return false;
+    return true;
+  } catch {
+    return true;
+  }
 }
 
 export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
@@ -24,6 +48,8 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
   const [isSaved, setIsSaved] = useState(false);
   const [copied, setCopied] = useState(false);
   const [alertModalOpen, setAlertModalOpen] = useState(false);
+
+  const isDirect = isDirectJobUrl(applyUrl);
 
   useEffect(() => {
     try {
@@ -74,26 +100,40 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
 
   return (
     <>
-      <div className="flex flex-col gap-3 sm:w-60 shrink-0">
-        {/* Main Apply CTA */}
+      <div className="flex flex-col gap-3 w-full sm:w-64 shrink-0">
+        {/* === MAIN APPLY CTA === */}
         <a
           href={applyUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold text-sm shadow-md shadow-brand-600/20 transition-all text-center cursor-pointer group"
+          className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold text-sm shadow-lg shadow-brand-600/25 transition-all text-center cursor-pointer group touch-manipulation"
         >
-          <span>Apply on Official Portal</span>
+          <span>{isDirect ? "Apply for This Job" : "View on Employer Site"}</span>
           <ExternalLink className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </a>
 
-        {/* Action Buttons Row */}
+        {/* Link quality notice */}
+        {!isDirect ? (
+          <div className="px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2">
+            <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+            <p className="text-[11px] text-amber-800 leading-snug">
+              This opens the employer&apos;s careers page. Search for &ldquo;{jobTitle}&rdquo; once you arrive to find this specific role.
+            </p>
+          </div>
+        ) : (
+          <p className="text-[11px] text-center text-emerald-700 font-medium">
+            ✅ Direct link to this specific job posting
+          </p>
+        )}
+
+        {/* === Secondary Action Row === */}
         <div className="grid grid-cols-3 gap-2">
           <button
             onClick={toggleSave}
-            title={isSaved ? "Saved in bookmarks" : "Save this job"}
-            className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+            title={isSaved ? "Saved" : "Save this job"}
+            className={`flex items-center justify-center gap-1.5 py-3 px-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer touch-manipulation ${
               isSaved
-                ? "bg-rose-50 border-rose-200 text-rose-600 shadow-xs"
+                ? "bg-rose-50 border-rose-200 text-rose-600"
                 : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300"
             }`}
           >
@@ -103,13 +143,13 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
 
           <button
             onClick={handleShare}
-            title="Share job"
-            className="flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer"
+            title="Share this job"
+            className="flex items-center justify-center gap-1.5 py-3 px-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer touch-manipulation"
           >
             {copied ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-emerald-600 font-bold">Copied</span>
+                <span className="text-emerald-600 font-bold">Copied!</span>
               </>
             ) : (
               <>
@@ -122,16 +162,12 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
           <button
             onClick={() => setAlertModalOpen(true)}
             title="Get alerts for similar jobs"
-            className="flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-semibold bg-brand-50 border border-brand-200 text-brand-700 hover:bg-brand-100 transition-all cursor-pointer"
+            className="flex items-center justify-center gap-1.5 py-3 px-2 rounded-xl text-xs font-semibold bg-brand-50 border border-brand-200 text-brand-700 hover:bg-brand-100 transition-all cursor-pointer touch-manipulation"
           >
             <Bell className="w-3.5 h-3.5" />
-            <span>Alerts</span>
+            <span>Alert</span>
           </button>
         </div>
-
-        <p className="text-[11px] text-center text-slate-400">
-          Direct redirect to employer / job portal
-        </p>
       </div>
 
       <JobAlertModal

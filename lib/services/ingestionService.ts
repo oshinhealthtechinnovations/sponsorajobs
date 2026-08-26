@@ -207,7 +207,7 @@ export class IngestionService {
               ?, ?, ?, ?, ?, ?,
               ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,
               ?, ?, ?,
-              ?, ?, 100, ?,
+              ?, ?, ?, ?,
               CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
             )
           `).bind(

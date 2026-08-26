@@ -58,7 +58,8 @@ export class JobRepository {
     }
 
     const companyName = company?.name || "Verified Employer";
-    const slug = `${job.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${job.id.slice(0, 8)}`;
+    const slugSuffix = job.id.replace(/[^a-z0-9]+/g, "-");
+    const slug = `${job.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}--${slugSuffix}`;
 
     return {
       id: job.id,
@@ -337,34 +338,27 @@ export class JobRepository {
   }
 
   async getBySlug(slug: string): Promise<{ job: PublicJobDTO; fullDescription: string } | null> {
-    const parts = slug.split("-");
-    const idPrefix = parts[parts.length - 1];
+    let exactId = "";
+    if (slug.includes("--")) {
+      const parts = slug.split("--");
+      exactId = parts[parts.length - 1].replace(/-/g, "_");
+    } else {
+      const parts = slug.split("-");
+      exactId = parts[parts.length - 1];
+    }
 
-    let dataSql = `
+    const dataSql = `
       SELECT j.*, 
              c.name as company_name, c.logo_url as company_logo, c.industry as company_industry, c.website as company_website,
              cat.name as category_name, cat.slug as category_slug
       FROM jobs j
       LEFT JOIN companies c ON j.company_id = c.id
       LEFT JOIN categories cat ON j.category_id = cat.id
-      WHERE j.id LIKE ? OR j.id = ?
+      WHERE j.id = ? OR j.id = ? OR j.id LIKE ? OR j.id LIKE ?
       LIMIT 1
     `;
-    let row = await this.db.prepare(dataSql).bind(`${idPrefix}%`, slug).first<any>();
 
-    if (!row) {
-      dataSql = `
-        SELECT j.*, 
-               c.name as company_name, c.logo_url as company_logo, c.industry as company_industry, c.website as company_website,
-               cat.name as category_name, cat.slug as category_slug
-        FROM jobs j
-        LEFT JOIN companies c ON j.company_id = c.id
-        LEFT JOIN categories cat ON j.category_id = cat.id
-        WHERE j.id = ?
-      `;
-      row = await this.db.prepare(dataSql).bind(slug).first<any>();
-    }
-
+    const row = await this.db.prepare(dataSql).bind(exactId, slug, `${exactId}%`, `%${exactId}`).first<any>();
     if (!row) return null;
 
     const company: CompanyRecord = {

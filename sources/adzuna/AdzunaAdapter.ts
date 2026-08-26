@@ -48,54 +48,60 @@ export class AdzunaAdapter implements JobSourceAdapter {
         jobsFetched: 0,
         jobs: [],
         hasMore: false,
-        errors: ["Adzuna source is disabled by default until license and API keys are confirmed."],
+        errors: ["Adzuna: disabled or ADZUNA_APP_ID/ADZUNA_APP_KEY not set."],
       };
     }
 
-    const countryCode = (context.countryCode || "gb").toLowerCase();
-    const validCountries = ["gb", "us", "au", "ca", "nz"];
-    const targetCountry = validCountries.includes(countryCode) ? countryCode : "gb";
+    const targetCountries = ["gb", "us", "au", "ca", "nz"];
+    const keywords = ["visa sponsorship", "skilled worker"];
+    const allJobs: NormalizedJob[] = [];
+    const errors: string[] = [];
 
-    try {
-      const keyword = context.category || "engineer";
-      const limit = Math.min(20, context.limit || 10);
-      const url = `https://api.adzuna.com/v1/api/jobs/${targetCountry}/search/1?app_id=${encodeURIComponent(this.appId)}&app_key=${encodeURIComponent(this.appKey)}&results_per_page=${limit}&what=${encodeURIComponent(keyword)}`;
+    for (const country of targetCountries) {
+      for (const kw of keywords) {
+        try {
+          const url = `https://api.adzuna.com/v1/api/jobs/${country}/search/1?app_id=${encodeURIComponent(this.appId)}&app_key=${encodeURIComponent(this.appKey)}&results_per_page=15&what=${encodeURIComponent(kw)}`;
 
-      const response = await fetch(url, {
-        headers: { "Accept": "application/json" },
-        signal: AbortSignal.timeout(10000),
-      });
+          const response = await fetch(url, {
+            headers: { "Accept": "application/json", "User-Agent": "SponsorAJobs/1.0" },
+            signal: AbortSignal.timeout(10000),
+          });
 
-      if (!response.ok) {
-        throw new Error(`Adzuna HTTP Error ${response.status}: ${response.statusText}`);
-      }
+          if (!response.ok) {
+            errors.push(`Adzuna [${country}/${kw}] HTTP ${response.status}`);
+            continue;
+          }
 
-      const data = await response.json();
-      const results = data?.results || [];
-      const normalizedList: NormalizedJob[] = [];
+          const data = await response.json();
+          const results = data?.results || [];
 
-      for (const item of results) {
-        const norm = this.normalizeJob(item);
-        if (norm && this.validateJob(norm)) {
-          normalizedList.push(norm);
+          for (const item of results) {
+            const norm = this.normalizeJob(item);
+            if (norm && this.validateJob(norm)) {
+              allJobs.push(norm);
+            }
+          }
+        } catch (err: any) {
+          errors.push(`Adzuna [${country}/${kw}] error: ${err.message}`);
         }
       }
-
-      return {
-        sourceName: this.getName(),
-        jobsFetched: results.length,
-        jobs: normalizedList,
-        hasMore: data?.count > results.length,
-      };
-    } catch (err: any) {
-      return {
-        sourceName: this.getName(),
-        jobsFetched: 0,
-        jobs: [],
-        hasMore: false,
-        errors: [err.message],
-      };
     }
+
+    // Deduplicate by sourceJobId
+    const seen = new Set<string>();
+    const deduped = allJobs.filter((j) => {
+      if (seen.has(j.sourceJobId)) return false;
+      seen.add(j.sourceJobId);
+      return true;
+    });
+
+    return {
+      sourceName: this.getName(),
+      jobsFetched: deduped.length,
+      jobs: deduped,
+      hasMore: false,
+      errors: errors.length > 0 ? errors : undefined,
+    };
   }
 
   normalizeJob(rawJob: any): NormalizedJob | null {

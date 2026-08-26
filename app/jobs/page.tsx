@@ -6,7 +6,8 @@ import { JobFilterSidebar } from "@/components/JobFilterSidebar";
 import { EmptyState } from "@/components/EmptyState";
 import { JobRepository } from "@/lib/repositories/jobRepository";
 import Link from "next/link";
-import { Search, ChevronLeft, ChevronRight, X, Sparkles } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, X, Sparkles, SlidersHorizontal } from "lucide-react";
+import { MobileFilterDrawer } from "@/components/MobileFilterDrawer";
 
 interface JobsPageProps {
   searchParams: {
@@ -78,21 +79,21 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search Header Bar */}
-        <div className="mb-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-                {searchParams.q ? `Jobs for "${searchParams.q}"` : "Visa Sponsorship Job Search"}
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* ── Search Header ── */}
+        <div className="mb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 truncate">
+                {searchParams.q ? `Results for "${searchParams.q}"` : "Visa Sponsorship Jobs"}
               </h1>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                Showing {total} matching opportunities with sponsorship signal intelligence
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                {total.toLocaleString()} opportunities with sponsorship intelligence
               </p>
             </div>
 
             {/* Keyword Search Form */}
-            <form action="/jobs" method="GET" className="flex items-center gap-2 max-w-md w-full">
+            <form action="/jobs" method="GET" className="flex items-center gap-2 w-full sm:max-w-sm">
               {searchParams.country && (
                 <input type="hidden" name="country" value={searchParams.country} />
               )}
@@ -100,18 +101,18 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                 <input type="hidden" name="category" value={searchParams.category} />
               )}
               <div className="relative flex-1">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="text"
                   name="q"
                   defaultValue={searchParams.q || ""}
-                  placeholder="Keyword, role, or title..."
-                  className="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-brand-500 shadow-2xs"
+                  placeholder="Role, skill, keyword..."
+                  className="w-full pl-9 pr-3 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-brand-500 shadow-2xs"
                 />
               </div>
               <button
                 type="submit"
-                className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                className="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer shrink-0 touch-manipulation"
               >
                 Search
               </button>
@@ -120,13 +121,13 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
 
           {/* Active Filter Chips */}
           {activeFilters.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-slate-200 flex flex-wrap items-center gap-2">
-              <span className="text-xs font-bold text-slate-400">Active Filters:</span>
+            <div className="mt-3 pt-3 border-t border-slate-200 flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold text-slate-400">Filters:</span>
               {activeFilters.map((f) => (
                 <Link
                   key={f.key}
                   href={removeFilterUrl(f.key)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-800 text-xs font-medium hover:bg-brand-100 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-800 text-xs font-medium hover:bg-brand-100 transition-colors touch-manipulation"
                 >
                   <span>{f.label}</span>
                   <X className="w-3 h-3 text-brand-600" />
@@ -134,7 +135,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
               ))}
               <Link
                 href="/jobs"
-                className="text-xs font-semibold text-slate-500 hover:text-brand-600 ml-2"
+                className="text-xs font-semibold text-slate-500 hover:text-brand-600"
               >
                 Clear all
               </Link>
@@ -142,57 +143,96 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
           )}
         </div>
 
-        {/* Main Grid: Filters Sidebar + Job Results */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Left: Filters Sidebar */}
-          <div className="lg:col-span-1">
-            <Suspense fallback={<div className="p-4 bg-white rounded-2xl">Loading filters...</div>}>
-              <JobFilterSidebar />
-            </Suspense>
+        {/* ── Mobile Filter Trigger Bar ── */}
+        <div className="lg:hidden mb-4 flex items-center justify-between gap-3">
+          <Suspense fallback={null}>
+            <MobileFilterDrawer activeFilterCount={activeFilters.length} />
+          </Suspense>
+          <p className="text-xs text-slate-500">{total.toLocaleString()} results</p>
+        </div>
+
+        {/* ── Main Layout: Sidebar + Results ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+          {/* Desktop Sidebar */}
+          <div className="hidden lg:block lg:col-span-1">
+            <div className="sticky top-20">
+              <Suspense fallback={<div className="p-4 bg-white rounded-2xl border border-slate-200 text-sm text-slate-400">Loading filters...</div>}>
+                <JobFilterSidebar />
+              </Suspense>
+            </div>
           </div>
 
-          {/* Right: Job Listings & Pagination */}
-          <div className="lg:col-span-3 space-y-4">
+          {/* Job Results */}
+          <div className="lg:col-span-3">
             {jobs.length > 0 ? (
               <>
-                <div className="space-y-4">
+                {/* Results count on mobile */}
+                <div className="hidden sm:flex lg:hidden items-center justify-between mb-4">
+                  <span className="text-xs text-slate-500">
+                    Showing {((page - 1) * 20) + 1}–{Math.min(page * 20, total)} of {total.toLocaleString()}
+                  </span>
+                </div>
+
+                {/* Job Cards Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
                   {jobs.map((job) => (
                     <JobCard key={job.id} job={job} />
                   ))}
                 </div>
 
-                {/* Pagination Controls */}
+                {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="pt-8 flex items-center justify-between border-t border-slate-200">
+                  <div className="mt-8 flex items-center justify-between border-t border-slate-200 pt-6">
                     <span className="text-xs text-slate-500">
-                      Page {page} of {totalPages} ({total} total results)
+                      Page {page} of {totalPages}
                     </span>
                     <div className="flex items-center gap-2">
                       {page > 1 ? (
                         <Link
                           href={buildPaginationUrl(page - 1)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors"
+                          className="inline-flex items-center gap-1 px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors touch-manipulation"
                         >
                           <ChevronLeft className="w-4 h-4" />
-                          <span>Previous</span>
+                          <span>Prev</span>
                         </Link>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-100 bg-slate-100 text-xs font-medium text-slate-400 cursor-not-allowed">
+                        <span className="inline-flex items-center gap-1 px-4 py-2 rounded-xl border border-slate-100 bg-slate-50 text-xs font-medium text-slate-300 cursor-not-allowed">
                           <ChevronLeft className="w-4 h-4" />
-                          <span>Previous</span>
+                          <span>Prev</span>
                         </span>
                       )}
+
+                      {/* Page numbers (compact) */}
+                      <div className="hidden sm:flex items-center gap-1">
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                          const p = Math.max(1, Math.min(page - 2, totalPages - 4)) + i;
+                          if (p < 1 || p > totalPages) return null;
+                          return (
+                            <Link
+                              key={p}
+                              href={buildPaginationUrl(p)}
+                              className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-semibold transition-colors touch-manipulation ${
+                                p === page
+                                  ? "bg-brand-600 text-white"
+                                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+                              }`}
+                            >
+                              {p}
+                            </Link>
+                          );
+                        })}
+                      </div>
 
                       {page < totalPages ? (
                         <Link
                           href={buildPaginationUrl(page + 1)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors"
+                          className="inline-flex items-center gap-1 px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors touch-manipulation"
                         >
                           <span>Next</span>
                           <ChevronRight className="w-4 h-4" />
                         </Link>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-100 bg-slate-100 text-xs font-medium text-slate-400 cursor-not-allowed">
+                        <span className="inline-flex items-center gap-1 px-4 py-2 rounded-xl border border-slate-100 bg-slate-50 text-xs font-medium text-slate-300 cursor-not-allowed">
                           <span>Next</span>
                           <ChevronRight className="w-4 h-4" />
                         </span>

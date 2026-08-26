@@ -2,6 +2,8 @@ import { JobSourceAdapter, SourceExecutionContext, IngestionResult } from "./bas
 import { USAJobsAdapter }   from "./usajobs/USAJobsAdapter";
 import { AshbyAdapter }     from "./ashby/AshbyAdapter";
 import { WorkableAdapter }  from "./workable/WorkableAdapter";
+import { GreenhouseAdapter } from "./greenhouse/GreenhouseAdapter";
+import { LeverAdapter }     from "./lever/LeverAdapter";
 import { AdzunaAdapter }    from "./adzuna/AdzunaAdapter";
 import { RemotiveAdapter }  from "./remotive/RemotiveAdapter";
 import { ArbeitnowAdapter } from "./arbeitnow/ArbeitnowAdapter";
@@ -11,29 +13,35 @@ import { JoobleAdapter }    from "./jooble/JoobleAdapter";
  * Central Source Registry & Execution Orchestrator
  *
  * Registered adapters (in priority order):
- *  1. Arbeitnow   — FREE, no key, visa_sponsorship:true tagged — HIGHEST PRECISION
- *  2. Remotive    — FREE, no key, tech/engineering remote jobs — HIGH VOLUME
- *  3. Adzuna      — Paid API (keys in .env), UK/US/AU/CA/NZ    — BROAD COVERAGE
- *  4. USAJobs     — FREE federal API (key in .env), US only    — US GOVERNMENT
- *  5. Jooble      — FREE tier API (key in .env), 71 countries  — GLOBAL REACH
- *  6. Ashby ATS   — ATS feed integration                       — DIRECT EMPLOYER
- *  7. Workable    — ATS feed integration                       — DIRECT EMPLOYER
+ *  1. Greenhouse  — DIRECT COMPANY ATS (Stripe, Figma, Monzo, Canva, Deliveroo, Wise)
+ *  2. Lever       — DIRECT COMPANY ATS (Revolut, Spotify, Atlassian, Eventbrite)
+ *  3. Ashby       — DIRECT COMPANY ATS (Notion, Linear, Ramp, Deel, Retool)
+ *  4. Arbeitnow   — FREE, no key, visa_sponsorship:true tagged
+ *  5. Adzuna      — Active API, UK/US/AU/CA/NZ
+ *  6. USAJobs     — Active federal API, US direct federal hire
+ *  7. Jooble      — Active API, global reach
+ *  8. Remotive    — Tech/engineering remote jobs
+ *  9. Workable    — ATS feed integration
  */
 export class SourceRegistry {
   private adapters: Map<string, JobSourceAdapter> = new Map();
 
   constructor() {
-    // ── Free zero-key sources (always active) ──────────────────────────────
-    this.register(new ArbeitnowAdapter());   // visa_sponsorship:true flag = highest precision
-    this.register(new RemotiveAdapter());    // tech/engineering remote jobs, no key needed
+    // ── Direct Company ATS Sources (100% Direct Employer Application URLs) ─
+    this.register(new GreenhouseAdapter());
+    this.register(new LeverAdapter());
+    this.register(new AshbyAdapter());
 
-    // ── API key sources (active when env vars set) ─────────────────────────
+    // ── Free zero-key sources ──────────────────────────────────────────────
+    this.register(new ArbeitnowAdapter());
+    this.register(new RemotiveAdapter());
+
+    // ── Active API key sources ─────────────────────────────────────────────
     this.register(new AdzunaAdapter());
     this.register(new USAJobsAdapter());
     this.register(new JoobleAdapter());
 
     // ── ATS adapters ───────────────────────────────────────────────────────
-    this.register(new AshbyAdapter());
     this.register(new WorkableAdapter());
   }
 

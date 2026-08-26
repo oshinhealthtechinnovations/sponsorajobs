@@ -106,7 +106,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
       <Navbar />
 
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 sm:pb-8">
         {/* Breadcrumb Navigation */}
         <div className="mb-6 flex items-center justify-between">
           <Link
@@ -124,8 +124,8 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         </div>
 
         {/* Header Hero Card */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-sm mb-8 relative overflow-hidden">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
+        <div className="p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-sm mb-5 sm:mb-8 relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5">
             <div className="space-y-4 flex-1">
               <div className="flex items-center gap-3.5">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-50 to-indigo-50 border border-brand-100/80 flex items-center justify-center font-extrabold text-brand-700 text-xl shadow-xs">
@@ -169,19 +169,21 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               </div>
             </div>
 
-            {/* Interactive Apply / Save / Share Actions */}
-            <JobDetailActions
-              jobId={job.id}
-              jobTitle={job.title}
-              companyName={job.company.name}
-              countryCode={job.location.country}
-              categorySlug={job.category?.slug}
-              applyUrl={job.applyUrl}
-            />
+            {/* Interactive Apply / Save / Share Actions — desktop sidebar */}
+            <div className="hidden sm:block">
+              <JobDetailActions
+                jobId={job.id}
+                jobTitle={job.title}
+                companyName={job.company.name}
+                countryCode={job.location.country}
+                categorySlug={job.category?.slug}
+                applyUrl={job.applyUrl}
+              />
+            </div>
           </div>
 
           {/* Quick Metrics Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-6 border-t border-slate-100 text-xs">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-slate-100 text-xs">
             <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
               <span className="text-slate-400 block mb-1 font-medium">Salary Package</span>
               <span className="font-bold text-slate-850 flex items-center gap-1 text-slate-800">
@@ -292,6 +294,18 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           </div>
         )}
       </main>
+
+      {/* Mobile Sticky Apply Bar */}
+      <div className="sm:hidden mobile-sticky-apply">
+        <JobDetailActions
+          jobId={job.id}
+          jobTitle={job.title}
+          companyName={job.company.name}
+          countryCode={job.location.country}
+          categorySlug={job.category?.slug}
+          applyUrl={job.applyUrl}
+        />
+      </div>
 
       <Footer />
     </div>

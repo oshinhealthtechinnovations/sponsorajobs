@@ -2,7 +2,7 @@ import { STATIC_COUNTRIES, STATIC_CATEGORIES, STATIC_COMPANIES, STATIC_SOURCES, 
 
 /**
  * Database client abstraction for SponsorAJobs
- * Seamlessly supports Cloudflare D1 (Edge runtime), SQL.js (Tests/Scripts), and Edge-safe Pure JS in-memory fallback
+ * Supports Cloudflare D1 (Edge runtime), SQL.js (Tests/Scripts), and Edge-safe in-memory store
  */
 
 export interface DbResult<T = any> {
@@ -26,6 +26,10 @@ export interface DatabaseClient {
 
 let localSqliteInstance: any = null;
 
+// Mutable in-memory store for Edge environment
+const inMemoryJobs: any[] = [...STATIC_JOBS];
+const inMemoryCompanies: any[] = [...STATIC_COMPANIES];
+
 export function getDatabase(env?: { DB?: any }): DatabaseClient {
   // 1. Cloudflare D1 environment binding in Workers/Pages runtime
   if (env?.DB) {
@@ -47,7 +51,7 @@ export function getDatabase(env?: { DB?: any }): DatabaseClient {
     return createSqlJsWrapper(localSqliteInstance);
   }
 
-  // 3. Robust Edge-Safe Pure JS In-Memory Provider
+  // 3. Robust Edge-Safe In-Memory Provider
   return createEdgeMemoryClient();
 }
 
@@ -148,7 +152,7 @@ function createEdgeMemoryClient(): DatabaseClient {
 
           // 3. Companies
           if (q.includes("from companies")) {
-            let res = [...STATIC_COMPANIES];
+            let res = [...inMemoryCompanies];
             if (q.includes("id = ?") && boundValues.length > 0) {
               const id = String(boundValues[0]);
               res = res.filter((c) => c.id === id);
@@ -163,25 +167,28 @@ function createEdgeMemoryClient(): DatabaseClient {
 
           // 5. Jobs
           if (q.includes("from jobs")) {
-            let res = [...STATIC_JOBS];
+            let res = [...inMemoryJobs];
 
-            // Specific Job By ID or Slug
+            // Specific Job By ID or Slug prefix
             if (q.includes("where j.id = ?") || q.includes("where j.id like ?")) {
               const val = String(boundValues[0] || "").replace(/%/g, "");
-              const match = res.filter((j) => j.id.startsWith(val) || j.id === val || j.job_url.includes(val));
+              const match = res.filter((j) => j.id === val || j.id.startsWith(val) || j.job_url?.includes(val));
               return { results: match as unknown as T[], success: true };
             }
 
             // Keyword filter
-            const kwParam = boundValues.find((v) => typeof v === "string" && v.startsWith("%") && v.endsWith("%"));
-            if (kwParam) {
-              const rawKw = String(kwParam).slice(1, -1).toLowerCase();
-              res = res.filter(
-                (j) =>
-                  j.title.toLowerCase().includes(rawKw) ||
-                  j.description.toLowerCase().includes(rawKw) ||
-                  j.company_name.toLowerCase().includes(rawKw)
-              );
+            const kwParams = boundValues.filter((v) => typeof v === "string" && v.startsWith("%") && v.endsWith("%"));
+            if (kwParams.length > 0) {
+              for (const kw of kwParams) {
+                const term = String(kw).slice(1, -1).toLowerCase();
+                res = res.filter(
+                  (j) =>
+                    j.title?.toLowerCase().includes(term) ||
+                    j.description?.toLowerCase().includes(term) ||
+                    j.company_name?.toLowerCase().includes(term) ||
+                    j.location?.toLowerCase().includes(term)
+                );
+              }
             }
 
             // Country filter
@@ -189,13 +196,44 @@ function createEdgeMemoryClient(): DatabaseClient {
               (v) => typeof v === "string" && ["GB", "US", "AU", "CA", "NZ"].includes(v.toUpperCase())
             );
             if (countryParam) {
-              res = res.filter((j) => j.country_code.toUpperCase() === String(countryParam).toUpperCase());
+              res = res.filter((j) => j.country_code?.toUpperCase() === String(countryParam).toUpperCase());
+            }
+
+            // Remote type filter
+            if (q.includes("remote_type")) {
+              const remoteParam = boundValues.find(
+                (v) => typeof v === "string" && ["REMOTE", "HYBRID", "ONSITE"].includes(v.toUpperCase())
+              );
+              if (remoteParam) {
+                res = res.filter((j) => j.remote_type?.toUpperCase() === String(remoteParam).toUpperCase());
+              }
+            }
+
+            // Employment type filter
+            if (q.includes("employment_type")) {
+              const empParam = boundValues.find(
+                (v) => typeof v === "string" && ["FULL_TIME", "PART_TIME", "CONTRACT"].includes(v.toUpperCase())
+              );
+              if (empParam) {
+                res = res.filter((j) => j.employment_type?.toUpperCase() === String(empParam).toUpperCase());
+              }
+            }
+
+            // Sponsorship filter
+            if (q.includes("sponsorship_label")) {
+              const sponParam = boundValues.find(
+                (v) => typeof v === "string" && ["Strong", "Likely", "Possible"].includes(v)
+              );
+              if (sponParam) {
+                res = res.filter((j) => j.sponsorship_label === sponParam);
+              }
             }
 
             // Pagination slice
-            const limit = typeof boundValues[boundValues.length - 2] === "number" ? boundValues[boundValues.length - 2] : 20;
-            const offset = typeof boundValues[boundValues.length - 1] === "number" ? boundValues[boundValues.length - 1] : 0;
-            if (offset > 0 || limit < res.length) {
+            const numParams = boundValues.filter((v) => typeof v === "number");
+            if (numParams.length >= 2) {
+              const limit = numParams[numParams.length - 2];
+              const offset = numParams[numParams.length - 1];
               res = res.slice(offset, offset + limit);
             }
 
@@ -210,16 +248,32 @@ function createEdgeMemoryClient(): DatabaseClient {
           // Count Queries
           if (q.includes("count(*)")) {
             if (q.includes("from jobs")) {
-              let count = STATIC_JOBS.length;
-              if (boundValues.length > 0 && typeof boundValues[0] === "string") {
-                const cCode = boundValues[0].toUpperCase();
-                if (["GB", "US", "AU", "CA", "NZ"].includes(cCode)) {
-                  count = STATIC_JOBS.filter((j) => j.country_code.toUpperCase() === cCode).length;
+              let res = [...inMemoryJobs];
+
+              const kwParams = boundValues.filter((v) => typeof v === "string" && v.startsWith("%") && v.endsWith("%"));
+              if (kwParams.length > 0) {
+                for (const kw of kwParams) {
+                  const term = String(kw).slice(1, -1).toLowerCase();
+                  res = res.filter(
+                    (j) =>
+                      j.title?.toLowerCase().includes(term) ||
+                      j.description?.toLowerCase().includes(term) ||
+                      j.company_name?.toLowerCase().includes(term)
+                  );
                 }
               }
-              return ({ total: count, count: count } as unknown) as T;
+
+              const countryParam = boundValues.find(
+                (v) => typeof v === "string" && ["GB", "US", "AU", "CA", "NZ"].includes(v.toUpperCase())
+              );
+              if (countryParam) {
+                res = res.filter((j) => j.country_code?.toUpperCase() === String(countryParam).toUpperCase());
+              }
+
+              const count = res.length;
+              return ({ total: count, count } as unknown) as T;
             }
-            return ({ total: 10, count: 10 } as unknown) as T;
+            return ({ total: inMemoryJobs.length, count: inMemoryJobs.length } as unknown) as T;
           }
 
           const res = await this.all<T>();
@@ -229,6 +283,78 @@ function createEdgeMemoryClient(): DatabaseClient {
           return row as T;
         },
         async run(): Promise<DbResult> {
+          const q = query.toLowerCase();
+
+          // Mutate inMemoryJobs on INSERT
+          if (q.includes("insert into jobs") || q.includes("insert or replace into jobs")) {
+            if (boundValues.length >= 10) {
+              const newJob: any = {
+                id: boundValues[0],
+                source_id: boundValues[1],
+                source_job_id: boundValues[2],
+                canonical_hash: boundValues[3],
+                title: boundValues[4],
+                company_id: boundValues[5],
+                description: boundValues[6],
+                description_clean: boundValues[7],
+                location: boundValues[8],
+                city: boundValues[9],
+                region: boundValues[10],
+                country_code: boundValues[11],
+                remote_type: boundValues[12],
+                employment_type: boundValues[13],
+                category_id: boundValues[14],
+                salary_min: boundValues[15],
+                salary_max: boundValues[16],
+                salary_currency: boundValues[17],
+                job_url: boundValues[18],
+                apply_url: boundValues[19],
+                source_url: boundValues[20],
+                published_at: boundValues[21],
+                sponsorship_score: boundValues[22],
+                sponsorship_label: boundValues[23],
+                sponsorship_positive_evidence: boundValues[24],
+                sponsorship_negative_evidence: boundValues[25],
+                visa_keywords: boundValues[26],
+                quality_score: boundValues[27] || 100,
+                status: "active",
+                is_featured: 0,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              };
+
+              const existingIdx = inMemoryJobs.findIndex((j) => j.canonical_hash === newJob.canonical_hash || j.id === newJob.id);
+              if (existingIdx >= 0) {
+                inMemoryJobs[existingIdx] = { ...inMemoryJobs[existingIdx], ...newJob };
+              } else {
+                inMemoryJobs.unshift(newJob);
+              }
+            }
+          }
+
+          // Mutate inMemoryCompanies on INSERT
+          if (q.includes("insert into companies") || q.includes("insert or replace into companies") || q.includes("insert or ignore into companies")) {
+            if (boundValues.length >= 2) {
+              const compId = boundValues[0];
+              const compName = boundValues[1];
+              const existing = inMemoryCompanies.find((c) => c.id === compId);
+              if (!existing) {
+                inMemoryCompanies.push({
+                  id: compId,
+                  name: compName,
+                  normalized_name: compName.toLowerCase(),
+                  country_code: boundValues[5] || "GB",
+                  industry: "Technology",
+                  website: boundValues[3] || null,
+                  logo_url: boundValues[4] || null,
+                  sponsorship_signal: "high",
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                });
+              }
+            }
+          }
+
           return { results: [], success: true };
         }
       };

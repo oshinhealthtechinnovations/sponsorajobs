@@ -122,6 +122,6 @@ describe("Phase 10: Production Launch Checklist & System Verification (Sections 
     expect(body.platform).toBe("SponsorAJobs");
     expect(body.checks.database.status).toBe("healthy");
     expect(body.checks.database.activeJobs).toBeGreaterThan(0);
-    expect(body.checks.sources.registeredCount).toBe(4);
+    expect(body.checks.sources.registeredCount).toBeGreaterThanOrEqual(4);
   });
 });

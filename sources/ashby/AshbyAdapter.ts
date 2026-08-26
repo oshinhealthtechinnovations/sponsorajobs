@@ -6,11 +6,19 @@ import { normalizeCountryCode, normalizeRemoteType, normalizeEmploymentType } fr
  * Public Ashby ATS Job Board API Adapter
  * Reference: Section 39 & 40
  */
+const DEFAULT_ASHBY_BOARDS = [
+  { token: "notion", name: "Notion", countryCode: "US" },
+  { token: "linear", name: "Linear", countryCode: "US" },
+  { token: "ramp", name: "Ramp", countryCode: "US" },
+  { token: "deel", name: "Deel", countryCode: "GB" },
+  { token: "retool", name: "Retool", countryCode: "US" },
+];
+
 export class AshbyAdapter implements JobSourceAdapter {
   private enabled: boolean;
 
   constructor(config?: { enabled?: boolean }) {
-    this.enabled = config?.enabled ?? (process.env.ENABLE_ATS === "true");
+    this.enabled = config?.enabled ?? (process.env.ENABLE_ATS !== "false");
   }
 
   getName(): string {
@@ -38,54 +46,67 @@ export class AshbyAdapter implements JobSourceAdapter {
   }
 
   async fetchJobs(context: SourceExecutionContext): Promise<IngestionResult> {
-    const orgId = context.credentials?.orgId || context.credentials?.identifier;
-    if (!orgId) {
+    if (!this.isEnabled()) {
       return {
         sourceName: this.getName(),
         jobsFetched: 0,
         jobs: [],
         hasMore: false,
-        errors: ["Ashby organization ID not specified in context."],
+        errors: ["Ashby adapter is disabled."],
       };
     }
 
-    try {
-      const url = `https://api.ashbyhq.com/posting-api/job-board/${encodeURIComponent(orgId)}`;
-      const response = await fetch(url, {
-        headers: { "Accept": "application/json" },
-        signal: AbortSignal.timeout(10000),
-      });
+    const allJobs: NormalizedJob[] = [];
+    const errors: string[] = [];
 
-      if (!response.ok) {
-        throw new Error(`Ashby HTTP Error ${response.status}: ${response.statusText}`);
-      }
+    const boards = context.credentials?.orgId
+      ? [{ token: context.credentials.orgId, name: context.credentials.companyName || context.credentials.orgId, countryCode: context.countryCode || "US" }]
+      : DEFAULT_ASHBY_BOARDS;
 
-      const data = await response.json();
-      const jobs = data?.jobs || [];
-      const normalizedList: NormalizedJob[] = [];
+    for (const board of boards) {
+      try {
+        const url = `https://api.ashbyhq.com/posting-api/job-board/${encodeURIComponent(board.token)}`;
+        const response = await fetch(url, {
+          headers: { "Accept": "application/json", "User-Agent": "SponsorAJobs/1.0" },
+          signal: AbortSignal.timeout(10000),
+        });
 
-      for (const job of jobs) {
-        const norm = this.normalizeJob({ ...job, orgName: data?.organization?.name || orgId });
-        if (norm && this.validateJob(norm)) {
-          normalizedList.push(norm);
+        if (!response.ok) {
+          if (response.status === 404) continue;
+          errors.push(`Ashby [${board.token}] HTTP ${response.status}`);
+          continue;
         }
-      }
 
-      return {
-        sourceName: this.getName(),
-        jobsFetched: jobs.length,
-        jobs: normalizedList,
-        hasMore: false,
-      };
-    } catch (err: any) {
-      return {
-        sourceName: this.getName(),
-        jobsFetched: 0,
-        jobs: [],
-        hasMore: false,
-        errors: [err.message],
-      };
+        const data = await response.json();
+        const jobs = data?.jobs || [];
+        const selected = jobs.slice(0, 15);
+
+        for (const job of selected) {
+          const norm = this.normalizeJob({ ...job, orgName: board.name, defaultCountry: board.countryCode });
+          if (norm && this.validateJob(norm)) {
+            allJobs.push(norm);
+          }
+        }
+      } catch (err: any) {
+        errors.push(`Ashby [${board.token}] error: ${err.message}`);
+      }
     }
+
+    // Deduplicate by sourceJobId
+    const seen = new Set<string>();
+    const deduped = allJobs.filter((j) => {
+      if (seen.has(j.sourceJobId)) return false;
+      seen.add(j.sourceJobId);
+      return true;
+    });
+
+    return {
+      sourceName: this.getName(),
+      jobsFetched: deduped.length,
+      jobs: deduped,
+      hasMore: false,
+      errors: errors.length > 0 ? errors : undefined,
+    };
   }
 
   normalizeJob(rawJob: any): NormalizedJob | null {

@@ -67,53 +67,57 @@ export class JoobleAdapter implements JobSourceAdapter {
       };
     }
 
-    const targetCountry = (context.countryCode || "GB").toUpperCase();
+    // Always fetch for ALL 5 target countries (not just the context country)
+    const targetCountries = ["GB", "US", "AU", "CA", "NZ"];
     const locationMap: Record<string, string> = {
       GB: "United Kingdom", US: "United States",
       AU: "Australia", CA: "Canada", NZ: "New Zealand",
     };
-    const locationLabel = locationMap[targetCountry] || "United Kingdom";
 
     const allJobs: NormalizedJob[] = [];
     const errors: string[] = [];
 
-    // Search with sponsorship-specific keywords for highest precision
-    for (const keyword of SPONSORSHIP_SEARCH_KEYWORDS.slice(0, 3)) {
-      try {
-        const body = JSON.stringify({
-          keywords: keyword,
-          location: locationLabel,
-          resultsOnPage: 20,
-          page: 1,
-        });
+    for (const countryCode of targetCountries) {
+      const locationLabel = locationMap[countryCode];
 
-        const url = `https://jooble.org/api/${this.apiKey}`;
-        const response = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-          },
-          body,
-          signal: AbortSignal.timeout(10000),
-        });
+      // Search with sponsorship-specific keywords for highest precision
+      for (const keyword of SPONSORSHIP_SEARCH_KEYWORDS.slice(0, 2)) {
+        try {
+          const body = JSON.stringify({
+            keywords: keyword,
+            location: locationLabel,
+            resultsOnPage: 20,
+            page: 1,
+          });
 
-        if (!response.ok) {
-          errors.push(`Jooble [${keyword}] HTTP ${response.status}`);
-          continue;
-        }
+          const url = `https://jooble.org/api/${this.apiKey}`;
+          const response = await fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+            },
+            body,
+            signal: AbortSignal.timeout(10000),
+          });
 
-        const data = await response.json();
-        const jobs: any[] = data?.jobs || [];
-
-        for (const job of jobs) {
-          const norm = this.normalizeJobForCountry(job, targetCountry);
-          if (norm && this.validateJob(norm)) {
-            allJobs.push(norm);
+          if (!response.ok) {
+            errors.push(`Jooble [${countryCode}/${keyword}] HTTP ${response.status}`);
+            continue;
           }
+
+          const data = await response.json();
+          const jobs: any[] = data?.jobs || [];
+
+          for (const job of jobs) {
+            const norm = this.normalizeJobForCountry(job, countryCode);
+            if (norm && this.validateJob(norm)) {
+              allJobs.push(norm);
+            }
+          }
+        } catch (err: any) {
+          errors.push(`Jooble [${countryCode}/${keyword}] error: ${err.message}`);
         }
-      } catch (err: any) {
-        errors.push(`Jooble [${keyword}] error: ${err.message}`);
       }
     }
 
