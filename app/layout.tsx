@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     google:
       process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ||
       process.env.GOOGLE_SITE_VERIFICATION ||
-      "a0666b84d1da794e",
+      "gbhpP0atE9XYLcUC8nipiJXNuQ74JPyUqKQBDF8mFH0",
   },
   openGraph: {
     type: "website",
@@ -124,6 +124,9 @@ export default function RootLayout({
         {/* Google Fonts Preconnect */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
+        {/* Google Site Verification */}
+        <meta name="google-site-verification" content="gbhpP0atE9XYLcUC8nipiJXNuQ74JPyUqKQBDF8mFH0" />
 
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
