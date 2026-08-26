@@ -93,7 +93,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // 5. Active Job Postings (Semantic Keyword-Rich Slugs for High CTR)
+  // 5. Verified Sponsor Company Profiles (250+ Employers)
+  try {
+    const db = getDatabase();
+    const companies = await db.prepare(
+      "SELECT name, updated_at FROM companies ORDER BY name ASC LIMIT 1000"
+    ).all<{ name: string; updated_at?: string }>();
+
+    for (const comp of companies.results) {
+      const compSlug = comp.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      entries.push({
+        url: `${baseUrl}/company/${compSlug}`,
+        lastModified: comp.updated_at ? new Date(comp.updated_at) : now,
+        changeFrequency: "weekly",
+        priority: 0.75,
+      });
+    }
+  } catch (err) {
+    console.error("Error fetching companies for sitemap:", err);
+  }
+
+  // 6. Active Job Postings (Semantic Keyword-Rich Slugs for High CTR)
   try {
     const db = getDatabase();
     const jobs = await db.prepare(`
