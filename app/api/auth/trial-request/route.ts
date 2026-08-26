@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { userRepository } from "@/lib/repositories/userRepository";
+import { telegramService } from "@/lib/services/telegramService";
 
 export const runtime = "edge";
 
@@ -34,6 +35,17 @@ export async function POST(request: NextRequest) {
       profession,
       email,
     });
+
+    // Notify Telegram instantly
+    try {
+      telegramService.notifyTrialRequested({
+        name,
+        email,
+        profession,
+      }).catch(console.error);
+    } catch (e) {
+      console.error(e);
+    }
 
     return NextResponse.json({
       success: true,

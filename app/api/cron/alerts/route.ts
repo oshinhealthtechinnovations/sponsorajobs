@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { CloudStorageService } from "@/lib/services/cloudStorageService";
 import { JobRepository } from "@/lib/repositories/jobRepository";
 import { EmailService } from "@/lib/services/emailService";
+import { telegramService } from "@/lib/services/telegramService";
 
 export const runtime = "edge";
 
@@ -76,11 +77,23 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  const dispatchedCount = results.filter((r) => r.dispatched).length;
+
+  // Notify Telegram
+  try {
+    telegramService.notifyCronAlertsDispatched({
+      totalSent: dispatchedCount,
+      subscribersCount: activeSubscribers.length,
+    }).catch(console.error);
+  } catch (e) {
+    console.error(e);
+  }
+
   return NextResponse.json({
     success: true,
     timestamp: new Date().toISOString(),
     totalActiveSubscribers: activeSubscribers.length,
-    digestsDispatched: results.filter((r) => r.dispatched).length,
+    digestsDispatched: dispatchedCount,
     reports: results,
   });
 }

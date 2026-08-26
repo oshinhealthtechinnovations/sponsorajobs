@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { userRepository } from "@/lib/repositories/userRepository";
+import { telegramService } from "@/lib/services/telegramService";
 
 export const runtime = "edge";
 
@@ -56,6 +57,18 @@ export async function POST(request: NextRequest) {
       profession,
       promoCode,
     });
+
+    // Notify Telegram in background
+    try {
+      telegramService.notifyUserRegistered({
+        name: user.name,
+        email: user.email,
+        profession: user.profession,
+        promoCode: user.promoCodeUsed,
+      }).catch(console.error);
+    } catch (e) {
+      console.error(e);
+    }
 
     const sessionPayload = {
       id: user.id,

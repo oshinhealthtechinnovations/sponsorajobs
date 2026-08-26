@@ -5,6 +5,7 @@ import { JobRepository } from "@/lib/repositories/jobRepository";
 
 import { CloudStorageService } from "@/lib/services/cloudStorageService";
 import { publicApiRateLimiter } from "@/lib/security/rateLimiter";
+import { telegramService } from "@/lib/services/telegramService";
 
 export const runtime = "edge";
 
@@ -88,6 +89,19 @@ export async function POST(req: NextRequest) {
       frequency: alertRecord.frequency,
       sampleJobs,
     });
+
+    // Notify Telegram
+    try {
+      telegramService.notifySubscriberJoined({
+        email: alertRecord.email,
+        keyword: alertRecord.keyword || undefined,
+        country: alertRecord.country_code || undefined,
+        category: alertRecord.category_id || undefined,
+        frequency: alertRecord.frequency || undefined,
+      }).catch(console.error);
+    } catch (e) {
+      console.error(e);
+    }
 
     return NextResponse.json({
       success: true,

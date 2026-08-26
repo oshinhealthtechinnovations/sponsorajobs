@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { IngestionService } from "@/lib/services/ingestionService";
 import { SourceRegistry } from "@/sources/registry";
+import { telegramService } from "@/lib/services/telegramService";
 
 export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
   // Verify optional cron secret header for security
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET || process.env.ADMIN_SECRET;
@@ -33,6 +35,21 @@ export async function GET(request: NextRequest) {
     maxActiveRetention: 3000,
     logRetentionDays: 14,
   });
+
+  const totalFetched = reports.reduce((acc, r) => acc + (r.jobsFetched || 0), 0);
+  const totalVerified = reports.reduce((acc, r) => acc + (r.jobsInserted || 0) + (r.jobsUpdated || 0), 0);
+
+  // Notify Telegram
+  try {
+    telegramService.notifyCronIngestCompleted({
+      fetched: totalFetched,
+      verified: totalVerified,
+      expired: expiredCount,
+      durationMs: Date.now() - startTime,
+    }).catch(console.error);
+  } catch (e) {
+    console.error(e);
+  }
 
   return NextResponse.json({
     success: true,
