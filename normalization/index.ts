@@ -136,16 +136,19 @@ export function decodeHtmlEntities(str: string): string {
 export function cleanHtmlToMarkdown(raw: string): string {
   if (!raw) return "";
 
-  // 1. Decode entities
+  // 1. Decode entities (multiple passes)
   let text = decodeHtmlEntities(raw);
 
   // 2. Convert structural HTML elements
   text = text
-    .replace(/<h[1-6][^>]*>(.*?)<\/h[1-6]>/gis, (_, content) => `\n\n## ${content.trim()}\n\n`)
+    .replace(/<h[1-6][^>]*>(.*?)<\/h[1-6]>/gis, (_, content) => {
+      const cleanHeader = content.replace(/<[^>]+>/g, "").replace(/[*_#`:]+/g, " ").trim();
+      return `\n\n## ${cleanHeader}\n\n`;
+    })
     .replace(/<li[^>]*>(.*?)<\/li>/gis, (_, content) => `\n• ${content.trim()}`)
     .replace(/<li[^>]*>/gi, "\n• ")
     .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<hr\s*\/?>/gi, "\n\n---\n\n")
+    .replace(/<hr\s*\/?>/gi, "\n\n")
     .replace(/<\/p>/gi, "\n\n")
     .replace(/<p[^>]*>/gi, "\n\n")
     .replace(/<\/div>/gi, "\n")
@@ -161,16 +164,13 @@ export function cleanHtmlToMarkdown(raw: string): string {
   // 3. Decode remaining entities
   text = decodeHtmlEntities(text);
 
-  // 4. Normalize lines & bullets
-  const lines = text.split("\n").map((line) => {
-    let l = line.trim();
-    l = l.replace(/^[•\-\*]\s*/, "• ");
-    l = l.replace(/\*\*\s*\*\*/g, "");
-    return l;
-  });
+  // 4. Clean any existing ## headers of asterisks, hashes, backticks, or colons
+  text = text.replace(/^##\s*[*_#`\s]+(.*?)[*_#`:\s]*$/gm, "## $1");
 
-  // 5. Detect implicit section titles if not already formatted with ##
+  // 5. Normalize lines & bullets
+  const rawLines = text.split("\n");
   const cleanedLines: string[] = [];
+
   const headingKeywords = [
     "overview",
     "an overview of this role",
@@ -196,6 +196,10 @@ export function cleanHtmlToMarkdown(raw: string): string {
     "what we're looking for",
     "what we are looking for",
     "who you are",
+    "we'd love to hear from you",
+    "we’d love to hear from you",
+    "you’ll play a",
+    "you'll play a",
     "skills & experience",
     "skills and experience",
     "experience & qualifications",
@@ -214,27 +218,49 @@ export function cleanHtmlToMarkdown(raw: string): string {
     "country hiring guidelines"
   ];
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (!line) {
+  for (let i = 0; i < rawLines.length; i++) {
+    let l = rawLines[i].trim();
+    if (!l) {
       cleanedLines.push("");
       continue;
     }
 
-    const stripped = line.replace(/^\*\*|\*\*$/g, "").replace(/:$/, "").trim();
+    // Wipe useless separator lines like "• --" or "---" or "--"
+    if (/^[•\-\*]*\s*[-*_—–\s]{2,}$/.test(l) || l === "•" || l === "-") {
+      continue;
+    }
+
+    // Clean up unbalanced bold/italic artifact chains
+    l = l.replace(/\*{4,}/g, "").replace(/\*\*\*/g, "**");
+    l = l.replace(/\*\*\s*\*\*/g, "");
+
+    // Strip leading bullet if it's an intro paragraph with emoji or bolding
+    if (/^[•\-\*]\s*(?:\*\*|🚀|🔥|✨|💡|⭐|❤️|👋|🎯)/.test(l)) {
+      l = l.replace(/^[•\-\*]\s*/, "");
+    }
+
+    // Strip markdown chars for header check
+    const stripped = l.replace(/^[\s*#_:]+|[\s*#_:]+$/g, "").trim();
     const strippedLower = stripped.toLowerCase();
 
-    if (!line.startsWith("## ") && !line.startsWith("• ") && !line.startsWith("> ") && stripped.length < 80) {
+    // Check if line is already a heading
+    if (l.startsWith("## ")) {
+      cleanedLines.push(`## ${stripped}`);
+      continue;
+    }
+
+    // Check if this line is an implicit heading
+    if (!l.startsWith("• ") && !l.startsWith("> ") && stripped.length < 80) {
       if (
-        headingKeywords.some((kw) => strippedLower === kw || strippedLower.startsWith(kw + " -") || strippedLower.startsWith(kw + ":")) ||
-        (line.startsWith("**") && line.endsWith("**") && stripped.length < 50 && !stripped.includes("."))
+        headingKeywords.some((kw) => strippedLower === kw || strippedLower.startsWith(kw)) ||
+        (l.startsWith("**") && l.endsWith("**") && stripped.length < 65 && !stripped.includes("."))
       ) {
         cleanedLines.push(`\n## ${stripped}\n`);
         continue;
       }
     }
 
-    cleanedLines.push(line);
+    cleanedLines.push(l);
   }
 
   return cleanedLines
