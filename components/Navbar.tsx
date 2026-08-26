@@ -9,13 +9,10 @@ import {
 } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
 
-// Streamlined, clean primary desktop links to prevent crowding
+// Streamlined, ultra-clean primary desktop navigation
 const navLinks = [
   { href: "/jobs",               label: "Find Jobs",          icon: Search },
   { href: "/tools/ats-checker",  label: "ATS Resume Checker", icon: FileText, badge: "AI Tool" },
-  { href: "/countries",          label: "Countries",          icon: Globe },
-  { href: "/companies",          label: "Top Sponsors",       icon: Building2 },
-  { href: "/blog",               label: "Visa Guides",        icon: BookOpen },
 ];
 
 export const Navbar: React.FC = () => {

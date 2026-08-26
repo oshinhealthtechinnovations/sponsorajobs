@@ -95,19 +95,35 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
   };
 
   const handleApplyClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
+
     try {
-      const user = localStorage.getItem("sa_user");
-      if (!user) {
-        e.preventDefault();
+      const stored = localStorage.getItem("sa_user");
+      let hasAccess = false;
+      if (stored) {
+        const u = JSON.parse(stored);
+        if (u?.id && (u.has_active_trial || u.hasActiveTrial || u.promoCodeUsed || u.promo_code_used)) {
+          hasAccess = true;
+        }
+      }
+
+      if (!hasAccess) {
         window.dispatchEvent(
           new CustomEvent("open-auth-gate", {
             detail: { redirectUrl: job.applyUrl, defaultTab: "register" },
           })
         );
+        return;
       }
+
+      window.open(job.applyUrl, "_blank", "noopener,noreferrer");
     } catch {
-      // safe fallback
+      window.dispatchEvent(
+        new CustomEvent("open-auth-gate", {
+          detail: { redirectUrl: job.applyUrl, defaultTab: "register" },
+        })
+      );
     }
   };
 

@@ -19,20 +19,18 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { text, targetCountry, targetCategory } = body;
+    let { text, targetCountry, targetCategory } = body;
 
-    if (!text || typeof text !== "string" || text.trim().length < 30) {
+    if (!text || typeof text !== "string" || text.trim().length < 15) {
       return NextResponse.json(
-        { success: false, error: "Please provide valid resume or CV text (at least 30 characters)." },
+        { success: false, error: "Please provide valid resume or CV text (at least 15 characters)." },
         { status: 400 }
       );
     }
 
-    if (text.length > 50000) {
-      return NextResponse.json(
-        { success: false, error: "Resume text is too long (maximum 50,000 characters)." },
-        { status: 400 }
-      );
+    // Cleanly truncate text to first 25,000 characters to prevent buffer overflow while allowing full resumes
+    if (text.length > 25000) {
+      text = text.slice(0, 25000);
     }
 
     // 2. Perform deep ATS & Visa Readiness Analysis

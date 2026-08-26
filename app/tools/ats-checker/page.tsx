@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { JobCard } from "@/components/JobCard";
@@ -22,6 +22,7 @@ import {
   X,
   ChevronRight,
   TrendingUp,
+  Lock,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -58,6 +59,39 @@ CERTIFICATIONS
 • AWS Certified Solutions Architect - Associate
 • Certified Kubernetes Application Developer (CKAD)`;
 
+/**
+ * Extracts clean readable text tokens from PDF / DOCX array buffers
+ */
+function extractReadableText(raw: string): string {
+  if (!raw) return "";
+
+  // 1. Extract plain text stream parts or tokens in parentheses (PDF standard text chunks)
+  const matches = raw.match(/\(([^()]{2,100})\)/g);
+  if (matches && matches.length > 20) {
+    const extracted = matches
+      .map((m) => m.slice(1, -1))
+      .filter((s) => /[a-zA-Z0-9]/.test(s))
+      .join(" ");
+    if (extracted.length > 200) {
+      return extracted.slice(0, 15000);
+    }
+  }
+
+  // 2. Fallback: Strip binary/control chars, retain printable ASCII and common Latin characters
+  let clean = raw
+    .replace(/[^\x20-\x7E\t\n\r]/g, " ")
+    .replace(/(?:stream[\s\S]*?endstream|xref[\s\S]*?trailer|obj[\s\S]*?endobj)/gi, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  // Filter out hex/binary noise words
+  const words = clean.split(" ").filter((w) => {
+    return w.length < 30 && !/^[0-9a-fA-F]{6,}$/.test(w);
+  });
+
+  return words.join(" ").slice(0, 15000);
+}
+
 export default function ATSCheckerPage() {
   const [resumeText, setResumeText] = useState("");
   const [targetCountry, setTargetCountry] = useState("all");
@@ -65,11 +99,44 @@ export default function ATSCheckerPage() {
   const [error, setError] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<ATSAnalysisResult | null>(null);
   const [matches, setMatches] = useState<ATSJobMatch[]>([]);
-  const [activeTab, setActiveTab] = useState<"paste" | "upload">("upload");
+  const [activeTab, setActiveTab] = useState<"upload" | "paste">("upload");
   const [fileName, setFileName] = useState<string | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // File upload handler (reads TXT and basic text streams)
+  const checkUserAccess = () => {
+    try {
+      const stored = localStorage.getItem("sa_user");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.id && (parsed.has_active_trial || parsed.hasActiveTrial || parsed.promoCodeUsed || parsed.promo_code_used)) {
+          setUser(parsed);
+          return parsed;
+        }
+      }
+      setUser(null);
+      return null;
+    } catch {
+      setUser(null);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    checkUserAccess();
+    const handleSessionChange = () => {
+      const loggedUser = checkUserAccess();
+      // If user just completed registration with promo code, automatically trigger analysis
+      if (loggedUser && resumeText.trim().length >= 20 && !analysis) {
+        handleRunAnalysis(resumeText, loggedUser);
+      }
+    };
+
+    window.addEventListener("user-session-changed", handleSessionChange);
+    return () => window.removeEventListener("user-session-changed", handleSessionChange);
+  }, [resumeText, analysis]);
+
+  // File upload handler
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -80,34 +147,41 @@ export default function ATSCheckerPage() {
     if (file.type === "text/plain" || file.name.endsWith(".txt")) {
       const reader = new FileReader();
       reader.onload = (event) => {
-        const text = event.target?.result as string;
-        setResumeText(text);
+        const text = (event.target?.result as string) || "";
+        setResumeText(text.slice(0, 20000));
       };
       reader.readAsText(file);
     } else {
-      // For PDF / DOCX files in browser without heavyweight native binaries, read as text stream
       const reader = new FileReader();
       reader.onload = (event) => {
         const content = event.target?.result;
-        if (typeof content === "string") {
-          // Clean non-printable characters for raw streams
-          const cleaned = content.replace(/[^\x20-\x7E\t\n\r]/g, " ").replace(/\s{2,}/g, " ");
-          setResumeText(cleaned);
-        } else if (content instanceof ArrayBuffer) {
-          const decoder = new TextDecoder("utf-8");
-          const text = decoder.decode(content);
-          const cleaned = text.replace(/[^\x20-\x7E\t\n\r]/g, " ").replace(/\s{2,}/g, " ");
-          setResumeText(cleaned);
+        if (content instanceof ArrayBuffer) {
+          const decoder = new TextDecoder("utf-8", { fatal: false });
+          const rawStr = decoder.decode(content);
+          const cleanedText = extractReadableText(rawStr);
+          setResumeText(cleanedText);
         }
       };
       reader.readAsArrayBuffer(file);
     }
   };
 
-  const handleRunAnalysis = async (textToUse?: string) => {
+  const handleRunAnalysis = async (textToUse?: string, overrideUser?: any) => {
     const text = (textToUse || resumeText).trim();
-    if (!text || text.length < 30) {
-      setError("Please paste or upload your resume text (at least 30 characters).");
+    if (!text || text.length < 15) {
+      setError("Please paste or upload your resume text (at least 15 characters).");
+      return;
+    }
+
+    // ── STRICT PROMO CODE / AUTH GATE ──
+    const currentUser = overrideUser || user || checkUserAccess();
+    if (!currentUser || !currentUser.id) {
+      setError(null);
+      window.dispatchEvent(
+        new CustomEvent("open-auth-gate", {
+          detail: { defaultTab: "register" },
+        })
+      );
       return;
     }
 
@@ -119,7 +193,7 @@ export default function ATSCheckerPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text,
+          text: text.slice(0, 20000),
           targetCountry,
         }),
       });
@@ -142,19 +216,18 @@ export default function ATSCheckerPage() {
     setResumeText(SAMPLE_RESUME);
     setFileName("sample_senior_engineer_cv.txt");
     setActiveTab("paste");
-    handleRunAnalysis(SAMPLE_RESUME);
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 85) return "text-emerald-600 bg-emerald-50 border-emerald-200";
-    if (score >= 70) return "text-brand-600 bg-brand-50 border-brand-200";
+    if (score >= 80) return "text-emerald-600 bg-emerald-50 border-emerald-200";
+    if (score >= 65) return "text-brand-600 bg-brand-50 border-brand-200";
     if (score >= 50) return "text-amber-600 bg-amber-50 border-amber-200";
     return "text-rose-600 bg-rose-50 border-rose-200";
   };
 
   const getProgressColor = (score: number) => {
-    if (score >= 85) return "bg-emerald-500";
-    if (score >= 70) return "bg-brand-600";
+    if (score >= 80) return "bg-emerald-500";
+    if (score >= 65) return "bg-brand-600";
     if (score >= 50) return "bg-amber-500";
     return "bg-rose-500";
   };
@@ -233,11 +306,17 @@ export default function ATSCheckerPage() {
                 <UploadCloud className="w-7 h-7" />
               </div>
               <p className="text-base font-bold text-slate-800">
-                {fileName ? `Uploaded: ${fileName}` : "Click or Drag & Drop your Resume / CV here"}
+                {fileName ? `Selected: ${fileName}` : "Click or Drag & Drop your Resume / CV here"}
               </p>
               <p className="text-xs text-slate-500 mt-1">
                 Supports PDF, Word Documents (.docx), and plain text (.txt)
               </p>
+              {resumeText && (
+                <p className="text-xs text-emerald-600 font-bold mt-2 flex items-center justify-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Text successfully extracted ({resumeText.split(" ").length} words)</span>
+                </p>
+              )}
             </div>
           ) : (
             <div>
@@ -276,7 +355,7 @@ export default function ATSCheckerPage() {
               type="button"
               disabled={isAnalyzing || !resumeText.trim()}
               onClick={() => handleRunAnalysis()}
-              className="w-full sm:w-auto px-8 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
               {isAnalyzing ? (
                 <>
