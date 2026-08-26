@@ -85,9 +85,42 @@ export class CloudStorageService {
   }
 
   /**
-   * Fetch all subscribers from Cloud Database or Local Store
+   * Fetch all subscribers from Cloud Database (Supabase / Upstash) or Local Store
    */
   static async fetchAllSubscribers(): Promise<StoredSubscriber[]> {
+    // 1. Supabase REST Integration (Free Tier)
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const res = await fetch(`${supabaseUrl}/rest/v1/job_alerts?select=*&order=created_at.desc`, {
+          headers: {
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+          },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            return data.map((item: any) => ({
+              id: item.id || `alert_${item.email}`,
+              email: item.email,
+              keyword: item.keyword || item.role || null,
+              country: item.country_code || item.country || "ALL",
+              category: item.category_id || item.category || "ALL",
+              frequency: item.frequency || "daily",
+              created_at: item.created_at || new Date().toISOString(),
+              active: item.active ?? 1,
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn("[CloudStorage:Supabase] Failed to read from Supabase:", err);
+      }
+    }
+
+    // 2. Upstash Redis REST Integration (Free Tier)
     const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
     const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
