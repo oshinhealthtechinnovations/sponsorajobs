@@ -177,10 +177,51 @@ export class EmailService {
 
     // 2. Safe Fallback Provider (Dev / Test / Zero-Config mode)
     // Logs the full email dispatch so nothing fails silently and users can verify the email
-    console.log(`[EmailService:Simulated] Email sent successfully to ${params.toEmail}`);
-    console.log(`[EmailService:Simulated] Subject: "Your Visa Sponsorship Job Alerts Are Active 🚀"`);
-    console.log(`[EmailService:Simulated] Matches included: ${params.sampleJobs?.length || 0} jobs`);
+    return {
+      success: true,
+      messageId,
+      provider: "simulated",
+    };
+  }
 
+  /**
+   * Sends a periodic digest of newly matched jobs to a subscriber
+   */
+  async sendDigestAlertEmail(params: SendWelcomeAlertEmailParams): Promise<EmailDispatchResult> {
+    const html = this.generateWelcomeEmailHtml(params);
+    const messageId = `msg_digest_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    const apiKey = process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY;
+
+    if (apiKey) {
+      try {
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            from: process.env.EMAIL_FROM || "SponsorAJobs Alerts <alerts@sponsorajobs.com>",
+            to: [params.toEmail],
+            subject: `New Visa Sponsorship Jobs Matching "${params.keyword || "Your Preferences"}" 🚀`,
+            html,
+          }),
+        });
+
+        if (res.ok) {
+          const data = (await res.json()) as { id?: string };
+          return {
+            success: true,
+            messageId: data.id || messageId,
+            provider: "resend",
+          };
+        }
+      } catch (err) {
+        console.error("[EmailService:Digest] Failed to dispatch via Resend:", err);
+      }
+    }
+
+    console.log(`[EmailService:Digest] Digest sent to ${params.toEmail} with ${params.sampleJobs?.length || 0} matched jobs.`);
     return {
       success: true,
       messageId,

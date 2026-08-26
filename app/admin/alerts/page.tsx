@@ -15,6 +15,7 @@ import {
   ExternalLink,
   ShieldCheck,
   RefreshCw,
+  Send,
 } from "lucide-react";
 
 interface Subscriber {
@@ -34,6 +35,8 @@ export default function AdminAlertsPage() {
   const [copied, setCopied] = useState(false);
   const [searchFilter, setSearchFilter] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [dispatching, setDispatching] = useState(false);
+  const [dispatchSuccess, setDispatchSuccess] = useState<string | null>(null);
 
   // Form state
   const [newEmail, setNewEmail] = useState("");
@@ -41,6 +44,26 @@ export default function AdminAlertsPage() {
   const [newCountry, setNewCountry] = useState("all");
   const [newFrequency, setNewFrequency] = useState("daily");
   const [submitting, setSubmitting] = useState(false);
+
+  const handleDispatchDigest = async () => {
+    if (subscribers.length === 0) return;
+    setDispatching(true);
+    setDispatchSuccess(null);
+    try {
+      const res = await fetch("/api/cron/alerts");
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setDispatchSuccess(`Successfully dispatched ${data.digestsDispatched} job alert digests!`);
+        setTimeout(() => setDispatchSuccess(null), 5000);
+      } else {
+        alert("Failed to dispatch digest: " + (data.error || "Unknown error"));
+      }
+    } catch (err: any) {
+      alert("Error triggering digest: " + err.message);
+    } finally {
+      setDispatching(false);
+    }
+  };
 
   const fetchSubscribers = async () => {
     setLoading(true);
@@ -151,6 +174,16 @@ export default function AdminAlertsPage() {
           </a>
 
           <button
+            onClick={handleDispatchDigest}
+            disabled={dispatching || subscribers.length === 0}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition-colors shadow-xs cursor-pointer disabled:opacity-50"
+            title="Scan live jobs and dispatch automated email digests to active subscribers"
+          >
+            <Send className={`w-4 h-4 ${dispatching ? "animate-pulse" : ""}`} />
+            <span>{dispatching ? "Dispatching..." : "Send Digest Now"}</span>
+          </button>
+
+          <button
             onClick={() => setShowAddModal(true)}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors shadow-xs cursor-pointer"
           >
@@ -159,6 +192,14 @@ export default function AdminAlertsPage() {
           </button>
         </div>
       </div>
+
+      {/* ── Success Toast Banner ── */}
+      {dispatchSuccess && (
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center gap-2">
+          <Check className="w-4 h-4 shrink-0" />
+          <span>{dispatchSuccess}</span>
+        </div>
+      )}
 
       {/* ── Metric Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
