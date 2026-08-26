@@ -98,6 +98,22 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
     }
   };
 
+  const handleApplyClick = (e: React.MouseEvent) => {
+    try {
+      const user = localStorage.getItem("sa_user");
+      if (!user) {
+        e.preventDefault();
+        window.dispatchEvent(
+          new CustomEvent("open-auth-gate", {
+            detail: { redirectUrl: applyUrl, defaultTab: "register" },
+          })
+        );
+      }
+    } catch {
+      // proceed if localstorage fails
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col gap-3 w-full sm:w-64 shrink-0">
@@ -106,6 +122,7 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
           href={applyUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={handleApplyClick}
           className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold text-sm shadow-lg shadow-brand-600/25 transition-all text-center cursor-pointer group touch-manipulation"
         >
           <span>{isDirect ? "Apply for This Job" : "View on Employer Site"}</span>
