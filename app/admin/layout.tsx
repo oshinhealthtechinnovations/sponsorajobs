@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { LayoutDashboard, Briefcase, Radio, History, Settings, ArrowLeft, Bell } from "lucide-react";
+import { LayoutDashboard, Briefcase, Radio, History, Settings, ArrowLeft, Bell, BookOpen, Globe } from "lucide-react";
 import { AdminLogoutButton } from "@/components/AdminLogoutButton";
 
 export const metadata = {
@@ -71,10 +71,26 @@ export default function AdminLayout({
             </Link>
 
             <Link
+              href="/admin/blog"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+            >
+              <BookOpen className="w-4 h-4 text-amber-400" />
+              <span>Blog Engine</span>
+            </Link>
+
+            <Link
+              href="/admin/seo"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+            >
+              <Globe className="w-4 h-4 text-emerald-400" />
+              <span>SEO & Indexing</span>
+            </Link>
+
+            <Link
               href="/admin/runs"
               className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
             >
-              <History className="w-4 h-4 text-amber-400" />
+              <History className="w-4 h-4 text-sky-400" />
               <span>Ingestion Runs</span>
             </Link>
 

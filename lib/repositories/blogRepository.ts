@@ -84,6 +84,14 @@ export class BlogRepository {
   }
 
   /**
+   * Find a post by ID
+   */
+  async getPostById(id: string): Promise<BlogPostRecord | null> {
+    const post = blogPostsStore.find((p) => p.id === id);
+    return post || null;
+  }
+
+  /**
    * Get featured pillar articles
    */
   async getFeaturedPosts(limit = 3): Promise<BlogPostRecord[]> {
