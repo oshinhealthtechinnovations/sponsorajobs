@@ -69,6 +69,16 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
     e.preventDefault();
     e.stopPropagation();
     try {
+      const user = localStorage.getItem("sa_user");
+      if (!user) {
+        window.dispatchEvent(
+          new CustomEvent("open-auth-gate", {
+            detail: { defaultTab: "register" },
+          })
+        );
+        return;
+      }
+
       const saved: string[] = JSON.parse(localStorage.getItem("sa_saved_jobs") || "[]");
       let updated: string[];
       if (saved.includes(job.id)) {
@@ -81,6 +91,23 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
       localStorage.setItem("sa_saved_jobs", JSON.stringify(updated));
     } catch {
       setIsSaved(!isSaved);
+    }
+  };
+
+  const handleApplyClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const user = localStorage.getItem("sa_user");
+      if (!user) {
+        e.preventDefault();
+        window.dispatchEvent(
+          new CustomEvent("open-auth-gate", {
+            detail: { redirectUrl: job.applyUrl, defaultTab: "register" },
+          })
+        );
+      }
+    } catch {
+      // safe fallback
     }
   };
 
@@ -249,12 +276,12 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
               Details
             </Link>
 
-            {/* DIRECT APPLY — the real job URL, opens in new tab */}
+            {/* DIRECT APPLY — gated by auth */}
             <a
               href={job.applyUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
+              onClick={handleApplyClick}
               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold transition-all shadow-sm shadow-brand-600/20 touch-manipulation group/apply"
             >
               <span>Apply</span>
