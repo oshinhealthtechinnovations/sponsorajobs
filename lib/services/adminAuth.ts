@@ -2,22 +2,22 @@ import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 const ADMIN_COOKIE_NAME = "sa_admin_session";
-const FALLBACK_SECRET = "Su@626461";
 
 export function getAdminSecret(): string {
-  return process.env.ADMIN_SECRET || FALLBACK_SECRET;
+  const secret = process.env.ADMIN_SECRET;
+  if (!secret) {
+    // Only used in local dev without env var set
+    return "__dev_only_change_in_production__";
+  }
+  return secret;
 }
 
 export function isValidAdminSecret(secret: string): boolean {
   if (!secret || typeof secret !== "string") return false;
   const cleanSecret = secret.trim();
   const configuredSecret = process.env.ADMIN_SECRET?.trim();
-
-  if (configuredSecret && cleanSecret === configuredSecret) {
-    return true;
-  }
-
-  return cleanSecret === FALLBACK_SECRET;
+  if (!configuredSecret) return false;
+  return cleanSecret === configuredSecret;
 }
 
 /**
@@ -29,10 +29,7 @@ export async function verifyAdminSession(req?: NextRequest): Promise<boolean> {
   // 1. Check Authorization header (for API calls)
   if (req) {
     const authHeader = req.headers.get("authorization");
-    if (
-      authHeader === `Bearer ${adminSecret}` ||
-      authHeader === `Bearer ${FALLBACK_SECRET}`
-    ) {
+    if (authHeader === `Bearer ${adminSecret}`) {
       return true;
     }
   }
@@ -41,10 +38,7 @@ export async function verifyAdminSession(req?: NextRequest): Promise<boolean> {
   try {
     const cookieStore = cookies();
     const sessionCookie = cookieStore.get(ADMIN_COOKIE_NAME);
-    if (
-      sessionCookie &&
-      (sessionCookie.value === adminSecret || sessionCookie.value === FALLBACK_SECRET)
-    ) {
+    if (sessionCookie && sessionCookie.value === adminSecret) {
       return true;
     }
   } catch {

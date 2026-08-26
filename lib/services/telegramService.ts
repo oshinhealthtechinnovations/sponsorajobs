@@ -19,11 +19,11 @@ export class TelegramService {
     this.botToken =
       config?.botToken !== undefined
         ? config.botToken
-        : (process.env.TELEGRAM_BOT_TOKEN || "8728617267:AAHahZaci_FgFjRQpgmpyCZYV7D_gX3ZX40");
+        : (process.env.TELEGRAM_BOT_TOKEN || "");
     this.adminChatId =
       config?.chatId !== undefined
         ? config.chatId
-        : (process.env.TELEGRAM_CHAT_ID || "8569757426");
+        : (process.env.TELEGRAM_CHAT_ID || "");
     this.communityChannelId =
       config?.communityChannelId !== undefined
         ? config.communityChannelId

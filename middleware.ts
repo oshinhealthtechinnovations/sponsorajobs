@@ -2,25 +2,17 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const ADMIN_COOKIE_NAME = "sa_admin_session";
-const PRIMARY_SECRET = "Su@626461";
 
 function isAuthorizedSession(cookieValue?: string, authHeader?: string | null): boolean {
   const configuredSecret = process.env.ADMIN_SECRET?.trim();
-  const validSecrets = [PRIMARY_SECRET];
-  if (configuredSecret) {
-    validSecrets.push(configuredSecret);
-  }
+  if (!configuredSecret) return false;
 
-  if (cookieValue && validSecrets.includes(cookieValue.trim())) {
+  if (cookieValue && cookieValue.trim() === configuredSecret) {
     return true;
   }
 
-  if (authHeader) {
-    for (const secret of validSecrets) {
-      if (authHeader === `Bearer ${secret}`) {
-        return true;
-      }
-    }
+  if (authHeader && authHeader === `Bearer ${configuredSecret}`) {
+    return true;
   }
 
   return false;

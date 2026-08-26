@@ -31,6 +31,19 @@ let inMemoryTrialRequests: TrialAccessRequest[] = [];
 
 export const VALID_PROMO_CODES = ["sumit_raj_linkedin"];
 
+/**
+ * Hash a password using SHA-256 via SubtleCrypto (edge-runtime compatible, zero dependencies).
+ * For production use, consider PBKDF2 with a salt for stronger security.
+ */
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export class UserRepository {
   /**
    * Validate if the provided promo/referral code is valid
@@ -66,11 +79,14 @@ export class UserRepository {
       throw new Error("An account with this email address already exists.");
     }
 
+    // ✅ CRIT-003 Fix: Hash password before storing
+    const hashedPassword = await hashPassword(data.password);
+
     const newUser: UserAccount = {
       id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       name: data.name.trim(),
       email: cleanEmail,
-      passwordHash: data.password, // In edge env, simplified hashing/storing
+      passwordHash: hashedPassword,
       profession: data.profession.trim(),
       promoCodeUsed: data.promoCode.trim().toLowerCase(),
       isTrial: false,
@@ -90,7 +106,8 @@ export class UserRepository {
     const cleanEmail = email.trim().toLowerCase();
     const user = inMemoryUsers.find((u) => u.email.toLowerCase() === cleanEmail);
     if (!user) return null;
-    if (user.passwordHash !== password) return null;
+    const hashedInput = await hashPassword(password);
+    if (user.passwordHash !== hashedInput) return null;
 
     user.lastLoginAt = new Date().toISOString();
     return user;

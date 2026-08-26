@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll } from "vitest";
 import { NextRequest } from "next/server";
 import { GET as getJobs, POST as postJobs } from "../app/api/admin/jobs/route";
 import { GET as getSources, POST as postSources } from "../app/api/admin/sources/route";
@@ -8,7 +8,11 @@ import { getAdminSecret } from "../lib/services/adminAuth";
 import robots from "../app/robots";
 
 describe("Hardened Security & Admin Console Lockdown Suite", () => {
-  const validSecret = getAdminSecret();
+  beforeAll(() => {
+    // Set test admin secret so tests can authenticate against it
+    process.env.ADMIN_SECRET = "test_admin_secret_ci_only";
+  });
+  const validSecret = process.env.ADMIN_SECRET || "test_admin_secret_ci_only";
 
   // 1. Unauthenticated API access MUST return 401
   it("should reject unauthenticated GET /api/admin/jobs with 401", async () => {
