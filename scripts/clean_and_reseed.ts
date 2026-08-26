@@ -1,109 +1,14 @@
-import { EmploymentType, RemoteType } from "@/lib/types/database";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-/**
- * Country Code Normalization (Section 108)
- * Maps variants like "United Kingdom", "UK", "Great Britain" to "GB"
- */
-export function normalizeCountryCode(rawCountry: string): string {
-  if (!rawCountry) return "UNKNOWN";
-  const clean = rawCountry.trim().toLowerCase();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-  if (["gb", "uk", "united kingdom", "great britain", "england", "scotland", "wales"].includes(clean)) {
-    return "GB";
-  }
-  if (["us", "usa", "united states", "united states of america", "america"].includes(clean)) {
-    return "US";
-  }
-  if (["au", "aus", "australia"].includes(clean)) {
-    return "AU";
-  }
-  if (["ca", "can", "canada"].includes(clean)) {
-    return "CA";
-  }
-  if (["nz", "nzl", "new zealand"].includes(clean)) {
-    return "NZ";
-  }
-
-  return clean.toUpperCase().slice(0, 2);
-}
-
-/**
- * Remote Status Normalization (Section 111)
- */
-export function normalizeRemoteType(raw: string): RemoteType {
-  if (!raw) return "UNKNOWN";
-  const clean = raw.trim().toLowerCase();
-  if (clean.includes("remote") || clean.includes("work from home") || clean.includes("wfh")) {
-    return "REMOTE";
-  }
-  if (clean.includes("hybrid") || clean.includes("flexible")) {
-    return "HYBRID";
-  }
-  if (clean.includes("onsite") || clean.includes("on-site") || clean.includes("in-office")) {
-    return "ONSITE";
-  }
-  return "UNKNOWN";
-}
-
-/**
- * Employment Type Normalization (Section 112)
- */
-export function normalizeEmploymentType(raw: string): EmploymentType {
-  if (!raw) return "UNKNOWN";
-  const clean = raw.trim().toLowerCase();
-  if (clean.includes("full") || clean.includes("perm") || clean.includes("direct hire")) {
-    return "FULL_TIME";
-  }
-  if (clean.includes("part")) {
-    return "PART_TIME";
-  }
-  if (clean.includes("contract") || clean.includes("freelance")) {
-    return "CONTRACT";
-  }
-  if (clean.includes("temp") || clean.includes("locum")) {
-    return "TEMPORARY";
-  }
-  if (clean.includes("intern")) {
-    return "INTERNSHIP";
-  }
-  if (clean.includes("apprentice")) {
-    return "APPRENTICESHIP";
-  }
-  return "OTHER";
-}
-
-/**
- * Canonical Job Hash Generation for Deduplication (Section 30)
- * Uses company name, job title, location, and apply URL
- */
-export function generateCanonicalHash(
-  company: string,
-  title: string,
-  location: string,
-  applyUrl: string
-): string {
-  const normCompany = (company || "").trim().toLowerCase().replace(/[^\w]/g, "");
-  const normTitle = (title || "").trim().toLowerCase().replace(/[^\w]/g, "");
-  const normLocation = (location || "").trim().toLowerCase().replace(/[^\w]/g, "");
-  const normUrl = (applyUrl || "").trim().toLowerCase().split("?")[0]; // remove query params
-
-  const rawKey = `${normCompany}|${normTitle}|${normLocation}|${normUrl}`;
-  // Simple deterministic string hashing for deduplication
-  let hash = 0;
-  for (let i = 0; i < rawKey.length; i++) {
-    const char = rawKey.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash |= 0;
-  }
-  return `job_${Math.abs(hash).toString(16)}_${normUrl.slice(-12).replace(/[^\w]/g, "")}`;
-}
-
-/**
- * Robust HTML entity decoder (handles multiple nested escaping passes)
- */
-export function decodeHtmlEntities(str: string): string {
+function decodeHtmlEntities(str: string): string {
   if (!str) return "";
   let decoded = str;
+  // Multiple passes to handle nested encoding like &amp;lt;
   for (let pass = 0; pass < 3; pass++) {
     const prev = decoded;
     decoded = decoded
@@ -130,22 +35,23 @@ export function decodeHtmlEntities(str: string): string {
   return decoded;
 }
 
-/**
- * Converts raw HTML or entity-encoded HTML job descriptions into clean, structured Markdown
- */
 export function cleanHtmlToMarkdown(raw: string): string {
   if (!raw) return "";
 
-  // 1. Decode entities
+  // Step 1: Decode HTML entities completely
   let text = decodeHtmlEntities(raw);
 
-  // 2. Convert structural HTML elements
+  // Step 2: Convert structural HTML elements to markdown equivalents
   text = text
+    // Convert headings <h1>...</h1> to <h6>...</h6> to ## Headings
     .replace(/<h[1-6][^>]*>(.*?)<\/h[1-6]>/gis, (_, content) => `\n\n## ${content.trim()}\n\n`)
+    // Convert list items
     .replace(/<li[^>]*>(.*?)<\/li>/gis, (_, content) => `\n• ${content.trim()}`)
     .replace(/<li[^>]*>/gi, "\n• ")
+    // Convert line breaks and hr
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<hr\s*\/?>/gi, "\n\n---\n\n")
+    // Convert paragraphs & divs to linebreaks
     .replace(/<\/p>/gi, "\n\n")
     .replace(/<p[^>]*>/gi, "\n\n")
     .replace(/<\/div>/gi, "\n")
@@ -154,22 +60,27 @@ export function cleanHtmlToMarkdown(raw: string): string {
     .replace(/<section[^>]*>/gi, "\n")
     .replace(/<\/ul>|<\/ol>/gi, "\n\n")
     .replace(/<ul[^>]*>|<ol[^>]*>/gi, "\n")
+    // Convert strong / bold
     .replace(/<(?:strong|b)[^>]*>(.*?)<\/(?:strong|b)>/gis, (_, content) => `**${content.trim()}**`)
+    // Convert em / italic
     .replace(/<(?:em|i)[^>]*>(.*?)<\/(?:em|i)>/gis, (_, content) => `*${content.trim()}*`)
+    // Strip remaining tags
     .replace(/<[^>]+>/g, "");
 
-  // 3. Decode remaining entities
+  // Step 3: Decode entities again in case tag contents had remaining entities
   text = decodeHtmlEntities(text);
 
-  // 4. Normalize lines & bullets
+  // Step 4: Normalize lines and bullet points
   const lines = text.split("\n").map((line) => {
     let l = line.trim();
+    // Normalize bullet points
     l = l.replace(/^[•\-\*]\s*/, "• ");
+    // Remove isolated single asterisks or empty bolding
     l = l.replace(/\*\*\s*\*\*/g, "");
     return l;
   });
 
-  // 5. Detect implicit section titles if not already formatted with ##
+  // Step 5: Detect implicit section titles if not already formatted with ##
   const cleanedLines: string[] = [];
   const headingKeywords = [
     "overview",
@@ -237,9 +148,29 @@ export function cleanHtmlToMarkdown(raw: string): string {
     cleanedLines.push(line);
   }
 
-  return cleanedLines
+  // Step 6: Join and collapse excessive blank lines
+  const result = cleanedLines
     .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+
+  return result;
 }
 
+const realJobsPath = path.resolve(__dirname, "../lib/db/realJobsData.json");
+const realData = JSON.parse(fs.readFileSync(realJobsPath, "utf-8"));
+
+let cleanedCount = 0;
+for (const job of realData.jobs) {
+  if (job.description) {
+    const cleaned = cleanHtmlToMarkdown(job.description);
+    if (cleaned !== job.description) {
+      job.description = cleaned;
+      job.description_clean = cleaned;
+      cleanedCount++;
+    }
+  }
+}
+
+fs.writeFileSync(realJobsPath, JSON.stringify(realData, null, 2), "utf-8");
+console.log(`[Clean] Successfully sanitized and cleaned ${cleanedCount} jobs in realJobsData.json!`);

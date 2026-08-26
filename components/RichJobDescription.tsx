@@ -13,11 +13,38 @@ import {
   Check,
 } from "lucide-react";
 
+import { cleanHtmlToMarkdown, decodeHtmlEntities } from "@/normalization";
+
 interface RichJobDescriptionProps {
   description: string;
   companyName: string;
   countryCode: string;
   applyUrl: string;
+}
+
+// Helper to format inline markdown like **bold**, *italic*, and remove markdown artifact noise
+function formatInlineText(text: string): React.ReactNode {
+  if (!text) return null;
+  const decoded = decodeHtmlEntities(text);
+  const parts = decoded.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**") && part.length >= 4) {
+      return (
+        <strong key={i} className="font-bold text-slate-900">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (part.startsWith("*") && part.endsWith("*") && part.length >= 2) {
+      return (
+        <em key={i} className="italic text-slate-800">
+          {part.slice(1, -1)}
+        </em>
+      );
+    }
+    return part;
+  });
 }
 
 export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
@@ -26,9 +53,10 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
   countryCode,
   applyUrl,
 }) => {
-  // Parse markdown-style sections (## Section Title)
+  // Parse markdown-style sections (## Section Title) with robust HTML decoding & cleaning
   const sections = React.useMemo(() => {
-    const rawLines = description.split("\n");
+    const cleanMarkdown = cleanHtmlToMarkdown(description || "");
+    const rawLines = cleanMarkdown.split("\n");
     const parsedSections: { title: string; type: string; content: string[] }[] = [];
     let currentTitle = "Overview";
     let currentType = "overview";
@@ -36,12 +64,12 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
 
     const getSectionType = (title: string) => {
       const t = title.toLowerCase();
-      if (t.includes("responsibilit") || t.includes("what you") || t.includes("duties")) return "responsibilities";
-      if (t.includes("requirement") || t.includes("qualification") || t.includes("looking for")) return "requirements";
-      if (t.includes("visa") || t.includes("sponsor") || t.includes("international") || t.includes("immigration")) return "visa";
-      if (t.includes("benefit") || t.includes("compensation") || t.includes("salary") || t.includes("perks") || t.includes("offer")) return "benefits";
-      if (t.includes("apply") || t.includes("how to")) return "apply";
-      if (t.includes("about") || t.includes("overview")) return "about";
+      if (t.includes("responsibilit") || t.includes("what you'll do") || t.includes("what you will do") || t.includes("duties") || t.includes("the role")) return "responsibilities";
+      if (t.includes("requirement") || t.includes("qualification") || t.includes("what you'll bring") || t.includes("what you will bring") || t.includes("looking for") || t.includes("who you are") || t.includes("skills")) return "requirements";
+      if (t.includes("visa") || t.includes("sponsor") || t.includes("international") || t.includes("immigration") || t.includes("relocation")) return "visa";
+      if (t.includes("benefit") || t.includes("compensation") || t.includes("salary") || t.includes("perks") || t.includes("offer") || t.includes("support full-time")) return "benefits";
+      if (t.includes("apply") || t.includes("how to") || t.includes("process") || t.includes("guidelines")) return "apply";
+      if (t.includes("about") || t.includes("overview") || t.includes("who we are") || t.includes("team")) return "about";
       return "general";
     };
 
@@ -95,7 +123,7 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
                       <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600">
                         <Check className="h-3 w-3" />
                       </span>
-                      <span>{cleanText}</span>
+                      <span>{formatInlineText(cleanText)}</span>
                     </li>
                   );
                 })}
@@ -136,15 +164,15 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
                   }
 
                   const isBullet = /^[•\-\*]/.test(line);
-                  const cleanText = line.replace(/^[•\-\*]\s*/, "").replace(/\*\*(.*?)\*\*/g, "$1");
+                  const cleanText = line.replace(/^[•\-\*]\s*/, "");
 
                   return isBullet ? (
                     <div key={lIdx} className="flex items-start gap-3">
                       <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-600" />
-                      <span className="leading-relaxed">{cleanText}</span>
+                      <span className="leading-relaxed">{formatInlineText(cleanText)}</span>
                     </div>
                   ) : (
-                    <p key={lIdx} className="leading-relaxed">{cleanText}</p>
+                    <p key={lIdx} className="leading-relaxed">{formatInlineText(cleanText)}</p>
                   );
                 })}
               </div>
@@ -175,7 +203,7 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
 
               <div className="space-y-3 text-sm text-slate-200 leading-relaxed">
                 {section.content.map((line, lIdx) => (
-                  <p key={lIdx} className="whitespace-pre-line">{line.replace(/\*\*(.*?)\*\*/g, "$1")}</p>
+                  <p key={lIdx} className="whitespace-pre-line">{formatInlineText(line)}</p>
                 ))}
               </div>
 
@@ -204,7 +232,7 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {section.content.map((line, lIdx) => {
-                  const cleanText = line.replace(/^[•\-\*]\s*/, "").replace(/\*\*(.*?)\*\*/g, "$1");
+                  const cleanText = line.replace(/^[•\-\*]\s*/, "");
                   return (
                     <div
                       key={lIdx}
@@ -213,7 +241,7 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
                       <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
                         <Check className="h-2.5 w-2.5" />
                       </span>
-                      <span>{cleanText}</span>
+                      <span>{formatInlineText(cleanText)}</span>
                     </div>
                   );
                 })}
@@ -232,9 +260,18 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
               <h2 className="text-xl font-bold text-slate-900 tracking-tight">{section.title}</h2>
             </div>
             <div className="space-y-3 text-sm text-slate-700 leading-relaxed">
-              {section.content.map((line, lIdx) => (
-                <p key={lIdx} className="whitespace-pre-line">{line.replace(/\*\*(.*?)\*\*/g, "$1")}</p>
-              ))}
+              {section.content.map((line, lIdx) => {
+                const isBullet = /^[•\-\*]/.test(line);
+                const cleanText = line.replace(/^[•\-\*]\s*/, "");
+                return isBullet ? (
+                  <div key={lIdx} className="flex items-start gap-3">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-400" />
+                    <span className="leading-relaxed">{formatInlineText(cleanText)}</span>
+                  </div>
+                ) : (
+                  <p key={lIdx} className="whitespace-pre-line">{formatInlineText(cleanText)}</p>
+                );
+              })}
             </div>
           </div>
         );
