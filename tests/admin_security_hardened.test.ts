@@ -84,9 +84,9 @@ describe("Hardened Security & Admin Console Lockdown Suite", () => {
   it("should explicitly disallow /admin and /api in robots.txt", () => {
     const robotsData = robots();
     const rules = Array.isArray(robotsData.rules) ? robotsData.rules[0] : robotsData.rules;
-    const disallowed = Array.isArray(rules.disallow) ? rules.disallow : [rules.disallow];
+    const disallowed = Array.isArray(rules?.disallow) ? rules.disallow : [rules?.disallow];
 
-    expect(disallowed.some((d) => d.includes("/admin"))).toBe(true);
-    expect(disallowed.some((d) => d.includes("/api"))).toBe(true);
+    expect(disallowed.some((d) => d && d.includes("/admin"))).toBe(true);
+    expect(disallowed.some((d) => d && d.includes("/api"))).toBe(true);
   });
 });

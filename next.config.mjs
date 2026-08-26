@@ -43,7 +43,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "img-src 'self' https: data: blob:",
-              "connect-src 'self' https://data.usajobs.gov https://api.adzuna.com https://api.ashbyhq.com https://apply.workable.com",
+              "connect-src 'self' https: http: data: blob:",
               "frame-ancestors 'none'",
             ].join("; "),
           },
