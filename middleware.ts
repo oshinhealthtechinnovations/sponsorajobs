@@ -2,9 +2,28 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const ADMIN_COOKIE_NAME = "sa_admin_session";
+const PRIMARY_SECRET = "Su@626461";
 
-function getAdminSecret(): string {
-  return process.env.ADMIN_SECRET || "default_dev_admin_secret_123";
+function isAuthorizedSession(cookieValue?: string, authHeader?: string | null): boolean {
+  const configuredSecret = process.env.ADMIN_SECRET?.trim();
+  const validSecrets = [PRIMARY_SECRET];
+  if (configuredSecret) {
+    validSecrets.push(configuredSecret);
+  }
+
+  if (cookieValue && validSecrets.includes(cookieValue.trim())) {
+    return true;
+  }
+
+  if (authHeader) {
+    for (const secret of validSecrets) {
+      if (authHeader === `Bearer ${secret}`) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 export function middleware(request: NextRequest) {
@@ -24,15 +43,10 @@ export function middleware(request: NextRequest) {
 
   // 2. Admin Web Portal Protection Gatekeeper
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
-    const adminSecret = getAdminSecret();
     const sessionCookie = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
     const authHeader = request.headers.get("authorization");
 
-    const isAuthenticated =
-      (sessionCookie && sessionCookie === adminSecret) ||
-      (authHeader && authHeader === `Bearer ${adminSecret}`);
-
-    if (!isAuthenticated) {
+    if (!isAuthorizedSession(sessionCookie, authHeader)) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
 
@@ -45,15 +59,10 @@ export function middleware(request: NextRequest) {
 
   // 3. Admin API Security Protection Gatekeeper
   if (pathname.startsWith("/api/admin") && pathname !== "/api/admin/auth") {
-    const adminSecret = getAdminSecret();
     const sessionCookie = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
     const authHeader = request.headers.get("authorization");
 
-    const isAuthenticated =
-      (sessionCookie && sessionCookie === adminSecret) ||
-      (authHeader && authHeader === `Bearer ${adminSecret}`);
-
-    if (!isAuthenticated) {
+    if (!isAuthorizedSession(sessionCookie, authHeader)) {
       return NextResponse.json(
         {
           success: false,

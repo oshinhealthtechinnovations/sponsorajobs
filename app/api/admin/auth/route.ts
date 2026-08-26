@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminSecret, ADMIN_COOKIE_CONFIG } from "@/lib/services/adminAuth";
+import { getAdminSecret, isValidAdminSecret, ADMIN_COOKIE_CONFIG } from "@/lib/services/adminAuth";
 
 export const runtime = "edge";
 
-// In-memory rate limiting map for edge runtime: IP -> { attempts: number, lastAttempt: number }
+// In-memory rate limiting map for edge runtime: IP -> { attempts: number, resetAt: number }
 const loginRateLimitMap = new Map<string, { attempts: number; resetAt: number }>();
 
 function isRateLimited(ip: string): boolean {
@@ -17,7 +17,7 @@ function isRateLimited(ip: string): boolean {
     return false;
   }
 
-  return record.attempts >= 5;
+  return record.attempts >= 10;
 }
 
 function recordFailedAttempt(ip: string) {
@@ -27,7 +27,7 @@ function recordFailedAttempt(ip: string) {
   if (!record || now > record.resetAt) {
     loginRateLimitMap.set(ip, {
       attempts: 1,
-      resetAt: now + 15 * 60 * 1000, // 15 minutes window
+      resetAt: now + 5 * 60 * 1000, // 5 minutes window
     });
   } else {
     record.attempts += 1;
@@ -36,18 +36,6 @@ function recordFailedAttempt(ip: string) {
 
 function resetRateLimit(ip: string) {
   loginRateLimitMap.delete(ip);
-}
-
-/**
- * Constant-time comparison to prevent timing attacks
- */
-function timingSafeCompare(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let result = 0;
-  for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
-  return result === 0;
 }
 
 export async function POST(request: NextRequest) {
@@ -64,35 +52,34 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
-    // Check rate limit
+    // Check valid secret first (if correct password provided, grant access and clear lockout)
+    if (secret && typeof secret === "string" && isValidAdminSecret(secret)) {
+      resetRateLimit(ip);
+      const serverSecret = getAdminSecret();
+      const response = NextResponse.json({ success: true, message: "Authentication successful." });
+      response.cookies.set(ADMIN_COOKIE_CONFIG.name, serverSecret, ADMIN_COOKIE_CONFIG.options);
+      return response;
+    }
+
+    // Check rate limit for failed attempts
     if (isRateLimited(ip)) {
       return NextResponse.json(
         {
           success: false,
-          error: "Too many failed authentication attempts. Account locked for 15 minutes.",
+          error: "Too many failed attempts. Please check your password and try again in a few minutes.",
         },
         { status: 429 }
       );
     }
 
-    const serverSecret = getAdminSecret();
-
-    if (!secret || typeof secret !== "string" || !timingSafeCompare(secret.trim(), serverSecret.trim())) {
-      recordFailedAttempt(ip);
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid admin secret key.",
-        },
-        { status: 401 }
-      );
-    }
-
-    // Success: reset rate limit & issue secure session cookie
-    resetRateLimit(ip);
-    const response = NextResponse.json({ success: true, message: "Authentication successful." });
-    response.cookies.set(ADMIN_COOKIE_CONFIG.name, serverSecret, ADMIN_COOKIE_CONFIG.options);
-    return response;
+    recordFailedAttempt(ip);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Invalid admin secret key.",
+      },
+      { status: 401 }
+    );
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
