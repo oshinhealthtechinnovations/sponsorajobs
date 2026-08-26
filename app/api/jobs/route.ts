@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
   const minSalary = searchParams.get("minSalary") ? Number(searchParams.get("minSalary")) : undefined;
   const maxSalary = searchParams.get("maxSalary") ? Number(searchParams.get("maxSalary")) : undefined;
   const datePosted = searchParams.get("datePosted") || undefined;
-  const sort = (searchParams.get("sort") as any) || "newest";
+  const sort = (searchParams.get("sort") as any) || (rawQ ? "relevance" : "newest");
   const page = searchParams.get("page") ? Number(searchParams.get("page")) : 1;
   const limit = searchParams.get("limit") ? Math.min(50, Number(searchParams.get("limit"))) : 20;
 

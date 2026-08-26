@@ -26,6 +26,8 @@ export interface JobSearchResult {
   page: number;
   limit: number;
   totalPages: number;
+  fallbackJobs?: PublicJobDTO[];
+  isRelaxed?: boolean;
 }
 
 export class JobRepository {
@@ -125,19 +127,24 @@ export class JobRepository {
     // 1. Keyword search with smart typo tolerance and multi-word tokenization
     if (params.q) {
       const { tokens } = normalizeSearchQuery(params.q);
-      const words = tokens.length > 0 ? tokens : params.q.trim().split(/\s+/).filter(Boolean);
-      if (words.length === 1) {
+      const cleanQ = params.q.trim().toLowerCase();
+      if (tokens.length === 1) {
         conditions.push("(LOWER(j.title) LIKE ? OR LOWER(j.description) LIKE ? OR LOWER(c.name) LIKE ?)");
-        const term = `%${words[0].toLowerCase()}%`;
+        const term = `%${tokens[0].toLowerCase()}%`;
         bindings.push(term, term, term);
-      } else if (words.length > 1) {
-        const wordConditions: string[] = [];
-        for (const w of words) {
-          wordConditions.push("(LOWER(j.title) LIKE ? OR LOWER(j.description) LIKE ? OR LOWER(c.name) LIKE ?)");
-          const term = `%${w.toLowerCase()}%`;
-          bindings.push(term, term, term);
-        }
-        conditions.push(`(${wordConditions.join(" AND ")})`);
+      } else if (tokens.length > 1) {
+        const titleTokensCond = tokens.map(() => "LOWER(j.title) LIKE ?").join(" OR ");
+        const allTokensDescCond = tokens.map(() => "LOWER(j.description) LIKE ?").join(" AND ");
+        const titleParams = tokens.map((t) => `%${t.toLowerCase()}%`);
+        const descParams = tokens.map((t) => `%${t.toLowerCase()}%`);
+
+        conditions.push(
+          `(${titleTokensCond} OR LOWER(j.title) LIKE ? OR LOWER(j.description) LIKE ? OR LOWER(c.name) LIKE ? OR (${allTokensDescCond}))`
+        );
+        bindings.push(...titleParams, `%${cleanQ}%`, `%${cleanQ}%`, `%${cleanQ}%`, ...descParams);
+      } else if (params.q.trim().length > 0 && tokens.length === 0) {
+        // Query consisted only of discarded non-alphanumeric punctuation or stop words
+        conditions.push("1 = 0");
       }
     }
 
@@ -210,19 +217,32 @@ export class JobRepository {
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-    // 10. Sorting — quality_score integrated as a signal in relevance & sponsorship sorts
+    // 10. Sorting — When searching by keyword (q), default to intelligent RELEVANCE sorting
+    const effectiveSort = params.sort || (params.q ? "relevance" : "newest");
     let orderClause = "ORDER BY j.quality_score DESC, j.published_at DESC, j.created_at DESC";
-    if (params.sort === "newest") {
-      // Pure recency — used for "Latest" feed
+    if (effectiveSort === "newest") {
       orderClause = "ORDER BY j.published_at DESC, j.first_seen_at DESC";
-    } else if (params.sort === "sponsorship") {
-      // Highest sponsorship signal + quality as tiebreaker
+    } else if (effectiveSort === "sponsorship") {
       orderClause = "ORDER BY j.sponsorship_score DESC, j.quality_score DESC, j.published_at DESC";
-    } else if (params.sort === "salary") {
+    } else if (effectiveSort === "salary") {
       orderClause = "ORDER BY j.salary_max DESC NULLS LAST, j.salary_min DESC NULLS LAST, j.quality_score DESC";
-    } else if (params.sort === "relevance" && params.q) {
-      // Weighted relevance = 40% quality + 60% sponsorship signal — best overall listing
-      orderClause = "ORDER BY (CAST(j.quality_score AS REAL) * 0.4 + CAST(j.sponsorship_score AS REAL) * 0.6) DESC, j.published_at DESC";
+    } else if (effectiveSort === "relevance" && params.q) {
+      const cleanQ = params.q.trim().toLowerCase();
+      const tokens = normalizeSearchQuery(params.q).tokens;
+      const titleTokenCases = tokens
+        .map((t) => `WHEN LOWER(j.title) LIKE '%${t.replace(/'/g, "''")}%' THEN 1000`)
+        .join(" ");
+
+      orderClause = `ORDER BY (
+        CASE
+          WHEN LOWER(j.title) = '${cleanQ.replace(/'/g, "''")}' THEN 10000
+          WHEN LOWER(j.title) LIKE '%${cleanQ.replace(/'/g, "''")}%' THEN 5000
+          ${titleTokenCases}
+          WHEN LOWER(c.name) LIKE '%${cleanQ.replace(/'/g, "''")}%' THEN 400
+          WHEN LOWER(j.description) LIKE '%${cleanQ.replace(/'/g, "''")}%' THEN 300
+          ELSE 0
+        END + (COALESCE(j.sponsorship_score, 50) * 0.2) + (COALESCE(j.quality_score, 50) * 0.1)
+      ) DESC, j.published_at DESC`;
     }
 
     // Count query
@@ -285,12 +305,21 @@ export class JobRepository {
       return this.mapToDTO(row, company, category);
     });
 
+    let fallbackJobs: PublicJobDTO[] | undefined;
+    if (total === 0) {
+      fallbackJobs = await this.getFallbackSuggestions(
+        { q: params.q, country: params.country, category: params.category },
+        6
+      );
+    }
+
     return {
       jobs,
       total,
       page,
       limit,
       totalPages: Math.ceil(total / limit) || 1,
+      fallbackJobs,
     };
   }
 
@@ -434,6 +463,25 @@ export class JobRepository {
 
   async getLatestJobs(limit: number = 10): Promise<PublicJobDTO[]> {
     return (await this.search({ limit, sort: "newest" })).jobs;
+  }
+
+  async getFallbackSuggestions(
+    params: { q?: string; country?: string; category?: string },
+    limit: number = 6
+  ): Promise<PublicJobDTO[]> {
+    // 1. If category provided, find top jobs in category
+    if (params.category && params.category !== "all") {
+      const res = await this.search({ category: params.category, limit, sort: "sponsorship" });
+      if (res.jobs.length > 0) return res.jobs;
+    }
+    // 2. If country provided, find top jobs in country
+    if (params.country && params.country !== "ALL" && params.country !== "all") {
+      const res = await this.search({ country: params.country, limit, sort: "sponsorship" });
+      if (res.jobs.length > 0) return res.jobs;
+    }
+    // 3. Global top-scoring sponsorship jobs
+    const res = await this.search({ limit, sort: "sponsorship" });
+    return res.jobs;
   }
 
   async getTotalActiveJobCount(): Promise<number> {

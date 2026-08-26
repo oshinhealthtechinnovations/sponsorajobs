@@ -41,12 +41,12 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
     minSalary: searchParams.minSalary ? Number(searchParams.minSalary) : undefined,
     maxSalary: searchParams.maxSalary ? Number(searchParams.maxSalary) : undefined,
     datePosted: searchParams.datePosted,
-    sort: searchParams.sort || "newest",
+    sort: searchParams.sort || (searchParams.q ? "relevance" : "newest"),
     page: Number(searchParams.page) || 1,
     limit: 20,
   });
 
-  const { jobs, total, page, totalPages } = searchResult;
+  const { jobs, total, page, totalPages, fallbackJobs } = searchResult;
 
   const buildPaginationUrl = (newPage: number) => {
     const params = new URLSearchParams(searchParams as Record<string, string>);
@@ -93,9 +93,19 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                 {total.toLocaleString()} opportunities with sponsorship intelligence
               </p>
               {searchParams.q && normalizeSearchQuery(searchParams.q).isCorrected && (
-                <div className="mt-1.5 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1 inline-flex items-center gap-1.5">
-                  <span>Showing results matching:</span>
-                  <span className="font-bold text-slate-900">{normalizeSearchQuery(searchParams.q).normalized}</span>
+                <div className="mt-2 text-xs text-brand-900 bg-sky-50 border border-sky-200 rounded-xl px-3 py-1.5 inline-flex flex-wrap items-center gap-2 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-brand-600 shrink-0" />
+                  <span>
+                    Showing results for{" "}
+                    <Link
+                      href={`/jobs?q=${encodeURIComponent(normalizeSearchQuery(searchParams.q).normalized)}`}
+                      className="font-bold text-brand-700 underline hover:text-brand-900"
+                    >
+                      {normalizeSearchQuery(searchParams.q).normalized}
+                    </Link>
+                  </span>
+                  <span className="text-slate-300 hidden sm:inline">·</span>
+                  <span className="text-slate-500">Auto-corrected from &ldquo;{searchParams.q}&rdquo;</span>
                 </div>
               )}
             </div>
@@ -250,7 +260,41 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                 )}
               </>
             ) : (
-              <EmptyState query={searchParams.q} />
+              <div>
+                <EmptyState
+                  query={searchParams.q}
+                  country={searchParams.country}
+                  category={searchParams.category}
+                />
+
+                {fallbackJobs && fallbackJobs.length > 0 && (
+                  <div className="mt-10 pt-8 border-t border-slate-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h2 className="text-base sm:text-lg font-bold text-slate-900 font-display flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-brand-600" />
+                          <span>Curated Visa Sponsorship Opportunities for You</span>
+                        </h2>
+                        <p className="text-xs text-slate-500">
+                          Highest rated verified sponsorship positions across our network
+                        </p>
+                      </div>
+                      <Link
+                        href="/jobs"
+                        className="text-xs font-semibold text-brand-600 hover:text-brand-700 hidden sm:inline"
+                      >
+                        Browse all jobs &rarr;
+                      </Link>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
+                      {fallbackJobs.map((job) => (
+                        <JobCard key={job.id} job={job} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>

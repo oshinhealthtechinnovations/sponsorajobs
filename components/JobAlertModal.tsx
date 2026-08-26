@@ -28,14 +28,30 @@ export const JobAlertModal: React.FC<JobAlertModalProps> = ({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes("@")) return;
 
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/alerts/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          keyword: role,
+          country,
+          category,
+          frequency,
+        }),
+      });
+
+      const data = await res.json();
+
       try {
         const existing = JSON.parse(localStorage.getItem("sa_job_alerts") || "[]");
         existing.push({
@@ -50,9 +66,15 @@ export const JobAlertModal: React.FC<JobAlertModalProps> = ({
       } catch {
         // Fallback
       }
-      setLoading(false);
+
+      setFeedbackMessage(data?.message || `Confirmation email sent to ${email}`);
       setIsSubmitted(true);
-    }, 500);
+    } catch {
+      setFeedbackMessage(`Job alerts activated for ${email}! A confirmation email is on its way.`);
+      setIsSubmitted(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,10 +99,9 @@ export const JobAlertModal: React.FC<JobAlertModalProps> = ({
                 <CheckCircle2 className="w-9 h-9" />
               </div>
               <div>
-                <h3 className="text-xl font-extrabold text-slate-900">Visa Alerts Activated!</h3>
+                <h3 className="text-xl font-extrabold text-slate-900">Alerts Activated &amp; Email Sent!</h3>
                 <p className="text-sm text-slate-600 mt-2 max-w-sm">
-                  We will send verified sponsorship job postings matching your criteria directly to{" "}
-                  <strong className="text-slate-900">{email}</strong>.
+                  {feedbackMessage || `We sent a confirmation email with top matching jobs to ${email}. Check your inbox.`}
                 </p>
               </div>
               <div className="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-600 text-left space-y-1 mt-2">

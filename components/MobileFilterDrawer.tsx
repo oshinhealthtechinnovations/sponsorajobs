@@ -78,8 +78,8 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({ activeFi
         </div>
 
         {/* Scrollable Content */}
-        <div className="overflow-y-auto pb-8" style={{ maxHeight: "calc(88vh - 80px)" }}>
-          <div className="px-4 pt-2 pb-4">
+        <div className="overflow-y-auto pb-4" style={{ maxHeight: "calc(88vh - 140px)" }}>
+          <div className="px-4 pt-2 pb-2">
             {/* Override sidebar to remove border/shadow for drawer look */}
             <style>{`
               .mobile-filter-wrapper aside {
@@ -89,13 +89,21 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({ activeFi
                 padding: 0 !important;
               }
             `}</style>
-            <div className="mobile-filter-wrapper" onClick={() => {
-              // Close drawer after a filter change (URL navigation detected)
-              setTimeout(() => setIsOpen(false), 400);
-            }}>
+            <div className="mobile-filter-wrapper">
               <JobFilterSidebar />
             </div>
           </div>
+        </div>
+
+        {/* Drawer Bottom Action */}
+        <div className="p-4 border-t border-slate-100 bg-white">
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            className="w-full py-3 px-4 bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-bold rounded-2xl text-sm shadow-md transition-colors touch-manipulation cursor-pointer"
+          >
+            Apply & View Results
+          </button>
         </div>
       </div>
     </>
