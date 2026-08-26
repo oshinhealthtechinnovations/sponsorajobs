@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Search, Menu, X, Globe, Briefcase, Building2, HelpCircle,
-  Bell, BookOpen, ArrowRight,
+  Bell, BookOpen, ArrowRight, Send,
 } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
 
@@ -109,6 +109,18 @@ export const Navbar: React.FC = () => {
 
           {/* ── Clean Right CTAs ── */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            {/* Telegram Community Group Trigger */}
+            <a
+              href="https://t.me/+iosgr5P-DUoxMjU9"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-bold transition-all shadow-2xs"
+              title="Join official Telegram visa jobs alert group"
+            >
+              <Send className="w-3.5 h-3.5 text-sky-600" />
+              <span>Telegram Group</span>
+            </a>
+
             {/* Job Alerts Modal Trigger */}
             <button
               type="button"
