@@ -1,13 +1,13 @@
 import { MetadataRoute } from "next";
-import { getDatabase } from "@/lib/db/client";
 import { INITIAL_COUNTRIES } from "@/config/countries";
 import { INITIAL_CATEGORIES } from "@/config/categories";
+import { getDatabase } from "@/lib/db/client";
 import { generateJobSlug } from "@/lib/seo/slugs";
 
 export const runtime = "edge";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://sponsorajobs.com";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://sponsorajobs.com";
   const now = new Date();
 
   const entries: MetadataRoute.Sitemap = [];
@@ -37,7 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  // 2. Country Landing Hubs (5 countries by slug and ISO code)
+  // 2. Country Landing Hubs (5 countries)
   for (const c of INITIAL_COUNTRIES) {
     entries.push({
       url: `${baseUrl}/jobs/${c.code.toLowerCase()}`,
@@ -65,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  // 3. Category Landing Hubs
+  // 3. Category Landing Hubs (9 categories)
   for (const cat of INITIAL_CATEGORIES) {
     entries.push({
       url: `${baseUrl}/categories/${cat.slug}`,
@@ -75,7 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  // 4. Programmatic Country + Category Matrix Hubs (5 * 9 = 45 pages)
+  // 4. Programmatic Country + Category Matrix Hubs (45 pages)
   for (const c of INITIAL_COUNTRIES) {
     for (const cat of INITIAL_CATEGORIES) {
       entries.push({
@@ -93,43 +93,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // 5. Verified Sponsor Company Profiles (250+ Employers)
+  // 5. Active Job Postings
   try {
     const db = getDatabase();
-    const companies = await db.prepare(
-      "SELECT name, updated_at FROM companies ORDER BY name ASC LIMIT 1000"
-    ).all<{ name: string; updated_at?: string }>();
-
-    for (const comp of companies.results) {
-      const compSlug = comp.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      entries.push({
-        url: `${baseUrl}/company/${compSlug}`,
-        lastModified: comp.updated_at ? new Date(comp.updated_at) : now,
-        changeFrequency: "weekly",
-        priority: 0.75,
-      });
-    }
-  } catch (err) {
-    console.error("Error fetching companies for sitemap:", err);
-  }
-
-  // 6. Active Job Postings (Semantic Keyword-Rich Slugs for High CTR)
-  try {
-    const db = getDatabase();
-    const jobs = await db.prepare(`
-      SELECT j.id, j.title, j.city, j.country_code, j.updated_at, c.name as company_name
-      FROM jobs j
-      LEFT JOIN companies c ON j.company_id = c.id
-      WHERE j.status = 'active'
-      ORDER BY j.updated_at DESC
-      LIMIT 5000
-    `).all<{ id: string; title: string; city: string; country_code: string; updated_at: string; company_name: string }>();
+    const jobs = await db.prepare(
+      "SELECT id, title, city, country_code, updated_at FROM jobs WHERE status = 'active' LIMIT 500"
+    ).all<{ id: string; title: string; city: string; country_code: string; updated_at: string }>();
 
     for (const job of jobs.results) {
       const slug = generateJobSlug({
         id: job.id,
         title: job.title,
-        company: job.company_name,
         city: job.city,
         country_code: job.country_code,
       });
@@ -142,7 +116,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     }
   } catch (err) {
-    console.error("Error fetching jobs for sitemap:", err);
+    console.error("Error generating sitemap jobs:", err);
   }
 
   return entries;

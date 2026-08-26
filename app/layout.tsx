@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     google:
       process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ||
       process.env.GOOGLE_SITE_VERIFICATION ||
-      "google-site-verification",
+      "a0666b84d1da794e",
   },
   openGraph: {
     type: "website",
