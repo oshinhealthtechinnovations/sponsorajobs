@@ -267,6 +267,26 @@ export default function AdminAlertsPage() {
                   const res = await fetch("/api/admin/telegram", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "broadcast_jobs" }),
+                  });
+                  const data = await res.json();
+                  alert(data.message || data.error);
+                } catch (e: any) {
+                  alert("Error: " + e.message);
+                }
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-bold text-xs border border-amber-500/30 transition-all cursor-pointer"
+            >
+              <span>🌟</span>
+              <span>Broadcast Daily Jobs Drop</span>
+            </button>
+
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch("/api/admin/telegram", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ action: "timeline" }),
                   });
                   const data = await res.json();

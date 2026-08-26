@@ -91,6 +91,41 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // 3. Broadcast Daily Visa Jobs Drop to Community Group / Channel
+    if (action === "broadcast_jobs") {
+      const jobRepo = new JobRepository();
+      const latestJobs = await jobRepo.getLatestJobs(5);
+      const targetChannel = body.channelId || undefined;
+
+      const jobsToBroadcast = latestJobs.map((j) => ({
+        title: j.title,
+        companyName: j.company?.name || "Global Sponsor",
+        countryCode: j.location?.country || "gb",
+        salaryFormatted: j.salary?.min
+          ? `${j.salary.currency || "$"} ${j.salary.min.toLocaleString()} - ${j.salary.max?.toLocaleString() || ""}`
+          : undefined,
+        slug: j.slug,
+        sponsorshipStatus:
+          j.sponsorship?.label === "Strong"
+            ? "Direct Visa Sponsorship / CoS"
+            : "Visa Transfer / Sponsorship Eligible",
+      }));
+
+      const res = await telegramService.broadcastDailyJobsDrop({
+        jobs: jobsToBroadcast,
+        channelId: targetChannel,
+      });
+
+      if (!res.success) {
+        return NextResponse.json({ success: false, error: res.error }, { status: 400 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: `Successfully broadcasted ${jobsToBroadcast.length} top sponsored jobs to Telegram!`,
+      });
+    }
+
     return NextResponse.json({ success: false, error: "Invalid action" }, { status: 400 });
   } catch (err: any) {
     return NextResponse.json(
