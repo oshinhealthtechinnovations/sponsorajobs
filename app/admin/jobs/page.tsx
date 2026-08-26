@@ -29,6 +29,10 @@ export default function AdminJobManagementPage() {
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/jobs?q=${encodeURIComponent(search)}&status=${statusFilter}`);
+      if (res.status === 401) {
+        window.location.href = "/admin/login";
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         setJobs(data.data);

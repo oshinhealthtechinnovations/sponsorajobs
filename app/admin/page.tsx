@@ -2,6 +2,8 @@ import React from "react";
 import { getDatabase } from "@/lib/db/client";
 import { INITIAL_COUNTRIES } from "@/config/countries";
 import { INITIAL_CATEGORIES } from "@/config/categories";
+import { verifyAdminSession } from "@/lib/services/adminAuth";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
   Briefcase,
@@ -18,6 +20,11 @@ import {
 export const revalidate = 0;
 
 export default async function AdminDashboardPage() {
+  const isAuth = await verifyAdminSession();
+  if (!isAuth) {
+    redirect("/admin/login");
+  }
+
   const db = getDatabase();
 
   // Metrics (Section 58)

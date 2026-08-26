@@ -1,10 +1,17 @@
 import React from "react";
 import { getFeatureFlags } from "@/config/features";
+import { verifyAdminSession } from "@/lib/services/adminAuth";
+import { redirect } from "next/navigation";
 import { Settings, ShieldCheck, Cpu, Database, Flag } from "lucide-react";
 
 export const revalidate = 0;
 
 export default async function AdminSettingsPage() {
+  const isAuth = await verifyAdminSession();
+  if (!isAuth) {
+    redirect("/admin/login");
+  }
+
   const flags = getFeatureFlags();
 
   return (

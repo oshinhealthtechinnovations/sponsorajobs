@@ -69,6 +69,10 @@ export default function AdminAlertsPage() {
     setLoading(true);
     try {
       const res = await fetch("/api/admin/alerts");
+      if (res.status === 401) {
+        window.location.href = "/admin/login";
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setSubscribers(data.subscribers || []);

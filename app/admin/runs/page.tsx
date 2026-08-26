@@ -1,10 +1,17 @@
 import React from "react";
 import { getDatabase } from "@/lib/db/client";
+import { verifyAdminSession } from "@/lib/services/adminAuth";
+import { redirect } from "next/navigation";
 import { History, CheckCircle2, XCircle, Clock } from "lucide-react";
 
 export const revalidate = 0;
 
 export default async function AdminRunsPage() {
+  const isAuth = await verifyAdminSession();
+  if (!isAuth) {
+    redirect("/admin/login");
+  }
+
   const db = getDatabase();
   const runs = await db.prepare(
     "SELECT * FROM source_runs ORDER BY started_at DESC LIMIT 50"
