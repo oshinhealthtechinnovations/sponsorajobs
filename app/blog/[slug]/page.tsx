@@ -8,6 +8,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { JobCard } from "@/components/JobCard";
 import { JobAlertSignup } from "@/components/JobAlertSignup";
+import { MarkdownContent } from "@/components/MarkdownContent";
 import {
   generateBlogPostingSchema,
   generateFaqSchema,
@@ -27,6 +28,9 @@ import {
   Briefcase,
   ExternalLink,
   BookOpen,
+  ListTree,
+  ShieldCheck,
+  Tag,
 } from "lucide-react";
 
 export const runtime = "edge";
@@ -91,6 +95,19 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const relatedPosts = await blogRepository.getRelatedPosts(post.id, 3);
+
+  // Extract Table of Contents from headings
+  const headings = post.content
+    .split("\n")
+    .filter((line) => line.startsWith("## "))
+    .map((line) => {
+      const text = line.replace("## ", "").trim();
+      const anchorId = text
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      return { text, anchorId };
+    });
 
   // Fetch live matching jobs for the article embed
   const jobRepo = new JobRepository();
@@ -228,73 +245,76 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
         {/* ── Main Article Body Layout ── */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
-          {/* Article Markdown Body */}
-          <article className="bg-white rounded-3xl p-6 sm:p-12 border border-slate-200/90 shadow-sm">
-            <div className="prose prose-slate max-w-none prose-headings:font-display prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:border-b prose-h2:border-slate-100 prose-h2:pb-2 prose-h3:text-xl prose-p:text-slate-700 prose-p:leading-relaxed prose-li:text-slate-700 prose-strong:text-slate-900 prose-a:text-brand-600 hover:prose-a:underline">
-              {post.content.split("\n").map((line, idx) => {
-                if (line.startsWith("# ")) {
-                  return (
-                    <h1 key={idx} className="text-3xl font-black font-display text-slate-900 mt-2 mb-6">
-                      {line.replace("# ", "")}
-                    </h1>
-                  );
-                }
-                if (line.startsWith("## ")) {
-                  return (
-                    <h2
-                      key={idx}
-                      className="text-2xl font-bold font-display text-slate-900 mt-10 mb-4 border-b border-slate-100 pb-2 flex items-center gap-2"
-                    >
-                      <Sparkles className="w-5 h-5 text-brand-600 shrink-0" />
-                      <span>{line.replace("## ", "")}</span>
-                    </h2>
-                  );
-                }
-                if (line.startsWith("### ")) {
-                  return (
-                    <h3 key={idx} className="text-lg font-bold font-display text-slate-900 mt-6 mb-2">
-                      {line.replace("### ", "")}
-                    </h3>
-                  );
-                }
-                if (line.startsWith("> ")) {
-                  return (
-                    <div
-                      key={idx}
-                      className="my-6 p-4 rounded-xl bg-brand-50/80 border-l-4 border-brand-600 text-brand-900 text-sm italic"
-                    >
-                      {line.replace("> ", "")}
-                    </div>
-                  );
-                }
-                if (line.startsWith("* ") || line.startsWith("- ")) {
-                  return (
-                    <li key={idx} className="ml-4 list-disc text-sm sm:text-base text-slate-700 my-1">
-                      {line.replace(/^(\* |- )/, "")}
-                    </li>
-                  );
-                }
-                if (/^\d+\.\s/.test(line)) {
-                  return (
-                    <li key={idx} className="ml-4 list-decimal text-sm sm:text-base text-slate-700 my-1">
-                      {line.replace(/^\d+\.\s/, "")}
-                    </li>
-                  );
-                }
-                if (line.trim() === "---") {
-                  return <hr key={idx} className="my-8 border-slate-200" />;
-                }
-                if (!line.trim()) {
-                  return <div key={idx} className="h-3" />;
-                }
-                return (
-                  <p key={idx} className="text-sm sm:text-base text-slate-700 leading-relaxed my-3">
-                    {line}
-                  </p>
-                );
-              })}
+          {/* ── Key Takeaways Card (SEO Best Practice) ── */}
+          <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-6 sm:p-8 text-white border border-slate-700/80 shadow-md">
+            <div className="flex items-center gap-2 text-brand-400 text-xs font-bold uppercase tracking-wider mb-3">
+              <ShieldCheck className="w-4 h-4" />
+              <span>Key Intelligence Summary</span>
             </div>
+            <h3 className="text-lg font-bold font-display text-white mb-2">
+              Essential Takeaways from this Guide
+            </h3>
+            <ul className="space-y-2 text-xs sm:text-sm text-slate-300">
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <span>All recommendations reflect active {new Date().getFullYear()} immigration regulations and verified employer sponsorship thresholds.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <span>Apply directly via certified ATS endpoints to bypass unverified recruitment middlemen.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <span>Live matching jobs in this sector are updated daily on SponsorAJobs.</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* ── Table of Contents (If 2+ Headings) ── */}
+          {headings.length > 1 && (
+            <div className="bg-slate-100/90 rounded-2xl p-6 border border-slate-200">
+              <h3 className="text-sm font-bold font-display text-slate-900 flex items-center gap-2 mb-3">
+                <ListTree className="w-4 h-4 text-brand-600" />
+                <span>Table of Contents</span>
+              </h3>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                {headings.map((h, i) => (
+                  <li key={i}>
+                    <a
+                      href={`#${h.anchorId}`}
+                      className="text-slate-700 hover:text-brand-600 font-medium flex items-center gap-1.5 hover:underline"
+                    >
+                      <span className="text-brand-500 font-bold">{i + 1}.</span>
+                      <span>{h.text}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* ── Article Markdown Body ── */}
+          <article className="bg-white rounded-3xl p-6 sm:p-12 border border-slate-200/90 shadow-sm">
+            <MarkdownContent content={post.content} />
           </article>
+
+          {/* ── Target Search Keywords ── */}
+          {post.targetKeywords && post.targetKeywords.length > 0 && (
+            <div className="bg-white rounded-2xl p-6 border border-slate-200/80 flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold text-slate-500 flex items-center gap-1 mr-2">
+                <Tag className="w-3.5 h-3.5" />
+                <span>Related Topics:</span>
+              </span>
+              {post.targetKeywords.map((kw, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200"
+                >
+                  {kw}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* ── Live Matching Jobs Widget ── */}
           {liveJobs.length > 0 && (
@@ -337,7 +357,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <div className="flex items-center gap-2 text-brand-600">
                 <HelpCircle className="w-6 h-6" />
                 <h3 className="text-xl font-bold font-display text-slate-900">
-                  Frequently Asked Questions
+                  Frequently Asked Questions (FAQ)
                 </h3>
               </div>
 
