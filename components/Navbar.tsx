@@ -5,18 +5,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Search, Menu, X, Globe, Briefcase, Building2, HelpCircle,
-  ChevronDown, MapPin, Sparkles, PlusCircle, Bell, BookOpen,
+  Bell, BookOpen, ArrowRight,
 } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
 
+// Streamlined, clean primary desktop links to prevent crowding
 const navLinks = [
-  { href: "/jobs",            label: "Search Jobs",  icon: Search },
-  { href: "/countries",       label: "Countries",    icon: Globe },
-  { href: "/categories",      label: "Categories",   icon: Briefcase },
-  { href: "/companies",       label: "Companies",    icon: Building2 },
-  { href: "/blog",            label: "Blog & Guides",icon: BookOpen },
-  { href: "/visa-sponsorship",label: "Visa Hub",     icon: HelpCircle },
-  { href: "/about",           label: "About",        icon: null },
+  { href: "/jobs",       label: "Find Jobs",     icon: Search },
+  { href: "/countries",  label: "Countries",     icon: Globe },
+  { href: "/companies",  label: "Top Sponsors",  icon: Building2 },
+  { href: "/blog",       label: "Visa Guides",   icon: BookOpen },
 ];
 
 export const Navbar: React.FC = () => {
@@ -25,7 +23,6 @@ export const Navbar: React.FC = () => {
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  // Add shadow/bg change on scroll
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 12);
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -37,8 +34,8 @@ export const Navbar: React.FC = () => {
       <header
         className={`w-full sticky top-0 z-40 transition-all duration-300 ${
           scrolled
-            ? "bg-white/95 backdrop-blur-xl shadow-sm border-b border-slate-200/80"
-            : "bg-white/80 backdrop-blur-md border-b border-slate-200/60"
+            ? "bg-white/95 backdrop-blur-xl shadow-xs border-b border-slate-200/80"
+            : "bg-white/90 backdrop-blur-md border-b border-slate-200/60"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
@@ -48,7 +45,7 @@ export const Navbar: React.FC = () => {
             <div className="relative w-9 h-9 rounded-xl overflow-hidden shadow-brand-sm">
               <div className="absolute inset-0 bg-gradient-to-br from-sky-400 via-brand-600 to-brand-800" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white font-black text-sm tracking-tight">SA</span>
+                <span className="text-white font-black text-sm tracking-tight font-display">SA</span>
               </div>
               <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
@@ -57,7 +54,7 @@ export const Navbar: React.FC = () => {
             </span>
           </Link>
 
-          {/* ── Desktop Navigation ── */}
+          {/* ── Streamlined Desktop Navigation ── */}
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => {
               const isActive =
@@ -67,56 +64,44 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                     isActive
-                      ? "text-brand-600 bg-brand-50"
+                      ? "text-brand-600 bg-brand-50 shadow-2xs"
                       : "text-slate-600 hover:text-brand-600 hover:bg-slate-50"
                   }`}
                 >
                   {link.label}
-                  {isActive && (
-                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-brand-600" />
-                  )}
                 </Link>
               );
             })}
           </nav>
 
-          {/* ── Right CTAs ── */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Quick Job Alerts Subscribe Button */}
+          {/* ── Clean Right CTAs ── */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            {/* Job Alerts Modal Trigger */}
             <button
               type="button"
               onClick={() => setAlertModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100/90 text-amber-900 border border-amber-200/90 text-xs font-bold transition-all shadow-2xs cursor-pointer"
             >
               <Bell className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
               <span className="hidden sm:inline">Job Alerts</span>
             </button>
 
-            {/* Post a Job */}
-            <Link
-              href="/employers"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 hover:border-brand-300 bg-white hover:bg-brand-50/50 text-slate-700 hover:text-brand-700 text-xs font-semibold transition-all duration-200 shadow-2xs"
-            >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span>Post a Job</span>
-            </Link>
-
-            {/* Search Jobs CTA */}
+            {/* Direct Search / Browse CTA */}
             <Link
               href="/jobs"
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold shadow-brand-sm hover:shadow-brand transition-all duration-200"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-bold shadow-brand-sm hover:shadow-brand transition-all duration-200"
             >
               <Search className="w-3.5 h-3.5" />
-              <span>Search Jobs</span>
+              <span>Explore Jobs</span>
             </Link>
 
-            {/* Mobile menu toggle */}
+            {/* Mobile menu button */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              className="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors border border-slate-200"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -124,51 +109,62 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* ── Mobile Drawer ── */}
+        {/* ── Responsive Mobile Menu Drawer ── */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-xl px-4 pt-3 pb-5 space-y-1 animate-fadeInDown">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive =
-                pathname === link.href ||
-                (link.href !== "/" && pathname?.startsWith(link.href));
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                    isActive
-                      ? "text-brand-600 bg-brand-50"
-                      : "text-slate-700 hover:text-brand-600 hover:bg-slate-50"
-                  }`}
-                >
-                  {Icon && <Icon className="w-4 h-4 shrink-0" />}
-                  {link.label}
-                </Link>
-              );
-            })}
+          <div className="md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-2xl px-4 pt-3 pb-6 space-y-2 animate-fadeInDown shadow-lg">
+            <div className="grid grid-cols-2 gap-2 pb-2 border-b border-slate-100">
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const isActive = pathname === link.href || (link.href !== "/" && pathname?.startsWith(link.href));
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      isActive
+                        ? "text-brand-600 bg-brand-50 border border-brand-200"
+                        : "text-slate-700 hover:text-brand-600 bg-slate-50 border border-slate-100"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 text-brand-600 shrink-0" />
+                    <span>{link.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
 
             <div className="pt-2 grid grid-cols-2 gap-2">
+              <Link
+                href="/categories"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-brand-600 flex items-center gap-1.5"
+              >
+                <Briefcase className="w-3.5 h-3.5 text-slate-400" />
+                <span>Categories</span>
+              </Link>
+              <Link
+                href="/about"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-brand-600 flex items-center gap-1.5"
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
+                <span>About Us</span>
+              </Link>
+            </div>
+
+            <div className="pt-2">
               <button
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   setAlertModalOpen(true);
                 }}
-                className="flex justify-center items-center gap-1.5 px-3 py-2.5 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-sm font-semibold"
+                className="w-full flex justify-center items-center gap-2 py-3 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold shadow-2xs"
               >
                 <Bell className="w-4 h-4 text-amber-600" />
-                <span>Job Alerts</span>
+                <span>Set Up Daily Job Alerts</span>
               </button>
-              <Link
-                href="/jobs"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex justify-center items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-semibold"
-              >
-                <Search className="w-4 h-4" />
-                <span>Search Jobs</span>
-              </Link>
             </div>
           </div>
         )}
