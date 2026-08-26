@@ -1,6 +1,6 @@
 import { JobRecord } from "../types/database";
 
-const BASE_URL = "https://sponsorajobs.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://sponsorajobs.com";
 
 export type JobSchemaInput = Partial<JobRecord> & {
   title: string;

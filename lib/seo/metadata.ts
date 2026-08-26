@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-const BASE_URL = "https://sponsorajobs.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://sponsorajobs.com";
 
 interface MetadataOptions {
   title: string;
