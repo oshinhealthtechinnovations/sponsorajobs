@@ -122,7 +122,7 @@ export const JobAlertModal: React.FC<JobAlertModalProps> = ({
             </div>
           ) : (
             <>
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center">
                   <Bell className="w-5 h-5" />
                 </div>
@@ -132,7 +132,28 @@ export const JobAlertModal: React.FC<JobAlertModalProps> = ({
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4 mt-5">
+              {/* Telegram Instant Option */}
+              <div className="p-3 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-between gap-3 mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center shrink-0">
+                    <Send className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-900">Join Telegram Group</h4>
+                    <p className="text-[11px] text-slate-500">Get instant daily visa job drops</p>
+                  </div>
+                </div>
+                <a
+                  href="https://t.me/+iosgr5P-DUoxMjU9"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-bold text-[11px] shrink-0 transition-colors shadow-2xs"
+                >
+                  Join Free
+                </a>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4 mt-2">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Your Email Address <span className="text-rose-500">*</span>

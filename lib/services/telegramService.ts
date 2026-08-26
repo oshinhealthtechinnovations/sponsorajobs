@@ -274,20 +274,25 @@ ${pendingList || "  None"}
     }).join("\n\n");
 
     const msg = `
-🌟 <b>TODAY'S VERIFIED VISA SPONSORSHIP JOB DROP</b>
-━━━━━━━━━━━━━━━━━━━━
+🌟 <b>TODAY'S VERIFIED VISA SPONSORSHIP JOB DROP</b> 🌍
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎯 <b>Latest Verified Global Roles with Visa Sponsorship:</b>
 
 ${jobEntries || "Check out latest jobs on our live portal!"}
 
-━━━━━━━━━━━━━━━━━━━━
-💡 <i>Tip: Unlock VIP employer contacts & application guides using master invite code:</i> <code>sumit_raj_linkedin</code>
-🌐 <b>Explore 640+ Visa Sponsored Jobs:</b> <a href="https://www.sponsorajobs.com">https://www.sponsorajobs.com</a>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎁 <b>Exclusive Candidate Perk:</b>
+Unlock full employer sponsorship breakdown & direct recruiter contacts using master invite code: <code>sumit_raj_linkedin</code>
+
+🌐 <b>Explore 640+ Live Verified Roles:</b>
+👉 https://www.sponsorajobs.com/jobs
+
+#VisaSponsorship #UKJobs #USJobs #H1B #SkilledWorker #TechCareers #GlobalJobs
 `.trim();
 
     return await this.sendMessage(msg, {
-      targetChatId: data.channelId || this.communityChannelId,
-      disableWebPagePreview: false,
+      targetChatId: data.channelId || this.communityChannelId || "@sponsorajobs_jobs",
+      disableWebPagePreview: true,
     });
   }
 

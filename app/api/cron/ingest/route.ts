@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { IngestionService } from "@/lib/services/ingestionService";
 import { SourceRegistry } from "@/sources/registry";
 import { telegramService } from "@/lib/services/telegramService";
+import { JobRepository } from "@/lib/repositories/jobRepository";
 
 export const runtime = "edge";
 
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
   const totalFetched = reports.reduce((acc, r) => acc + (r.jobsFetched || 0), 0);
   const totalVerified = reports.reduce((acc, r) => acc + (r.jobsInserted || 0) + (r.jobsUpdated || 0), 0);
 
-  // Notify Telegram
+  // 1. Notify Admin Private Telegram
   try {
     telegramService.notifyCronIngestCompleted({
       fetched: totalFetched,
@@ -47,6 +48,25 @@ export async function GET(request: NextRequest) {
       expired: expiredCount,
       durationMs: Date.now() - startTime,
     }).catch(console.error);
+
+    // 2. Broadcast Daily Verified Visa Jobs Drop to Community Channel / Group
+    const jobRepo = new JobRepository();
+    const topJobs = await jobRepo.getLatestJobs(5);
+    const jobsForDrop = topJobs.map((j) => ({
+      title: j.title,
+      companyName: j.company?.name || "Global Sponsor",
+      countryCode: j.location?.country || "gb",
+      salaryFormatted: j.salary?.min
+        ? `${j.salary.currency || "$"} ${j.salary.min.toLocaleString()} - ${j.salary.max?.toLocaleString() || ""}`
+        : undefined,
+      slug: j.slug,
+      sponsorshipStatus:
+        j.sponsorship?.label === "Strong"
+          ? "Direct Visa Sponsorship / CoS"
+          : "Visa Transfer / Sponsorship Eligible",
+    }));
+
+    telegramService.broadcastDailyJobsDrop({ jobs: jobsForDrop }).catch(console.error);
   } catch (e) {
     console.error(e);
   }

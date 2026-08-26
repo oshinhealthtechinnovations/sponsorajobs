@@ -146,6 +146,27 @@ export function SubscriberPopup() {
               </p>
             </div>
 
+            {/* Telegram Community Quick Access Card */}
+            <div className="p-3 rounded-2xl bg-gradient-to-r from-sky-500/10 via-sky-500/5 to-brand-500/10 border border-sky-500/20 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
+                  <Send className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white">Prefer Instant Telegram Alerts?</h4>
+                  <p className="text-[10px] text-slate-400">Join 1,000+ candidates for daily visa job drops</p>
+                </div>
+              </div>
+              <a
+                href="https://t.me/+iosgr5P-DUoxMjU9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-[11px] shrink-0 transition-colors shadow-xs"
+              >
+                Join Telegram
+              </a>
+            </div>
+
             {errorMessage && (
               <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold">
                 {errorMessage}
@@ -307,12 +328,23 @@ export function SubscriberPopup() {
               </p>
             </div>
 
-            <button
-              onClick={() => setIsOpen(false)}
-              className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-colors cursor-pointer"
-            >
-              Continue Browsing Jobs
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-2">
+              <a
+                href="https://t.me/+iosgr5P-DUoxMjU9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow-md transition-colors"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>Join Official Telegram Group</span>
+              </a>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs transition-colors cursor-pointer"
+              >
+                Continue Browsing
+              </button>
+            </div>
           </div>
         )}
       </div>
