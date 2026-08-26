@@ -2,6 +2,7 @@ import { MetadataRoute } from "next";
 import { getDatabase } from "@/lib/db/client";
 import { INITIAL_COUNTRIES } from "@/config/countries";
 import { INITIAL_CATEGORIES } from "@/config/categories";
+import { generateJobSlug } from "@/lib/seo/slugs";
 
 export const runtime = "edge";
 
@@ -92,16 +93,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // 5. Active Job Postings
+  // 5. Active Job Postings (Semantic Keyword-Rich Slugs for High CTR)
   try {
     const db = getDatabase();
-    const jobs = await db.prepare(
-      "SELECT id, updated_at FROM jobs WHERE status = 'active' ORDER BY updated_at DESC LIMIT 5000"
-    ).all<{ id: string; updated_at: string }>();
+    const jobs = await db.prepare(`
+      SELECT j.id, j.title, j.city, j.country_code, j.updated_at, c.name as company_name
+      FROM jobs j
+      LEFT JOIN companies c ON j.company_id = c.id
+      WHERE j.status = 'active'
+      ORDER BY j.updated_at DESC
+      LIMIT 5000
+    `).all<{ id: string; title: string; city: string; country_code: string; updated_at: string; company_name: string }>();
 
     for (const job of jobs.results) {
+      const slug = generateJobSlug({
+        id: job.id,
+        title: job.title,
+        company: job.company_name,
+        city: job.city,
+        country_code: job.country_code,
+      });
+
       entries.push({
-        url: `${baseUrl}/job/${job.id}`,
+        url: `${baseUrl}/job/${slug}`,
         lastModified: new Date(job.updated_at || now),
         changeFrequency: "weekly",
         priority: 0.7,

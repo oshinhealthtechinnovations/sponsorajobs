@@ -4,6 +4,7 @@ import { EmailService } from "@/lib/services/emailService";
 import { JobRepository } from "@/lib/repositories/jobRepository";
 
 import { CloudStorageService } from "@/lib/services/cloudStorageService";
+import { publicApiRateLimiter } from "@/lib/security/rateLimiter";
 
 export const runtime = "edge";
 
@@ -18,6 +19,15 @@ interface AlertSubscriptionPayload {
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || req.headers.get("cf-connecting-ip") || "anonymous_subscriber";
+    const limitCheck = publicApiRateLimiter.check(`alert_${ip}`);
+    if (!limitCheck.allowed) {
+      return NextResponse.json(
+        { success: false, error: `Too many requests. Please try again in ${limitCheck.resetTime} seconds.` },
+        { status: 429 }
+      );
+    }
+
     const body = (await req.json()) as AlertSubscriptionPayload;
 
     if (!body?.email || !body.email.includes("@")) {
