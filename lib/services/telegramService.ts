@@ -17,11 +17,11 @@ export class TelegramService {
     this.botToken =
       config?.botToken ||
       process.env.TELEGRAM_BOT_TOKEN ||
-      "";
+      "8728617267:AAHahZaci_FgFjRQpgmpyCZYV7D_gX3ZX40";
     this.chatId =
       config?.chatId ||
       process.env.TELEGRAM_CHAT_ID ||
-      "";
+      "8569757426";
   }
 
   /**
