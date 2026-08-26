@@ -143,6 +143,12 @@ export const Footer: React.FC = () => {
                   NZ AEWV & Green List Guide
                 </Link>
               </li>
+              <li className="pt-1">
+                <Link href="/blog" className="text-brand-400 font-semibold hover:text-brand-300 transition-colors flex items-center gap-1">
+                  <span>Explore All Career Guides & Blog</span>
+                  <ArrowUpRight className="w-3 h-3" />
+                </Link>
+              </li>
             </ul>
           </div>
 

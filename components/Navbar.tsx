@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Search, Menu, X, Globe, Briefcase, Building2, HelpCircle,
-  ChevronDown, MapPin, Sparkles, PlusCircle, Bell,
+  ChevronDown, MapPin, Sparkles, PlusCircle, Bell, BookOpen,
 } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
 
@@ -14,7 +14,8 @@ const navLinks = [
   { href: "/countries",       label: "Countries",    icon: Globe },
   { href: "/categories",      label: "Categories",   icon: Briefcase },
   { href: "/companies",       label: "Companies",    icon: Building2 },
-  { href: "/visa-sponsorship",label: "Visa Guides",  icon: HelpCircle },
+  { href: "/blog",            label: "Blog & Guides",icon: BookOpen },
+  { href: "/visa-sponsorship",label: "Visa Hub",     icon: HelpCircle },
   { href: "/about",           label: "About",        icon: null },
 ];
 

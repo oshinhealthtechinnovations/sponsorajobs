@@ -323,6 +323,10 @@ export class JobRepository {
     };
   }
 
+  async searchJobs(params: JobSearchParams): Promise<JobSearchResult> {
+    return this.search(params);
+  }
+
   async getById(id: string): Promise<PublicJobDTO | null> {
     const dataSql = `
       SELECT j.*, 

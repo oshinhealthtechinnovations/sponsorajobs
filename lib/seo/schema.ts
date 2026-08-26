@@ -132,3 +132,72 @@ export function generateWebsiteSchema(): Record<string, any> {
     ],
   };
 }
+
+/**
+ * BlogPosting JSON-LD Schema Generator for Google Rich Article Results
+ */
+export function generateBlogPostingSchema(post: {
+  title: string;
+  excerpt: string;
+  slug: string;
+  publishedAt: string;
+  updatedAt?: string;
+  authorName?: string;
+  featuredImageUrl?: string;
+  categoryName?: string;
+}): Record<string, any> {
+  const postUrl = `${BASE_URL}/blog/${post.slug}`;
+  const imageUrl = post.featuredImageUrl?.startsWith("http")
+    ? post.featuredImageUrl
+    : `${BASE_URL}/og-image.png`;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": postUrl,
+    },
+    headline: post.title,
+    description: post.excerpt,
+    image: [imageUrl],
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt || post.publishedAt,
+    author: {
+      "@type": "Person",
+      name: post.authorName || "SponsorAJobs Research Team",
+      url: `${BASE_URL}/about`,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "SponsorAJobs",
+      logo: {
+        "@type": "ImageObject",
+        url: `${BASE_URL}/logo.png`,
+      },
+    },
+    articleSection: post.categoryName || "Visa Guides",
+    inLanguage: "en-US",
+  };
+}
+
+/**
+ * FAQPage JSON-LD Schema Generator for Google SERP Accordion Rich Results
+ */
+export function generateFaqSchema(
+  faqs: { question: string; answer: string }[]
+): Record<string, any> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+}
+

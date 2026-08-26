@@ -3,6 +3,7 @@ import { INITIAL_COUNTRIES } from "@/config/countries";
 import { INITIAL_CATEGORIES } from "@/config/categories";
 import { getDatabase } from "@/lib/db/client";
 import { generateJobSlug } from "@/lib/seo/slugs";
+import { blogRepository } from "@/lib/repositories/blogRepository";
 
 export const runtime = "edge";
 
@@ -16,6 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages = [
     { url: `${baseUrl}`, priority: 1.0, changeFrequency: "daily" as const },
     { url: `${baseUrl}/jobs`, priority: 0.9, changeFrequency: "hourly" as const },
+    { url: `${baseUrl}/blog`, priority: 0.9, changeFrequency: "daily" as const },
     { url: `${baseUrl}/countries`, priority: 0.8, changeFrequency: "daily" as const },
     { url: `${baseUrl}/categories`, priority: 0.8, changeFrequency: "daily" as const },
     { url: `${baseUrl}/companies`, priority: 0.8, changeFrequency: "daily" as const },
@@ -119,5 +121,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("Error generating sitemap jobs:", err);
   }
 
+  // 6. Dynamic SEO Blog Posts (Priority 0.85)
+  try {
+    const blogSlugs = await blogRepository.getAllPublishedSlugs();
+    for (const post of blogSlugs) {
+      entries.push({
+        url: `${baseUrl}/blog/${post.slug}`,
+        lastModified: new Date(post.updatedAt || now),
+        changeFrequency: "weekly",
+        priority: 0.85,
+      });
+    }
+  } catch (err) {
+    console.error("Error generating sitemap blog posts:", err);
+  }
+
   return entries;
 }
+
