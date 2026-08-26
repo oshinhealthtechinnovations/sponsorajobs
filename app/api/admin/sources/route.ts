@@ -2,10 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/db/client";
 import { IngestionService } from "@/lib/services/ingestionService";
 import { SourceRegistry } from "@/sources/registry";
+import { verifyAdminSession } from "@/lib/services/adminAuth";
 
 export const runtime = "edge";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const isAuthorized = await verifyAdminSession(request);
+  if (!isAuthorized) {
+    return NextResponse.json({ success: false, error: "Unauthorized access." }, { status: 401 });
+  }
+
   const db = getDatabase();
   const res = await db.prepare("SELECT * FROM sources ORDER BY name ASC").all<any>();
   return NextResponse.json({
@@ -15,6 +21,11 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const isAuthorized = await verifyAdminSession(request);
+  if (!isAuthorized) {
+    return NextResponse.json({ success: false, error: "Unauthorized access." }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const { action, sourceId, active } = body;

@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/db/client";
+import { verifyAdminSession } from "@/lib/services/adminAuth";
 
 export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
+  const isAuthorized = await verifyAdminSession(request);
+  if (!isAuthorized) {
+    return NextResponse.json({ success: false, error: "Unauthorized access." }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q") || "";
   const status = searchParams.get("status") || "all";
@@ -44,6 +50,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const isAuthorized = await verifyAdminSession(request);
+  if (!isAuthorized) {
+    return NextResponse.json({ success: false, error: "Unauthorized access." }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const { action, jobId, status, sponsorshipLabel, overrideReason } = body;
@@ -60,49 +71,35 @@ export async function POST(request: NextRequest) {
         WHERE id = ?
       `).bind(status, jobId).run();
 
-      // Record in audit log
+      // Audit log
       const auditId = `audit_${Date.now()}`;
       await db.prepare(`
         INSERT INTO admin_action_log (id, admin, action, entity, entity_id, old_value, new_value, timestamp)
-        VALUES (?, 'system_admin', 'UPDATE_STATUS', 'jobs', ?, NULL, ?, CURRENT_TIMESTAMP)
+        VALUES (?, 'system_admin', 'UPDATE_JOB_STATUS', 'jobs', ?, NULL, ?, CURRENT_TIMESTAMP)
       `).bind(auditId, jobId, status).run();
 
-      return NextResponse.json({ success: true, message: `Job ${jobId} status updated to ${status}` });
+      return NextResponse.json({ success: true, message: `Job ${jobId} status updated to ${status}.` });
     }
 
-    if (action === "override_classification") {
-      if (!jobId || !sponsorshipLabel || !overrideReason) {
-        return NextResponse.json({ success: false, error: "Missing required fields." }, { status: 400 });
+    if (action === "override_sponsorship") {
+      if (!jobId || !sponsorshipLabel) {
+        return NextResponse.json({ success: false, error: "Missing jobId or sponsorshipLabel." }, { status: 400 });
       }
 
-      // Fetch current label
-      const current = await db.prepare("SELECT sponsorship_label FROM jobs WHERE id = ?").bind(jobId).first<{ sponsorship_label: string }>();
-
-      // Update job label and set to active if was review_required
       await db.prepare(`
         UPDATE jobs
-        SET sponsorship_label = ?,
-            status = CASE WHEN status = 'review_required' THEN 'active' ELSE status END,
-            updated_at = CURRENT_TIMESTAMP
+        SET sponsorship_label = ?, sponsorship_confidence = 100, is_override = 1, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `).bind(sponsorshipLabel, jobId).run();
 
-      // Record in audit trail (Section 147)
+      // Audit log
       const auditId = `audit_${Date.now()}`;
       await db.prepare(`
         INSERT INTO admin_action_log (id, admin, action, entity, entity_id, old_value, new_value, timestamp)
-        VALUES (?, 'system_admin', 'OVERRIDE_CLASSIFICATION', 'jobs', ?, ?, ?, CURRENT_TIMESTAMP)
-      `).bind(
-        auditId,
-        jobId,
-        current?.sponsorship_label || "UNKNOWN",
-        `${sponsorshipLabel} (Reason: ${overrideReason})`
-      ).run();
+        VALUES (?, 'system_admin', 'OVERRIDE_SPONSORSHIP', 'jobs', ?, NULL, ?, CURRENT_TIMESTAMP)
+      `).bind(auditId, jobId, `${sponsorshipLabel} (${overrideReason || 'Manual override'})`).run();
 
-      return NextResponse.json({
-        success: true,
-        message: `Job ${jobId} classification overridden to ${sponsorshipLabel}`,
-      });
+      return NextResponse.json({ success: true, message: `Job ${jobId} sponsorship overridden to ${sponsorshipLabel}.` });
     }
 
     return NextResponse.json({ success: false, error: "Invalid action." }, { status: 400 });

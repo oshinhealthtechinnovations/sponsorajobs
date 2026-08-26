@@ -1,10 +1,20 @@
 import React from "react";
 import Link from "next/link";
-import { LayoutDashboard, Briefcase, Radio, History, Settings, LogOut, ArrowLeft, ShieldAlert, Bell } from "lucide-react";
+import { LayoutDashboard, Briefcase, Radio, History, Settings, ArrowLeft, Bell } from "lucide-react";
+import { AdminLogoutButton } from "@/components/AdminLogoutButton";
 
 export const metadata = {
   title: "Admin Panel — SponsorAJobs",
-  robots: { index: false, follow: false },
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+    },
+  },
 };
 
 export default function AdminLayout({
@@ -78,7 +88,9 @@ export default function AdminLayout({
           </nav>
         </div>
 
-        <div className="pt-6 border-t border-slate-800 space-y-2">
+        <div className="pt-6 border-t border-slate-800 space-y-3">
+          <AdminLogoutButton />
+
           <Link
             href="/"
             className="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors"

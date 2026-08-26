@@ -1,19 +1,73 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+const ADMIN_COOKIE_NAME = "sa_admin_session";
+
+function getAdminSecret(): string {
+  return process.env.ADMIN_SECRET || "default_dev_admin_secret_123";
+}
+
 export function middleware(request: NextRequest) {
   const host = request.headers.get("host") || "";
+  const { pathname } = request.nextUrl;
 
-  // If traffic hits *.vercel.app, permanently redirect (301) to custom production domain
+  // 1. Host Redirection: *.vercel.app -> custom production domain (301 Permanent Redirect)
   if (host.includes(".vercel.app")) {
     const canonicalBase = process.env.NEXT_PUBLIC_SITE_URL || "https://sponsorajobs.com";
     const cleanBase = canonicalBase.endsWith("/") ? canonicalBase.slice(0, -1) : canonicalBase;
-    const targetUrl = new URL(`${cleanBase}${request.nextUrl.pathname}${request.nextUrl.search}`);
+    const targetUrl = new URL(`${cleanBase}${pathname}${request.nextUrl.search}`);
 
     const response = NextResponse.redirect(targetUrl, 301);
-    // Tell crawlers explicitly never to index the vercel.app preview/deployment domain
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
     return response;
+  }
+
+  // 2. Admin Web Portal Protection Gatekeeper
+  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+    const adminSecret = getAdminSecret();
+    const sessionCookie = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const authHeader = request.headers.get("authorization");
+
+    const isAuthenticated =
+      (sessionCookie && sessionCookie === adminSecret) ||
+      (authHeader && authHeader === `Bearer ${adminSecret}`);
+
+    if (!isAuthenticated) {
+      const loginUrl = new URL("/admin/login", request.url);
+      loginUrl.searchParams.set("redirect", pathname);
+
+      const redirectResponse = NextResponse.redirect(loginUrl, 307);
+      redirectResponse.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+      redirectResponse.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+      return redirectResponse;
+    }
+  }
+
+  // 3. Admin API Security Protection Gatekeeper
+  if (pathname.startsWith("/api/admin") && pathname !== "/api/admin/auth") {
+    const adminSecret = getAdminSecret();
+    const sessionCookie = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const authHeader = request.headers.get("authorization");
+
+    const isAuthenticated =
+      (sessionCookie && sessionCookie === adminSecret) ||
+      (authHeader && authHeader === `Bearer ${adminSecret}`);
+
+    if (!isAuthenticated) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Unauthorized: Invalid or missing administrator credentials.",
+        },
+        {
+          status: 401,
+          headers: {
+            "X-Robots-Tag": "noindex, nofollow, noarchive",
+            "Cache-Control": "no-store",
+          },
+        }
+      );
+    }
   }
 
   return NextResponse.next();
