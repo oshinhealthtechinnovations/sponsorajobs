@@ -82,9 +82,13 @@ describe("CV Job Match (CV-to-Job Recommendation Engine)", () => {
     });
 
     it("should resolve occupation aliases and map SOC codes", () => {
-      const occ = normalizeOccupation("Full Stack Developer");
+      const occ = normalizeOccupation("Software Developer");
       expect(occ?.id).toBe("software_engineer");
       expect(occ?.ukSocCode).toBe("2134");
+
+      const fullStackOcc = normalizeOccupation("Full Stack Developer");
+      expect(fullStackOcc?.id).toBe("full_stack_engineer");
+      expect(fullStackOcc?.ukSocCode).toBe("2134");
 
       const architectOcc = normalizeOccupation("Cloud Solutions Architect");
       expect(architectOcc?.id).toBe("solutions_architect");

@@ -9,13 +9,18 @@ export function detectCandidateOccupationFromCV(rawText: string): CanonicalOccup
   if (!rawText) return normalizeOccupation("");
   const lines = rawText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 
-  // 1. Scan top 15 lines (job title header, professional summary)
-  for (let i = 0; i < Math.min(15, lines.length); i++) {
+  // 1. Scan top 6 lines specifically for primary role title (split by pipes, bullets, dashes)
+  for (let i = 0; i < Math.min(6, lines.length); i++) {
     const line = lines[i];
-    if (line.length >= 3 && line.length <= 120 && !line.includes("@") && !line.startsWith("http")) {
-      const occ = normalizeOccupation(line);
-      if (occ && occ.id !== "general_professional") {
-        return occ;
+    if (line.length >= 3 && line.length <= 120 && !line.startsWith("http")) {
+      const parts = line.split(/[|•–—\t]/).map((p) => p.trim());
+      for (const part of parts) {
+        if (part.length >= 4 && !part.includes("@") && !part.startsWith("http") && !/^\+?\d+/.test(part)) {
+          const occ = normalizeOccupation(part);
+          if (occ && occ.id !== "general_professional") {
+            return occ;
+          }
+        }
       }
     }
   }
