@@ -305,14 +305,6 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
             </a>
           </div>
         </div>
-
-        {/* Link quality indicator */}
-        {!isDirect && (
-          <p className="mt-2 text-[10px] text-amber-600 flex items-center gap-1">
-            <Building2 className="w-3 h-3 shrink-0" />
-            Opens employer careers page — search for &ldquo;{job.title}&rdquo; once there
-          </p>
-        )}
       </div>
     </div>
   );
