@@ -1,0 +1,26 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="630" fill="url(#grad_cv-job-match-technology)"/>
+    <circle cx="1050" cy="150" r="280" fill="white" fill-opacity="0.05"/>
+    <circle cx="150" cy="500" r="350" fill="white" fill-opacity="0.04"/>
+    
+    <defs>
+      <linearGradient id="grad_cv-job-match-technology" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#059669"/>
+        <stop offset="100%" stop-color="#064e3b"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Tag Badge -->
+    <rect x="80" y="80" width="300" height="44" rx="22" fill="white" fill-opacity="0.15" stroke="white" stroke-opacity="0.3" stroke-width="1"/>
+    <text x="105" y="108" fill="white" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="800" letter-spacing="1.5">⚡  MATCHING ENGINE</text>
+
+    <!-- Title & Subtitle -->
+    <text x="80" y="260" fill="white" font-family="system-ui, -apple-system, sans-serif" font-size="52" font-weight="900" letter-spacing="-1">Deterministic CV-to-Job Match</text>
+    <text x="80" y="330" fill="white" fill-opacity="0.85" font-family="system-ui, -apple-system, sans-serif" font-size="26" font-weight="500">Find Jobs Matching Your Skills Automatically</text>
+
+    <!-- Bottom Bar -->
+    <line x1="80" y1="480" x2="1120" y2="480" stroke="white" stroke-opacity="0.2" stroke-width="1.5"/>
+    <text x="80" y="540" fill="white" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="800">SponsorAJobs</text>
+    <text x="250" y="540" fill="white" fill-opacity="0.7" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="500">• Verified Visa Sponsorship Database &amp; ATS Engine</text>
+    <text x="980" y="540" fill="white" fill-opacity="0.9" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="700">Read Guide →</text>
+  </svg>

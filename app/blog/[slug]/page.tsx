@@ -245,6 +245,17 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
         {/* ── Main Article Body Layout ── */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+          {/* ── Featured Image Banner ── */}
+          {post.featuredImageUrl && (
+            <div className="rounded-3xl overflow-hidden border border-slate-200/90 shadow-md">
+              <img
+                src={post.featuredImageUrl}
+                alt={post.title}
+                className="w-full h-auto object-cover max-h-[440px]"
+              />
+            </div>
+          )}
+
           {/* ── Key Takeaways Card (SEO Best Practice) ── */}
           <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-6 sm:p-8 text-white border border-slate-700/80 shadow-md">
             <div className="flex items-center gap-2 text-brand-400 text-xs font-bold uppercase tracking-wider mb-3">
