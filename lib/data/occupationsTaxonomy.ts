@@ -24,7 +24,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2134",
     onetCode: "15-1252.00",
     category: "Software & Web",
-    aliases: ["software engineer", "software developer", "programmer", "software development engineer", "sde", "application developer", "core engineer"],
+    aliases: ["software engineer", "software developer", "programmer", "software development engineer", "sde", "application developer", "core engineer", "rust engineer", "php developer", "laravel developer", "ruby on rails"],
     relatedOccupations: [
       { occupationId: "full_stack_engineer", weight: 0.95 },
       { occupationId: "backend_engineer", weight: 0.90 },
@@ -66,7 +66,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2134",
     onetCode: "15-1252.00",
     category: "Software & Web",
-    aliases: ["backend developer", "backend engineer", "back end", "server engineer", "api engineer", "node developer", "java developer", "python developer", "golang developer", "c# developer"],
+    aliases: ["backend developer", "backend engineer", "back end", "server engineer", "api engineer", "node developer", "java developer", "python developer", "golang developer", "golang backend", "c# developer", "api platform"],
     relatedOccupations: [
       { occupationId: "full_stack_engineer", weight: 0.90 },
       { occupationId: "software_engineer", weight: 0.90 },
@@ -80,7 +80,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2134",
     onetCode: "15-1252.00",
     category: "Software & Web",
-    aliases: ["mobile developer", "ios developer", "android developer", "react native", "flutter developer", "mobile engineer", "swift developer", "kotlin developer"],
+    aliases: ["mobile developer", "ios developer", "ios mobile", "android developer", "android software", "react native", "flutter developer", "mobile engineer", "swift developer", "kotlin developer", "mobile application"],
     relatedOccupations: [
       { occupationId: "software_engineer", weight: 0.85 },
       { occupationId: "frontend_engineer", weight: 0.80 },
@@ -92,10 +92,10 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2134",
     onetCode: "15-1252.00",
     category: "Software & Web",
-    aliases: ["embedded engineer", "firmware engineer", "embedded software", "iot engineer", "c++ engineer", "microcontroller developer"],
+    aliases: ["embedded engineer", "firmware engineer", "embedded software", "iot engineer", "c++ engineer", "microcontroller developer", "embedded systems"],
     relatedOccupations: [
       { occupationId: "software_engineer", weight: 0.80 },
-      { occupationId: "electronics_engineer", weight: 0.85 },
+      { occupationId: "electrical_engineer", weight: 0.85 },
     ],
   },
   "qa_test_engineer": {
@@ -104,7 +104,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2134",
     onetCode: "15-1253.00",
     category: "Software & Web",
-    aliases: ["qa engineer", "automation tester", "sdet", "test engineer", "quality assurance engineer", "test automation"],
+    aliases: ["qa engineer", "automation tester", "sdet", "test engineer", "quality assurance engineer", "test automation", "qa automation"],
     relatedOccupations: [
       { occupationId: "software_engineer", weight: 0.80 },
       { occupationId: "devops_engineer", weight: 0.65 },
@@ -120,7 +120,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2134",
     onetCode: "15-1251.00",
     category: "Cloud & DevOps",
-    aliases: ["devops", "site reliability engineer", "sre", "platform engineer", "cloud engineer", "infrastructure engineer", "build engineer", "release engineer"],
+    aliases: ["devops", "site reliability engineer", "sre", "platform engineer", "cloud engineer", "infrastructure engineer", "infrastructure automation", "kubernetes platform", "build engineer", "release engineer", "azure platform", "gcp cloud"],
     relatedOccupations: [
       { occupationId: "solutions_architect", weight: 0.85 },
       { occupationId: "software_engineer", weight: 0.80 },
@@ -133,7 +133,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2133",
     onetCode: "15-1299.08",
     category: "Cloud & DevOps",
-    aliases: ["solutions architect", "cloud architect", "enterprise architect", "technical architect", "systems architect", "aws architect", "azure architect"],
+    aliases: ["solutions architect", "cloud architect", "enterprise architect", "technical architect", "systems architect", "aws architect", "azure architect", "cloud security architect", "software architect", "cto"],
     relatedOccupations: [
       { occupationId: "devops_engineer", weight: 0.85 },
       { occupationId: "software_engineer", weight: 0.85 },
@@ -146,7 +146,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2135",
     onetCode: "15-1212.00",
     category: "Cloud & DevOps",
-    aliases: ["cyber security", "security engineer", "soc analyst", "information security", "infosec", "penetration tester", "ethical hacker", "devsecops"],
+    aliases: ["cyber security", "security engineer", "soc analyst", "information security", "infosec", "penetration tester", "ethical hacker", "devsecops", "network security engineer"],
     relatedOccupations: [
       { occupationId: "devops_engineer", weight: 0.75 },
       { occupationId: "network_engineer", weight: 0.80 },
@@ -158,7 +158,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2135",
     onetCode: "15-1244.00",
     category: "Cloud & DevOps",
-    aliases: ["network engineer", "systems administrator", "sysadmin", "it administrator", "infrastructure specialist", "cisco engineer"],
+    aliases: ["network engineer", "systems administrator", "sysadmin", "it administrator", "infrastructure specialist", "cisco engineer", "linux systems", "it systems engineer"],
     relatedOccupations: [
       { occupationId: "devops_engineer", weight: 0.75 },
       { occupationId: "cyber_security_engineer", weight: 0.75 },
@@ -174,7 +174,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2135",
     onetCode: "15-2051.00",
     category: "Data & AI",
-    aliases: ["data scientist", "machine learning engineer", "ml engineer", "ai engineer", "deep learning", "nlp engineer", "computer vision engineer", "ai researcher"],
+    aliases: ["data scientist", "machine learning engineer", "ml engineer", "ai engineer", "deep learning", "nlp engineer", "computer vision", "ai researcher", "lead ai researcher", "quantitative data analyst", "nlp data scientist"],
     relatedOccupations: [
       { occupationId: "data_engineer", weight: 0.85 },
       { occupationId: "software_engineer", weight: 0.75 },
@@ -187,7 +187,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2133",
     onetCode: "15-1243.00",
     category: "Data & AI",
-    aliases: ["data engineer", "big data engineer", "data platform", "analytics engineer", "etl developer", "data warehouse architect", "snowflake developer"],
+    aliases: ["data engineer", "big data engineer", "data platform", "analytics engineer", "etl developer", "data warehouse architect", "snowflake developer", "big data architect"],
     relatedOccupations: [
       { occupationId: "data_scientist", weight: 0.85 },
       { occupationId: "software_engineer", weight: 0.80 },
@@ -229,7 +229,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2421",
     onetCode: "11-9199.00",
     category: "Product & Design",
-    aliases: ["product manager", "technical product manager", "product owner", "group product manager", "program manager", "tpm"],
+    aliases: ["product manager", "technical product manager", "product owner", "group product manager", "program manager", "tpm", "associate product manager"],
     relatedOccupations: [
       { occupationId: "business_analyst", weight: 0.85 },
       { occupationId: "scrum_master_agile", weight: 0.80 },
@@ -278,11 +278,14 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
       "construction engineer",
       "site engineer",
       "highway engineer",
+      "highway design",
       "bridge engineer",
+      "bridge design",
       "transportation engineer",
       "water engineer",
       "drainage engineer",
       "infrastructure engineer",
+      "construction site manager",
     ],
     relatedOccupations: [
       { occupationId: "project_coordinator", weight: 0.90 },
@@ -308,6 +311,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
       "associate project manager",
       "programme controls",
       "primavera planner",
+      "infrastructure project planner",
     ],
     relatedOccupations: [
       { occupationId: "civil_engineer", weight: 0.90 },
@@ -322,7 +326,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2121",
     onetCode: "17-3011.00",
     category: "Civil & Construction",
-    aliases: ["bim coordinator", "bim manager", "revit modeler", "cad technician", "autocad draughtsman", "civil 3d technician"],
+    aliases: ["bim coordinator", "bim manager", "revit modeler", "cad technician", "autocad draughtsman", "civil 3d technician", "structural cad technician"],
     relatedOccupations: [
       { occupationId: "civil_engineer", weight: 0.90 },
       { occupationId: "project_coordinator", weight: 0.75 },
@@ -334,7 +338,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2433",
     onetCode: "13-1051.00",
     category: "Civil & Construction",
-    aliases: ["quantity surveyor", "cost estimator", "commercial manager", "cost consultant", "construction estimator"],
+    aliases: ["quantity surveyor", "cost estimator", "commercial manager", "cost consultant", "construction estimator", "senior commercial manager"],
     relatedOccupations: [
       { occupationId: "project_coordinator", weight: 0.85 },
       { occupationId: "civil_engineer", weight: 0.85 },
@@ -350,7 +354,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2122",
     onetCode: "17-2141.00",
     category: "Engineering & Hardware",
-    aliases: ["mechanical engineer", "hvac engineer", "building services engineer", "piping engineer", "thermal engineer", "mep engineer"],
+    aliases: ["mechanical engineer", "mechanical design", "hvac engineer", "building services engineer", "piping engineer", "thermal engineer", "mep engineer"],
     relatedOccupations: [
       { occupationId: "electrical_engineer", weight: 0.80 },
       { occupationId: "civil_engineer", weight: 0.70 },
@@ -363,7 +367,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2123",
     onetCode: "17-2071.00",
     category: "Engineering & Hardware",
-    aliases: ["electrical engineer", "electronics engineer", "power systems engineer", "automation engineer", "plc engineer", "hardware engineer"],
+    aliases: ["electrical engineer", "electrical power", "electronics engineer", "power systems engineer", "automation engineer", "plc engineer", "hardware engineer", "robotics & automation"],
     relatedOccupations: [
       { occupationId: "mechanical_engineer", weight: 0.80 },
       { occupationId: "embedded_systems_engineer", weight: 0.85 },
@@ -379,7 +383,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2421",
     onetCode: "13-1111.00",
     category: "Business & PMO",
-    aliases: ["business analyst", "it business analyst", "systems analyst", "management consultant", "functional consultant", "business consultant"],
+    aliases: ["business analyst", "it business analyst", "systems analyst", "management consultant", "functional consultant", "business consultant", "erp consultant", "functional erp"],
     relatedOccupations: [
       { occupationId: "product_manager", weight: 0.85 },
       { occupationId: "project_coordinator", weight: 0.80 },
@@ -408,7 +412,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "3534",
     onetCode: "13-2041.00",
     category: "Finance & Risk",
-    aliases: ["credit analyst", "credit risk", "credit underwriter", "risk analyst", "risk manager", "credit risk analyst", "portfolio risk"],
+    aliases: ["credit analyst", "credit risk", "credit underwriter", "risk analyst", "risk manager", "credit risk analyst", "portfolio risk", "underwriter"],
     relatedOccupations: [
       { occupationId: "financial_analyst", weight: 0.85 },
       { occupationId: "business_analyst", weight: 0.60 },
@@ -447,7 +451,7 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ukSocCode: "2231",
     onetCode: "29-1141.00",
     category: "Healthcare & Science",
-    aliases: ["registered nurse", "staff nurse", "clinical nurse", "charge nurse", "nursing officer", "healthcare specialist", "clinical specialist"],
+    aliases: ["registered nurse", "staff nurse", "clinical nurse", "charge nurse", "nursing officer", "healthcare specialist", "clinical specialist", "clinical specialist nurse"],
     relatedOccupations: [],
   },
 
@@ -475,19 +479,30 @@ export function normalizeOccupation(jobTitle: string): CanonicalOccupation {
     return OCCUPATIONS_TAXONOMY[lower];
   }
 
-  // 2. Alias lookup
-  for (const occupation of Object.values(OCCUPATIONS_TAXONOMY)) {
-    for (const alias of occupation.aliases) {
-      if (lower.includes(alias)) {
-        return occupation;
-      }
-    }
+  // 2. Structured Domain Keyword Heuristics (High Precision, Specific First)
+  // Mobile Engineering (iOS, Android, React Native, Flutter, Swift, Kotlin)
+  if (/\b(ios|android|mobile\s*app|mobile\s*application|mobile\s*developer|mobile\s*engineer|react\s*native|flutter|swift|kotlin)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["mobile_engineer"];
   }
 
-  // 3. Structured Keyword Heuristics (Strict, Non-Overlapping Order)
+  // QA & Automation
+  if (/\b(qa\s*engineer|automation\s*tester|sdet|test\s*engineer|quality\s*assurance|qa\s*automation)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["qa_test_engineer"];
+  }
+
   // Cloud, DevOps & SRE
-  if (/\b(devops|sre|site\s*reliability|cloud\s*architect|cloud\s*engineer|platform\s*engineer|infrastructure\s*engineer|kubernetes|gitops)\b/i.test(lower)) {
+  if (/\b(devops|sre|site\s*reliability|cloud\s*engineer|platform\s*engineer|infrastructure\s*engineer|infrastructure\s*automation|kubernetes|gitops|azure\s*platform|gcp\s*cloud)\b/i.test(lower)) {
     return OCCUPATIONS_TAXONOMY["devops_engineer"];
+  }
+
+  // Solutions / Enterprise Architect
+  if (/\b(solutions\s*architect|enterprise\s*architect|technical\s*architect|systems\s*architect|cloud\s*architect|cloud\s*security\s*architect|software\s*architect|cto)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["solutions_architect"];
+  }
+
+  // Cyber Security & Network Security
+  if (/\b(cyber\s*security|security\s*engineer|soc\s*analyst|infosec|penetration\s*tester|network\s*security)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["cyber_security_engineer"];
   }
 
   // Data Science & AI/ML
@@ -495,14 +510,14 @@ export function normalizeOccupation(jobTitle: string): CanonicalOccupation {
     return OCCUPATIONS_TAXONOMY["data_scientist"];
   }
 
-  // Data Engineering & BI
-  if (/\b(data\s*engineer|etl\s*developer|big\s*data|bi\s*developer|data\s*platform|analytics\s*engineer|data\s*warehouse|snowflake|power\s*bi\s*developer)\b/i.test(lower)) {
+  // Data Engineering & Big Data
+  if (/\b(data\s*engineer|etl\s*developer|big\s*data|data\s*platform|analytics\s*engineer|data\s*warehouse|snowflake|databricks)\b/i.test(lower)) {
     return OCCUPATIONS_TAXONOMY["data_engineer"];
   }
 
-  // Mobile Engineering
-  if (/\b(mobile\s*developer|ios\s*developer|android\s*developer|react\s*native|flutter\s*developer|swift\s*developer|kotlin\s*developer)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["mobile_engineer"];
+  // BI & Data Analysis
+  if (/\b(bi\s*developer|business\s*intelligence|power\s*bi|tableau\s*developer|data\s*analyst|reporting\s*analyst|insights\s*analyst)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["bi_analytics_engineer"];
   }
 
   // Full Stack
@@ -515,40 +530,20 @@ export function normalizeOccupation(jobTitle: string): CanonicalOccupation {
     return OCCUPATIONS_TAXONOMY["frontend_engineer"];
   }
 
-  // Backend / Software Developer
-  if (/\b(backend|back\s*end|software\s*engineer|software\s*developer|programmer|api\s*engineer|node\s*developer|python\s*developer|java\s*developer|golang\s*developer|\.net\s*developer|c\#\s*developer)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["software_engineer"];
+  // Backend
+  if (/\b(backend|back\s*end|api\s*engineer|api\s*platform|node\s*developer|python\s*developer|java\s*developer|golang|c\#|\.net|ruby\s*on\s*rails|django|spring\s*boot)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["backend_engineer"];
   }
 
-  // QA & Automation
-  if (/\b(qa\s*engineer|automation\s*tester|sdet|test\s*engineer|quality\s*assurance)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["qa_test_engineer"];
+  // Civil, Structural & BIM
+  if (/\b(bim\s*coordinator|revit\s*modeler|cad\s*technician|draughtsman)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["bim_coordinator"];
   }
-
-  // Solutions Architect
-  if (/\b(solutions\s*architect|enterprise\s*architect|technical\s*architect|systems\s*architect)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["solutions_architect"];
+  if (/\b(quantity\s*surveyor|cost\s*estimator|commercial\s*manager)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["quantity_surveyor"];
   }
-
-  // Cyber Security
-  if (/\b(cyber\s*security|security\s*engineer|soc\s*analyst|infosec|penetration\s*tester)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["cyber_security_engineer"];
-  }
-
-  // Product & Agile
-  if (/\b(product\s*manager|product\s*owner|tpm)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["product_manager"];
-  }
-  if (/\b(scrum\s*master|agile\s*coach|delivery\s*manager)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["scrum_master_agile"];
-  }
-  if (/\b(ui\/ux|ux\s*designer|product\s*designer|interaction\s*designer)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["ui_ux_designer"];
-  }
-
-  // Business Analysis
-  if (/\b(business\s*analyst|systems\s*analyst|management\s*consultant)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["business_analyst"];
+  if (/\b(civil|structural|geotechnical|highway|bridge|transportation|drainage|water\s*engineer|site\s*engineer|construction\s*site|construction\s*engineer)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["civil_engineer"];
   }
 
   // Project Planning & Controls
@@ -556,23 +551,33 @@ export function normalizeOccupation(jobTitle: string): CanonicalOccupation {
     return OCCUPATIONS_TAXONOMY["project_coordinator"];
   }
 
-  // Civil, Structural & BIM
-  if (/\b(bim\s*coordinator|revit\s*modeler|cad\s*technician)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["bim_coordinator"];
-  }
-  if (/\b(quantity\s*surveyor|cost\s*estimator)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["quantity_surveyor"];
-  }
-  if (/\b(civil\s*engineer|civil\s*engineering|structural\s*engineer|geotechnical|highway\s*engineer|bridge\s*engineer|site\s*engineer|construction\s*engineer)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["civil_engineer"];
-  }
-
   // Mechanical & Electrical
-  if (/\b(mechanical\s*engineer|hvac|building\s*services|mep\s*engineer)\b/i.test(lower)) {
+  if (/\b(mechanical|hvac|solidworks|thermal\s*engineer|piping\s*engineer|mep\s*engineer|building\s*services)\b/i.test(lower)) {
     return OCCUPATIONS_TAXONOMY["mechanical_engineer"];
   }
-  if (/\b(electrical\s*engineer|electronics\s*engineer|automation\s*engineer|plc\s*engineer)\b/i.test(lower)) {
+  if (/\b(electrical|electronics|power\s*systems|plc|scada|robotics|mechatronics|industrial\s*automation)\b/i.test(lower)) {
     return OCCUPATIONS_TAXONOMY["electrical_engineer"];
+  }
+
+  // Product & Agile
+  if (/\b(product\s*manager|product\s*owner|tpm|associate\s*product\s*manager)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["product_manager"];
+  }
+  if (/\b(scrum\s*master|agile\s*coach|delivery\s*manager)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["scrum_master_agile"];
+  }
+  if (/\b(ui\/ux|ux\s*designer|product\s*designer|interaction\s*designer|user\s*researcher)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["ui_ux_designer"];
+  }
+
+  // Business Analysis & Consulting
+  if (/\b(business\s*analyst|systems\s*analyst|management\s*consultant|erp\s*consultant|sap\s*consultant|functional\s*consultant)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["business_analyst"];
+  }
+
+  // Network & Systems
+  if (/\b(network\s*engineer|systems\s*administrator|sysadmin|linux\s*systems|it\s*systems)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["network_engineer"];
   }
 
   // Finance & Risk
@@ -589,6 +594,15 @@ export function normalizeOccupation(jobTitle: string): CanonicalOccupation {
   // Healthcare
   if (/\b(nurse|nursing|healthcare|clinical\s*specialist|medical\s*practitioner|doctor)\b/i.test(lower)) {
     return OCCUPATIONS_TAXONOMY["registered_nurse"];
+  }
+
+  // 3. Exact alias matches across taxonomy
+  for (const occupation of Object.values(OCCUPATIONS_TAXONOMY)) {
+    for (const alias of occupation.aliases) {
+      if (lower.includes(alias)) {
+        return occupation;
+      }
+    }
   }
 
   // General Developer / Engineer fallback

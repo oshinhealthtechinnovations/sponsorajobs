@@ -9,13 +9,13 @@ export function detectCandidateOccupationFromCV(rawText: string): CanonicalOccup
   if (!rawText) return normalizeOccupation("");
   const lines = rawText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 
-  // 1. Scan top 6 lines specifically for primary role title (split by pipes, bullets, dashes)
-  for (let i = 0; i < Math.min(6, lines.length); i++) {
+  // 1. Scan top 10 lines specifically for primary role title (split by pipes, bullets, dashes, commas, or full line)
+  for (let i = 0; i < Math.min(10, lines.length); i++) {
     const line = lines[i];
-    if (line.length >= 3 && line.length <= 120 && !line.startsWith("http")) {
-      const parts = line.split(/[|•–—\t]/).map((p) => p.trim());
+    if (line.length >= 3 && line.length <= 150 && !line.startsWith("http")) {
+      const parts = [line, ...line.split(/[|•–—\t,]/).map((p) => p.trim())];
       for (const part of parts) {
-        if (part.length >= 4 && !part.includes("@") && !part.startsWith("http") && !/^\+?\d+/.test(part)) {
+        if (part.length >= 3 && !part.includes("@") && !part.startsWith("http") && !/^\+?\d+/.test(part)) {
           const occ = normalizeOccupation(part);
           if (occ && occ.id !== "general_professional") {
             return occ;
@@ -26,7 +26,30 @@ export function detectCandidateOccupationFromCV(rawText: string): CanonicalOccup
   }
 
   // 2. Scan entire document body
-  return normalizeOccupation(rawText);
+  const bodyOcc = normalizeOccupation(rawText);
+  if (bodyOcc && bodyOcc.id !== "general_professional") {
+    return bodyOcc;
+  }
+
+  // 3. Fallback: Skill & terminology-based occupation inference
+  const lower = rawText.toLowerCase();
+  if (/\b(primavera|autocad|revit|staad|civil|structural|concrete|geotechnical)\b/i.test(lower)) {
+    return normalizeOccupation("civil engineer");
+  }
+  if (/\b(pytorch|tensorflow|machine\s*learning|deep\s*learning|nlp|pandas|numpy|scikit)\b/i.test(lower)) {
+    return normalizeOccupation("data scientist");
+  }
+  if (/\b(docker|kubernetes|terraform|aws|azure|gcp|ansible|ci\/cd|helm|argocd)\b/i.test(lower)) {
+    return normalizeOccupation("devops");
+  }
+  if (/\b(react|angular|vue|next\.js|frontend|html5|css3|tailwind)\b/i.test(lower)) {
+    return normalizeOccupation("frontend");
+  }
+  if (/\b(python|java|golang|node\.js|c\#|c\+\+|sql|backend|microservices)\b/i.test(lower)) {
+    return normalizeOccupation("software engineer");
+  }
+
+  return normalizeOccupation("general");
 }
 
 export interface CandidateProfile {
@@ -210,9 +233,9 @@ export function analyzeCVIntelligence(
   }
 
   let seniority: CandidateProfile["seniority"] = "Mid-Level";
-  if (/\b(chief|vp|vice president|head of|director|founder|cto|cfo|cio|executive)\b/i.test(lower) || estimatedYearsExperience >= 12) {
+  if (/\b(chief|vp|vice president|head of|director|founder|cto|cfo|cio|executive)\b/i.test(lower) || estimatedYearsExperience >= 15) {
     seniority = "Executive";
-  } else if (/\b(team lead|engineering manager|tech lead|principal|staff engineer|lead developer)\b/i.test(lower) || estimatedYearsExperience >= 8) {
+  } else if (/\b(team lead|engineering manager|tech lead|principal|staff engineer|lead developer|lead|manager|head)\b/i.test(lower) || estimatedYearsExperience >= 10) {
     seniority = "Lead / Manager";
   } else if (/\b(senior|sr\.?|specialist|architect|experienced|advanced|expert)\b/i.test(lower) || estimatedYearsExperience >= 5) {
     seniority = "Senior";
