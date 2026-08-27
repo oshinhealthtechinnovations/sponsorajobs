@@ -24,8 +24,8 @@ export default async function CompanyProfilePage({ params }: CompanyProfilePageP
 
   const jobRepo = new JobRepository();
   const searchResult = await jobRepo.search({
-    q: company.name,
-    limit: 20,
+    company: company.name,
+    limit: 50,
   });
 
   return (

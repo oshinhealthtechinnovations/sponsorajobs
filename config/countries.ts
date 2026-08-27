@@ -83,3 +83,42 @@ export function getCountryByCode(code: string): CountryConfig | undefined {
 export function getCountryBySlug(slug: string): CountryConfig | undefined {
   return COUNTRY_SLUG_MAP.get(slug.toLowerCase());
 }
+
+const GLOBAL_COUNTRY_NAMES: Record<string, string> = {
+  GB: "United Kingdom",
+  UK: "United Kingdom",
+  US: "United States",
+  USA: "United States",
+  AU: "Australia",
+  CA: "Canada",
+  NZ: "New Zealand",
+  DE: "Germany",
+  ES: "Spain",
+  FR: "France",
+  IE: "Ireland",
+  NL: "Netherlands",
+  SG: "Singapore",
+  CH: "Switzerland",
+  SE: "Sweden",
+  IN: "India",
+  AE: "UAE",
+  JP: "Japan",
+  BR: "Brazil",
+  IT: "Italy",
+  DK: "Denmark",
+  NO: "Norway",
+  FI: "Finland",
+  PL: "Poland",
+  PT: "Portugal",
+  AT: "Austria",
+  BE: "Belgium",
+};
+
+export function getCountryDisplayName(codeOrSlug?: string): string {
+  if (!codeOrSlug) return "Global";
+  const upper = codeOrSlug.trim().toUpperCase();
+  if (GLOBAL_COUNTRY_NAMES[upper]) return GLOBAL_COUNTRY_NAMES[upper];
+  const cfg = getCountryBySlug(codeOrSlug);
+  if (cfg) return cfg.name;
+  return upper;
+}

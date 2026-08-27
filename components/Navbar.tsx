@@ -116,7 +116,6 @@ export const Navbar: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                window.dispatchEvent(new Event("open-subscriber-popup"));
                 setAlertModalOpen(true);
               }}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100/90 text-amber-900 border border-amber-200/90 text-xs font-bold transition-all shadow-2xs cursor-pointer"

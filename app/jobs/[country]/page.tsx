@@ -113,11 +113,17 @@ export default async function CountryJobsPage({ params }: CountryJobsPageProps) 
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {searchResult.jobs.map((job) => (
-              <JobCard key={job.id} job={job} />
-            ))}
-          </div>
+          {searchResult.jobs.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {searchResult.jobs.map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))}
+            </div>
+          ) : (
+            <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 text-sm text-slate-500">
+              No active listings found in {country.name} at this time.
+            </div>
+          )}
         </div>
       </main>
 

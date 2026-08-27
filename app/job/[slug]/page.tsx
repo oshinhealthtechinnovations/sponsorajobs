@@ -10,6 +10,7 @@ import { JobRepository } from "@/lib/repositories/jobRepository";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/seo/schema";
 import { constructMetadata } from "@/lib/seo/metadata";
 import { generateJobSlug } from "@/lib/seo/slugs";
+import { getCountryDisplayName } from "@/config/countries";
 import Link from "next/link";
 import {
   MapPin,
@@ -178,9 +179,9 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             <span>Back to all jobs</span>
           </Link>
           <div className="text-xs text-slate-400">
-            <span>Jobs</span> &middot;{" "}
-            <Link href={`/jobs/${job.location.country.toLowerCase()}`} className="capitalize hover:text-brand-600 transition-colors">
-              {job.location.country.toLowerCase()}
+            <Link href="/jobs" className="hover:text-brand-600 transition-colors">Jobs</Link> &middot;{" "}
+            <Link href={`/jobs/${job.location.country.toLowerCase()}`} className="hover:text-brand-600 transition-colors">
+              {getCountryDisplayName(job.location.country)}
             </Link>{" "}
             &middot;{" "}
             <span>{job.category?.name || "General"}</span>
