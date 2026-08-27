@@ -78,8 +78,8 @@ export const JobAlertModal: React.FC<JobAlertModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fadeIn">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white border border-slate-200 shadow-2xl animate-scaleIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fadeIn overflow-y-auto">
+      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl bg-white border border-slate-200 shadow-2xl animate-scaleIn my-auto">
         {/* Top decorative gradient */}
         <div className="h-2.5 bg-gradient-to-r from-brand-600 via-emerald-500 to-indigo-600 w-full" />
 

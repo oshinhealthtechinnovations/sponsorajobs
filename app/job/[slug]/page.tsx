@@ -369,6 +369,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           countryCode={job.location.country}
           categorySlug={job.category?.slug}
           applyUrl={job.applyUrl}
+          isMobileSticky={true}
         />
       </div>
 

@@ -71,11 +71,11 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn overflow-y-auto"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 relative animate-scaleUp"
+        className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-white rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200 relative animate-scaleUp my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
