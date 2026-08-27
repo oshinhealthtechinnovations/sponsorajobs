@@ -211,10 +211,15 @@ export function analyzeCVIntelligence(
   // 3. Education Level & Field
   let highestDegree: CandidateProfile["highestDegree"] = "Not Detected";
   let degreeField = "Computer Science / STEM";
-  if (/\b(phd|doctorate|doctor of philosophy)\b/i.test(lower)) highestDegree = "PhD";
-  else if (/\b(master|msc|m\.s\.|m\.tech|mba|postgraduate)\b/i.test(lower)) highestDegree = "Master's";
-  else if (/\b(bachelor|bsc|b\.s\.|b\.e\.|b\.tech|undergraduate|degree|b\.a\.|b\.com)\b/i.test(lower)) highestDegree = "Bachelor's";
-  else if (hasEducation) highestDegree = "Bachelor's";
+  if (/\b(phd|doctorate|doctor of philosophy|d\.phil)\b/i.test(lower)) {
+    highestDegree = "PhD";
+  } else if (/\b(master|masters|msc|m\.sc|m\.s\b|ms\b|m\.tech|mtech|m\.eng|meng|mba|postgraduate|pgdip)\b/i.test(lower) || /\bm\.s\.?\b/i.test(lower)) {
+    highestDegree = "Master's";
+  } else if (/\b(bachelor|bachelors|bsc|b\.sc|b\.s\b|bs\b|b\.eng|beng|b\.tech|btech|undergraduate|b\.a\b|ba\b|b\.com|bcom)\b/i.test(lower) || /\bb\.s\.?\b/i.test(lower)) {
+    highestDegree = "Bachelor's";
+  } else if (hasEducation) {
+    highestDegree = "Bachelor's";
+  }
 
   // 4. Seniority & Experience Years
   const yearMatches = text.match(/\b(?:19|20)\d{2}\b/g) || [];

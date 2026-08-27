@@ -480,9 +480,35 @@ export function normalizeOccupation(jobTitle: string): CanonicalOccupation {
   }
 
   // 2. Structured Domain Keyword Heuristics (High Precision, Specific First)
+  // Credit & Financial Risk
+  if (/\b(credit\s*analyst|credit\s*risk|risk\s*analyst|credit\s*underwriter|underwriter|commercial\s*risk)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["credit_analyst"];
+  }
+  if (/\b(financial\s*analyst|finance\s*analyst|investment\s*analyst|portfolio\s*manager|treasury\s*analyst)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["financial_analyst"];
+  }
+  if (/\b(accountant|auditor|financial\s*controller|bookkeeper|chartered\s*accountant)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["accountant"];
+  }
+
   // Mobile Engineering (iOS, Android, React Native, Flutter, Swift, Kotlin)
   if (/\b(ios|android|mobile\s*app|mobile\s*application|mobile\s*developer|mobile\s*engineer|react\s*native|flutter|swift|kotlin)\b/i.test(lower)) {
     return OCCUPATIONS_TAXONOMY["mobile_engineer"];
+  }
+
+  // Data Engineering & Big Data (checked BEFORE DevOps to capture Data Platform Engineer)
+  if (/\b(data\s*engineer|etl\s*developer|big\s*data|data\s*platform|analytics\s*engineer|data\s*warehouse|snowflake|databricks)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["data_engineer"];
+  }
+
+  // Data Science & AI/ML
+  if (/\b(data\s*scientist|machine\s*learning|ai\s*engineer|ml\s*engineer|deep\s*learning|nlp|computer\s*vision|ai\s*researcher)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["data_scientist"];
+  }
+
+  // BI & Data Analysis
+  if (/\b(bi\s*developer|business\s*intelligence|power\s*bi|tableau\s*developer|data\s*analyst|reporting\s*analyst|insights\s*analyst)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["bi_analytics_engineer"];
   }
 
   // QA & Automation
@@ -503,21 +529,6 @@ export function normalizeOccupation(jobTitle: string): CanonicalOccupation {
   // Cyber Security & Network Security
   if (/\b(cyber\s*security|security\s*engineer|soc\s*analyst|infosec|penetration\s*tester|network\s*security)\b/i.test(lower)) {
     return OCCUPATIONS_TAXONOMY["cyber_security_engineer"];
-  }
-
-  // Data Science & AI/ML
-  if (/\b(data\s*scientist|machine\s*learning|ai\s*engineer|ml\s*engineer|deep\s*learning|nlp|computer\s*vision|ai\s*researcher)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["data_scientist"];
-  }
-
-  // Data Engineering & Big Data
-  if (/\b(data\s*engineer|etl\s*developer|big\s*data|data\s*platform|analytics\s*engineer|data\s*warehouse|snowflake|databricks)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["data_engineer"];
-  }
-
-  // BI & Data Analysis
-  if (/\b(bi\s*developer|business\s*intelligence|power\s*bi|tableau\s*developer|data\s*analyst|reporting\s*analyst|insights\s*analyst)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["bi_analytics_engineer"];
   }
 
   // Full Stack
@@ -596,10 +607,11 @@ export function normalizeOccupation(jobTitle: string): CanonicalOccupation {
     return OCCUPATIONS_TAXONOMY["registered_nurse"];
   }
 
-  // 3. Exact alias matches across taxonomy
+  // 3. Exact alias matches across taxonomy (with strict word boundaries)
   for (const occupation of Object.values(OCCUPATIONS_TAXONOMY)) {
     for (const alias of occupation.aliases) {
-      if (lower.includes(alias)) {
+      const regex = new RegExp(`\\b${alias.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
+      if (regex.test(lower)) {
         return occupation;
       }
     }
