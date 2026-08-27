@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { SearchX, ArrowRight, RotateCcw, Sparkles, Bell, CheckCircle2, Lightbulb, ShieldCheck } from "lucide-react";
+import { SearchX, ArrowRight, RotateCcw, Sparkles, Bell, CheckCircle2, Lightbulb, ShieldCheck, X } from "lucide-react";
 import { getRelatedSearchSuggestions } from "@/lib/utils/searchNormalizer";
 
 interface EmptyStateProps {
@@ -16,6 +16,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ query, country, category
   const suggestions = getRelatedSearchSuggestions(query);
   const [email, setEmail] = useState("");
   const [isAlertCreated, setIsAlertCreated] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleQuickAlert = async (e: React.FormEvent) => {
@@ -36,8 +37,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ query, country, category
         }),
       });
       setIsAlertCreated(true);
+      setTimeout(() => {
+        setIsDismissed(true);
+      }, 3500);
     } catch {
       setIsAlertCreated(true);
+      setTimeout(() => {
+        setIsDismissed(true);
+      }, 3500);
     } finally {
       setLoading(false);
     }
@@ -78,54 +85,75 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ query, country, category
           </div>
         )}
 
-        {/* Inline Fast Job Alert Box */}
-        <div className="mt-6 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white text-left border border-slate-700/80 shadow-md">
-          <div className="flex items-center gap-2.5 mb-2">
-            <div className="w-7 h-7 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center">
-              <Bell className="w-4 h-4" />
-            </div>
-            <h4 className="text-sm font-bold text-white">
-              Get notified when &ldquo;{query || "matching"}&rdquo; jobs are listed
-            </h4>
-          </div>
-          <p className="text-xs text-slate-300 mb-4">
-            We scan 250+ certified visa sponsors daily. We&apos;ll email you instantly when new openings drop.
-          </p>
-
-          {isAlertCreated ? (
-            <div className="p-3.5 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2.5">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-              <span>
-                Alert active! We sent a confirmation email to <strong>{email}</strong>.
-              </span>
-            </div>
-          ) : (
-            <form onSubmit={handleQuickAlert} className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-400 text-xs focus:outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400"
-              />
+        {/* Inline Fast Job Alert Box — vanishes automatically after input */}
+        {!isDismissed && (
+          <div className="mt-6 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white text-left border border-slate-700/80 shadow-md transition-all duration-300">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center">
+                  <Bell className="w-4 h-4" />
+                </div>
+                <h4 className="text-sm font-bold text-white">
+                  Get notified when &ldquo;{query || "matching"}&rdquo; jobs are listed
+                </h4>
+              </div>
               <button
-                type="submit"
-                disabled={loading}
-                className="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0 disabled:opacity-70 flex items-center justify-center gap-1.5"
+                type="button"
+                onClick={() => setIsDismissed(true)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+                title="Dismiss"
               >
-                {loading ? (
-                  <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <span>Notify Me</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </>
-                )}
+                <X className="w-4 h-4" />
               </button>
-            </form>
-          )}
-        </div>
+            </div>
+            <p className="text-xs text-slate-300 mb-4">
+              We scan 250+ certified visa sponsors daily. We&apos;ll email you instantly when new openings drop.
+            </p>
+
+            {isAlertCreated ? (
+              <div className="p-3.5 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-200 text-xs flex items-center justify-between gap-2.5 animate-fadeIn">
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                  <span>
+                    Alert active! We sent a confirmation email to <strong>{email}</strong>.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsDismissed(true)}
+                  className="text-emerald-400 hover:text-emerald-200 p-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleQuickAlert} className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-400 text-xs focus:outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400"
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0 disabled:opacity-70 flex items-center justify-center gap-1.5"
+                >
+                  {loading ? (
+                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <span>Notify Me</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
+          </div>
+        )}
 
         {/* Action buttons */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
