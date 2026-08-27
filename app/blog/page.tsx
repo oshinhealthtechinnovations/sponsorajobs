@@ -18,7 +18,8 @@ import {
   User,
 } from "lucide-react";
 
-export const runtime = "edge";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "Visa Sponsorship Guides & Global Career Intelligence | SponsorAJobs Blog",
