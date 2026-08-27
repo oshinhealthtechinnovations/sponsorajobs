@@ -1,5 +1,28 @@
 import { PublicJobDTO } from "../types/job";
 import { OCCUPATION_REGISTRY, matchOccupationToRule, OccupationRule, RULES_LAST_VERIFIED } from "../data/immigrationRules";
+import { normalizeOccupation, CanonicalOccupation } from "../data/occupationsTaxonomy";
+
+/**
+ * Accurately extracts the candidate's canonical occupation from their CV header & content
+ */
+export function detectCandidateOccupationFromCV(rawText: string): CanonicalOccupation {
+  if (!rawText) return normalizeOccupation("");
+  const lines = rawText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+
+  // 1. Scan top 15 lines (job title header, professional summary)
+  for (let i = 0; i < Math.min(15, lines.length); i++) {
+    const line = lines[i];
+    if (line.length >= 3 && line.length <= 120 && !line.includes("@") && !line.startsWith("http")) {
+      const occ = normalizeOccupation(line);
+      if (occ && occ.id !== "general_professional") {
+        return occ;
+      }
+    }
+  }
+
+  // 2. Scan entire document body
+  return normalizeOccupation(rawText);
+}
 
 export interface CandidateProfile {
   name?: string;
@@ -82,6 +105,20 @@ export interface FullATSIntelligenceResult {
 
 // ── Technical Skills Taxonomy with Semantic Aliases ──────────────────────────
 const SKILL_ALIASES: Record<string, string[]> = {
+  // Engineering, Planning & Controls
+  primavera_p6: ["primavera", "p6", "oracle primavera", "primavera p6"],
+  ms_project: ["ms project", "msproject", "microsoft project"],
+  project_planning: ["project planning", "project controls", "planning & controls", "wbs", "work breakdown structure", "baseline programme", "milestone scheduling", "look-ahead planning", "schedule monitoring", "delay analysis", "cpm", "critical path method", "progress tracking"],
+  evm: ["evm", "earned value management", "earned value", "spi", "cpi", "schedule variance", "cost variance", "s-curve analysis", "variance analysis"],
+  cost_control: ["cost control", "cost monitoring", "budget monitoring", "cost forecasting", "financial controls", "financial reporting"],
+  autocad: ["autocad", "cad", "civil 3d", "2d cad", "3d cad"],
+  revit: ["revit", "bim", "building information modeling"],
+  staad_pro: ["staad pro", "staad.pro", "staad", "structural analysis"],
+  civil_engineering: ["civil engineering", "structural engineering", "infrastructure", "geotechnical", "site supervision", "construction"],
+  power_bi: ["power bi", "powerbi", "power query", "power pivot", "dax", "kpi dashboards"],
+  excel: ["advanced excel", "excel", "spreadsheets", "pivot tables", "excel vba"],
+
+  // Software & Cloud
   aws: ["amazon web services", "amazon aws", "aws cloud"],
   gcp: ["google cloud", "google cloud platform"],
   azure: ["microsoft azure", "azure cloud"],
@@ -102,7 +139,7 @@ const SKILL_ALIASES: Record<string, string[]> = {
   "rest api": ["restful api", "rest apis", "web services"],
   microservices: ["microservice architecture", "distributed systems"],
   "system design": ["cloud architecture", "software architecture", "high availability"],
-  "agile": ["scrum", "kanban", "sprints"],
+  agile: ["scrum", "kanban", "sprints", "jira"],
 };
 
 const DOMAIN_SKILLS = [
@@ -278,7 +315,8 @@ export function analyzeCVIntelligence(
   };
 
   // ── SCORE 3: JOB MATCH (100 pts) ──────────────────────────────────────────
-  const targetTitle = targetJob?.title || (technicalSkills.length > 0 ? `Senior ${technicalSkills[0].toUpperCase()} Engineer` : "Senior Software Engineer");
+  const detectedOcc = detectCandidateOccupationFromCV(rawText);
+  const targetTitle = targetJob?.title || detectedOcc.name;
   const jobTextLower = targetJob ? `${targetJob.title} ${(targetJob as any).descriptionSnippet || ""} ${(targetJob as any).description || ""}`.toLowerCase() : "";
 
   const exactMatches: string[] = [];

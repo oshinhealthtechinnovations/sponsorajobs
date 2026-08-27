@@ -167,17 +167,50 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
   },
   "civil_engineer": {
     id: "civil_engineer",
-    name: "Civil / Structural Engineer",
+    name: "Civil / Structural / Infrastructure Engineer",
     ukSocCode: "2121",
     onetCode: "17-2051.00",
     aliases: [
       "civil engineer",
+      "civil engineering",
       "structural engineer",
       "geotechnical engineer",
       "construction engineer",
       "site engineer",
+      "infrastructure engineer",
+      "infrastructure project",
+      "water infrastructure",
+      "highway engineer",
+      "drainage engineer",
     ],
-    relatedOccupations: [],
+    relatedOccupations: [
+      { occupationId: "project_coordinator", weight: 0.90 },
+    ],
+  },
+  "project_coordinator": {
+    id: "project_coordinator",
+    name: "Project Coordinator / Planning & Controls Specialist",
+    ukSocCode: "2421",
+    onetCode: "11-9021.00",
+    aliases: [
+      "project coordinator",
+      "project planning",
+      "project controls",
+      "project planner",
+      "planning & controls",
+      "planning coordinator",
+      "pmo analyst",
+      "project scheduler",
+      "associate project manager",
+      "project control",
+      "planning engineer",
+      "programme controls",
+    ],
+    relatedOccupations: [
+      { occupationId: "civil_engineer", weight: 0.90 },
+      { occupationId: "product_manager", weight: 0.75 },
+      { occupationId: "business_analyst", weight: 0.80 },
+    ],
   },
   "credit_analyst": {
     id: "credit_analyst",
@@ -312,7 +345,10 @@ export function normalizeOccupation(jobTitle: string): CanonicalOccupation {
   if (/\b(nurse|nursing|healthcare|clinical|medical|doctor)\b/i.test(lower)) {
     return OCCUPATIONS_TAXONOMY["registered_nurse"];
   }
-  if (/\b(civil|structural|geotechnical|highway|bridge|drainage)\b/i.test(lower)) {
+  if (/\b(project\s*coordinator|project\s*planner|project\s*controls|planning\s*&\s*controls|planning\s*engineer|pmo|project\s*control|scheduler)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["project_coordinator"];
+  }
+  if (/\b(civil|structural|geotechnical|highway|bridge|drainage|infrastructure\s*project|construction)\b/i.test(lower)) {
     return OCCUPATIONS_TAXONOMY["civil_engineer"];
   }
   if (/\b(data\s*engineer|etl|data\s*platform)\b/i.test(lower)) {

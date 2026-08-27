@@ -64,7 +64,8 @@ export interface CVJobMatchEngineOutput {
  * Extracts structured skills & requirements from a Job record deterministically
  */
 export function extractJobRequirements(job: PublicJobDTO): StructuredJobRequirement {
-  const fullText = `${job.title} ${job.company.name} ${(job as any).descriptionSnippet || ""} ${(job as any).description || ""}`.toLowerCase();
+  const compName = job.company?.name || (job as any).company_name || "";
+  const fullText = `${job.title} ${compName} ${(job as any).descriptionSnippet || ""} ${(job as any).description || ""}`.toLowerCase();
   
   const detectedSkills = new Set<string>();
   Object.keys(SKILLS_TAXONOMY).forEach((canonicalKey) => {
@@ -131,7 +132,7 @@ export function rankJobsForCandidate(
   preferences: CandidateMatchingPreferences = {}
 ): CVJobMatchEngineOutput {
   const candidateSkills = (candidate.detected_skills || []).map((s) => s.toLowerCase());
-  const candidateOcc = normalizeOccupation(candidate.primary_occupation) || OCCUPATIONS_TAXONOMY["software_engineer"];
+  const candidateOcc = normalizeOccupation(candidate.primary_occupation);
   const candidateYears = candidate.total_experience_years || 3;
   const targetCountries = (preferences.countries || []).map((c) => c.toUpperCase());
   const sponsorshipPref = preferences.sponsorship || candidate.sponsorship_preference || "required";
@@ -264,13 +265,14 @@ export function rankJobsForCandidate(
     let sponsorshipScore = 50;
     let sponsorshipStatus: RecommendationResultItem["sponsorshipStatus"] = "UNKNOWN";
 
-    if (job.sponsorship.label === "Strong" || job.sponsorship.positiveEvidence.length >= 2) {
+    const spStatus = job.sponsorship?.status || ((job.sponsorship as any)?.label === "Strong" ? "CONFIRMED" : (job.sponsorship as any)?.label === "Likely" ? "LIKELY" : "UNKNOWN");
+    if (spStatus === "CONFIRMED" || ((job.sponsorship as any)?.positiveEvidence && (job.sponsorship as any).positiveEvidence.length >= 2)) {
       sponsorshipScore = 100;
       sponsorshipStatus = "CONFIRMED";
-    } else if (job.sponsorship.label === "Likely" || job.sponsorship.positiveEvidence.length >= 1) {
+    } else if (spStatus === "LIKELY" || ((job.sponsorship as any)?.positiveEvidence && (job.sponsorship as any).positiveEvidence.length >= 1)) {
       sponsorshipScore = 80;
       sponsorshipStatus = "LIKELY";
-    } else if (job.sponsorship.label === "Explicitly Not Offered") {
+    } else if (spStatus === "NOT_AVAILABLE" || (job.sponsorship as any)?.label === "Explicitly Not Offered") {
       sponsorshipScore = 0;
       sponsorshipStatus = "NOT_AVAILABLE";
     }

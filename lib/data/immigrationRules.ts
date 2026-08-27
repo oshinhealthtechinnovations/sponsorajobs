@@ -209,16 +209,16 @@ export const OCCUPATION_REGISTRY: Record<string, OccupationRule> = {
 export function matchOccupationToRule(titleOrKeywords: string): OccupationRule {
   const query = (titleOrKeywords || "").toLowerCase();
 
-  if (query.includes("data") || query.includes("machine learning") || query.includes("ai ") || query.includes("analyst")) {
-    return OCCUPATION_REGISTRY.data_engineer_ai;
-  }
-  if (query.includes("civil") || query.includes("structural") || query.includes("construction") || query.includes("bim") || query.includes("autocad")) {
+  if (query.includes("civil") || query.includes("structural") || query.includes("construction") || query.includes("bim") || query.includes("autocad") || query.includes("project") || query.includes("planner") || query.includes("planning") || query.includes("controls") || query.includes("infrastructure") || query.includes("primavera")) {
     return OCCUPATION_REGISTRY.civil_engineer;
+  }
+  if (query.includes("data") || query.includes("machine learning") || query.includes("ai ") || query.includes("analytics")) {
+    return OCCUPATION_REGISTRY.data_engineer_ai;
   }
   if (query.includes("nurse") || query.includes("healthcare") || query.includes("clinical") || query.includes("medical")) {
     return OCCUPATION_REGISTRY.registered_nurse;
   }
-  if (query.includes("consultant") || query.includes("product manager") || query.includes("finance") || query.includes("accountant")) {
+  if (query.includes("consultant") || query.includes("product manager") || query.includes("finance") || query.includes("accountant") || query.includes("credit")) {
     return OCCUPATION_REGISTRY.management_consultant;
   }
 
