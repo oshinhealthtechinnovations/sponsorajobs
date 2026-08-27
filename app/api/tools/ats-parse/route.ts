@@ -2,16 +2,52 @@ import { NextRequest, NextResponse } from "next/server";
 import { analyzeCVIntelligence, analyzeResumeATS, matchResumeToJobs } from "@/lib/services/atsScanner";
 import { JobRepository } from "@/lib/repositories/jobRepository";
 
-const pdfParse = require("pdf-parse");
-
 export const dynamic = "force-dynamic";
+
+/**
+ * Extracts plain text from raw PDF buffer using PDFParse or resilient stream extraction
+ */
+async function extractPDFText(buffer: Buffer): Promise<string> {
+  // Strategy 1: Modern PDFParse v2
+  try {
+    const { PDFParse } = require("pdf-parse");
+    const parser = new PDFParse({ data: buffer });
+    const result = await parser.getText();
+    if (result?.text && result.text.trim().length >= 20) {
+      return result.text;
+    }
+  } catch (err: any) {
+    console.warn("[ATS PDF Parse] PDFParse v2 error:", err?.message);
+  }
+
+  // Strategy 2: Stream Token Extraction Fallback (Extracts (text) and TJ strings from PDF syntax)
+  try {
+    const raw = buffer.toString("binary");
+    const textMatches = raw.match(/\(([^()]{2,200})\)/g);
+    if (textMatches && textMatches.length > 10) {
+      const extracted = textMatches
+        .map((m) => m.slice(1, -1))
+        .filter((s) => /[a-zA-Z0-9]/.test(s))
+        .join(" ");
+      if (extracted.trim().length >= 30) {
+        return extracted;
+      }
+    }
+  } catch (fallbackErr: any) {
+    console.warn("[ATS PDF Parse] Stream fallback error:", fallbackErr?.message);
+  }
+
+  // Strategy 3: Plain text UTF-8 / ASCII clean decode
+  const str = buffer.toString("utf-8");
+  return str.replace(/[^\x20-\x7E\t\n\r]/g, " ").replace(/\s{2,}/g, " ").trim();
+}
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const rawTextParam = formData.get("text") as string | null;
-    const targetCountry = (formData.get("country") as string) || "all";
+    const targetCountry = (formData.get("country") as string) || "GB";
     const targetJobId = formData.get("jobId") as string | null;
 
     let extractedText = "";
@@ -20,14 +56,8 @@ export async function POST(req: NextRequest) {
       const buffer = Buffer.from(await file.arrayBuffer());
       const fileName = file.name.toLowerCase();
 
-      if (fileName.endsWith(".pdf")) {
-        try {
-          const pdfData = await pdfParse(buffer);
-          extractedText = pdfData?.text || "";
-        } catch (pdfErr: any) {
-          console.warn("[ATS Parse] PDF parse fallback:", pdfErr?.message);
-          extractedText = buffer.toString("utf-8");
-        }
+      if (fileName.endsWith(".pdf") || file.type === "application/pdf") {
+        extractedText = await extractPDFText(buffer);
       } else {
         extractedText = buffer.toString("utf-8");
       }
@@ -37,7 +67,7 @@ export async function POST(req: NextRequest) {
 
     if (!extractedText || extractedText.trim().length < 20) {
       return NextResponse.json(
-        { error: "Could not extract readable text from the provided document. Please upload a clear PDF, DOCX, or paste your resume text." },
+        { success: false, error: "Could not extract readable text from the uploaded document. Please upload a clear PDF, DOCX, or paste your resume text." },
         { status: 400 }
       );
     }
@@ -46,7 +76,11 @@ export async function POST(req: NextRequest) {
     const jobRepo = new JobRepository();
     let targetJob = null;
     if (targetJobId) {
-      targetJob = await jobRepo.getById(targetJobId);
+      try {
+        targetJob = await jobRepo.getById(targetJobId);
+      } catch (repoErr) {
+        console.warn("[ATS API] Target job lookup failed:", repoErr);
+      }
     }
 
     // 2. Run Comprehensive 5-Layer Deterministic Intelligence Analysis
@@ -60,13 +94,17 @@ export async function POST(req: NextRequest) {
     const legacyAnalysis = analyzeResumeATS(extractedText);
 
     // 4. Fetch Live Matching Verified Jobs from Database
-    const searchRes = await jobRepo.search({
-      country: targetCountry !== "all" ? targetCountry : undefined,
-      limit: 30,
-      sort: "sponsorship",
-    });
-
-    const matches = matchResumeToJobs(legacyAnalysis, searchRes.jobs, targetCountry);
+    let matches: any[] = [];
+    try {
+      const searchRes = await jobRepo.search({
+        country: targetCountry !== "all" ? targetCountry : undefined,
+        limit: 30,
+        sort: "sponsorship",
+      });
+      matches = matchResumeToJobs(legacyAnalysis, searchRes.jobs, targetCountry);
+    } catch (searchErr) {
+      console.warn("[ATS API] Job match query failed:", searchErr);
+    }
 
     return NextResponse.json({
       success: true,
@@ -79,7 +117,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error("[ATS Intelligence API Error]:", error);
     return NextResponse.json(
-      { error: error?.message || "Failed to process and analyze resume document." },
+      { success: false, error: error?.message || "Failed to process and analyze resume document." },
       { status: 500 }
     );
   }

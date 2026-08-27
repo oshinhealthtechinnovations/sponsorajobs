@@ -166,7 +166,14 @@ export default function ATSCheckerPage() {
         body: formData,
       });
 
-      const data = await res.json();
+      const rawText = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        throw new Error("Unable to read document response. Please upload a standard PDF, DOCX, or paste the CV text directly.");
+      }
+
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Failed to analyze resume.");
       }
