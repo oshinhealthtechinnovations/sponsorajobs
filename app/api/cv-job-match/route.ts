@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { JobRepository } from "@/lib/repositories/jobRepository";
 import { extractTextFromPDFBuffer } from "@/lib/services/pdfExtractor";
-import { analyzeCVIntelligence } from "@/lib/services/atsIntelligenceEngine";
+import { analyzeCVIntelligence, detectCandidateOccupationFromCV } from "@/lib/services/atsIntelligenceEngine";
 import { rankJobsForCandidate, CandidateMatchingPreferences } from "@/lib/services/cvJobMatchEngine";
 import { CandidateProfileRecord } from "@/lib/types/database";
 import crypto from "crypto";
@@ -47,17 +47,18 @@ export async function POST(req: NextRequest) {
       country === "all" ? "GB" : country
     );
 
+    const detectedOcc = detectCandidateOccupationFromCV(extractedText);
     const candidateId = `cand_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
     const candidateProfile: CandidateProfileRecord = {
       id: candidateId,
       user_id: null,
       candidate_email: intelligence.profile.email || null,
-      primary_occupation: intelligence.jobMatchDiagnostics.targetRoleTitle || "Software Engineer",
-      primary_soc_code: intelligence.sponsorshipDiagnostics.occupationRule.socCode || "2134",
+      primary_occupation: detectedOcc.name || intelligence.jobMatchDiagnostics.targetRoleTitle || "Civil / Structural / Infrastructure Engineer",
+      primary_soc_code: detectedOcc.ukSocCode || intelligence.sponsorshipDiagnostics.occupationRule.socCode || "2121",
       seniority: intelligence.profile.seniority,
       total_experience_years: intelligence.profile.estimatedYearsExperience,
       highest_degree: intelligence.profile.highestDegree,
-      degree_field: intelligence.profile.degreeField || "Computer Science / STEM",
+      degree_field: intelligence.profile.degreeField || "Engineering / STEM",
       detected_skills: intelligence.profile.technicalSkills,
       preferred_country: country,
       sponsorship_preference: sponsorship,

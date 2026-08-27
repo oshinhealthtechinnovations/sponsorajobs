@@ -265,14 +265,15 @@ export function rankJobsForCandidate(
     let sponsorshipScore = 50;
     let sponsorshipStatus: RecommendationResultItem["sponsorshipStatus"] = "UNKNOWN";
 
-    const spStatus = job.sponsorship?.status || ((job.sponsorship as any)?.label === "Strong" ? "CONFIRMED" : (job.sponsorship as any)?.label === "Likely" ? "LIKELY" : "UNKNOWN");
-    if (spStatus === "CONFIRMED" || ((job.sponsorship as any)?.positiveEvidence && (job.sponsorship as any).positiveEvidence.length >= 2)) {
+    const spObj = job.sponsorship as any;
+    const spStatus = spObj?.status || (spObj?.label === "Strong" ? "CONFIRMED" : spObj?.label === "Likely" ? "LIKELY" : "UNKNOWN");
+    if (spStatus === "CONFIRMED" || (spObj?.positiveEvidence && spObj.positiveEvidence.length >= 2)) {
       sponsorshipScore = 100;
       sponsorshipStatus = "CONFIRMED";
-    } else if (spStatus === "LIKELY" || ((job.sponsorship as any)?.positiveEvidence && (job.sponsorship as any).positiveEvidence.length >= 1)) {
+    } else if (spStatus === "LIKELY" || (spObj?.positiveEvidence && spObj.positiveEvidence.length >= 1)) {
       sponsorshipScore = 80;
       sponsorshipStatus = "LIKELY";
-    } else if (spStatus === "NOT_AVAILABLE" || (job.sponsorship as any)?.label === "Explicitly Not Offered") {
+    } else if (spStatus === "NOT_AVAILABLE" || spObj?.label === "Explicitly Not Offered") {
       sponsorshipScore = 0;
       sponsorshipStatus = "NOT_AVAILABLE";
     }

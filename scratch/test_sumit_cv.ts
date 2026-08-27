@@ -66,5 +66,4 @@ matchResult.recommendations.slice(0, 10).forEach((rec, idx) => {
   console.log(`\n#${idx + 1}: ${rec.job.title} at ${rec.job.company.name}`);
   console.log(`  SponsorJob Match: ${rec.sponsorJobMatchScore}% (Pure: ${rec.jobMatchScore}%)`);
   console.log(`  Breakdown: Skills: ${rec.skillMatchScore}% | Occ: ${rec.occupationMatchScore}% | Exp: ${rec.experienceMatchScore}%`);
-  console.log(`  Reasons:`, rec.relevanceReasons);
 });
