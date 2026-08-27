@@ -342,7 +342,7 @@ export const SKILLS_TAXONOMY: Record<string, CanonicalSkill> = {
   "civil_engineering": {
     name: "Civil & Structural Engineering",
     category: "Domain",
-    aliases: ["civil engineering", "structural engineering", "infrastructure", "geotechnical", "site supervision", "construction"],
+    aliases: ["civil engineering", "structural engineering", "civil infrastructure", "transport infrastructure", "geotechnical", "site supervision", "building construction"],
     relatedSkills: [{ skill: "project_planning", weight: 0.80 }, { skill: "autocad", weight: 0.85 }],
     isTechnical: true,
   },

@@ -335,38 +335,70 @@ export function normalizeOccupation(jobTitle: string): CanonicalOccupation {
     }
   }
 
-  // 3. Specific keyword heuristics (order matters!)
-  if (/\b(credit|underwrit|loan|lending)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["credit_analyst"];
-  }
-  if (/\b(finance|financial|banking|investment|treasury|equity)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["financial_analyst"];
-  }
-  if (/\b(nurse|nursing|healthcare|clinical|medical|doctor)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["registered_nurse"];
-  }
-  if (/\b(project\s*coordinator|project\s*planner|project\s*controls|planning\s*&\s*controls|planning\s*engineer|pmo|project\s*control|scheduler)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["project_coordinator"];
-  }
-  if (/\b(civil|structural|geotechnical|highway|bridge|drainage|infrastructure\s*project|construction)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["civil_engineer"];
-  }
-  if (/\b(data\s*engineer|etl|data\s*platform)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["data_engineer"];
-  }
-  if (/\b(data\s*scientist|machine\s*learning|ai|nlp|deep\s*learning)\b/i.test(lower)) {
-    return OCCUPATIONS_TAXONOMY["data_scientist"];
-  }
-  if (/\b(devops|sre|site\s*reliability|cloud\s*engineer|platform\s*engineer)\b/i.test(lower)) {
+  // 3. Specific keyword heuristics (precise, robust ordering)
+  // Cloud, DevOps & SRE
+  if (/\b(devops|sre|site\s*reliability|cloud\s*architect|cloud\s*engineer|platform\s*engineer|infrastructure\s*engineer|kubernetes\s*engineer)\b/i.test(lower)) {
     return OCCUPATIONS_TAXONOMY["devops_engineer"];
   }
-  if (/\b(product\s*manager|product\s*owner|tpm)\b/i.test(lower)) {
+
+  // Data Science & AI/ML
+  if (/\b(data\s*scientist|machine\s*learning|ai\s*engineer|ml\s*engineer|deep\s*learning|nlp\s*engineer|computer\s*vision|ai\s*researcher)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["data_scientist"];
+  }
+
+  // Data Engineering
+  if (/\b(data\s*engineer|etl\s*developer|big\s*data|bi\s*developer|data\s*platform|analytics\s*engineer|data\s*warehouse)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["data_engineer"];
+  }
+
+  // Software & Web Engineering (Frontend, Backend, Full Stack, Mobile, Systems)
+  if (/\b(software\s*engineer|software\s*developer|full\s*stack|frontend|front\s*end|backend|back\s*end|web\s*developer|mobile\s*developer|ios\s*developer|android\s*developer|react|angular|node|python\s*developer|java\s*developer|golang\s*developer|\.net\s*developer|c\#\s*developer|programmer|software\s*lead)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["software_engineer"];
+  }
+
+  // Solutions & Systems Architecture
+  if (/\b(solutions\s*architect|enterprise\s*architect|technical\s*architect|systems\s*architect)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["solutions_architect"];
+  }
+
+  // Product Management
+  if (/\b(product\s*manager|technical\s*product\s*manager|product\s*owner|tpm)\b/i.test(lower)) {
     return OCCUPATIONS_TAXONOMY["product_manager"];
   }
-  if (/\b(business\s*analyst|systems\s*analyst|management\s*consultant)\b/i.test(lower)) {
+
+  // Business Analysis & Consulting
+  if (/\b(business\s*analyst|systems\s*analyst|management\s*consultant|functional\s*consultant)\b/i.test(lower)) {
     return OCCUPATIONS_TAXONOMY["business_analyst"];
   }
-  if (/\b(software|frontend|backend|fullstack|full\s*stack|developer|programmer|coding|react|node|python|java|golang|typescript)\b/i.test(lower)) {
+
+  // Project Controls & Planning
+  if (/\b(project\s*coordinator|project\s*planner|project\s*controls|planning\s*&\s*controls|planning\s*engineer|project\s*scheduler|pmo)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["project_coordinator"];
+  }
+
+  // Civil & Structural Engineering
+  if (/\b(civil\s*engineer|civil\s*engineering|structural\s*engineer|geotechnical|highway\s*engineer|bridge\s*engineer|site\s*engineer|construction\s*engineer)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["civil_engineer"];
+  }
+
+  // Credit, Finance & Risk
+  if (/\b(credit\s*analyst|credit\s*risk|risk\s*analyst|underwriter|loan\s*officer)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["credit_analyst"];
+  }
+  if (/\b(financial\s*analyst|finance\s*analyst|investment\s*analyst|portfolio\s*manager|commercial\s*analyst)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["financial_analyst"];
+  }
+  if (/\b(accountant|auditor|financial\s*controller|bookkeeper)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["accountant"];
+  }
+
+  // Healthcare
+  if (/\b(nurse|nursing|healthcare|clinical\s*specialist|medical\s*practitioner|doctor)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["registered_nurse"];
+  }
+
+  // General fallback for developer/engineer titles
+  if (/\b(engineer|developer|architect|programmer|coding)\b/i.test(lower)) {
     return OCCUPATIONS_TAXONOMY["software_engineer"];
   }
 

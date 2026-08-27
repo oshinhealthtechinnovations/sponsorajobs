@@ -209,19 +209,26 @@ export const OCCUPATION_REGISTRY: Record<string, OccupationRule> = {
 export function matchOccupationToRule(titleOrKeywords: string): OccupationRule {
   const query = (titleOrKeywords || "").toLowerCase();
 
-  if (query.includes("civil") || query.includes("structural") || query.includes("construction") || query.includes("bim") || query.includes("autocad") || query.includes("project") || query.includes("planner") || query.includes("planning") || query.includes("controls") || query.includes("infrastructure") || query.includes("primavera")) {
-    return OCCUPATION_REGISTRY.civil_engineer;
-  }
-  if (query.includes("data") || query.includes("machine learning") || query.includes("ai ") || query.includes("analytics")) {
+  // 1. Data & Artificial Intelligence (SOC 2133 / 2135)
+  if (/\b(data\s*scientist|data\s*engineer|machine\s*learning|ml\s*engineer|ai\s*engineer|deep\s*learning|nlp|bi\s*developer|data\s*platform)\b/i.test(query)) {
     return OCCUPATION_REGISTRY.data_engineer_ai;
   }
-  if (query.includes("nurse") || query.includes("healthcare") || query.includes("clinical") || query.includes("medical")) {
+
+  // 2. Civil, Structural & Construction Engineering (SOC 2121)
+  if (/\b(civil\s*engineer|structural\s*engineer|geotechnical|construction\s*engineer|site\s*engineer|primavera|p6|staad|revit|bim\s*coordinator|highway\s*engineer|drainage\s*engineer)\b/i.test(query)) {
+    return OCCUPATION_REGISTRY.civil_engineer;
+  }
+
+  // 3. Healthcare & Nursing (SOC 2231)
+  if (/\b(nurse|nursing|healthcare|clinical\s*specialist|medical\s*practitioner|doctor|nmc)\b/i.test(query)) {
     return OCCUPATION_REGISTRY.registered_nurse;
   }
-  if (query.includes("consultant") || query.includes("product manager") || query.includes("finance") || query.includes("accountant") || query.includes("credit")) {
+
+  // 4. Management Consulting, PMO, Product & Finance (SOC 2421 / 2422)
+  if (/\b(product\s*manager|management\s*consultant|pmo\s*analyst|project\s*coordinator|project\s*controls|financial\s*analyst|credit\s*analyst|accountant)\b/i.test(query)) {
     return OCCUPATION_REGISTRY.management_consultant;
   }
 
-  // Default to Software Engineering (SOC 2134)
+  // 5. Software Engineering, Cloud & DevOps (SOC 2134) - Default for tech
   return OCCUPATION_REGISTRY.software_engineer;
 }

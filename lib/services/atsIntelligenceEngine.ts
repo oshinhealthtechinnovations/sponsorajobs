@@ -114,7 +114,7 @@ const SKILL_ALIASES: Record<string, string[]> = {
   autocad: ["autocad", "cad", "civil 3d", "2d cad", "3d cad"],
   revit: ["revit", "bim", "building information modeling"],
   staad_pro: ["staad pro", "staad.pro", "staad", "structural analysis"],
-  civil_engineering: ["civil engineering", "structural engineering", "infrastructure", "geotechnical", "site supervision", "construction"],
+  civil_engineering: ["civil engineering", "structural engineering", "civil infrastructure", "transport infrastructure", "geotechnical", "site supervision", "building construction"],
   power_bi: ["power bi", "powerbi", "power query", "power pivot", "dax", "kpi dashboards"],
   excel: ["advanced excel", "excel", "spreadsheets", "pivot tables", "excel vba"],
 
