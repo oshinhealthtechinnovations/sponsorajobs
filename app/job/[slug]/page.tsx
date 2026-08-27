@@ -27,6 +27,9 @@ import {
   ExternalLink,
 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface JobDetailPageProps {
   params: {
     slug: string;
@@ -35,7 +38,8 @@ interface JobDetailPageProps {
 
 export async function generateMetadata({ params }: JobDetailPageProps): Promise<Metadata> {
   const jobRepo = new JobRepository();
-  const res = await jobRepo.getBySlug(params.slug);
+  const slug = decodeURIComponent(params.slug || "");
+  const res = await jobRepo.getBySlug(slug);
 
   if (!res) {
     return {
@@ -57,7 +61,8 @@ export async function generateMetadata({ params }: JobDetailPageProps): Promise<
 
 export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const jobRepo = new JobRepository();
-  const res = await jobRepo.getBySlug(params.slug);
+  const slug = decodeURIComponent(params.slug || "");
+  const res = await jobRepo.getBySlug(slug);
 
   // ── Handle Expired / Not Found Jobs Gracefully (SEO & User Recovery) ──────────
   if (!res) {

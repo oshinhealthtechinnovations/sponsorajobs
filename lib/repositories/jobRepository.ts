@@ -421,6 +421,52 @@ export class JobRepository {
       if (row) break;
     }
 
+    if (!row) {
+      // 2. Try URL and Title/Company semantic matching
+      const allJobsRes = await this.db.prepare(`
+        SELECT j.*, 
+               c.name as company_name, c.logo_url as company_logo, c.industry as company_industry, c.website as company_website,
+               cat.name as category_name, cat.slug as category_slug
+        FROM jobs j
+        LEFT JOIN companies c ON j.company_id = c.id
+        LEFT JOIN categories cat ON j.category_id = cat.id
+      `).all<any>();
+
+      const slugTokens = cleanSlug.replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter((t) => t.length >= 2);
+
+      let bestJob: any = null;
+      let maxScore = 0;
+
+      for (const j of allJobsRes.results) {
+        const jId = (j.id || "").toLowerCase();
+        const jUrl = (j.job_url || "").toLowerCase();
+        const titleTokens = (j.title || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean);
+        const compTokens = (j.company_name || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean);
+        const combined = [...titleTokens, ...compTokens];
+
+        // Exact match in URL or ID
+        if (cleanSlug.includes(jId) || jId.includes(cleanSlug) || (jUrl && cleanSlug.split(/[^a-z0-9]/).some((part) => part.length >= 4 && jUrl.includes(part)))) {
+          bestJob = j;
+          break;
+        }
+
+        let score = 0;
+        for (const st of slugTokens) {
+          if (combined.includes(st)) score += 2;
+          else if (combined.some((c) => c.includes(st) || st.includes(c))) score += 1;
+        }
+
+        if (score > maxScore && score >= 3) {
+          maxScore = score;
+          bestJob = j;
+        }
+      }
+
+      if (bestJob) {
+        row = bestJob;
+      }
+    }
+
     if (!row) return null;
 
     const company: CompanyRecord = {
