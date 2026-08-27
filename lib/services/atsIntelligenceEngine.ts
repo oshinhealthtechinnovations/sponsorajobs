@@ -131,24 +131,24 @@ export function analyzeCVIntelligence(
   const wordCount = words.length;
 
   // 1. Personal & Contact Info Extraction
-  const emailMatch = text.match(/[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}/);
+  const emailMatch = text.match(/[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}/);
   const phoneMatch = text.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}|\+\d{10,14}/);
-  const linkedInMatch = text.match(/linkedin\.com\/in\/[\w-]+/i);
-  const githubMatch = text.match(/github\.com\/[\w-]+/i);
+  const linkedInMatch = text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/(?:in|pub|profile)\/[\w-]+/i) || text.match(/\blinkedin(?:\.com)?\s*[:\-|/]\s*([\w-]+)/i);
+  const githubMatch = text.match(/(?:https?:\/\/)?(?:www\.)?github\.com\/[\w-]+/i);
 
   // 2. Sections Extraction
-  const hasSummary = /\b(summary|profile|about me|objective|executive summary|overview)\b/i.test(text);
-  const hasExperience = /\b(experience|employment|work history|career history|professional background|projects)\b/i.test(text);
-  const hasSkills = /\b(skills|technologies|technical expertise|core competencies|tools|stack|proficiencies)\b/i.test(text);
-  const hasEducation = /\b(education|academic|university|degree|bachelor|master|phd|diploma|college|bsc|msc|b\.e\.|b\.tech)\b/i.test(text);
-  const hasCertifications = /\b(certifications?|licenses?|credentials?|accreditations?)\b/i.test(text);
+  const hasSummary = /\b(summary|profile|about me|objective|executive summary|overview|professional summary)\b/i.test(text);
+  const hasExperience = /\b(experience|employment|work history|career history|professional background|projects|work experience|contributions)\b/i.test(text) || wordCount > 250;
+  const hasSkills = /\b(skills|technologies|technical expertise|core competencies|tools|stack|proficiencies|languages)\b/i.test(text);
+  const hasEducation = /\b(education|academic|university|degree|bachelor|master|phd|diploma|college|bsc|msc|b\.e\.|b\.tech|institutes?|qualifications?)\b/i.test(text);
+  const hasCertifications = /\b(certifications?|licenses?|credentials?|accreditations?|courses?)\b/i.test(text);
 
   // 3. Education Level & Field
   let highestDegree: CandidateProfile["highestDegree"] = "Not Detected";
   let degreeField = "Computer Science / STEM";
   if (/\b(phd|doctorate|doctor of philosophy)\b/i.test(lower)) highestDegree = "PhD";
   else if (/\b(master|msc|m\.s\.|m\.tech|mba|postgraduate)\b/i.test(lower)) highestDegree = "Master's";
-  else if (/\b(bachelor|bsc|b\.s\.|b\.e\.|b\.tech|undergraduate|degree)\b/i.test(lower)) highestDegree = "Bachelor's";
+  else if (/\b(bachelor|bsc|b\.s\.|b\.e\.|b\.tech|undergraduate|degree|b\.a\.|b\.com)\b/i.test(lower)) highestDegree = "Bachelor's";
   else if (hasEducation) highestDegree = "Bachelor's";
 
   // 4. Seniority & Experience Years
@@ -168,7 +168,7 @@ export function analyzeCVIntelligence(
   }
 
   let seniority: CandidateProfile["seniority"] = "Mid-Level";
-  if (/\b(chief|vp|vice president|head of|director|founder|cto|cfo|cio)\b/i.test(lower) || estimatedYearsExperience >= 12) {
+  if (/\b(chief|vp|vice president|head of|director|founder|cto|cfo|cio|executive)\b/i.test(lower) || estimatedYearsExperience >= 12) {
     seniority = "Executive";
   } else if (/\b(team lead|engineering manager|tech lead|principal|staff engineer|lead developer)\b/i.test(lower) || estimatedYearsExperience >= 8) {
     seniority = "Lead / Manager";
@@ -201,14 +201,20 @@ export function analyzeCVIntelligence(
   });
 
   // 6. Evidence Extraction (Leadership & Metrics)
-  const metricMatches = text.match(/\b(?:\d+%(?:\s+\w+)?|\$\d+[\d,.]*(?:k|m|b)?|£\d+[\d,.]*(?:k|m|b)?|€\d+[\d,.]*|\d+x|\d+\+\s+(?:years|users|engineers|clients|projects|services|transactions|microservices))\b/gi) || [];
+  const rawMetricMatches = text.match(/(?:\b\d{1,3}(?:\.\d+)?%|[\$£€₹]\s*\d+[\d,.]*(?:\s*(?:k|m|b|million|billion|lakh|crore))?|\b\d+[\d,.]*\+?\s*(?:users|active users|engineers|team members|clients|customers|projects|microservices|qps|requests|rps|tps|transactions|stores|nodes|pipelines)\b|\b(?:2|3|4|5|10|20|50|100)x\s+(?:faster|growth|increase|reduction|improvement|scale)\b)/gi) || [];
+  const metricMatches = rawMetricMatches.filter((m) => {
+    const clean = m.trim();
+    if (/^\d+x$/i.test(clean)) return false;
+    return clean.length >= 2;
+  });
+
   const leadershipMatches = text.match(/(?:(?:led|managed|mentored|architected|spearheaded|directed)\s+(?:a\s+team\s+of\s+\d+|\d+\s+engineers|cross-functional\s+teams|engineering\s+efforts|system\s+design|major\s+migration))/gi) || [];
 
   const candidateProfile: CandidateProfile = {
     email: emailMatch ? emailMatch[0] : undefined,
     phone: phoneMatch ? phoneMatch[0] : undefined,
-    linkedIn: linkedInMatch ? `https://${linkedInMatch[0]}` : undefined,
-    portfolioOrGithub: githubMatch ? `https://${githubMatch[0]}` : undefined,
+    linkedIn: linkedInMatch ? (linkedInMatch[0].startsWith("http") ? linkedInMatch[0] : `https://${linkedInMatch[0]}`) : undefined,
+    portfolioOrGithub: githubMatch ? (githubMatch[0].startsWith("http") ? githubMatch[0] : `https://${githubMatch[0]}`) : undefined,
     estimatedYearsExperience,
     seniority,
     highestDegree,
@@ -228,48 +234,45 @@ export function analyzeCVIntelligence(
   };
 
   // ── SCORE 1: CV QUALITY (100 pts) ──────────────────────────────────────────
-  let qualityPts = 30;
-  if (candidateProfile.email && candidateProfile.linkedIn) qualityPts += 20;
-  else if (candidateProfile.email) qualityPts += 10;
-
-  if (hasExperience && hasSkills && hasEducation) qualityPts += 25;
-  if (hasSummary) qualityPts += 10;
-  if (metricMatches.length >= 3) qualityPts += 15;
+  let qualityPts = 45;
+  if (wordCount >= 250) qualityPts += 15;
+  if (wordCount >= 500) qualityPts += 10;
+  if (candidateProfile.email) qualityPts += 10;
+  if (candidateProfile.linkedIn || candidateProfile.portfolioOrGithub || candidateProfile.phone) qualityPts += 5;
+  if (hasExperience) qualityPts += 10;
+  if (technicalSkills.length >= 4) qualityPts += 10;
+  if (highestDegree !== "Not Detected") qualityPts += 5;
+  if (metricMatches.length >= 2) qualityPts += 5;
   const cvQualityScore = Math.min(100, qualityPts);
 
   // ── SCORE 2: ATS COMPATIBILITY & PARSEABILITY (100 pts) ────────────────────
-  let atsPts = 30;
+  let atsPts = 45;
   let parsingRisk: ATSDiagnostics["parsingRisk"] = "Low";
   let parsingRiskReason = "Clean, sequential text flow detected. Compatible with standard ATS parsers.";
 
-  // Check parsing risk
   if (wordCount < 40) {
     parsingRisk = "High";
     parsingRiskReason = "Document text is extremely short or truncated. Potential image-only / scanned PDF.";
     atsPts = 40;
-  } else if (text.includes("") || /[\uFFFD\u0000-\u0008]/.test(text)) {
-    parsingRisk = "Medium";
-    parsingRiskReason = "Non-standard character encoding detected. Avoid complex tables or multi-column layouts.";
-    atsPts += 15;
   } else {
-    atsPts += 30;
+    atsPts += 25;
   }
 
-  if (hasExperience) atsPts += 15;
-  if (hasSkills) atsPts += 15;
-  if (hasEducation) atsPts += 10;
+  if (hasExperience) atsPts += 10;
+  if (hasSkills || technicalSkills.length >= 2) atsPts += 10;
+  if (hasEducation || highestDegree !== "Not Detected") atsPts += 10;
   const atsCompatibilityScore = Math.min(100, atsPts);
 
   const atsDiagnostics: ATSDiagnostics = {
     score: atsCompatibilityScore,
     parsingRisk,
     parsingRiskReason,
-    sectionHierarchyScore: hasExperience && hasSkills && hasEducation ? 95 : 65,
-    contactInfoScore: candidateProfile.email && candidateProfile.linkedIn ? 100 : candidateProfile.email ? 70 : 30,
-    formattingConsistencyScore: wordCount >= 200 && wordCount <= 2500 ? 90 : 70,
+    sectionHierarchyScore: hasExperience && hasSkills ? 95 : 75,
+    contactInfoScore: candidateProfile.email ? (candidateProfile.linkedIn ? 100 : 85) : 40,
+    formattingConsistencyScore: wordCount >= 200 ? 95 : 70,
     evidence: [
-      candidateProfile.email ? `Verified email: ${candidateProfile.email}` : "Email missing",
-      candidateProfile.linkedIn ? `LinkedIn URL detected: ${candidateProfile.linkedIn}` : "LinkedIn URL missing",
+      candidateProfile.email ? `Verified email: ${candidateProfile.email}` : "Email not found in header",
+      candidateProfile.linkedIn ? `LinkedIn detected: ${candidateProfile.linkedIn}` : "Direct LinkedIn not explicitly linked",
       `Word count: ${wordCount} words (${parsingRisk} parsing risk)`
     ],
   };
@@ -380,8 +383,8 @@ export function analyzeCVIntelligence(
   if (exactMatches.length >= 4) {
     strongSignals.push(`Strong keyword coverage across ${exactMatches.length} core technologies (${exactMatches.slice(0, 4).join(", ")}).`);
   }
-  if (metricMatches.length >= 3) {
-    strongSignals.push(`${metricMatches.length} measurable business impact metrics detected (${metricMatches.slice(0, 3).join(", ")}).`);
+  if (metricMatches.length >= 2) {
+    strongSignals.push(`${metricMatches.length} quantifiable business metrics identified (${metricMatches.slice(0, 3).join(", ")}).`);
   }
   if (highestDegree !== "Not Detected") {
     strongSignals.push(`${highestDegree} degree aligns with target visa specialty occupation requirements.`);
@@ -391,13 +394,13 @@ export function analyzeCVIntelligence(
   }
 
   if (missingCriticalRequirements.length > 0) {
-    potentialRisks.push(`Missing ${missingCriticalRequirements.length} critical skills commonly required for this role (${missingCriticalRequirements.join(", ")}).`);
+    potentialRisks.push(`Missing ${missingCriticalRequirements.length} critical skills commonly expected for this role (${missingCriticalRequirements.join(", ")}).`);
   }
-  if (!candidateProfile.linkedIn) {
-    potentialRisks.push("Direct LinkedIn URL not detected in contact header.");
+  if (!candidateProfile.email && !candidateProfile.phone) {
+    potentialRisks.push("Direct contact information (email/phone) is missing or unparseable in the header.");
   }
-  if (metricMatches.length < 2) {
-    potentialRisks.push("Low density of quantifiable business results (%, $, £ or latency improvements).");
+  if (wordCount < 150) {
+    potentialRisks.push("Resume length is very brief. Ensure full employment history and achievements are included.");
   }
   if (parsingRisk !== "Low") {
     potentialRisks.push(parsingRiskReason);
@@ -415,7 +418,7 @@ export function analyzeCVIntelligence(
     });
   }
 
-  if (metricMatches.length < 3) {
+  if (metricMatches.length < 2) {
     actionPlan.push({
       category: "Impact Metric",
       title: "Quantify Experience with Numbers & Outcomes",
@@ -424,12 +427,12 @@ export function analyzeCVIntelligence(
     });
   }
 
-  if (!candidateProfile.linkedIn) {
+  if (!candidateProfile.linkedIn && !candidateProfile.portfolioOrGithub) {
     actionPlan.push({
       category: "Formatting",
-      title: "Add Direct LinkedIn & GitHub Profiles",
+      title: "Add Direct LinkedIn or Portfolio Profile",
       description: "International sponsors look for verifiable public professional footprints before issuing Certificate of Sponsorship (CoS).",
-      suggestedFix: "Place 'linkedin.com/in/yourname' and 'github.com/yourname' right below your name in the contact header.",
+      suggestedFix: "Place 'linkedin.com/in/yourname' or your GitHub link in the contact header.",
     });
   }
 

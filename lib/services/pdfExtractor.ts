@@ -45,7 +45,8 @@ export function extractTextFromPDFBuffer(buffer: Buffer): string {
       let match: RegExpExecArray | null;
       while ((match = tjRegex.exec(streamStr)) !== null) {
         if (match[1] && match[1].trim()) {
-          extractedChunks.push(cleanPdfToken(match[1]));
+          const cleaned = cleanPdfToken(match[1]);
+          if (cleaned.trim()) extractedChunks.push(cleaned);
         }
       }
 
@@ -69,23 +70,22 @@ export function extractTextFromPDFBuffer(buffer: Buffer): string {
     pos = streamEnd + 9;
   }
 
-  // If stream extraction retrieved text, join and return
+  // If stream extraction retrieved text, join and sanitize
   const fullText = extractedChunks.join(" ").trim();
   if (fullText.length >= 40) {
-    return fullText.replace(/\s{2,}/g, " ");
+    return sanitizeExtractedText(fullText);
   }
 
   // Fallback: UTF-8 scan for plain ASCII / Latin text
   const fallbackStr = buffer.toString("utf-8");
-  return fallbackStr
-    .replace(/[^\x20-\x7E\t\n\r]/g, " ")
+  const cleanedFallback = fallbackStr
     .replace(/(?:stream[\s\S]*?endstream|xref[\s\S]*?trailer|obj[\s\S]*?endobj)/gi, " ")
-    .replace(/\s{2,}/g, " ")
     .trim();
+  return sanitizeExtractedText(cleanedFallback);
 }
 
 /**
- * Cleans PDF string escape sequences (e.g. \n, \r, \t, \(, \))
+ * Cleans PDF string escape sequences and normalizes punctuation
  */
 function cleanPdfToken(token: string): string {
   return token
@@ -94,4 +94,20 @@ function cleanPdfToken(token: string): string {
     .replace(/\\r/g, "\r")
     .replace(/\\t/g, "\t")
     .replace(/\\([0-7]{1,3})/g, (_, octal) => String.fromCharCode(parseInt(octal, 8)));
+}
+
+/**
+ * Sanitizes extracted text: converts smart characters, removes null bytes, normalizes whitespace
+ */
+export function sanitizeExtractedText(text: string): string {
+  return text
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFD]/g, " ")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/[\u2022\u2023\u25E6\u2043\u2219]/g, " • ")
+    .replace(/\r\n|\r/g, "\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
