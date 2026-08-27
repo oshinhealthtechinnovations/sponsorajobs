@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Bookmark, Share2, Bell, Check, ExternalLink, Lock, Sparkles, CheckCircle2 } from "lucide-react";
+import { Bookmark, Share2, Bell, Check, ExternalLink, Lock, Sparkles, CheckCircle2, Flag } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
 import { JobShareModal } from "./JobShareModal";
+import { ReportIssueModal } from "./ReportIssueModal";
 
 interface JobDetailActionsProps {
   jobId: string;
@@ -50,6 +51,7 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
   const [copied, setCopied] = useState(false);
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
   const [user, setUser] = useState<any | null>(null);
 
   const isDirect = isDirectJobUrl(applyUrl);
@@ -194,6 +196,17 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
             <span>Alert</span>
           </button>
         </div>
+
+        {/* Quality Audit & Report Link */}
+        <div className="pt-2 text-center">
+          <button
+            onClick={() => setReportModalOpen(true)}
+            className="inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-600 font-medium transition-colors cursor-pointer"
+          >
+            <Flag className="w-3 h-3 text-slate-400" />
+            <span>Report issue with this listing</span>
+          </button>
+        </div>
       </div>
 
       <JobAlertModal
@@ -210,6 +223,14 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
         jobTitle={jobTitle}
         companyName={companyName}
         countryCode={countryCode}
+      />
+
+      <ReportIssueModal
+        isOpen={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        jobId={jobId}
+        jobTitle={jobTitle}
+        companyName={companyName}
       />
     </>
   );

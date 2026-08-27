@@ -134,4 +134,17 @@ describe("Phase 3: Search Engine & Multi-Attribute Filter Tests", () => {
     const res = await jobRepo.search({ q: "swe" });
     expect(res.jobs.length).toBeGreaterThan(0);
   });
+
+  it("should gracefully recover common typos into real search results (Section 7)", async () => {
+    const typoQueries = ["civil enginer", "softwre engineer", "data anlyst", "prject maneger"];
+    for (const q of typoQueries) {
+      const res = await jobRepo.search({ q });
+      expect(res.jobs.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("should recognize location entities in search (e.g. London)", async () => {
+    const res = await jobRepo.search({ q: "London" });
+    expect(res.jobs.length).toBeGreaterThan(0);
+  });
 });

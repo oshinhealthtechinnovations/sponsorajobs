@@ -17,7 +17,9 @@ const COMMON_TYPOS: Record<string, string> = {
   sofware: "software",
   softwar: "software",
   soft: "software",
+  softwre: "software",
   devloper: "developer",
+  develper: "developer",
   developper: "developer",
   develoepr: "developer",
   devlpr: "developer",
@@ -43,6 +45,7 @@ const COMMON_TYPOS: Record<string, string> = {
   typscript: "typescript",
   typescrip: "typescript",
   golng: "golang",
+  enigneer: "engineer",
 
   // Healthcare
   nurs: "nurse",
@@ -55,11 +58,16 @@ const COMMON_TYPOS: Record<string, string> = {
   dentistt: "dentist",
   radiograper: "radiographer",
 
-  // Business / Finance
+  // Business / Finance / Management
   manger: "manager",
   managr: "manager",
+  maneger: "manager",
+  prject: "project",
+  projct: "project",
   acountant: "accountant",
+  accountent: "accountant",
   acct: "accountant",
+  anlyst: "analyst",
   analist: "analyst",
   consultent: "consultant",
   represenative: "representative",
@@ -69,6 +77,7 @@ const COMMON_TYPOS: Record<string, string> = {
   // Sponsorship & General
   sposor: "sponsor",
   sponsership: "sponsorship",
+  sponorship: "sponsorship",
   sponser: "sponsor",
   visaa: "visa",
   reloaction: "relocation",
