@@ -124,8 +124,9 @@ async function harvestCivilEngineeringJobs() {
       try {
         console.log(`[Jooble] Querying ${company} civil roles in ${country}...`);
         const res = await jooble.fetchJobs({
-          keywords: `${company} Civil Engineer`,
           countryCode: country,
+          category: "engineering",
+          credentials: { keywords: `${company} Civil Engineer` },
         });
         if (res.jobs && res.jobs.length > 0) {
           console.log(`  Found ${res.jobs.length} jobs for ${company} in ${country}`);
@@ -142,8 +143,9 @@ async function harvestCivilEngineeringJobs() {
     try {
       console.log(`[Adzuna] Querying "${kw}" in GB...`);
       const res = await adzuna.fetchJobs({
-        keywords: kw,
         countryCode: "GB",
+        category: "engineering",
+        credentials: { keywords: kw },
       });
       if (res.jobs && res.jobs.length > 0) {
         console.log(`  Found ${res.jobs.length} jobs for "${kw}" in GB`);
@@ -218,13 +220,11 @@ async function harvestCivilEngineeringJobs() {
 
         existingHashes.add(canonicalHash);
 
-        const sponsorship = classifyJobSponsorship({
-          title: raw.title,
-          description: raw.description || "",
-          companyName: raw.company?.name || raw.companyName || "Engineering Employer",
-          countryCode: raw.location?.country || raw.countryCode || "GB",
-          salary: raw.salary,
-        });
+        const fullText = `${raw.title} ${raw.description || ""} ${companyName}`;
+        const sponsorship = classifyJobSponsorship(
+          fullText,
+          raw.location?.country || raw.countryCode || "GB"
+        );
 
         const cleanDescription = (raw.description || "")
           .replace(/^[•*]\s+/gm, "- ")
@@ -246,9 +246,9 @@ ${cleanDescription}
 - Strong technical communication and project delivery capabilities.
 
 ## Visa Sponsorship & Salary
-- Sponsoring Employer: ${raw.company?.name || "Licensed Sponsor"}
+- Sponsoring Employer: ${companyName}
 - Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00
-- Statutory Going Rate Met: ${sponsorship.status === "CONFIRMED" ? "Yes (Verified Home Office Sponsor)" : "Standard Industry Going Rate"}
+- Statutory Going Rate Met: ${sponsorship.label === "Strong" ? "Yes (Verified Home Office Sponsor)" : "Standard Industry Going Rate"}
         `.trim();
 
         const jobId = `civil_${raw.location?.country?.toLowerCase() || "gb"}_${Math.random().toString(36).slice(2, 9)}`;
@@ -291,8 +291,8 @@ ${cleanDescription}
             termsUrl: "https://www.sponsorajobs.com",
           },
           sponsorship: {
-            status: sponsorship.status || "CONFIRMED",
-            confidence: sponsorship.confidence || 0.9,
+            status: sponsorship.label === "Strong" ? "CONFIRMED" : "LIKELY",
+            confidence: 0.9,
             reasons: [
               "Employer holds verified visa sponsor licence",
               "Salary satisfies statutory SOC 2121 going rate threshold",

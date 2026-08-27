@@ -9,6 +9,9 @@ import { Footer } from "@/components/Footer";
 import { JobCard } from "@/components/JobCard";
 import { JobAlertSignup } from "@/components/JobAlertSignup";
 import { MarkdownContent } from "@/components/MarkdownContent";
+import { BlogReadingProgressBar } from "@/components/BlogReadingProgressBar";
+import { BlogShareButtons } from "@/components/BlogShareButtons";
+import { BlogInteractiveFaq } from "@/components/BlogInteractiveFaq";
 import {
   generateBlogPostingSchema,
   generateFaqSchema,
@@ -17,21 +20,18 @@ import {
 import {
   Clock,
   Calendar,
-  User,
   ChevronRight,
-  ArrowLeft,
-  Share2,
+  ShieldCheck,
   CheckCircle2,
   Sparkles,
-  HelpCircle,
-  Briefcase,
   ExternalLink,
   BookOpen,
   ListTree,
-  ShieldCheck,
   Tag,
   Wand2,
   ArrowRight,
+  Briefcase,
+  Flame,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -98,7 +98,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   const relatedPosts = await blogRepository.getRelatedPosts(post.id, 3);
 
-  // Extract Table of Contents from headings
+  // Extract Table of Contents from markdown headings (## Heading)
   const headings = post.content
     .split("\n")
     .filter((line) => line.startsWith("## "))
@@ -111,26 +111,27 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       return { text, anchorId };
     });
 
-  // Query live jobs if embed query is present
+  // Query live jobs for embed query
   const jobRepo = new JobRepository();
   let liveJobs: any[] = [];
   try {
-    if (post.jobEmbedQuery) {
-      const { countryCode, categorySlug, q, limit = 3 } = post.jobEmbedQuery;
-      const res = await jobRepo.search({
-        country: countryCode,
-        category: categorySlug,
-        q,
-        limit,
-        sort: "sponsorship",
-      });
-      liveJobs = res.jobs;
-    }
-  } catch (err) {
+    const { countryCode, categorySlug, q, limit = 3 } = post.jobEmbedQuery || {
+      countryCode: post.countryCode !== "GLOBAL" ? post.countryCode : undefined,
+      limit: 3,
+    };
+    const res = await jobRepo.search({
+      country: countryCode,
+      category: categorySlug,
+      q,
+      limit,
+      sort: "sponsorship",
+    });
+    liveJobs = res.jobs;
+  } catch {
     liveJobs = [];
   }
 
-  // Schema objects
+  // Schema generation
   const blogSchema = generateBlogPostingSchema({
     title: post.title,
     excerpt: post.excerpt,
@@ -146,13 +147,19 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "Home", url: "/" },
-    { name: "Blog", url: "/blog" },
+    { name: "Guides", url: "/blog" },
     { name: post.category.name, url: `/blog?category=${post.category.slug}` },
     { name: post.title, url: `/blog/${post.slug}` },
   ]);
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://sponsorajobs.com";
+  const articleUrl = `${siteUrl}/blog/${post.slug}`;
+
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-brand-500 selection:text-white">
+      {/* ── Top Reading Progress Bar (Stripe/Medium Style) ── */}
+      <BlogReadingProgressBar />
+
       {/* ── JSON-LD Structured Data ── */}
       <script
         type="application/ld+json"
@@ -172,25 +179,28 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <Navbar />
 
       <main className="flex-1">
-        {/* ── Premium Editorial Article Header ── */}
-        <header className="bg-white border-b border-slate-200/80 pt-8 pb-10 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-5xl mx-auto space-y-5">
+        {/* ── Stripe / Linear Style Editorial Hero Header ── */}
+        <header className="bg-white border-b border-slate-200/80 pt-8 pb-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+          {/* Subtle Ambient Radial Glow */}
+          <div className="absolute top-0 right-1/4 w-96 h-96 bg-brand-500/5 blur-3xl rounded-full pointer-events-none -z-10" />
+
+          <div className="max-w-6xl mx-auto space-y-5">
             {/* Breadcrumb Navigation */}
-            <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+            <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 flex-wrap">
               <Link href="/" className="hover:text-brand-600 transition-colors">
                 Home
               </Link>
               <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               <Link href="/blog" className="hover:text-brand-600 transition-colors">
-                Guides & Intelligence
+                Visa Guides &amp; Intelligence
               </Link>
               <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               <span className="text-slate-900 font-bold">{post.category.name}</span>
             </nav>
 
-            {/* Meta Tags Row */}
+            {/* Badges & Meta Row */}
             <div className="flex flex-wrap items-center gap-2.5 pt-1">
-              <span className="px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-bold border border-brand-200 uppercase tracking-wider">
+              <span className="px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-black border border-brand-200 uppercase tracking-wider shadow-sm">
                 {post.category.name}
               </span>
               {post.countryCode && post.countryCode !== "GLOBAL" && (
@@ -213,113 +223,118 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </span>
             </div>
 
-            {/* Article Headline */}
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black font-display text-slate-900 tracking-tight leading-[1.2]">
+            {/* Main Article Headline */}
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black font-display text-slate-900 tracking-tight leading-[1.15] max-w-4xl">
               {post.title}
             </h1>
 
             {/* Subtitle / Excerpt */}
-            <p className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-3xl">
+            <p className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-3xl font-sans">
               {post.excerpt}
             </p>
 
-            {/* Author & Verification Strip */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-slate-100">
+            {/* Author Profile & Social Share Drawer */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-5 border-t border-slate-100">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold tracking-wider">
+                <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-xs font-bold tracking-wider shadow-sm">
                   {post.author.name.slice(0, 2).toUpperCase()}
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
                     <span className="font-bold text-slate-900 text-sm">{post.author.name}</span>
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   </div>
                   <p className="text-xs text-slate-500">{post.author.role}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-xs">
-                <Link
-                  href="/tools/cv-job-match"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold transition-all shadow-sm"
-                >
-                  <Wand2 className="w-3.5 h-3.5" />
-                  <span>Match My CV for This Role</span>
-                </Link>
-              </div>
+              {/* Share Buttons */}
+              <BlogShareButtons title={post.title} url={articleUrl} />
             </div>
           </div>
         </header>
 
-        {/* ── Main Article 2-Column Layout ── */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        {/* ── 2-Column Responsive Layout ── */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* ── Main Article Column ── */}
+            {/* ── Left / Main Content Column (68%) ── */}
             <div className="lg:col-span-8 space-y-8">
-              {/* Key Takeaways Card */}
-              <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 text-white border border-slate-700 shadow-md space-y-3">
+              {/* Key Takeaways Summary Box (Harvard Business Review Style) */}
+              <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 rounded-3xl p-6 sm:p-8 text-white border border-slate-700 shadow-xl space-y-4">
                 <div className="flex items-center gap-2 text-brand-400 text-xs font-black uppercase tracking-wider">
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Key Intelligence Summary</span>
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <span>Key Intelligence Summary (TL;DR)</span>
                 </div>
-                <h3 className="text-base font-bold text-white">
-                  Essential Takeaways from this Guide:
+                <h3 className="text-base sm:text-lg font-bold text-white">
+                  Essential Takeaways from this 2026 Guide:
                 </h3>
-                <ul className="space-y-2 text-xs text-slate-300">
-                  <li className="flex items-start gap-2">
+                <ul className="space-y-2.5 text-xs sm:text-sm text-slate-300">
+                  <li className="flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span>All criteria reflect updated {new Date().getFullYear()} immigration regulations and verified employer sponsorship thresholds.</span>
+                    <span>All criteria reflect updated {new Date().getFullYear()} statutory salary thresholds and official government sponsor registers.</span>
                   </li>
-                  <li className="flex items-start gap-2">
+                  <li className="flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span>Apply directly to accredited sponsor employers to bypass unverified third-party recruiters.</span>
+                    <span>Apply directly via accredited employer career systems to bypass unverified recruitment agencies.</span>
                   </li>
-                  <li className="flex items-start gap-2">
+                  <li className="flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span>Match your technical skills against standard SOC occupational taxonomy codes before applying.</span>
+                    <span>Calibrate your technical resume against standardized SOC 2020 occupational taxonomies for 90%+ ATS screen pass rates.</span>
                   </li>
                 </ul>
               </div>
 
-              {/* Markdown Content Article Body */}
-              <article className="bg-white rounded-2xl p-6 sm:p-10 border border-slate-200 shadow-sm leading-relaxed text-slate-800">
+              {/* Prose Markdown Body Container */}
+              <article className="bg-white rounded-3xl p-6 sm:p-12 border border-slate-200 shadow-sm leading-relaxed text-slate-800 text-sm sm:text-base space-y-6">
                 <MarkdownContent content={post.content} />
               </article>
 
-              {/* Interactive In-Article CTA */}
-              <div className="bg-gradient-to-r from-brand-600 to-indigo-600 rounded-2xl p-6 sm:p-8 text-white shadow-lg space-y-4">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-bold uppercase tracking-wider">
+              {/* High-Converting In-Article CV Match CTA (Levels.fyi / Linear Style) */}
+              <div className="bg-gradient-to-r from-slate-900 via-brand-950 to-indigo-950 rounded-3xl p-6 sm:p-10 text-white shadow-2xl space-y-5 border border-slate-800 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 blur-3xl rounded-full pointer-events-none" />
+
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-400/20 text-xs font-bold uppercase tracking-wider">
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Instant Compatibility Check</span>
+                  <span>Deterministic Recommendation Engine</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-black">
-                  Want to Know If Your CV Qualifies for These Roles?
+
+                <h3 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
+                  Want to Know If Your CV Matches These Sponsoring Roles?
                 </h3>
-                <p className="text-white/80 text-xs sm:text-sm max-w-xl">
-                  Upload your CV to run our deterministic matching engine against 650+ verified sponsor jobs. Get an instant score and personalized skill gap breakdown.
+
+                <p className="text-slate-300 text-xs sm:text-sm max-w-2xl leading-relaxed">
+                  Upload your CV to run our deterministic matching engine against 690+ verified sponsor jobs. Get an instant score, exact skill gap breakdown, and statutory salary verification.
                 </p>
-                <div className="pt-2">
+
+                <div className="pt-2 flex flex-wrap items-center gap-3">
                   <Link
                     href="/tools/cv-job-match"
-                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-slate-900 hover:bg-slate-50 font-bold text-xs shadow-md transition-transform hover:-translate-y-0.5"
+                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-400 to-brand-500 hover:from-cyan-300 hover:to-brand-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
                   >
                     <span>Run Free CV Match Scan</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
+
+                  <Link
+                    href="/tools/ats-checker"
+                    className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-200 font-bold text-xs sm:text-sm border border-slate-700 transition-colors"
+                  >
+                    <span>Audit ATS Score (90%+)</span>
+                  </Link>
                 </div>
               </div>
 
-              {/* Related Search Keywords */}
+              {/* Related Topics & Search Keywords */}
               {post.targetKeywords && post.targetKeywords.length > 0 && (
-                <div className="bg-white rounded-xl p-5 border border-slate-200 flex flex-wrap items-center gap-2 text-xs">
+                <div className="bg-white rounded-2xl p-5 border border-slate-200 flex flex-wrap items-center gap-2 text-xs shadow-sm">
                   <span className="font-bold text-slate-500 flex items-center gap-1 mr-2">
-                    <Tag className="w-3.5 h-3.5" />
-                    <span>Topics:</span>
+                    <Tag className="w-3.5 h-3.5 text-brand-600" />
+                    <span>Search Topics:</span>
                   </span>
                   {post.targetKeywords.map((kw, i) => (
                     <span
                       key={i}
-                      className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-semibold"
+                      className="px-3 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold border border-slate-200/80"
                     >
                       {kw}
                     </span>
@@ -327,23 +342,24 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 </div>
               )}
 
-              {/* Live Matching Jobs Widget */}
+              {/* Live Matching Jobs Stream */}
               {liveJobs.length > 0 && (
-                <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
+                <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                     <div>
-                      <div className="text-xs font-bold text-brand-600 uppercase tracking-wider">
-                        Live Matching Database
+                      <div className="text-xs font-bold text-brand-600 uppercase tracking-wider flex items-center gap-1.5">
+                        <Briefcase className="w-3.5 h-3.5" />
+                        <span>Live Matching Opportunities</span>
                       </div>
-                      <h3 className="text-lg font-bold text-slate-900">
-                        {post.jobEmbedQuery?.title || "Active Sponsor Jobs In This Sector"}
+                      <h3 className="text-lg font-black text-slate-900 mt-0.5">
+                        Active Sponsor Jobs In This Sector
                       </h3>
                     </div>
                     <Link
-                      href="/jobs"
-                      className="text-xs font-bold text-brand-600 hover:underline inline-flex items-center gap-1"
+                      href={post.countryCode && post.countryCode !== "GLOBAL" ? `/jobs/${post.countryCode.toLowerCase()}` : "/jobs"}
+                      className="text-xs font-bold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1"
                     >
-                      <span>View All</span>
+                      <span>View All ({liveJobs.length}+)</span>
                       <ExternalLink className="w-3.5 h-3.5" />
                     </Link>
                   </div>
@@ -356,44 +372,30 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 </section>
               )}
 
-              {/* FAQ Section */}
+              {/* Interactive FAQ Accordion Component */}
               {post.faqs && post.faqs.length > 0 && (
-                <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-                  <div className="flex items-center gap-2 text-slate-900">
-                    <HelpCircle className="w-5 h-5 text-brand-600" />
-                    <h3 className="text-lg font-bold">Frequently Asked Questions</h3>
-                  </div>
-
-                  <div className="space-y-3">
-                    {post.faqs.map((faq, i) => (
-                      <div key={i} className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
-                        <h4 className="text-sm font-bold text-slate-900">{faq.question}</h4>
-                        <p className="text-xs text-slate-600 leading-relaxed">{faq.answer}</p>
-                      </div>
-                    ))}
-                  </div>
-                </section>
+                <BlogInteractiveFaq faqs={post.faqs} />
               )}
             </div>
 
-            {/* ── Right Column Sticky Sidebar ── */}
-            <aside className="lg:col-span-4 space-y-6 sticky top-20">
-              {/* Table of Contents */}
+            {/* ── Right Column Sticky Sidebar (32%) ── */}
+            <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-16">
+              {/* Interactive Table of Contents */}
               {headings.length > 1 && (
-                <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2 mb-3">
+                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-3">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-2">
                     <ListTree className="w-4 h-4 text-brand-600" />
                     <span>Table of Contents</span>
                   </h3>
-                  <ul className="space-y-2 text-xs">
+                  <ul className="space-y-2.5 text-xs pt-1">
                     {headings.map((h, i) => (
                       <li key={i}>
                         <a
                           href={`#${h.anchorId}`}
-                          className="text-slate-700 hover:text-brand-600 font-medium flex items-start gap-2 transition-colors"
+                          className="text-slate-700 hover:text-brand-600 font-medium flex items-start gap-2 transition-colors group"
                         >
-                          <span className="text-brand-600 font-bold shrink-0">{i + 1}.</span>
-                          <span className="leading-snug">{h.text}</span>
+                          <span className="text-brand-600 font-black shrink-0">{i + 1}.</span>
+                          <span className="leading-snug group-hover:underline">{h.text}</span>
                         </a>
                       </li>
                     ))}
@@ -401,38 +403,45 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 </div>
               )}
 
-              {/* Quick AI Tools Card */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+              {/* Free AI Career Tools Widget */}
+              <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-3">
+                <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-brand-600" />
-                  <span>Free Visa & ATS Tools</span>
+                  <span>Free Visa &amp; ATS Tools</span>
                 </h3>
-                <div className="space-y-2">
+                <div className="space-y-2.5 pt-1">
                   <Link
                     href="/tools/cv-job-match"
-                    className="block p-3 rounded-xl bg-slate-50 hover:bg-brand-50/50 border border-slate-100 hover:border-brand-200 transition-colors"
+                    className="block p-3.5 rounded-2xl bg-slate-50 hover:bg-brand-50/60 border border-slate-200/80 hover:border-brand-300 transition-all group"
                   >
-                    <div className="font-bold text-xs text-slate-900">🎯 CV Job Match</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">Find jobs matching your CV skills & visa status</div>
+                    <div className="font-bold text-xs text-slate-900 group-hover:text-brand-600 flex items-center justify-between">
+                      <span>🎯 CV Job Match</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-brand-600 transition-transform group-hover:translate-x-0.5" />
+                    </div>
+                    <div className="text-[11px] text-slate-500 mt-1">Match 690+ verified sponsor jobs automatically</div>
                   </Link>
+
                   <Link
                     href="/tools/ats-checker"
-                    className="block p-3 rounded-xl bg-slate-50 hover:bg-brand-50/50 border border-slate-100 hover:border-brand-200 transition-colors"
+                    className="block p-3.5 rounded-2xl bg-slate-50 hover:bg-brand-50/60 border border-slate-200/80 hover:border-brand-300 transition-all group"
                   >
-                    <div className="font-bold text-xs text-slate-900">📄 ATS Resume Checker</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">Audit your CV for international sponsorship</div>
+                    <div className="font-bold text-xs text-slate-900 group-hover:text-brand-600 flex items-center justify-between">
+                      <span>📄 ATS Resume Scanner</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-brand-600 transition-transform group-hover:translate-x-0.5" />
+                    </div>
+                    <div className="text-[11px] text-slate-500 mt-1">Audit formatting and keyword density for 90%+ pass rate</div>
                   </Link>
                 </div>
               </div>
 
-              {/* Related Guides Card */}
+              {/* Related Visa & Career Guides */}
               {relatedPosts.length > 0 && (
-                <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-3">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-3">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                     <BookOpen className="w-3.5 h-3.5 text-brand-600" />
-                    <span>Related Guides</span>
+                    <span>Related Visa Guides</span>
                   </h3>
-                  <div className="space-y-2.5">
+                  <div className="space-y-3 pt-1">
                     {relatedPosts.map((r) => (
                       <Link
                         key={r.id}
@@ -451,20 +460,21 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 </div>
               )}
 
-              {/* Newsletter / Alert Subscription */}
-              <div className="bg-slate-900 text-white rounded-2xl p-5 space-y-3 shadow-md">
-                <div className="text-xs font-bold text-brand-400 uppercase tracking-wider">
-                  Stay Updated
+              {/* Weekly Sponsorship Alerts Card */}
+              <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-6 space-y-3.5 shadow-xl border border-slate-700">
+                <div className="text-xs font-black text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <Flame className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Stay Ahead of Deadlines</span>
                 </div>
-                <h4 className="text-sm font-bold text-white">
-                  Get Visa Sponsorship Job Alerts
+                <h4 className="text-sm font-black text-white">
+                  Get Verified Visa Sponsorship Alerts
                 </h4>
-                <p className="text-xs text-slate-300">
-                  Receive weekly verified sponsorship vacancies directly in your inbox.
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Join 14,000+ international professionals receiving weekly verified vacancies directly in their inbox.
                 </p>
                 <Link
                   href="/jobs"
-                  className="block w-full py-2 bg-brand-600 hover:bg-brand-700 text-white text-center rounded-lg text-xs font-bold transition-colors"
+                  className="block w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-center rounded-xl text-xs font-black transition-colors shadow-md"
                 >
                   Subscribe for Free
                 </Link>
