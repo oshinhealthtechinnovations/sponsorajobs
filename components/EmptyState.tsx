@@ -47,14 +47,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ query, country, category
     <div className="space-y-6 max-w-3xl mx-auto">
       {/* ── Main Empty State Box ── */}
       <div className="p-6 sm:p-10 text-center rounded-3xl bg-white border border-slate-200 shadow-sm">
-        <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-4 border border-amber-200/60 shadow-xs">
-          <SearchX className="w-7 h-7" />
+        <div className="w-14 h-14 rounded-2xl bg-sky-50 text-brand-600 flex items-center justify-center mx-auto mb-4 border border-sky-100 shadow-xs">
+          <Sparkles className="w-7 h-7 text-brand-600" />
         </div>
         <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2 font-display">
-          {query ? `No direct matches for "${query}"` : "No matching jobs found with these filters"}
+          {query ? `Exploring Alternative Roles for "${query}"` : "Discover Top Sponsorship Vacancies"}
         </h3>
         <p className="text-sm text-slate-600 max-w-lg mx-auto mb-6">
-          Don&apos;t worry! Employers often use broader titles or publish new visa-sponsored roles throughout the week.
+          Check out these recommended sponsor roles below or try one of the popular search pathways.
         </p>
 
         {/* Suggested Quick Search Tags */}

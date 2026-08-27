@@ -79,30 +79,64 @@ const COMMON_TYPOS: Record<string, string> = {
  * Common abbreviations and domain synonyms that expand into broader relevant roles
  */
 const ROLE_SYNONYMS: Record<string, string[]> = {
-  swe: ["software engineer", "developer", "backend", "frontend"],
+  // Engineering, Construction & Project Management
+  civil: ["civil", "civil engineer", "structural", "construction", "site engineer", "project manager", "design manager", "infrastructure"],
+  construction: ["construction", "site manager", "project manager", "civil", "structural", "planning", "design manager", "cost consultancy"],
+  pm: ["project manager", "programme manager", "operations director", "project director", "planning manager", "product manager"],
+  project: ["project manager", "programme manager", "project director", "planning manager", "project controls", "operations director"],
+  planning: ["planning manager", "project manager", "project controls", "operations director"],
+  director: ["operations director", "project director", "associate director", "head of", "lead"],
+  design: ["design manager", "architectural", "product design", "ui designer", "engineering"],
+  cost: ["cost consultancy", "quantity surveyor", "commercial manager", "estimator", "finance"],
+  bim: ["information manager", "bim manager", "cad", "technical services", "digital engineer"],
+  defence: ["project controls", "defence", "security", "aerospace"],
+
+  // Software & Tech
+  swe: ["software engineer", "developer", "backend", "frontend", "full stack"],
   sde: ["software development engineer", "software engineer", "developer"],
-  sre: ["site reliability engineer", "devops", "cloud", "infrastructure"],
-  devops: ["sre", "cloud engineer", "infrastructure", "platform engineer"],
+  sre: ["site reliability engineer", "devops", "cloud", "infrastructure", "platform"],
+  devops: ["sre", "cloud engineer", "infrastructure", "platform engineer", "kubernetes"],
   fullstack: ["full stack", "software engineer", "developer", "frontend", "backend"],
-  frontend: ["front end", "ui engineer", "web developer", "react", "javascript"],
-  backend: ["back end", "software engineer", "api", "node", "python", "java", "golang"],
-  ml: ["machine learning", "data scientist", "ai engineer", "data engineer"],
-  ai: ["artificial intelligence", "machine learning", "data scientist"],
-  qa: ["quality assurance", "test engineer", "automation engineer", "sdit"],
-  rn: ["registered nurse", "nurse", "healthcare", "clinical"],
-  gp: ["general practitioner", "doctor", "physician"],
-  pm: ["product manager", "project manager"],
-  ca: ["chartered accountant", "accountant", "finance"],
+  frontend: ["front end", "ui engineer", "web developer", "react", "javascript", "typescript"],
+  backend: ["back end", "software engineer", "api", "node", "python", "java", "golang", "microservices"],
+  ml: ["machine learning", "data scientist", "ai engineer", "data engineer", "deep learning"],
+  ai: ["artificial intelligence", "machine learning", "data scientist", "llm", "generative ai"],
+  qa: ["quality assurance", "test engineer", "automation engineer", "sdet"],
   golang: ["go", "backend", "software engineer"],
-  react: ["frontend", "web developer", "javascript", "fullstack", "ui"],
-  node: ["backend", "javascript", "fullstack"],
-  python: ["backend", "data engineer", "data science", "software engineer"],
-  aws: ["cloud", "devops", "infrastructure"],
-  civil: ["civil engineer", "structural engineer", "construction", "site engineer"],
-  site: ["site reliability engineer", "sre", "civil engineer", "site engineer", "infrastructure"],
-  mechanical: ["mechanical engineer", "design engineer"],
-  electrical: ["electrical engineer", "electronics"],
+  react: ["frontend", "web developer", "javascript", "fullstack", "ui", "typescript"],
+  node: ["backend", "javascript", "fullstack", "typescript", "api"],
+  python: ["backend", "data engineer", "data science", "software engineer", "fastapi", "django"],
+  aws: ["cloud", "devops", "infrastructure", "solutions architect"],
+  cloud: ["aws", "azure", "gcp", "devops", "cloud architect", "infrastructure"],
+
+  // Healthcare
+  rn: ["registered nurse", "nurse", "healthcare", "clinical", "staff nurse"],
+  nurse: ["registered nurse", "staff nurse", "clinical", "healthcare", "practitioner"],
+  gp: ["general practitioner", "doctor", "physician", "medical"],
+  doctor: ["physician", "general practitioner", "medical officer", "consultant"],
+  pharmacist: ["pharmacy", "clinical pharmacist", "healthcare"],
+
+  // Finance, HR & Business
+  ca: ["chartered accountant", "accountant", "finance", "auditor"],
+  accountant: ["finance", "financial analyst", "auditor", "accounts manager", "payroll"],
+  payroll: ["payroll", "benefits", "human resources", "hr assistant", "compensation"],
+  hr: ["human resources", "talent acquisition", "recruiter", "people ops", "payroll"],
+  recruiter: ["talent acquisition", "human resources", "recruitment", "hr"],
+  finance: ["financial analyst", "accountant", "commercial", "cost consultancy", "auditor"],
 };
+
+/**
+ * Common suffixes and word stems to normalize (e.g. engineering -> engineer, managing -> manager)
+ */
+export function stemKeyword(word: string): string {
+  const clean = word.toLowerCase().trim();
+  if (clean.endsWith("ing") && clean.length > 5) return clean.slice(0, -3);
+  if (clean.endsWith("ers") && clean.length > 5) return clean.slice(0, -3);
+  if (clean.endsWith("er") && clean.length > 4) return clean.slice(0, -2);
+  if (clean.endsWith("or") && clean.length > 4) return clean.slice(0, -2);
+  if (clean.endsWith("s") && clean.length > 3 && !clean.endsWith("ss")) return clean.slice(0, -1);
+  return clean;
+}
 
 /**
  * High-demand curated alternative search pills for instant recovery
@@ -158,18 +192,26 @@ export function normalizeSearchQuery(rawQuery: string): {
     }
     correctedTokens.push(token);
 
+    const stemmed = stemKeyword(token);
+    if (stemmed !== token && stemmed.length >= 3) {
+      correctedTokens.push(stemmed);
+    }
+
     if (ROLE_SYNONYMS[token]) {
       foundSynonyms.push(...ROLE_SYNONYMS[token]);
     }
+    if (ROLE_SYNONYMS[stemmed]) {
+      foundSynonyms.push(...ROLE_SYNONYMS[stemmed]);
+    }
   }
 
-  const normalized = correctedTokens.join(" ");
+  const normalized = correctedTokens.slice(0, rawWords.length).join(" ");
 
   return {
     normalized,
     original: rawQuery,
     isCorrected,
-    tokens: correctedTokens,
+    tokens: Array.from(new Set(correctedTokens)),
     synonyms: Array.from(new Set(foundSynonyms)),
   };
 }

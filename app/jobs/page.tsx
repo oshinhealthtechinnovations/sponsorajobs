@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { JobRepository } from "@/lib/repositories/jobRepository";
 import { INITIAL_CATEGORIES } from "@/config/categories";
 import { normalizeSearchQuery } from "@/lib/utils/searchNormalizer";
+import { JobSearchBar } from "@/components/JobSearchBar";
 import Link from "next/link";
 import { Search, ChevronLeft, ChevronRight, X, Sparkles, SlidersHorizontal } from "lucide-react";
 import { MobileFilterDrawer } from "@/components/MobileFilterDrawer";
@@ -113,31 +114,14 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
               )}
             </div>
 
-            {/* Keyword Search Form */}
-            <form action="/jobs" method="GET" className="flex items-center gap-2 w-full sm:max-w-sm">
-              {searchParams.country && (
-                <input type="hidden" name="country" value={searchParams.country} />
-              )}
-              {searchParams.category && (
-                <input type="hidden" name="category" value={searchParams.category} />
-              )}
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
-                  type="text"
-                  name="q"
-                  defaultValue={searchParams.q || ""}
-                  placeholder="Role, skill, keyword..."
-                  className="w-full pl-9 pr-3 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-brand-500 shadow-2xs"
-                />
-              </div>
-              <button
-                type="submit"
-                className="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer shrink-0 touch-manipulation"
-              >
-                Search
-              </button>
-            </form>
+            {/* Intelligent Search Form with Live Autocomplete */}
+            <div className="w-full sm:max-w-md">
+              <JobSearchBar
+                initialQuery={searchParams.q}
+                initialCountry={searchParams.country}
+                variant="compact"
+              />
+            </div>
           </div>
 
           {/* Active Filter Chips */}

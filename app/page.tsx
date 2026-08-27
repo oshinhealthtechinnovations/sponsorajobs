@@ -6,6 +6,7 @@ import { JobCard } from "@/components/JobCard";
 import { HeroCounterAnimation } from "@/components/HeroCounterAnimation";
 import { LiveActivityTicker } from "@/components/LiveActivityTicker";
 import { JobAlertSignup } from "@/components/JobAlertSignup";
+import { JobSearchBar } from "@/components/JobSearchBar";
 import { INITIAL_COUNTRIES } from "@/config/countries";
 import { INITIAL_CATEGORIES } from "@/config/categories";
 import { JobRepository } from "@/lib/repositories/jobRepository";
@@ -103,46 +104,10 @@ export default async function HomePage() {
             <strong className="text-white font-semibold">UK, USA, Canada, Australia & New Zealand</strong> with algorithmic visa signal verification.
           </p>
 
-          {/* ── Omni Search Form (Ultra Responsive) ── */}
-          <form
-            action="/jobs"
-            method="GET"
-            className="w-full max-w-3xl mt-8 p-2 sm:p-2.5 bg-slate-800/90 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/50 border border-slate-700/80 flex flex-col md:flex-row gap-2 text-left"
-          >
-            <div className="flex-1 flex items-center px-4 gap-3 border-b md:border-b-0 md:border-r border-slate-700/70 py-3 md:py-0">
-              <Search className="w-5 h-5 text-brand-400 shrink-0" />
-              <input
-                type="text"
-                name="q"
-                placeholder="Job title, skill, or company (e.g. Civil Engineer, React, Nurse)"
-                className="w-full outline-none text-white placeholder:text-slate-400 text-sm bg-transparent font-medium"
-              />
-            </div>
-
-            <div className="flex items-center px-4 gap-3 py-3 md:py-0 md:w-56">
-              <Globe className="w-5 h-5 text-slate-400 shrink-0" />
-              <select
-                name="country"
-                className="w-full outline-none text-slate-200 bg-transparent text-sm font-medium cursor-pointer"
-                defaultValue="ALL"
-              >
-                <option value="ALL" className="bg-slate-900 text-white">All Countries (5)</option>
-                {INITIAL_COUNTRIES.map((c) => (
-                  <option key={c.code} value={c.code.toLowerCase()} className="bg-slate-900 text-white">
-                    {c.flag} {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              className="px-8 py-3.5 bg-gradient-to-r from-brand-600 to-sky-500 hover:from-brand-500 hover:to-sky-400 text-white rounded-xl sm:rounded-2xl font-bold text-sm shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shrink-0"
-            >
-              <span>Search Jobs</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
+          {/* ── Omni Search Form (Ultra Responsive with Smart Autocomplete) ── */}
+          <div className="w-full max-w-3xl mt-8">
+            <JobSearchBar variant="hero" />
+          </div>
 
           {/* ── Popular Quick Search Badges ── */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2 max-w-3xl">

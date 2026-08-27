@@ -129,4 +129,9 @@ describe("Phase 3: Search Engine & Multi-Attribute Filter Tests", () => {
     expect(res.jobs.length).toBeGreaterThan(0);
     expect(res.jobs.every((j) => j.company.name.toLowerCase().includes("mace"))).toBe(true);
   });
+
+  it("should match jobs using smart synonyms (e.g. 'swe' -> Software Engineer)", async () => {
+    const res = await jobRepo.search({ q: "swe" });
+    expect(res.jobs.length).toBeGreaterThan(0);
+  });
 });

@@ -318,7 +318,7 @@ export class JobRepository {
     let fallbackJobs: PublicJobDTO[] | undefined;
     if (total === 0) {
       fallbackJobs = await this.getFallbackSuggestions(
-        { q: params.q, country: params.country, category: params.category },
+        { q: params.q, country: params.country, category: params.category, company: params.company },
         6
       );
     }
@@ -480,20 +480,25 @@ export class JobRepository {
   }
 
   async getFallbackSuggestions(
-    params: { q?: string; country?: string; category?: string },
+    params: { q?: string; country?: string; category?: string; company?: string },
     limit: number = 6
   ): Promise<PublicJobDTO[]> {
-    // 1. If category provided, find top jobs in category
+    // 1. If company provided, find all other jobs by this company first
+    if (params.company) {
+      const res = await this.search({ company: params.company, limit, sort: "sponsorship" });
+      if (res.jobs.length > 0) return res.jobs;
+    }
+    // 2. If category provided, find top jobs in category
     if (params.category && params.category !== "all") {
       const res = await this.search({ category: params.category, limit, sort: "sponsorship" });
       if (res.jobs.length > 0) return res.jobs;
     }
-    // 2. If country provided, find top jobs in country
+    // 3. If country provided, find top jobs in country
     if (params.country && params.country !== "ALL" && params.country !== "all") {
       const res = await this.search({ country: params.country, limit, sort: "sponsorship" });
       if (res.jobs.length > 0) return res.jobs;
     }
-    // 3. Global top-scoring sponsorship jobs
+    // 4. Global top-scoring sponsorship jobs
     const res = await this.search({ limit, sort: "sponsorship" });
     return res.jobs;
   }
