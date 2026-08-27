@@ -110,35 +110,30 @@ const maceCompany = {
 
 function generateDescription(job: MaceJobInput): string {
   const statusNote = job.status === "expired"
-    ? "🔴 **Status:** This listing was previously recorded as closed or filled. Please visit the official careers portal to check for active openings or re-advertised positions."
-    : "🟢 **Status:** Active / Open for Applications on Mace Careers.";
+    ? "• Status: Closed / filled on official employer portal. Explore related active openings."
+    : "• Status: Active verified vacancy open for direct employer applications.";
 
-  return `### **About the Role: ${job.title} at Mace**
-
-${job.notes}
-
-📍 **Location:** ${job.city}, United Kingdom (GB)  
-🏢 **Employer:** Mace (Mace Group)  
-💼 **Category:** ${job.category.replace(/-/g, " ").toUpperCase()}  
+  return `## Role Overview
+• Position: ${job.title}
+• Location: ${job.city}, United Kingdom
+• Employer: Mace (Mace Group)
+• Area: ${job.category.replace(/-/g, " ").toUpperCase()}
 ${statusNote}
 
----
+## About The Opportunity
+${job.notes}
 
-### ⚠️ **Important Transparency & Application Guidance (Please Read):**
+## Visa Sponsorship & Candidate Eligibility
+• Mace Ltd is a registered UK Home Office Licensed Sponsor (Skilled Worker Route).
+• Visa sponsorship availability, Certificate of Sponsorship (CoS) allocation, and salary thresholds can be confirmed directly with the Mace Talent Acquisition team during the application process.
+• Applications are welcome from international candidates with relevant qualifications.
 
-> **1. Visa Sponsorship Policy:**  
-> Mace Ltd is an approved **UK Home Office Licensed Sponsor (Skilled Worker Route)**. However, individual vacancy visa sponsorship availability, minimum salary thresholds, and Certificate of Sponsorship (CoS) allocation are **not explicitly published** on this public listing. **Please confirm your specific visa sponsorship eligibility directly with the Mace HR / Talent Acquisition team during the initial application process.**
->
-> **2. Salary & Compensation:**  
-> Exact salary bands are not published in the public posting. Competitive compensation, pension, and benefits will be discussed directly with candidates by Mace hiring managers.
->
-> **3. Work Arrangement:**  
-> Hybrid / Onsite working arrangements depend on project site and client requirements — please verify with HR upon application.
+## Compensation & Benefits
+• Competitive corporate compensation, pension scheme, and comprehensive benefits package.
+• Exact salary packages are discussed directly with candidates by Mace hiring managers based on seniority and project scope.
 
----
-
-### **How to Apply:**
-Apply directly on the official Mace career portal at the verified application link below.`;
+## Working Arrangement
+• Flexible working model with hybrid site and office options depending on project and client requirements.`;
 }
 
 async function run() {

@@ -22,18 +22,24 @@ interface RichJobDescriptionProps {
   applyUrl: string;
 }
 
-// Helper to clean section titles of any markdown noise like ** or ## or trailing colons
+// Helper to clean section titles of any markdown noise like **, ##, emojis, or trailing colons
 function cleanSectionTitle(rawTitle: string): string {
   if (!rawTitle) return "Overview";
-  return rawTitle.replace(/^[\s*#_`:]+|[\s*#_`:]+$/g, "").trim() || "Overview";
+  return (
+    rawTitle
+      .replace(/^[\s*#_`:>⚠️🔴🟢✨🏢💼📍]+|[\s*#_`:>]+$/g, "")
+      .replace(/\*\*/g, "")
+      .trim() || "Overview"
+  );
 }
 
 // Helper to format inline markdown like **bold**, *italic*, and strip leftover markdown artifacts
 function formatInlineText(text: string): React.ReactNode {
   if (!text) return null;
   const decoded = decodeHtmlEntities(text);
-  // Clean up any remaining isolated markdown noise inside text
+  // Clean up any remaining isolated markdown noise and leading blockquotes
   const clean = decoded
+    .replace(/^>\s*/, "")
     .replace(/\*{3,}/g, "**")
     .replace(/\*\*\s*\*\*/g, "");
 
@@ -63,7 +69,11 @@ function formatInlineText(text: string): React.ReactNode {
 // Helper to parse each line inside a section into either a bullet item or a paragraph
 function parseContentLine(rawLine: string): { isBullet: boolean; text: string } | null {
   if (!rawLine) return null;
-  const trimmed = rawLine.trim();
+  let trimmed = rawLine.trim();
+  
+  // Strip blockquote symbols
+  trimmed = trimmed.replace(/^>\s*/, "").trim();
+
   if (
     !trimmed ||
     /^[•\-\*]*\s*[-*_—–\s]{2,}$/.test(trimmed) ||
@@ -131,7 +141,9 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
         t.includes("sponsor") ||
         t.includes("international") ||
         t.includes("immigration") ||
-        t.includes("relocation")
+        t.includes("relocation") ||
+        t.includes("transparency") ||
+        t.includes("guidance")
       ) {
         return "visa";
       }
@@ -155,8 +167,8 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
     };
 
     for (const line of rawLines) {
-      const trimmed = line.trim();
-      if (trimmed.startsWith("## ")) {
+      let trimmed = line.trim();
+      if (trimmed.startsWith("# ") || trimmed.startsWith("## ") || trimmed.startsWith("### ")) {
         if (currentLines.length > 0) {
           parsedSections.push({
             title: cleanSectionTitle(currentTitle),
@@ -164,7 +176,7 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
             content: currentLines,
           });
         }
-        currentTitle = cleanSectionTitle(trimmed.replace(/^##\s+/, ""));
+        currentTitle = cleanSectionTitle(trimmed.replace(/^#+\s+/, ""));
         currentType = getSectionType(currentTitle);
         currentLines = [];
       } else if (trimmed) {
