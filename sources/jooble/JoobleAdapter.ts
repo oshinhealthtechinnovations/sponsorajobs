@@ -186,11 +186,11 @@ export class JoobleAdapter implements JobSourceAdapter {
   private buildDescription(raw: any): string {
     const parts: string[] = [];
 
-    parts.push(`## ${raw.title || "Role"}`);
-    if (raw.company)  parts.push(`**Company**: ${raw.company}`);
-    if (raw.location) parts.push(`**Location**: ${raw.location}`);
-    if (raw.salary)   parts.push(`**Salary**: ${raw.salary}`);
-    if (raw.type)     parts.push(`**Type**: ${raw.type}`);
+    parts.push(`## Role Overview`);
+    if (raw.company)  parts.push(`**Company:** ${raw.company}`);
+    if (raw.location) parts.push(`**Location:** ${raw.location}`);
+    if (raw.salary)   parts.push(`**Salary:** ${raw.salary}`);
+    if (raw.type)     parts.push(`**Employment Type:** ${raw.type}`);
     parts.push("");
 
     const snippet = (raw.snippet || "")
@@ -199,10 +199,12 @@ export class JoobleAdapter implements JobSourceAdapter {
       .trim();
 
     if (snippet.length > 50) {
+      parts.push(`## About the Job`);
       parts.push(snippet);
     }
 
-    parts.push(`\n**How to Apply**: Click "Apply for this Job" to visit the original job posting. This listing has been identified as containing visa sponsorship language.`);
+    parts.push(`\n## How to Apply`);
+    parts.push(`Click "Apply for this Job" to visit the original job posting. This listing has been identified as containing visa sponsorship language.`);
 
     return parts.join("\n").trim();
   }

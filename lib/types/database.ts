@@ -196,3 +196,83 @@ export interface CVAggregateStats {
   socDistribution: { socCode: string; count: number }[];
   seniorityDistribution: { seniority: string; count: number }[];
 }
+
+export interface CandidateProfileRecord {
+  id: string;
+  user_id: string | null;
+  candidate_email: string | null;
+  primary_occupation: string;
+  primary_soc_code: string | null;
+  seniority: string;
+  total_experience_years: number;
+  highest_degree: string;
+  degree_field: string;
+  detected_skills: string[]; // JSON array
+  preferred_country: string;
+  sponsorship_preference: "required" | "preferred" | "not_required" | "any";
+  profile_version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export type RecommendationTier = "EXCELLENT" | "STRONG" | "GOOD" | "POTENTIAL" | "LOW";
+
+export interface JobRecommendationRecord {
+  id: string;
+  candidate_id: string;
+  job_id: string;
+  job_match_score: number;
+  sponsorjob_match_score: number;
+  skill_match_score: number;
+  experience_match_score: number;
+  occupation_match_score: number;
+  seniority_match_score: number;
+  location_match_score: number;
+  education_match_score: number;
+  sponsorship_score: number;
+  data_quality_score: number;
+  ranking_position: number;
+  recommendation_tier: RecommendationTier;
+  matched_skills: string[];
+  missing_skills: string[];
+  reasons: string[];
+  sponsorship_status: "CONFIRMED" | "LIKELY" | "UNKNOWN" | "NOT_AVAILABLE";
+  algorithm_version: string;
+  job_dataset_version: string;
+  created_at: string;
+}
+
+export interface ShortlistRequestRecord {
+  id: string;
+  candidate_id?: string | null;
+  email: string;
+  target_country: string;
+  target_role: string;
+  sponsorship_preference: string;
+  minimum_match_score: number;
+  skills_snapshot: string; // JSON
+  status: "ACTIVE" | "PAUSED" | "FULFILLED" | "UNSUBSCRIBED";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ShortlistMatchRecord {
+  id: string;
+  shortlist_request_id: string;
+  job_id: string;
+  match_score: number;
+  sponsorship_score: number;
+  status: "PENDING" | "SENT" | "CLICKED";
+  created_at: string;
+  sent_at: string | null;
+}
+
+export interface RecommendationFeedbackRecord {
+  id: string;
+  candidate_id: string;
+  job_id: string;
+  feedback_type: "HELPFUL" | "NOT_RELEVANT";
+  reason?: "WRONG_OCCUPATION" | "WRONG_SKILLS" | "TOO_SENIOR" | "TOO_JUNIOR" | "LOCATION" | "SALARY" | "SPONSORSHIP" | "ALREADY_APPLIED" | "OTHER";
+  created_at: string;
+}
+

@@ -12,7 +12,8 @@ import { JobAlertModal } from "./JobAlertModal";
 // Primary navigation links
 const navLinks = [
   { href: "/jobs", label: "Find Jobs", icon: Search },
-  { href: "/tools/ats-checker", label: "ATS Resume Checker", icon: FileText, badge: "AI" },
+  { href: "/tools/cv-job-match", label: "CV Job Match", icon: Sparkles, badge: "NEW" },
+  { href: "/tools/ats-checker", label: "ATS Checker", icon: FileText },
   { href: "/companies", label: "Companies", icon: Briefcase },
   { href: "/blog", label: "Visa Guides", icon: Compass },
 ];

@@ -36,18 +36,22 @@ function cleanSectionTitle(rawTitle: string): string {
 // Helper to format inline markdown like **bold**, *italic*, and strip leftover markdown artifacts
 function formatInlineText(text: string): React.ReactNode {
   if (!text) return null;
-  const decoded = decodeHtmlEntities(text);
-  // Clean up any remaining isolated markdown noise and leading blockquotes
-  const clean = decoded
+  let decoded = decodeHtmlEntities(text);
+  
+  // Clean up blockquote symbols and multiple asterisk chains
+  decoded = decoded
     .replace(/^>\s*/, "")
-    .replace(/\*{3,}/g, "**")
+    .replace(/\*{4,}/g, "**")
     .replace(/\*\*\s*\*\*/g, "");
 
-  const parts = clean.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+  // Fix common scraper artifact: "Company*:", "Location*:", "How to Apply*:", "*Company*:"
+  decoded = decoded.replace(/\*?([a-zA-Z0-9\s]+)\*:\s*/g, "**$1:** ");
+
+  const parts = decoded.split(/(\*\*.*?\*\*|\*.*?\*)/g);
 
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**") && part.length >= 4) {
-      const inner = part.slice(2, -2).trim();
+      const inner = part.slice(2, -2).replace(/^\*+|\*+$/g, "").trim();
       return (
         <strong key={i} className="font-bold text-slate-900">
           {inner}
@@ -55,18 +59,20 @@ function formatInlineText(text: string): React.ReactNode {
       );
     }
     if (part.startsWith("*") && part.endsWith("*") && part.length >= 2) {
-      const inner = part.slice(1, -1).trim();
+      const inner = part.slice(1, -1).replace(/^\*+|\*+$/g, "").trim();
       return (
-        <em key={i} className="italic text-slate-800">
+        <strong key={i} className="font-bold text-slate-900">
           {inner}
-        </em>
+        </strong>
       );
     }
-    return part;
+    // Clean any orphan standalone asterisks from non-bold text
+    const sanitized = part.replace(/\*/g, "");
+    return sanitized;
   });
 }
 
-// Helper to parse each line inside a section into either a bullet item or a paragraph
+// Helper to parse each line inside a section into either a bullet item, metadata row, or paragraph
 function parseContentLine(rawLine: string): { isBullet: boolean; text: string } | null {
   if (!rawLine) return null;
   let trimmed = rawLine.trim();
@@ -85,10 +91,17 @@ function parseContentLine(rawLine: string): { isBullet: boolean; text: string } 
     return null;
   }
 
-  // Bullet matches: "• ", "- ", "* " (with trailing space), or "1. "
-  const bulletMatch = trimmed.match(/^(?:[•*]\s+|\-\s+|\d+\.\s+)(.*)$/);
+  // A line starting with ** or bold metadata (e.g. **Company:**, Company*:, etc.) is a statement, NOT a bullet
+  if (/^(?:\*\*[^*]+\*\*|\*?[a-zA-Z0-9\s]+\*:)/.test(trimmed)) {
+    return { isBullet: false, text: trimmed };
+  }
+
+  // Genuine Bullet match: "• ", "- ", or single "* " (NOT "**"), or numbered list "1. "
+  const bulletMatch = trimmed.match(/^(?:[•\-]\s+|\*(?!\*)\s+|\d+\.\s+)(.*)$/);
   if (bulletMatch) {
-    const bulletContent = bulletMatch[1].trim();
+    let bulletContent = bulletMatch[1].trim();
+    // Clean any leading/trailing leftover asterisk artifacts
+    bulletContent = bulletContent.replace(/^\*+/, "").replace(/\*+$/, "");
     if (!bulletContent || /^[•\-\*]*\s*[-*_—–\s]{2,}$/.test(bulletContent)) return null;
     return { isBullet: true, text: bulletContent };
   }
