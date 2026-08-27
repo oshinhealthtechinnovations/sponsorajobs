@@ -168,7 +168,7 @@ export function rankJobsForCandidate(
 
   for (const job of eligibleJobs) {
     const jobReqs = extractJobRequirements(job);
-    const jobOcc = normalizeOccupation(job.title) || OCCUPATIONS_TAXONOMY["software_engineer"];
+    const jobOcc = normalizeOccupation(job.title);
 
     // 1. Occupation Match (15 pts)
     const occWeight = getOccupationMatchWeight(candidateOcc.id, jobOcc.id);
@@ -180,37 +180,39 @@ export function rankJobsForCandidate(
     const missingSkills: string[] = [];
     const skillGapBreakdown: SkillGapItem[] = [];
 
-    const reqList = jobReqs.requiredSkills.length > 0 ? jobReqs.requiredSkills : [jobOcc.id];
+    const reqList = jobReqs.requiredSkills;
 
-    for (const reqSkill of reqList) {
-      let bestWeight = 0;
-      for (const candSkill of candidateSkills) {
-        const w = getSkillMatchWeight(candSkill, reqSkill);
-        if (w > bestWeight) bestWeight = w;
-      }
+    if (reqList.length > 0) {
+      for (const reqSkill of reqList) {
+        let bestWeight = 0;
+        for (const candSkill of candidateSkills) {
+          const w = getSkillMatchWeight(candSkill, reqSkill);
+          if (w > bestWeight) bestWeight = w;
+        }
 
-      const skillName = SKILLS_TAXONOMY[reqSkill]?.name || reqSkill;
+        const skillName = SKILLS_TAXONOMY[reqSkill]?.name || reqSkill;
 
-      if (bestWeight >= 0.9) {
-        requiredMatchesCount += 1.0;
-        matchedSkills.push(skillName);
-        skillGapBreakdown.push({ skill: skillName, canonicalKey: reqSkill, status: "STRONG", isRequired: true });
-      } else if (bestWeight >= 0.6) {
-        requiredMatchesCount += 0.7;
-        matchedSkills.push(`${skillName} (Related)`);
-        skillGapBreakdown.push({ skill: skillName, canonicalKey: reqSkill, status: "MODERATE", isRequired: true });
-      } else {
-        missingSkills.push(skillName);
-        skillGapBreakdown.push({ skill: skillName, canonicalKey: reqSkill, status: "MISSING", isRequired: true });
+        if (bestWeight >= 0.9) {
+          requiredMatchesCount += 1.0;
+          matchedSkills.push(skillName);
+          skillGapBreakdown.push({ skill: skillName, canonicalKey: reqSkill, status: "STRONG", isRequired: true });
+        } else if (bestWeight >= 0.6) {
+          requiredMatchesCount += 0.7;
+          matchedSkills.push(`${skillName} (Related)`);
+          skillGapBreakdown.push({ skill: skillName, canonicalKey: reqSkill, status: "MODERATE", isRequired: true });
+        } else {
+          missingSkills.push(skillName);
+          skillGapBreakdown.push({ skill: skillName, canonicalKey: reqSkill, status: "MISSING", isRequired: true });
+        }
       }
     }
 
-    const skillMatchScore = Math.round(
-      reqList.length > 0 ? (requiredMatchesCount / reqList.length) * 100 : (occupationMatchScore > 50 ? 75 : 10)
-    );
+    const skillMatchScore = reqList.length > 0
+      ? Math.round((requiredMatchesCount / reqList.length) * 100)
+      : (occupationMatchScore >= 70 ? 70 : 0);
 
     // 3. Preferred Skills (10 pts)
-    let preferredScore = occupationMatchScore > 50 ? 75 : 10;
+    let preferredScore = occupationMatchScore >= 70 ? 70 : 0;
     if (jobReqs.preferredSkills.length > 0) {
       let prefMatched = 0;
       for (const prefSkill of jobReqs.preferredSkills) {
@@ -285,12 +287,14 @@ export function rankJobsForCandidate(
       sponsorshipScore * 0.05
     );
 
-    // RELEVANCE PRINCIPLE: Gating multiplier for complete occupation mismatches
-    if (occupationMatchScore < 50) {
+    // RELEVANCE PRINCIPLE: Strict gating multiplier for complete occupation & skill mismatches
+    if (occupationMatchScore === 0 || skillMatchScore === 0) {
+      rawJobMatch = rawJobMatch * 0.20; // Heavy drop for unrelated occupations
+    } else if (occupationMatchScore < 50) {
       rawJobMatch = rawJobMatch * (0.35 + (occupationMatchScore / 100) * 0.5);
     }
 
-    const jobMatchScore = Math.min(100, Math.max(15, Math.round(rawJobMatch)));
+    const jobMatchScore = Math.min(100, Math.max(5, Math.round(rawJobMatch)));
 
     // ── SPONSORJOB MATCH (Factoring in Sponsorship Preference) ───────────────
     let sponsorshipFactor = 1.0;
@@ -301,11 +305,11 @@ export function rankJobsForCandidate(
     }
 
     // RELEVANCE PRINCIPLE: Never let sponsorship boost an irrelevant job
-    if (occupationMatchScore < 50) {
-      sponsorshipFactor = Math.min(1.0, sponsorshipFactor);
+    if (occupationMatchScore < 50 || skillMatchScore === 0) {
+      sponsorshipFactor = Math.min(0.8, sponsorshipFactor);
     }
 
-    const sponsorJobMatchScore = Math.min(99, Math.max(15, Math.round(jobMatchScore * sponsorshipFactor)));
+    const sponsorJobMatchScore = Math.min(99, Math.max(5, Math.round(jobMatchScore * sponsorshipFactor)));
 
     // Determine Tier
     let recommendationTier: RecommendationTier = "POTENTIAL";

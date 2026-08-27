@@ -179,13 +179,113 @@ export const OCCUPATIONS_TAXONOMY: Record<string, CanonicalOccupation> = {
     ],
     relatedOccupations: [],
   },
+  "credit_analyst": {
+    id: "credit_analyst",
+    name: "Credit / Risk Analyst",
+    ukSocCode: "3534",
+    onetCode: "13-2041.00",
+    aliases: [
+      "credit analyst",
+      "credit risk",
+      "credit risk manager",
+      "credit risk analyst",
+      "credit underwriter",
+      "risk analyst",
+      "risk manager",
+      "credit assessment",
+      "portfolio risk",
+    ],
+    relatedOccupations: [
+      { occupationId: "financial_analyst", weight: 0.85 },
+      { occupationId: "business_analyst", weight: 0.60 },
+    ],
+  },
+  "financial_analyst": {
+    id: "financial_analyst",
+    name: "Financial Analyst / Investment Manager",
+    ukSocCode: "2422",
+    onetCode: "13-2051.00",
+    aliases: [
+      "financial analyst",
+      "finance analyst",
+      "investment analyst",
+      "portfolio manager",
+      "commercial analyst",
+      "treasury analyst",
+      "financial controller",
+    ],
+    relatedOccupations: [
+      { occupationId: "credit_analyst", weight: 0.85 },
+      { occupationId: "accountant", weight: 0.75 },
+      { occupationId: "business_analyst", weight: 0.65 },
+    ],
+  },
+  "accountant": {
+    id: "accountant",
+    name: "Chartered Accountant / Auditor",
+    ukSocCode: "2421",
+    onetCode: "13-2011.00",
+    aliases: [
+      "accountant",
+      "auditor",
+      "tax specialist",
+      "bookkeeper",
+      "finance manager",
+      "management accountant",
+    ],
+    relatedOccupations: [
+      { occupationId: "financial_analyst", weight: 0.75 },
+    ],
+  },
+  "marketing_specialist": {
+    id: "marketing_specialist",
+    name: "Marketing & Growth Specialist",
+    ukSocCode: "2471",
+    onetCode: "13-1161.00",
+    aliases: [
+      "marketing manager",
+      "growth manager",
+      "seo specialist",
+      "digital marketing",
+      "content manager",
+      "brand manager",
+      "performance marketer",
+    ],
+    relatedOccupations: [
+      { occupationId: "product_manager", weight: 0.50 },
+    ],
+  },
+  "operations_manager": {
+    id: "operations_manager",
+    name: "Operations Manager / Coordinator",
+    ukSocCode: "1139",
+    onetCode: "11-1021.00",
+    aliases: [
+      "operations manager",
+      "operations analyst",
+      "coo",
+      "logistics coordinator",
+      "supply chain specialist",
+    ],
+    relatedOccupations: [
+      { occupationId: "business_analyst", weight: 0.60 },
+    ],
+  },
+  "general_professional": {
+    id: "general_professional",
+    name: "General Corporate Professional",
+    ukSocCode: "3543",
+    onetCode: "11-9199.00",
+    aliases: ["general", "associate", "specialist", "coordinator"],
+    relatedOccupations: [],
+  },
 };
 
 /**
  * Normalizes input text/title into a canonical occupation entity
  */
-export function normalizeOccupation(jobTitle: string): CanonicalOccupation | null {
-  if (!jobTitle) return null;
+export function normalizeOccupation(jobTitle: string): CanonicalOccupation {
+  if (!jobTitle) return OCCUPATIONS_TAXONOMY["general_professional"];
   const lower = jobTitle.toLowerCase().trim();
 
   // 1. Exact canonical ID lookup
@@ -196,18 +296,45 @@ export function normalizeOccupation(jobTitle: string): CanonicalOccupation | nul
   // 2. Alias lookup
   for (const occupation of Object.values(OCCUPATIONS_TAXONOMY)) {
     for (const alias of occupation.aliases) {
-      if (lower.includes(alias) || alias.includes(lower)) {
+      if (lower.includes(alias)) {
         return occupation;
       }
     }
   }
 
-  // Default fallback for general engineering/tech titles
-  if (/\b(engineer|developer|architect|programmer|coding)\b/i.test(lower)) {
+  // 3. Specific keyword heuristics (order matters!)
+  if (/\b(credit|underwrit|loan|lending)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["credit_analyst"];
+  }
+  if (/\b(finance|financial|banking|investment|treasury|equity)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["financial_analyst"];
+  }
+  if (/\b(nurse|nursing|healthcare|clinical|medical|doctor)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["registered_nurse"];
+  }
+  if (/\b(civil|structural|geotechnical|highway|bridge|drainage)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["civil_engineer"];
+  }
+  if (/\b(data\s*engineer|etl|data\s*platform)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["data_engineer"];
+  }
+  if (/\b(data\s*scientist|machine\s*learning|ai|nlp|deep\s*learning)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["data_scientist"];
+  }
+  if (/\b(devops|sre|site\s*reliability|cloud\s*engineer|platform\s*engineer)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["devops_engineer"];
+  }
+  if (/\b(product\s*manager|product\s*owner|tpm)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["product_manager"];
+  }
+  if (/\b(business\s*analyst|systems\s*analyst|management\s*consultant)\b/i.test(lower)) {
+    return OCCUPATIONS_TAXONOMY["business_analyst"];
+  }
+  if (/\b(software|frontend|backend|fullstack|full\s*stack|developer|programmer|coding|react|node|python|java|golang|typescript)\b/i.test(lower)) {
     return OCCUPATIONS_TAXONOMY["software_engineer"];
   }
 
-  return null;
+  return OCCUPATIONS_TAXONOMY["general_professional"];
 }
 
 /**
