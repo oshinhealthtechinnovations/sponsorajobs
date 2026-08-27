@@ -29219,6 +29219,1926 @@
       "is_featured": 0,
       "created_at": "2026-08-26T05:17:32.448Z",
       "updated_at": "2026-08-26T05:17:32.448Z"
+    },
+    {
+      "id": "civil_gb_8fyhv9m",
+      "canonicalHash": "job_548d323f_716629443975",
+      "title": "Construction Scheduler",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: Dynamics ATS\nLocation: Canada\nEmployment Type: Full-time\n\n## About the Job\nConstruction Scheduler \r\n \r\n JOB-10047409\r\n \r\n Anticipated Start Date \r\n September 14, 2026\r\n \r\n Location \r\n Idaho Falls, ID \r\n \r\n Type of Employment \r\n Contract Hire \r\n \r\n Employer Info \r\n They are North America’s largest and most respected construction and engineering...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** Dynamics ATS\n**Location:** Canada\n**Employment Type:** Full-time\n\n## About the Job\nConstruction Scheduler \r\n \r\n JOB-10047409\r\n \r\n Anticipated Start Da...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/jdp/-9185578716629443975",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.926Z",
+      "updatedAt": "2026-08-27T12:07:09.927Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_s4in91s",
+      "canonicalHash": "job_5b28e044_521180384153",
+      "title": "Construction Coordinator",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "ONSITE",
+      "description": "## About the Role\n## Role Overview\nCompany: Bitdeer\nLocation: Canada\nEmployment Type: Full-time\n\n## About the Job\n...on-site safety, quality execution, and field activity tracking. Working as Bitdeer’s Owner’s Representative on site, the Construction...  ...regulations including site isolation/LOTO (Lockout/Tagout), hot work permits, confined space entry, chemical handling, working at height,...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** Bitdeer\n**Location:** Canada\n**Employment Type:** Full-time\n\n## About the Job\n...on-site safety, quality execution, and field activity tracking. Worki...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/jdp/923719521180384153",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.928Z",
+      "updatedAt": "2026-08-27T12:07:09.928Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_77v5lwj",
+      "canonicalHash": "job_436d0d12_678085477952",
+      "title": "AIRPORT CONSTRUCTION FIELD ENGINEER (CIVIL ENGINEER IV)",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: State of Illinois\nLocation: Springfield, IL\nSalary: $6,281 per month\n\n## About the Job\n...career portal.  \r\n  Applications submitted via email or any paper manner (mail, fax, hand delivery) will not be considered.  \r\n  Why Work for Illinois? \r\n  Working with the State of Illinois is a testament to the values of compassion, equity, and dedication that define...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** State of Illinois\n**Location:** Springfield, IL\n**Salary:** $6,281 per month\n\n## About the Job\n...career portal.  \r\n  Applications submitted via email...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/desc/1404254678085477952",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.930Z",
+      "updatedAt": "2026-08-27T12:07:09.930Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_pqtz1c3",
+      "canonicalHash": "job_4fd2a9f7_082484075031",
+      "title": "Senior Civil Engineer",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: Dynamics ATS\nLocation: New, IL\nEmployment Type: Full-time\n\n## About the Job\nSenior Civil Engineer \r\n \r\n JOB-10046750\r\n \r\n Anticipated Start Date \r\n July 13, 2026\r\n \r\n Location \r\n Kansas City, MO \r\n \r\n Type of Employment \r\n Contract-to-Hire \r\n \r\n Employer Info \r\n Our client is a full-service engineering, architecture, construction, environmental...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** Dynamics ATS\n**Location:** New, IL\n**Employment Type:** Full-time\n\n## About the Job\nSenior Civil Engineer \r\n \r\n JOB-10046750\r\n \r\n Anticipated Start Da...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/jdp/-7140489082484075031",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.930Z",
+      "updatedAt": "2026-08-27T12:07:09.930Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_zxyrq1h",
+      "canonicalHash": "job_4fd2a9f7_082484075031",
+      "title": "Senior Civil Engineer",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: Dynamics ATS\nLocation: New, IL\nEmployment Type: Full-time\n\n## About the Job\nSenior Civil Engineer \r\n \r\n JOB-10046750\r\n \r\n Anticipated Start Date \r\n July 13, 2026\r\n \r\n Location \r\n Kansas City, MO \r\n \r\n Type of Employment \r\n Contract-to-Hire \r\n \r\n Employer Info \r\n Our client is a full-service engineering, architecture, construction, environmental...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** Dynamics ATS\n**Location:** New, IL\n**Employment Type:** Full-time\n\n## About the Job\nSenior Civil Engineer \r\n \r\n JOB-10046750\r\n \r\n Anticipated Start Da...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/jdp/-7140489082484075031",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.945Z",
+      "updatedAt": "2026-08-27T12:07:09.945Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_cdh1l35",
+      "canonicalHash": "job_5b28e044_521180384153",
+      "title": "Construction Coordinator",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "ONSITE",
+      "description": "## About the Role\n## Role Overview\nCompany: Bitdeer\nLocation: Canada\nEmployment Type: Full-time\n\n## About the Job\n...on-site safety, quality execution, and field activity tracking. Working as Bitdeer’s Owner’s Representative on site, the Construction...  ...regulations including site isolation/LOTO (Lockout/Tagout), hot work permits, confined space entry, chemical handling, working at height,...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** Bitdeer\n**Location:** Canada\n**Employment Type:** Full-time\n\n## About the Job\n...on-site safety, quality execution, and field activity tracking. Worki...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/jdp/923719521180384153",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.946Z",
+      "updatedAt": "2026-08-27T12:07:09.946Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_c800rd8",
+      "canonicalHash": "job_4fd2a9f7_082484075031",
+      "title": "Senior Civil Engineer",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: Dynamics ATS\nLocation: New, IL\nEmployment Type: Full-time\n\n## About the Job\nSenior Civil Engineer \r\n \r\n JOB-10046750\r\n \r\n Anticipated Start Date \r\n July 13, 2026\r\n \r\n Location \r\n Kansas City, MO \r\n \r\n Type of Employment \r\n Contract-to-Hire \r\n \r\n Employer Info \r\n Our client is a full-service engineering, architecture, construction, environmental...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** Dynamics ATS\n**Location:** New, IL\n**Employment Type:** Full-time\n\n## About the Job\nSenior Civil Engineer \r\n \r\n JOB-10046750\r\n \r\n Anticipated Start Da...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/jdp/-7140489082484075031",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.947Z",
+      "updatedAt": "2026-08-27T12:07:09.947Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_xz6xrhf",
+      "canonicalHash": "job_548d323f_716629443975",
+      "title": "Construction Scheduler",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: Dynamics ATS\nLocation: Canada\nEmployment Type: Full-time\n\n## About the Job\nConstruction Scheduler \r\n \r\n JOB-10047409\r\n \r\n Anticipated Start Date \r\n September 14, 2026\r\n \r\n Location \r\n Idaho Falls, ID \r\n \r\n Type of Employment \r\n Contract Hire \r\n \r\n Employer Info \r\n They are North America’s largest and most respected construction and engineering...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** Dynamics ATS\n**Location:** Canada\n**Employment Type:** Full-time\n\n## About the Job\nConstruction Scheduler \r\n \r\n JOB-10047409\r\n \r\n Anticipated Start Da...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/jdp/-9185578716629443975",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.952Z",
+      "updatedAt": "2026-08-27T12:07:09.952Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_bejti7o",
+      "canonicalHash": "job_548d323f_716629443975",
+      "title": "Construction Scheduler",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: Dynamics ATS\nLocation: Canada\nEmployment Type: Full-time\n\n## About the Job\nConstruction Scheduler \r\n \r\n JOB-10047409\r\n \r\n Anticipated Start Date \r\n September 14, 2026\r\n \r\n Location \r\n Idaho Falls, ID \r\n \r\n Type of Employment \r\n Contract Hire \r\n \r\n Employer Info \r\n They are North America’s largest and most respected construction and engineering...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** Dynamics ATS\n**Location:** Canada\n**Employment Type:** Full-time\n\n## About the Job\nConstruction Scheduler \r\n \r\n JOB-10047409\r\n \r\n Anticipated Start Da...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/jdp/-9185578716629443975",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.953Z",
+      "updatedAt": "2026-08-27T12:07:09.953Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_fbh8o70",
+      "canonicalHash": "job_436d0d12_678085477952",
+      "title": "AIRPORT CONSTRUCTION FIELD ENGINEER (CIVIL ENGINEER IV)",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: State of Illinois\nLocation: Springfield, IL\nSalary: $6,281 per month\n\n## About the Job\n...career portal.  \r\n  Applications submitted via email or any paper manner (mail, fax, hand delivery) will not be considered.  \r\n  Why Work for Illinois? \r\n  Working with the State of Illinois is a testament to the values of compassion, equity, and dedication that define...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** State of Illinois\n**Location:** Springfield, IL\n**Salary:** $6,281 per month\n\n## About the Job\n...career portal.  \r\n  Applications submitted via email...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/desc/1404254678085477952",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.954Z",
+      "updatedAt": "2026-08-27T12:07:09.954Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_62z33ki",
+      "canonicalHash": "job_5f07595e_431941615455",
+      "title": "MAINTENANCE FIELD ENGINEER (CIVIL ENGINEER V)",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: State of Illinois\nLocation: Springfield, IL\nSalary: $6,837 per month\n\n## About the Job\n...(mail, fax, hand delivery) will not be considered. \r\n \r\n \r\n Why Work for Illinois?\r\n Working with the State of Illinois is a testament...  ...meets with residents and officials regarding complaints, access permits and right-of-way problems. \r\n Inspects construction work...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** State of Illinois\n**Location:** Springfield, IL\n**Salary:** $6,837 per month\n\n## About the Job\n...(mail, fax, hand delivery) will not be considered....",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/desc/-181847431941615455",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.957Z",
+      "updatedAt": "2026-08-27T12:07:09.957Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_mi61mju",
+      "canonicalHash": "job_12db8662_609060377491",
+      "title": "WATER POLLUTION CONTROL, FIELD OPERATIONS SECTION, SECTION MANAGER - SPSA Opt. 4",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: State of Illinois\nLocation: Springfield, IL\n\n## About the Job\n...to the MY DOCUMENTS section of your application if you decide to provide one. \r\n \r\n Sponsorship for Employment \r\n The State of Illinois does not provide sponsorship for employment visa status (e.g. H-1B visa status), nor is the State able to provide extensions of optional...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** State of Illinois\n**Location:** Springfield, IL\n\n## About the Job\n...to the MY DOCUMENTS section of your application if you decide to provide one....",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/desc/-5605356609060377491",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.958Z",
+      "updatedAt": "2026-08-27T12:07:09.958Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_81aasp2",
+      "canonicalHash": "job_12db8662_609060377491",
+      "title": "WATER POLLUTION CONTROL, FIELD OPERATIONS SECTION, SECTION MANAGER - SPSA Opt. 4",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: State of Illinois\nLocation: Springfield, IL\n\n## About the Job\n...to the MY DOCUMENTS section of your application if you decide to provide one. \r\n \r\n Sponsorship for Employment \r\n The State of Illinois does not provide sponsorship for employment visa status (e.g. H-1B visa status), nor is the State able to provide extensions of optional...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** State of Illinois\n**Location:** Springfield, IL\n\n## About the Job\n...to the MY DOCUMENTS section of your application if you decide to provide one....",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/desc/-5605356609060377491",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.960Z",
+      "updatedAt": "2026-08-27T12:07:09.960Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_thp6df6",
+      "canonicalHash": "job_5f07595e_431941615455",
+      "title": "MAINTENANCE FIELD ENGINEER (CIVIL ENGINEER V)",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: State of Illinois\nLocation: Springfield, IL\nSalary: $6,837 per month\n\n## About the Job\n...(mail, fax, hand delivery) will not be considered. \r\n \r\n \r\n Why Work for Illinois?\r\n Working with the State of Illinois is a testament...  ...meets with residents and officials regarding complaints, access permits and right-of-way problems. \r\n Inspects construction work...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** State of Illinois\n**Location:** Springfield, IL\n**Salary:** $6,837 per month\n\n## About the Job\n...(mail, fax, hand delivery) will not be considered....",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/desc/-181847431941615455",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.961Z",
+      "updatedAt": "2026-08-27T12:07:09.961Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_fxp9bdn",
+      "canonicalHash": "job_5b28e044_521180384153",
+      "title": "Construction Coordinator",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "ONSITE",
+      "description": "## About the Role\n## Role Overview\nCompany: Bitdeer\nLocation: Canada\nEmployment Type: Full-time\n\n## About the Job\n...on-site safety, quality execution, and field activity tracking. Working as Bitdeer’s Owner’s Representative on site, the Construction...  ...regulations including site isolation/LOTO (Lockout/Tagout), hot work permits, confined space entry, chemical handling, working at height,...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** Bitdeer\n**Location:** Canada\n**Employment Type:** Full-time\n\n## About the Job\n...on-site safety, quality execution, and field activity tracking. Worki...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/jdp/923719521180384153",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.962Z",
+      "updatedAt": "2026-08-27T12:07:09.962Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_xvkuyfi",
+      "canonicalHash": "job_12db8662_609060377491",
+      "title": "WATER POLLUTION CONTROL, FIELD OPERATIONS SECTION, SECTION MANAGER - SPSA Opt. 4",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: State of Illinois\nLocation: Springfield, IL\n\n## About the Job\n...to the MY DOCUMENTS section of your application if you decide to provide one. \r\n \r\n Sponsorship for Employment \r\n The State of Illinois does not provide sponsorship for employment visa status (e.g. H-1B visa status), nor is the State able to provide extensions of optional...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** State of Illinois\n**Location:** Springfield, IL\n\n## About the Job\n...to the MY DOCUMENTS section of your application if you decide to provide one....",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/desc/-5605356609060377491",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.963Z",
+      "updatedAt": "2026-08-27T12:07:09.963Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_d8k8kuk",
+      "canonicalHash": "job_548d323f_716629443975",
+      "title": "Construction Scheduler",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: Dynamics ATS\nLocation: Canada\nEmployment Type: Full-time\n\n## About the Job\nConstruction Scheduler \r\n \r\n JOB-10047409\r\n \r\n Anticipated Start Date \r\n September 14, 2026\r\n \r\n Location \r\n Idaho Falls, ID \r\n \r\n Type of Employment \r\n Contract Hire \r\n \r\n Employer Info \r\n They are North America’s largest and most respected construction and engineering...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** Dynamics ATS\n**Location:** Canada\n**Employment Type:** Full-time\n\n## About the Job\nConstruction Scheduler \r\n \r\n JOB-10047409\r\n \r\n Anticipated Start Da...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/jdp/-9185578716629443975",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.966Z",
+      "updatedAt": "2026-08-27T12:07:09.966Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_xvyaigq",
+      "canonicalHash": "job_436d0d12_678085477952",
+      "title": "AIRPORT CONSTRUCTION FIELD ENGINEER (CIVIL ENGINEER IV)",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: State of Illinois\nLocation: Springfield, IL\nSalary: $6,281 per month\n\n## About the Job\n...career portal.  \r\n  Applications submitted via email or any paper manner (mail, fax, hand delivery) will not be considered.  \r\n  Why Work for Illinois? \r\n  Working with the State of Illinois is a testament to the values of compassion, equity, and dedication that define...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** State of Illinois\n**Location:** Springfield, IL\n**Salary:** $6,281 per month\n\n## About the Job\n...career portal.  \r\n  Applications submitted via email...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/desc/1404254678085477952",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.967Z",
+      "updatedAt": "2026-08-27T12:07:09.967Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_wgfteav",
+      "canonicalHash": "job_5f07595e_431941615455",
+      "title": "MAINTENANCE FIELD ENGINEER (CIVIL ENGINEER V)",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\n## Role Overview\nCompany: State of Illinois\nLocation: Springfield, IL\nSalary: $6,837 per month\n\n## About the Job\n...(mail, fax, hand delivery) will not be considered. \r\n \r\n \r\n Why Work for Illinois?\r\n Working with the State of Illinois is a testament...  ...meets with residents and officials regarding complaints, access permits and right-of-way problems. \r\n Inspects construction work...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** State of Illinois\n**Location:** Springfield, IL\n**Salary:** $6,837 per month\n\n## About the Job\n...(mail, fax, hand delivery) will not be considered....",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/desc/-181847431941615455",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.969Z",
+      "updatedAt": "2026-08-27T12:07:09.969Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_6zmgu4p",
+      "canonicalHash": "job_5b28e044_521180384153",
+      "title": "Construction Coordinator",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "ONSITE",
+      "description": "## About the Role\n## Role Overview\nCompany: Bitdeer\nLocation: Canada\nEmployment Type: Full-time\n\n## About the Job\n...on-site safety, quality execution, and field activity tracking. Working as Bitdeer’s Owner’s Representative on site, the Construction...  ...regulations including site isolation/LOTO (Lockout/Tagout), hot work permits, confined space entry, chemical handling, working at height,...\n\n## How to Apply\nClick \"Apply for this Job\" to visit the original job posting. This listing has been identified as containing visa sponsorship language.\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "## Role Overview\n**Company:** Bitdeer\n**Location:** Canada\n**Employment Type:** Full-time\n\n## About the Job\n...on-site safety, quality execution, and field activity tracking. Worki...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://jooble.org/jdp/923719521180384153",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:09.974Z",
+      "updatedAt": "2026-08-27T12:07:09.974Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_y282mw7",
+      "canonicalHash": "job_3f0b8fb2_d5823326264",
+      "title": "Skilled Construction worker",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\nJob Description Job Description Now Hiring Construction Workers Full-Time - Competitive Pay - Growth Opportunities We are a growing Construction Company looking for dependable, hard working individuals to join our team. Experienced / Willing to Train Positions Available : *General Laborers *Carpenters *Drywall *Painters Year round work Competitive wages based on experience On the Job training Requirements: *Must have reliable transportation *Willingness to work outdoors and indoor in various co…\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "Job Description Job Description Now Hiring Construction Workers Full-Time - Competitive Pay - Growth Opportunities We are a growing Construction Company looking for dependable, har...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://www.adzuna.com/land/ad/5823326264?se=cAr0ww-i8RGfx5bEd-nhPg&utm_medium=api&utm_source=ba1d34a6&v=469039E62E9BFDEF2830A24E1D5FADC67A4836BA",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:10.620Z",
+      "updatedAt": "2026-08-27T12:07:10.620Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_ghny4bn",
+      "canonicalHash": "job_35679542_s5344272463",
+      "title": "Skilled Worker - Marine Construction",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\nAbout the role Join a leading general contractor specializing in marine park construction. We are seeking skilled workers to join our team, focusing on various types of marine and site construction projects, including piling removal, seawall installation, and concrete work. We are committed to building a strong, collaborative team and offer long-term employment opportunities for dedicated and skilled workers. If you’re looking to be part of a dynamic, growth-oriented company, we’d love to hear …\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "About the role Join a leading general contractor specializing in marine park construction. We are seeking skilled workers to join our team, focusing on various types of marine and...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://www.adzuna.com/details/5344272463?utm_medium=api&utm_source=ba1d34a6",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:10.696Z",
+      "updatedAt": "2026-08-27T12:07:10.696Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_3tp7ehd",
+      "canonicalHash": "job_4886c9d4_s5851364217",
+      "title": "CW3 - Skilled Construction Worker",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\nJob details Skilled Construction Worker $41.00 per hour  penalties Location: Denman Immediate Start About Our Client: Our client is seeking Skilled Construction Workers to assist with a short-term construction project in Denman. This is a great opportunity for experienced construction workers looking for immediate work with a Monday to Friday roster. Roster: Monday Friday | 7:00am 5:00pm What you will be doing: Assisting with covering large structures using construction materials Operating EWP …\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "Job details Skilled Construction Worker $41.00 per hour  penalties Location: Denman Immediate Start About Our Client: Our client is seeking Skilled Construction Workers to assist w...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://www.adzuna.com.au/details/5851364217?utm_medium=api&utm_source=ba1d34a6",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:10.724Z",
+      "updatedAt": "2026-08-27T12:07:10.724Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_2ds5w0j",
+      "canonicalHash": "job_3df1f364_d5841403903",
+      "title": "Skilled Landscape Construction worker",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "HYBRID",
+      "description": "## About the Role\nJob Description Job Description Benefits/Perks Flexible Scheduling Competitive Compensation Career Advancement Opportunities Job Summary We are looking for a skilled Landscaper to join our team! You will be removing existing hardscape/softscape, then installing new Hardscape (ie: Retaining walls, Concrete, Pavers, Wood decks, Flagstone, Pergolas, etc.) and Softscape (Irrigation, Drainage, Synthetic turf, plantings, etc.) with the goal of creating beautiful Outdoor spaces for our customers. Our …\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "Job Description Job Description Benefits/Perks Flexible Scheduling Competitive Compensation Career Advancement Opportunities Job Summary We are looking for a skilled Landscaper to...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://www.adzuna.com/land/ad/5841403903?se=cAr0ww-i8RGfx5bEd-nhPg&utm_medium=api&utm_source=ba1d34a6&v=68E75B65FA930478480690EDFC2C07DDF178C433",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:10.898Z",
+      "updatedAt": "2026-08-27T12:07:10.898Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_csq3483",
+      "canonicalHash": "job_2cb7cb69_s5767098290",
+      "title": "Civil / Earthworks Machine Operators – Whangarei",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "CONTRACT",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\nExtraStaff is currently seeking experienced Civil and Heavy Machine Operators for a range of civil construction and earthworks projects across Whangārei and Northland. We work with reputable civil contractors delivering infrastructure, roading, drainage, subdivision, and earthworks projects throughout the region. Whether you're looking for your next opportunity or are between projects, we have ongoing work available with the potential for long-term and permanent opportunities. About the Role Yo…\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "ExtraStaff is currently seeking experienced Civil and Heavy Machine Operators for a range of civil construction and earthworks projects across Whangārei and Northland. We work with...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://www.adzuna.co.nz/details/5767098290?utm_medium=api&utm_source=ba1d34a6",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:10.923Z",
+      "updatedAt": "2026-08-27T12:07:10.923Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_cr19sqx",
+      "canonicalHash": "job_35679542_s5344272463",
+      "title": "Skilled Worker - Marine Construction",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\nAbout the role Join a leading general contractor specializing in marine park construction. We are seeking skilled workers to join our team, focusing on various types of marine and site construction projects, including piling removal, seawall installation, and concrete work. We are committed to building a strong, collaborative team and offer long-term employment opportunities for dedicated and skilled workers. If you’re looking to be part of a dynamic, growth-oriented company, we’d love to hear …\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "About the role Join a leading general contractor specializing in marine park construction. We are seeking skilled workers to join our team, focusing on various types of marine and...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://www.adzuna.com/details/5344272463?utm_medium=api&utm_source=ba1d34a6",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:10.989Z",
+      "updatedAt": "2026-08-27T12:07:10.989Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_i594s2u",
+      "canonicalHash": "job_3f0b8fb2_d5823326264",
+      "title": "Skilled Construction worker",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\nJob Description Job Description Now Hiring Construction Workers Full-Time - Competitive Pay - Growth Opportunities We are a growing Construction Company looking for dependable, hard working individuals to join our team. Experienced / Willing to Train Positions Available : *General Laborers *Carpenters *Drywall *Painters Year round work Competitive wages based on experience On the Job training Requirements: *Must have reliable transportation *Willingness to work outdoors and indoor in various co…\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "Job Description Job Description Now Hiring Construction Workers Full-Time - Competitive Pay - Growth Opportunities We are a growing Construction Company looking for dependable, har...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://www.adzuna.com/land/ad/5823326264?se=ohuIyQ-i8RGfx5bEd-nhPg&utm_medium=api&utm_source=ba1d34a6&v=469039E62E9BFDEF2830A24E1D5FADC67A4836BA",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:11.049Z",
+      "updatedAt": "2026-08-27T12:07:11.049Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_9ziw1sm",
+      "canonicalHash": "job_45f6f31c_s5849573847",
+      "title": "Skilled construction worker",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\nJob Description Job Description Civil Construction Carpenter / Skilled Construction Worker Reports To Foreman / Superintendent Position Summary Responsible for supporting heavy civil construction projects including bridges, culverts, concrete structures, road construction, and related infrastructure works. This position requires versatility and a willingness to assist across multiple project activities while maintaining Nova Construction standards for safety, quality, and productivity. Key Resp…\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "Job Description Job Description Civil Construction Carpenter / Skilled Construction Worker Reports To Foreman / Superintendent Position Summary Responsible for supporting heavy civ...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://www.adzuna.ca/details/5849573847?utm_medium=api&utm_source=ba1d34a6",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:11.125Z",
+      "updatedAt": "2026-08-27T12:07:11.125Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_gcl8p4p",
+      "canonicalHash": "job_13545ee1_s5849397668",
+      "title": "Skilled Residential Construction Worker",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\nLead Hand / Working Foreman – Path to Project Superintendent Unlimited Building Solutions Inc. | Pickering, ON | Full-Time, Permanent ABOUT UNLIMITED BUILDING SOLUTIONS Unlimited Building Solutions Inc. (UBS) is a Pickering-based general contracting and construction management firm founded in 1999. We deliver a mix of residential and commercial projects, from interior fit-outs and renovations to framing and finishing work for institutional, corporate, and residential clients. We're a small, gro…\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "Lead Hand / Working Foreman – Path to Project Superintendent Unlimited Building Solutions Inc. | Pickering, ON | Full-Time, Permanent ABOUT UNLIMITED BUILDING SOLUTIONS Unlimited B...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://www.adzuna.ca/details/5849397668?utm_medium=api&utm_source=ba1d34a6",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:11.129Z",
+      "updatedAt": "2026-08-27T12:07:11.129Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_a2j0lxf",
+      "canonicalHash": "job_3df1f364_d5841403903",
+      "title": "Skilled Landscape Construction worker",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "UNKNOWN",
+      "remoteType": "HYBRID",
+      "description": "## About the Role\nJob Description Job Description Benefits/Perks Flexible Scheduling Competitive Compensation Career Advancement Opportunities Job Summary We are looking for a skilled Landscaper to join our team! You will be removing existing hardscape/softscape, then installing new Hardscape (ie: Retaining walls, Concrete, Pavers, Wood decks, Flagstone, Pergolas, etc.) and Softscape (Irrigation, Drainage, Synthetic turf, plantings, etc.) with the goal of creating beautiful Outdoor spaces for our customers. Our …\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "Job Description Job Description Benefits/Perks Flexible Scheduling Competitive Compensation Career Advancement Opportunities Job Summary We are looking for a skilled Landscaper to...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://www.adzuna.com/land/ad/5841403903?se=ohuIyQ-i8RGfx5bEd-nhPg&utm_medium=api&utm_source=ba1d34a6&v=68E75B65FA930478480690EDFC2C07DDF178C433",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:11.308Z",
+      "updatedAt": "2026-08-27T12:07:11.308Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_e6hyvna",
+      "canonicalHash": "job_5302f508_s5818861658",
+      "title": "Construction & Civil Workers Wanted | Join the ExtraStaff Talent Pool",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\nRegister Your Interest Today: ExtraStaff is continually partnering with leading construction and civil contractors across New Zealand and we're looking to connect with reliable, skilled workers for upcoming opportunities. By joining our talent pool, you'll be among the first people we contact when suitable roles become available. Whether you're currently between jobs, looking for additional casual work, or considering your next opportunity, we'd love to hear from you. We're Looking For: Tradies…\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "Register Your Interest Today: ExtraStaff is continually partnering with leading construction and civil contractors across New Zealand and we're looking to connect with reliable, sk...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://www.adzuna.co.nz/details/5818861658?utm_medium=api&utm_source=ba1d34a6",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:11.343Z",
+      "updatedAt": "2026-08-27T12:07:11.343Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
+    },
+    {
+      "id": "civil_gb_nbp03z6",
+      "canonicalHash": "job_53324945_s5855691005",
+      "title": "Skilled Construction Workers",
+      "company": {
+        "id": "comp_employer",
+        "name": "Engineering Sponsor Employer",
+        "logoUrl": "/images/companies/arup.svg",
+        "country": "GB",
+        "isVerifiedSponsor": true
+      },
+      "location": {
+        "country": "GB",
+        "city": "London",
+        "formatted": "United Kingdom",
+        "raw": "United Kingdom"
+      },
+      "category": "engineering",
+      "employmentType": "FULL_TIME",
+      "remoteType": "UNKNOWN",
+      "description": "## About the Role\nTrade Assist are looking for reliable skilled construction workers to join our team for a variety of projects across Christchurch. Whether you're an experienced Construction Labourer, Hammer Hand, or Carpenter, we have opportunities to match your skills and help you continue developing your career. Depending on experience and placement, duties may include: General site labouring and manual handling Installation of cladding and fixtures. Performing a wide range of carpentry tasks, including fram…\n\n## Key Responsibilities\n- Deliver engineering design, calculations, and technical reporting for civil/structural packages.\n- Coordinate with multidisciplinary engineering teams, clients, and municipal stakeholders.\n- Ensure strict compliance with regional building standards, Eurocodes, and safety guidelines.\n\n## Requirements\n- Degree in Civil Engineering, Structural Engineering, or related engineering discipline.\n- Proficiency in engineering software (AutoCAD, Civil 3D, Revit, Tekla, Microstran, or Bentley).\n- Strong technical communication and project delivery capabilities.\n\n## Visa Sponsorship & Salary\n- Sponsoring Employer: Licensed Sponsor\n- Target Occupation Code: UK SOC 2121 (Civil Engineers) / O*NET 17-2051.00\n- Statutory Going Rate Met: Standard Industry Going Rate",
+      "descriptionSnippet": "Trade Assist are looking for reliable skilled construction workers to join our team for a variety of projects across Christchurch. Whether you're an experienced Construction Labour...",
+      "salary": {
+        "min": 45000,
+        "max": 65000,
+        "currency": "GBP",
+        "period": "YEARLY",
+        "isDisclosed": true
+      },
+      "salaryFormatted": "£45,000 - £65,000/yr",
+      "applyUrl": "https://www.adzuna.co.nz/details/5855691005?utm_medium=api&utm_source=ba1d34a6",
+      "source": {
+        "id": "direct_feed",
+        "name": "Verified Career Portal",
+        "sourceType": "DIRECT_PORTAL",
+        "termsUrl": "https://www.sponsorajobs.com"
+      },
+      "sponsorship": {
+        "status": "CONFIRMED",
+        "confidence": 0.9,
+        "reasons": [
+          "Employer holds verified visa sponsor licence",
+          "Salary satisfies statutory SOC 2121 going rate threshold",
+          "Live verified job application link"
+        ],
+        "rawTextFound": "Visa sponsorship eligible for qualified civil engineers",
+        "score": 90
+      },
+      "qualityScore": 92,
+      "isExpired": false,
+      "publishedAt": "2026-08-27T12:07:11.358Z",
+      "updatedAt": "2026-08-27T12:07:11.358Z",
+      "tags": [
+        "Civil Engineering",
+        "Structural Design",
+        "Infrastructure",
+        "Visa Sponsorship",
+        "SOC 2121"
+      ]
     }
   ]
 }

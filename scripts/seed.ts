@@ -87,6 +87,26 @@ export async function runSeed(dbInstance?: any) {
   for (let i = 0; i < realData.jobs.length; i++) {
     const raw: any = realData.jobs[i];
 
+    const companyId = raw.company_id ?? (typeof raw.company === "object" ? raw.company?.id : raw.company) ?? null;
+    const locationStr = typeof raw.location === "string" ? raw.location : (raw.location?.formatted || raw.location?.raw || "United Kingdom");
+    const cityStr = raw.city ?? (typeof raw.location === "object" ? raw.location?.city : null);
+    const countryCodeStr = raw.country_code ?? (typeof raw.location === "object" ? raw.location?.country : "GB") ?? "GB";
+    const categoryIdStr = raw.category_id ?? (typeof raw.category === "string" ? raw.category : (raw.category?.id || "engineering"));
+    const salaryMin = raw.salary_min ?? (typeof raw.salary === "object" ? raw.salary?.min : null);
+    const salaryMax = raw.salary_max ?? (typeof raw.salary === "object" ? raw.salary?.max : null);
+    const salaryCurrency = raw.salary_currency ?? (typeof raw.salary === "object" ? raw.salary?.currency : "GBP") ?? "GBP";
+    const sponsorshipScore = raw.sponsorship_score ?? (typeof raw.sponsorship === "object" ? raw.sponsorship?.score : 80) ?? 80;
+    const sponsorshipLabel = raw.sponsorship_label ?? (typeof raw.sponsorship === "object" ? raw.sponsorship?.status : "Strong") ?? "Strong";
+    const posEvidence = typeof raw.sponsorship_positive_evidence === "string" 
+      ? raw.sponsorship_positive_evidence 
+      : JSON.stringify(raw.sponsorship?.reasons || raw.sponsorship_positive_evidence || []);
+    const negEvidence = typeof raw.sponsorship_negative_evidence === "string" 
+      ? raw.sponsorship_negative_evidence 
+      : JSON.stringify(raw.sponsorship_negative_evidence || []);
+    const visaKeywords = typeof raw.visa_keywords === "string" 
+      ? raw.visa_keywords 
+      : JSON.stringify(raw.tags || raw.visa_keywords || []);
+
     db.run(
       `INSERT OR REPLACE INTO jobs (
         id, source_id, source_job_id, canonical_hash, title, company_id,
@@ -99,33 +119,33 @@ export async function runSeed(dbInstance?: any) {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?, 'active', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
       [
         raw.id ?? `job_${i + 1}`,
-        raw.source_id ?? "direct",
+        raw.source_id ?? (typeof raw.source === "object" ? raw.source?.id : "direct") ?? "direct",
         raw.source_job_id ?? String(i + 1),
-        raw.canonical_hash ?? String(i + 1),
+        raw.canonical_hash ?? raw.canonicalHash ?? String(i + 1),
         raw.title ?? "Job Title",
-        raw.company_id ?? null,
+        companyId,
         raw.description ?? "",
         raw.description_clean ?? raw.description ?? "",
-        raw.location ?? "London, GB",
-        raw.city ?? null,
+        locationStr,
+        cityStr,
         raw.region ?? null,
-        raw.country_code ?? "GB",
-        raw.remote_type ?? "REMOTE",
-        raw.employment_type ?? "FULL_TIME",
-        raw.category_id ?? "cat_tech",
-        raw.salary_min ?? null,
-        raw.salary_max ?? null,
-        raw.salary_currency ?? "GBP",
-        raw.job_url ?? raw.apply_url ?? null,
-        raw.apply_url ?? null,
-        raw.source_url ?? raw.apply_url ?? null,
-        raw.published_at ?? new Date().toISOString(),
-        raw.sponsorship_score ?? 80,
-        raw.sponsorship_label ?? "Strong",
-        typeof raw.sponsorship_positive_evidence === "string" ? raw.sponsorship_positive_evidence : JSON.stringify(raw.sponsorship_positive_evidence || []),
-        typeof raw.sponsorship_negative_evidence === "string" ? raw.sponsorship_negative_evidence : JSON.stringify(raw.sponsorship_negative_evidence || []),
-        typeof raw.visa_keywords === "string" ? raw.visa_keywords : JSON.stringify(raw.visa_keywords || []),
-        raw.quality_score ?? 85,
+        countryCodeStr,
+        raw.remote_type ?? raw.remoteType ?? "REMOTE",
+        raw.employment_type ?? raw.employmentType ?? "FULL_TIME",
+        categoryIdStr,
+        salaryMin,
+        salaryMax,
+        salaryCurrency,
+        raw.job_url ?? raw.apply_url ?? raw.applyUrl ?? null,
+        raw.apply_url ?? raw.applyUrl ?? null,
+        raw.source_url ?? raw.apply_url ?? raw.applyUrl ?? null,
+        raw.published_at ?? raw.publishedAt ?? new Date().toISOString(),
+        sponsorshipScore,
+        sponsorshipLabel,
+        posEvidence,
+        negEvidence,
+        visaKeywords,
+        raw.quality_score ?? raw.qualityScore ?? 85,
         raw.is_featured ?? 0
       ]
     );
