@@ -383,27 +383,44 @@ export class JobRepository {
   }
 
   async getBySlug(slug: string): Promise<{ job: PublicJobDTO; fullDescription: string } | null> {
-    let exactId = "";
+    if (!slug) return null;
+    const cleanSlug = slug.toLowerCase().trim();
+
+    // 1. Generate candidate IDs from slug
+    const candidateIds: string[] = [cleanSlug, slug];
+
     if (slug.includes("--")) {
       const parts = slug.split("--");
-      exactId = parts[parts.length - 1].replace(/-/g, "_");
-    } else {
-      const parts = slug.split("-");
-      exactId = parts[parts.length - 1];
+      candidateIds.push(parts[parts.length - 1]);
+      candidateIds.push(parts[parts.length - 1].replace(/-/g, "_"));
     }
 
-    const dataSql = `
-      SELECT j.*, 
-             c.name as company_name, c.logo_url as company_logo, c.industry as company_industry, c.website as company_website,
-             cat.name as category_name, cat.slug as category_slug
-      FROM jobs j
-      LEFT JOIN companies c ON j.company_id = c.id
-      LEFT JOIN categories cat ON j.category_id = cat.id
-      WHERE j.id = ? OR j.id = ? OR j.id LIKE ? OR j.id LIKE ?
-      LIMIT 1
-    `;
+    const dashParts = cleanSlug.split("-");
+    for (let len = Math.min(dashParts.length, 6); len >= 1; len--) {
+      const cand = dashParts.slice(-len).join("-");
+      candidateIds.push(cand);
+      candidateIds.push(dashParts.slice(-len).join("_"));
+    }
 
-    const row = await this.db.prepare(dataSql).bind(exactId, slug, `${exactId}%`, `%${exactId}`).first<any>();
+    const uniqueCandidates = Array.from(new Set(candidateIds.filter(Boolean)));
+
+    let row: any = null;
+
+    for (const cand of uniqueCandidates) {
+      const dataSql = `
+        SELECT j.*, 
+               c.name as company_name, c.logo_url as company_logo, c.industry as company_industry, c.website as company_website,
+               cat.name as category_name, cat.slug as category_slug
+        FROM jobs j
+        LEFT JOIN companies c ON j.company_id = c.id
+        LEFT JOIN categories cat ON j.category_id = cat.id
+        WHERE j.id = ? OR j.id = ? OR j.id LIKE ? OR j.id LIKE ?
+        LIMIT 1
+      `;
+      row = await this.db.prepare(dataSql).bind(cand, slug, `${cand}%`, `%${cand}`).first<any>();
+      if (row) break;
+    }
+
     if (!row) return null;
 
     const company: CompanyRecord = {

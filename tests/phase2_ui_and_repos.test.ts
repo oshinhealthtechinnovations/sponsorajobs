@@ -119,6 +119,17 @@ describe("Phase 2: Database Repositories & Search Engine Verification", () => {
     expect(detail?.fullDescription.length).toBeGreaterThan(10);
   });
 
+  it("should resolve hyphenated slug IDs like Mace Senior PM correctly without expiring", async () => {
+    const jobRepo = new JobRepository(dbClient);
+    const maceJobs = await jobRepo.search({ company: "Mace" });
+    expect(maceJobs.jobs.length).toBeGreaterThan(0);
+
+    const firstMaceJob = maceJobs.jobs[0];
+    const detail = await jobRepo.getBySlug(firstMaceJob.slug);
+    expect(detail).not.toBeNull();
+    expect(detail?.job.company.name.toLowerCase()).toContain("mace");
+  });
+
   it("should return related jobs for a given job", async () => {
     const jobRepo = new JobRepository(dbClient);
     const latest = await jobRepo.getLatestJobs(1);

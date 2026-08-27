@@ -173,10 +173,24 @@ function createEdgeMemoryClient(): DatabaseClient {
             }
             let res = [...inMemoryJobs];
 
-            // Specific Job By ID or Slug prefix
-            if (q.includes("where j.id = ?") || q.includes("where j.id like ?")) {
-              const val = String(boundValues[0] || "").replace(/%/g, "");
-              const match = res.filter((j) => j.id === val || j.id.startsWith(val) || j.job_url?.includes(val));
+            // Specific Job By ID or Slug match
+            if (q.includes("where j.id = ?") || q.includes("where j.id like ?") || q.includes("where j.id")) {
+              const rawVals = boundValues.map((v) => String(v || "").replace(/%/g, "").toLowerCase()).filter(Boolean);
+              const match = res.filter((j) => {
+                const jId = (j.id || "").toLowerCase();
+                return rawVals.some((val) => {
+                  return (
+                    jId === val ||
+                    val.endsWith(`-${jId}`) ||
+                    val.endsWith(`_${jId}`) ||
+                    val.endsWith(jId) ||
+                    val.includes(jId) ||
+                    jId.startsWith(val) ||
+                    jId.endsWith(val) ||
+                    (j.job_url && j.job_url.toLowerCase().includes(val))
+                  );
+                });
+              });
               return { results: match as unknown as T[], success: true };
             }
 
