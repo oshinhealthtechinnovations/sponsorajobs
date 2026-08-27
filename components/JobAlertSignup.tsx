@@ -57,10 +57,10 @@ export const JobAlertSignup: React.FC = () => {
   };
 
   return (
-    <div className="w-full relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-brand-950 p-8 sm:p-12 text-white border border-slate-700/60 shadow-2xl">
+    <div className="w-full relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-brand-950 p-5 sm:p-10 text-white border border-slate-700/60 shadow-2xl">
       {/* Decorative gradient glow circles */}
-      <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-brand-500/20 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 rounded-full bg-brand-500/15 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-48 sm:w-64 h-48 sm:h-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
 
       <div className="relative z-10 max-w-3xl mx-auto text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 text-xs font-semibold mb-4 border border-brand-400/30">

@@ -71,10 +71,10 @@ export default async function HomePage() {
         {/* =========================================================
             SECTION 1: HERO WITH GLOW AND SEARCH
            ========================================================= */}
-        <section className="w-full relative pt-12 pb-20 md:pt-20 md:pb-28 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-900 flex flex-col items-center text-center px-4 sm:px-6 lg:px-8 border-b border-slate-800/60">
+        <section className="w-full max-w-full relative pt-10 pb-16 sm:pt-16 sm:pb-24 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-900 flex flex-col items-center text-center px-3 sm:px-6 lg:px-8 border-b border-slate-800/60">
           {/* Ambient Lighting Orbs */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-tr from-sky-500/20 via-brand-600/15 to-indigo-600/20 blur-[130px] rounded-full pointer-events-none -z-10" />
-          <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none -z-10" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] sm:max-w-[800px] h-[260px] sm:h-[400px] bg-gradient-to-tr from-sky-500/20 via-brand-600/15 to-indigo-600/20 blur-[100px] sm:blur-[130px] rounded-full pointer-events-none -z-10" />
+          <div className="absolute top-1/3 left-1/4 w-48 sm:w-72 h-48 sm:h-72 bg-emerald-500/10 blur-[80px] sm:blur-[100px] rounded-full pointer-events-none -z-10" />
 
           {/* Top Live Stats Badge */}
           <div className="mb-6 inline-flex flex-wrap items-center justify-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/80 backdrop-blur-xl shadow-lg animate-fadeInDown">
