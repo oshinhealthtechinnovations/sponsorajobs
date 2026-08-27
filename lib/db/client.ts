@@ -30,6 +30,7 @@ let localSqliteInstance: any = null;
 const inMemoryJobs: any[] = [...STATIC_JOBS];
 const inMemoryCompanies: any[] = [...STATIC_COMPANIES];
 const inMemoryAlerts: any[] = [];
+const inMemoryCVAnalyses: any[] = [];
 
 export function getDatabase(env?: { DB?: any }): DatabaseClient {
   // 1. Cloudflare D1 environment binding in Workers/Pages runtime
@@ -323,6 +324,30 @@ function createEdgeMemoryClient(): DatabaseClient {
             return { results: res as unknown as T[], success: true };
           }
 
+          // 7. CV Analyses
+          if (q.includes("from cv_analyses")) {
+            let res = [...inMemoryCVAnalyses];
+            if (q.includes("where id = ?") && boundValues.length > 0) {
+              const id = String(boundValues[0]);
+              res = res.filter((c) => c.id === id);
+            } else if (q.includes("where share_token = ?") && boundValues.length > 0) {
+              const token = String(boundValues[0]);
+              res = res.filter((c) => c.share_token === token);
+            }
+            if (q.includes("order by created_at desc")) {
+              res.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            }
+            const numParams = boundValues.filter((v) => typeof v === "number");
+            if (numParams.length >= 2) {
+              const limit = numParams[numParams.length - 2];
+              const offset = numParams[numParams.length - 1];
+              res = res.slice(offset, offset + limit);
+            } else if (numParams.length === 1) {
+              res = res.slice(0, numParams[0]);
+            }
+            return { results: res as unknown as T[], success: true };
+          }
+
           return { results: [], success: true };
         },
         async first<T = any>(col?: string): Promise<T | null> {
@@ -330,6 +355,10 @@ function createEdgeMemoryClient(): DatabaseClient {
 
           // Count Queries
           if (q.includes("count(*)")) {
+            if (q.includes("from cv_analyses")) {
+              return ({ total: inMemoryCVAnalyses.length, count: inMemoryCVAnalyses.length } as unknown) as T;
+            }
+
             if (q.includes("1 = 0")) {
               return ({ total: 0, count: 0 } as unknown) as T;
             }
@@ -433,11 +462,36 @@ function createEdgeMemoryClient(): DatabaseClient {
           }
 
           // Deactivate Alert on UPDATE
-          if (q.includes("update job_alerts set active = 0")) {
-            if (boundValues.length > 0) {
-              const id = boundValues[0];
-              const idx = inMemoryAlerts.findIndex((a) => a.id === id);
-              if (idx >= 0) inMemoryAlerts[idx].active = 0;
+          // Mutate inMemoryCVAnalyses on INSERT
+          if (q.includes("insert into cv_analyses") || q.includes("insert or replace into cv_analyses")) {
+            if (boundValues.length >= 10) {
+              const record: any = {
+                id: boundValues[0],
+                user_id: boundValues[1] || null,
+                candidate_email: boundValues[2] || null,
+                candidate_phone: boundValues[3] || null,
+                target_country: boundValues[4] || "GB",
+                target_role: boundValues[5] || "Software Engineer",
+                soc_code: boundValues[6] || null,
+                seniority: boundValues[7] || "Mid-Level",
+                highest_degree: boundValues[8] || "Bachelor's",
+                years_experience: Number(boundValues[9]) || 0,
+                word_count: Number(boundValues[10]) || 0,
+                overall_score: Number(boundValues[11]) || 0,
+                cv_quality_score: Number(boundValues[12]) || 0,
+                ats_compatibility_score: Number(boundValues[13]) || 0,
+                job_match_score: Number(boundValues[14]) || 0,
+                sponsorship_score: Number(boundValues[15]) || 0,
+                parsing_risk: boundValues[16] || "Low",
+                detected_skills: boundValues[17] || "[]",
+                missing_skills: boundValues[18] || "[]",
+                raw_text_snippet: boundValues[19] || null,
+                full_result_json: boundValues[20] || "{}",
+                share_token: boundValues[21] || boundValues[0],
+                created_at: boundValues[22] || new Date().toISOString(),
+                updated_at: boundValues[23] || new Date().toISOString(),
+              };
+              inMemoryCVAnalyses.unshift(record);
             }
             return { results: [], success: true };
           }

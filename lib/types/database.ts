@@ -158,3 +158,41 @@ export interface AdminActionLogRecord {
   new_value: string | null;
   timestamp: string;
 }
+
+export interface CVAnalysisRecord {
+  id: string;
+  user_id: string | null;
+  candidate_email: string | null;
+  candidate_phone: string | null;
+  target_country: string;
+  target_role: string;
+  soc_code: string | null;
+  seniority: string;
+  highest_degree: string;
+  years_experience: number;
+  word_count: number;
+  overall_score: number;
+  cv_quality_score: number;
+  ats_compatibility_score: number;
+  job_match_score: number;
+  sponsorship_score: number;
+  parsing_risk: string;
+  detected_skills: string;   // JSON array of strings
+  missing_skills: string;    // JSON array of strings
+  raw_text_snippet: string | null;
+  full_result_json: string;  // Serialized FullATSIntelligenceResult
+  share_token: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CVAggregateStats {
+  totalAnalyzed: number;
+  averageOverallScore: number;
+  averageSponsorshipScore: number;
+  topSkills: { skill: string; count: number }[];
+  topMissingSkills: { skill: string; count: number }[];
+  countryDistribution: { country: string; count: number }[];
+  socDistribution: { socCode: string; count: number }[];
+  seniorityDistribution: { seniority: string; count: number }[];
+}

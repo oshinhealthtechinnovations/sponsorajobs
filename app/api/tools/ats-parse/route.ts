@@ -69,8 +69,24 @@ export async function POST(req: NextRequest) {
       console.warn("[ATS API] Job match query failed:", searchErr);
     }
 
+    // 5. Persist Scan into CV Intelligence Database
+    const { CVAnalysisRepository } = await import("@/lib/repositories/cvAnalysisRepository");
+    const cvRepo = new CVAnalysisRepository();
+    let savedRecord = null;
+    try {
+      savedRecord = await cvRepo.saveAnalysis(intelligence, {
+        rawText: extractedText,
+        targetCountry,
+        targetJobId,
+      });
+    } catch (dbErr) {
+      console.warn("[ATS API] Failed to persist CV analysis to database:", dbErr);
+    }
+
     return NextResponse.json({
       success: true,
+      scanId: savedRecord?.id || null,
+      shareToken: savedRecord?.share_token || null,
       extractedTextLength: extractedText.length,
       wordCount: intelligence.wordCount,
       intelligence,
