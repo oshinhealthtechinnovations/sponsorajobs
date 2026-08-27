@@ -123,4 +123,10 @@ describe("Phase 3: Search Engine & Multi-Attribute Filter Tests", () => {
     expect(page1.jobs[0].id).not.toBe(page2.jobs[0].id);
     expect(page1.totalPages).toBeGreaterThanOrEqual(6);
   });
+
+  it("should filter jobs company-wise (e.g. Mace)", async () => {
+    const res = await jobRepo.search({ company: "Mace" });
+    expect(res.jobs.length).toBeGreaterThan(0);
+    expect(res.jobs.every((j) => j.company.name.toLowerCase().includes("mace"))).toBe(true);
+  });
 });

@@ -8,6 +8,7 @@ export interface JobSearchParams {
   q?: string;
   country?: string;
   category?: string;
+  company?: string;
   city?: string;
   remoteType?: string;
   employmentType?: string;
@@ -167,6 +168,13 @@ export class JobRepository {
         conditions.push("(cat.slug = ? OR j.category_id = ?)");
         bindings.push(catSlug, params.category);
       }
+    }
+
+    // 3b. Company filter (by slug, ID, or normalized name)
+    if (params.company) {
+      const compVal = params.company.toLowerCase().trim();
+      conditions.push("(LOWER(c.name) = ? OR LOWER(c.normalized_name) = ? OR LOWER(c.id) = ? OR j.company_id = ?)");
+      bindings.push(compVal, compVal, compVal, params.company);
     }
 
     // 4. City filter

@@ -4,7 +4,22 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { INITIAL_COUNTRIES } from "@/config/countries";
 import { INITIAL_CATEGORIES } from "@/config/categories";
-import { Filter, RotateCcw, Calendar, Banknote, MapPin, Briefcase } from "lucide-react";
+import { Filter, RotateCcw, Calendar, Banknote, MapPin, Briefcase, Building2 } from "lucide-react";
+
+const TOP_SPONSOR_COMPANIES = [
+  { id: "comp_mace_group", name: "Mace (Mace Group)", tag: "UK Sponsor" },
+  { id: "comp_monzo_bank", name: "Monzo Bank", tag: "Fintech" },
+  { id: "comp_stripe", name: "Stripe", tag: "Payments" },
+  { id: "comp_figma", name: "Figma", tag: "Design Tech" },
+  { id: "comp_gitlab", name: "GitLab", tag: "DevOps" },
+  { id: "comp_wise", name: "Wise", tag: "Global Transfer" },
+  { id: "comp_notion", name: "Notion", tag: "Productivity" },
+  { id: "comp_linear", name: "Linear", tag: "Software" },
+  { id: "comp_spotify", name: "Spotify", tag: "Media Tech" },
+  { id: "comp_revolut", name: "Revolut", tag: "Banking" },
+  { id: "comp_deliveroo", name: "Deliveroo", tag: "Tech Platform" },
+  { id: "comp_canva", name: "Canva", tag: "Design" },
+];
 
 export const JobFilterSidebar: React.FC = () => {
   const router = useRouter();
@@ -12,6 +27,7 @@ export const JobFilterSidebar: React.FC = () => {
 
   const q = searchParams.get("q") || "";
   const country = searchParams.get("country") || "ALL";
+  const company = searchParams.get("company") || "";
   const category = searchParams.get("category") || "";
   const city = searchParams.get("city") || "";
   const remoteType = searchParams.get("remoteType") || "";
@@ -23,14 +39,16 @@ export const JobFilterSidebar: React.FC = () => {
   const sort = searchParams.get("sort") || "newest";
 
   const [cityInput, setCityInput] = useState(city);
+  const [companyInput, setCompanyInput] = useState(company);
   const [minSalaryInput, setMinSalaryInput] = useState(minSalary);
   const [maxSalaryInput, setMaxSalaryInput] = useState(maxSalary);
 
   useEffect(() => {
     setCityInput(city);
+    setCompanyInput(company);
     setMinSalaryInput(minSalary);
     setMaxSalaryInput(maxSalary);
-  }, [city, minSalary, maxSalary]);
+  }, [city, company, minSalary, maxSalary]);
 
   const updateFilters = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -54,6 +72,11 @@ export const JobFilterSidebar: React.FC = () => {
     updateFilters({ city: cityInput.trim() });
   };
 
+  const handleCompanySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateFilters({ company: companyInput.trim() });
+  };
+
   const handleSalarySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateFilters({ minSalary: minSalaryInput.trim(), maxSalary: maxSalaryInput.trim() });
@@ -73,6 +96,54 @@ export const JobFilterSidebar: React.FC = () => {
           <RotateCcw className="w-3 h-3" />
           <span>Reset</span>
         </button>
+      </div>
+
+      {/* Filter by Employer / Company */}
+      <div>
+        <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center justify-between">
+          <span className="flex items-center gap-1.5">
+            <Building2 className="w-3.5 h-3.5 text-brand-600" />
+            <span>Select Company</span>
+          </span>
+          {company && (
+            <button
+              type="button"
+              onClick={() => updateFilters({ company: null })}
+              className="text-[11px] font-semibold text-rose-500 hover:underline"
+            >
+              Clear
+            </button>
+          )}
+        </label>
+        
+        <select
+          value={company}
+          onChange={(e) => updateFilters({ company: e.target.value })}
+          className="w-full p-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none transition-all cursor-pointer mb-2"
+        >
+          <option value="">All Companies (254+)</option>
+          {TOP_SPONSOR_COMPANIES.map((c) => (
+            <option key={c.id} value={c.name}>
+              {c.name} ({c.tag})
+            </option>
+          ))}
+        </select>
+
+        <form onSubmit={handleCompanySubmit} className="flex gap-1.5">
+          <input
+            type="text"
+            placeholder="Or type company name..."
+            value={companyInput}
+            onChange={(e) => setCompanyInput(e.target.value)}
+            className="flex-1 px-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-slate-50 focus:bg-white focus:border-brand-500 outline-none"
+          />
+          <button
+            type="submit"
+            className="px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold"
+          >
+            Go
+          </button>
+        </form>
       </div>
 
       {/* Target Country */}

@@ -8,7 +8,6 @@ import {
   Sparkles,
   Heart,
   ArrowUpRight,
-  Send,
   Building2,
   FileCheck,
   CheckCircle2,
@@ -81,15 +80,6 @@ export const Footer: React.FC = () => {
               SponsorAJobs is an immigration-intelligence job discovery engine helping global software engineers, civil engineers, healthcare professionals, and technical specialists locate verified employer visa sponsorship opportunities worldwide.
             </p>
             <div className="flex flex-col gap-2 pt-1">
-              <a
-                href="https://t.me/+iosgr5P-DUoxMjU9"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 text-xs font-bold transition-all w-fit"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>Join Official Telegram Job Alerts Group</span>
-              </a>
               <div className="flex items-center gap-2 text-xs text-emerald-400">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>Indexed & updated daily with active feeds</span>

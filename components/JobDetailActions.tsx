@@ -178,9 +178,9 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
             </p>
           )
         ) : (
-          <div className="px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center gap-1.5 text-amber-800 text-[11px] font-bold">
-            <Sparkles className="w-3 h-3 text-amber-600" />
-            <span>Promo Code: <span className="font-mono underline">sumit_raj_linkedin</span></span>
+          <div className="px-3 py-2 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center gap-1.5 text-slate-700 text-[11px] font-medium">
+            <Sparkles className="w-3.5 h-3.5 text-brand-600" />
+            <span>Invite code required — Click above to unlock or request access</span>
           </div>
         )}
 

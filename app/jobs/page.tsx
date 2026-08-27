@@ -16,6 +16,7 @@ interface JobsPageProps {
     q?: string;
     country?: string;
     category?: string;
+    company?: string;
     city?: string;
     remoteType?: string;
     employmentType?: string;
@@ -34,6 +35,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
     q: searchParams.q,
     country: searchParams.country,
     category: searchParams.category,
+    company: searchParams.company,
     city: searchParams.city,
     remoteType: searchParams.remoteType,
     employmentType: searchParams.employmentType,
@@ -63,6 +65,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
 
   const activeFilters = [
     searchParams.q ? { label: `"${searchParams.q}"`, key: "q" } : null,
+    searchParams.company ? { label: `Company: ${searchParams.company}`, key: "company" } : null,
     searchParams.country && searchParams.country !== "ALL"
       ? { label: `Country: ${searchParams.country.toUpperCase()}`, key: "country" }
       : null,

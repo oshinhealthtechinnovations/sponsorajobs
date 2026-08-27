@@ -95,6 +95,6 @@ describe("Telegram Real-Time Notification & Timeline Service", () => {
     expect(sentMsg).toContain("Senior Full Stack Engineer");
     expect(sentMsg).toContain("Revolut");
     expect(sentMsg).toContain("🇬🇧 UK");
-    expect(sentMsg).toContain("sumit_raj_linkedin");
+    expect(sentMsg).toContain("Exclusive Candidate Access");
   });
 });

@@ -208,6 +208,15 @@ function createEdgeMemoryClient(): DatabaseClient {
               res = res.filter((j) => j.sponsorship_label === sponParam);
             }
 
+            // Company filter
+            if (q.includes("c.normalized_name") || q.includes("c.name") || q.includes("j.company_id = ?")) {
+              const compParam = boundValues.find((v) => typeof v === "string" && (v.startsWith("comp_") || inMemoryCompanies.some((c) => c.name.toLowerCase() === v.toLowerCase() || c.id === v)));
+              if (compParam) {
+                const term = String(compParam).toLowerCase();
+                res = res.filter((j) => j.company_id?.toLowerCase() === term || j.company_name?.toLowerCase() === term || j.company_name?.toLowerCase().includes(term));
+              }
+            }
+
             if (kwParams.length > 0) {
               const rawTerms = kwParams.map((kw) => String(kw).slice(1, -1).toLowerCase()).filter(Boolean);
               const terms = Array.from(new Set(rawTerms));
@@ -338,6 +347,15 @@ function createEdgeMemoryClient(): DatabaseClient {
               }
               if (sponParam) {
                 res = res.filter((j) => j.sponsorship_label === sponParam);
+              }
+
+              // Company filter
+              if (q.includes("c.normalized_name") || q.includes("c.name") || q.includes("j.company_id = ?")) {
+                const compParam = boundValues.find((v) => typeof v === "string" && (v.startsWith("comp_") || inMemoryCompanies.some((c) => c.name.toLowerCase() === v.toLowerCase() || c.id === v)));
+                if (compParam) {
+                  const term = String(compParam).toLowerCase();
+                  res = res.filter((j) => j.company_id?.toLowerCase() === term || j.company_name?.toLowerCase() === term || j.company_name?.toLowerCase().includes(term));
+                }
               }
 
               if (kwParams.length > 0) {

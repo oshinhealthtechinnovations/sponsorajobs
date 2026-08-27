@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           requireTrial: true,
-          error: "Invalid or missing invite promo code. An authorized promo code ('sumit_raj_linkedin') is required to create an account immediately. Alternatively, please request Free Trial Access or message Sumit Raj on LinkedIn for a direct referral code.",
+          error: "Invalid or missing invite promo code. A valid authorized promo code is required to register immediately. Alternatively, please request Free Trial Access.",
         },
         { status: 403 }
       );

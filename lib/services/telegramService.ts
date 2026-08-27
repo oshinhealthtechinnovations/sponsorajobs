@@ -281,19 +281,30 @@ ${pendingList || "  None"}
 ${jobEntries || "Check out latest jobs on our live portal!"}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎁 <b>Exclusive Candidate Perk:</b>
-Unlock full employer sponsorship breakdown & direct recruiter contacts using master invite code: <code>sumit_raj_linkedin</code>
+🎁 <b>Exclusive Candidate Access:</b>
+Request your VIP invite code or free trial directly on our portal.
 
-🌐 <b>Explore 640+ Live Verified Roles:</b>
+🌐 <b>Explore 650+ Live Verified Roles:</b>
 👉 https://www.sponsorajobs.com/jobs
 
 #VisaSponsorship #UKJobs #USJobs #H1B #SkilledWorker #TechCareers #GlobalJobs
 `.trim();
 
-    return await this.sendMessage(msg, {
-      targetChatId: data.channelId || this.communityChannelId || "@sponsorajobs_jobs",
+    const targetChannel = data.channelId || this.communityChannelId || "@sponsorajobs_jobs";
+    const res = await this.sendMessage(msg, {
+      targetChatId: targetChannel,
       disableWebPagePreview: true,
     });
+
+    // If sending to public channel failed (e.g. bot not yet admin in group), fallback to admin chat
+    if (!res.success && targetChannel !== this.adminChatId) {
+      return await this.sendMessage(msg, {
+        targetChatId: this.adminChatId,
+        disableWebPagePreview: true,
+      });
+    }
+
+    return res;
   }
 
   private escape(str: string): string {

@@ -228,7 +228,7 @@ export function AuthGateModal() {
                 Welcome! You Have Received Free Premium Trial Access!
               </h2>
               <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-                Your invite promo code <span className="text-amber-400 font-mono font-bold bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-500/30">sumit_raj_linkedin</span> has been successfully validated.
+                Your VIP invite code has been successfully validated. You now have full access to direct employer application links.
               </p>
             </div>
 
@@ -503,7 +503,7 @@ export function AuthGateModal() {
                     required
                     value={promoCode}
                     onChange={(e) => setPromoCode(e.target.value)}
-                    placeholder="Enter invite code (e.g. sumit_raj_linkedin)"
+                    placeholder="Enter your VIP invite / promo code"
                     className="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-amber-500/40 text-amber-300 font-mono text-xs focus:outline-none focus:border-amber-400"
                   />
                 </div>

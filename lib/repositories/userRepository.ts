@@ -51,7 +51,12 @@ export class UserRepository {
   isValidPromoCode(code: string): boolean {
     if (!code) return false;
     const clean = code.trim().toLowerCase();
-    return VALID_PROMO_CODES.includes(clean);
+    const envCodes = (process.env.PROMO_CODES || "")
+      .split(",")
+      .map((c) => c.trim().toLowerCase())
+      .filter(Boolean);
+    const validList = [...VALID_PROMO_CODES, ...envCodes];
+    return validList.includes(clean);
   }
 
   /**
