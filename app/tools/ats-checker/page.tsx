@@ -23,6 +23,10 @@ import {
   ChevronRight,
   TrendingUp,
   Lock,
+  Copy,
+  CheckCheck,
+  Building,
+  Flag,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -59,41 +63,9 @@ CERTIFICATIONS
 • AWS Certified Solutions Architect - Associate
 • Certified Kubernetes Application Developer (CKAD)`;
 
-/**
- * Extracts clean readable text tokens from PDF / DOCX array buffers
- */
-function extractReadableText(raw: string): string {
-  if (!raw) return "";
-
-  // 1. Extract plain text stream parts or tokens in parentheses (PDF standard text chunks)
-  const matches = raw.match(/\(([^()]{2,100})\)/g);
-  if (matches && matches.length > 20) {
-    const extracted = matches
-      .map((m) => m.slice(1, -1))
-      .filter((s) => /[a-zA-Z0-9]/.test(s))
-      .join(" ");
-    if (extracted.length > 200) {
-      return extracted.slice(0, 15000);
-    }
-  }
-
-  // 2. Fallback: Strip binary/control chars, retain printable ASCII and common Latin characters
-  let clean = raw
-    .replace(/[^\x20-\x7E\t\n\r]/g, " ")
-    .replace(/(?:stream[\s\S]*?endstream|xref[\s\S]*?trailer|obj[\s\S]*?endobj)/gi, " ")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-
-  // Filter out hex/binary noise words
-  const words = clean.split(" ").filter((w) => {
-    return w.length < 30 && !/^[0-9a-fA-F]{6,}$/.test(w);
-  });
-
-  return words.join(" ").slice(0, 15000);
-}
-
 export default function ATSCheckerPage() {
   const [resumeText, setResumeText] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [targetCountry, setTargetCountry] = useState("all");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,6 +74,7 @@ export default function ATSCheckerPage() {
   const [activeTab, setActiveTab] = useState<"upload" | "paste">("upload");
   const [fileName, setFileName] = useState<string | null>(null);
   const [user, setUser] = useState<any | null>(null);
+  const [copiedBulletIdx, setCopiedBulletIdx] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const checkUserAccess = () => {
@@ -126,50 +99,28 @@ export default function ATSCheckerPage() {
     checkUserAccess();
     const handleSessionChange = () => {
       const loggedUser = checkUserAccess();
-      // If user just completed registration with promo code, automatically trigger analysis
-      if (loggedUser && resumeText.trim().length >= 20 && !analysis) {
-        handleRunAnalysis(resumeText, loggedUser);
+      if (loggedUser && (selectedFile || resumeText.trim().length >= 20) && !analysis) {
+        handleRunAnalysis(loggedUser);
       }
     };
 
     window.addEventListener("user-session-changed", handleSessionChange);
     return () => window.removeEventListener("user-session-changed", handleSessionChange);
-  }, [resumeText, analysis]);
+  }, [resumeText, selectedFile, analysis]);
 
   // File upload handler
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setSelectedFile(file);
     setFileName(file.name);
     setError(null);
-
-    if (file.type === "text/plain" || file.name.endsWith(".txt")) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const text = (event.target?.result as string) || "";
-        setResumeText(text.slice(0, 20000));
-      };
-      reader.readAsText(file);
-    } else {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const content = event.target?.result;
-        if (content instanceof ArrayBuffer) {
-          const decoder = new TextDecoder("utf-8", { fatal: false });
-          const rawStr = decoder.decode(content);
-          const cleanedText = extractReadableText(rawStr);
-          setResumeText(cleanedText);
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
   };
 
-  const handleRunAnalysis = async (textToUse?: string, overrideUser?: any) => {
-    const text = (textToUse || resumeText).trim();
-    if (!text || text.length < 15) {
-      setError("Please paste or upload your resume text (at least 15 characters).");
+  const handleRunAnalysis = async (overrideUser?: any) => {
+    if (!selectedFile && (!resumeText || resumeText.trim().length < 15)) {
+      setError("Please select a file or paste your resume text (at least 15 characters).");
       return;
     }
 
@@ -189,13 +140,17 @@ export default function ATSCheckerPage() {
     setError(null);
 
     try {
-      const res = await fetch("/api/tools/ats-match", {
+      const formData = new FormData();
+      if (selectedFile && activeTab === "upload") {
+        formData.append("file", selectedFile);
+      } else {
+        formData.append("text", resumeText.trim());
+      }
+      formData.append("country", targetCountry);
+
+      const res = await fetch("/api/tools/ats-parse", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: text.slice(0, 20000),
-          targetCountry,
-        }),
+        body: formData,
       });
 
       const data = await res.json();
@@ -214,8 +169,15 @@ export default function ATSCheckerPage() {
 
   const handleLoadSample = () => {
     setResumeText(SAMPLE_RESUME);
+    setSelectedFile(null);
     setFileName("sample_senior_engineer_cv.txt");
     setActiveTab("paste");
+  };
+
+  const handleCopyBullet = (text: string, idx: number) => {
+    navigator.clipboard.writeText(text);
+    setCopiedBulletIdx(idx);
+    setTimeout(() => setCopiedBulletIdx(null), 2500);
   };
 
   const getScoreColor = (score: number) => {
@@ -243,11 +205,11 @@ export default function ATSCheckerPage() {
             <Sparkles className="w-3.5 h-3.5 text-brand-600" />
             <span>AI ATS Resume Matcher & Visa Scorer</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
             Check Your ATS Score & Get <span className="text-brand-600">Visa Sponsored Job Matches</span>
           </h1>
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Upload your CV to check formatting, keyword density, and international visa sponsorship readiness. Instantly discover live jobs matching your profile across UK, USA, Australia, and Canada.
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
+            Upload your CV for industrial-grade ATS extraction, shortage occupation visa readiness scoring, and instant matching with 650+ verified sponsor employers across the UK, USA, Australia, and Canada.
           </p>
         </div>
 
@@ -309,12 +271,12 @@ export default function ATSCheckerPage() {
                 {fileName ? `Selected: ${fileName}` : "Click or Drag & Drop your Resume / CV here"}
               </p>
               <p className="text-xs text-slate-500 mt-1">
-                Supports PDF, Word Documents (.docx), and plain text (.txt)
+                Supports modern compressed PDF, Word Documents (.docx), and plain text (.txt)
               </p>
-              {resumeText && (
+              {selectedFile && (
                 <p className="text-xs text-emerald-600 font-bold mt-2 flex items-center justify-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Text successfully extracted ({resumeText.split(" ").length} words)</span>
+                  <span>Ready for deep ATS & visa parsing ({Math.round(selectedFile.size / 1024)} KB)</span>
                 </p>
               )}
             </div>
@@ -353,14 +315,14 @@ export default function ATSCheckerPage() {
 
             <button
               type="button"
-              disabled={isAnalyzing || !resumeText.trim()}
+              disabled={isAnalyzing || (!selectedFile && !resumeText.trim())}
               onClick={() => handleRunAnalysis()}
               className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
               {isAnalyzing ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Scanning ATS Compatibility...</span>
+                  <span>Extracting & Analyzing Resume...</span>
                 </>
               ) : (
                 <>
@@ -386,15 +348,18 @@ export default function ATSCheckerPage() {
             <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
                 <div>
-                  <div className="flex items-center gap-2.5 mb-1">
+                  <div className="flex flex-wrap items-center gap-2.5 mb-1">
                     <span className="px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold">
                       {analysis.estimatedSeniority} Candidate Profile
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
+                      {analysis.primaryDomain}
                     </span>
                     <span className="text-xs text-slate-500">
                       {analysis.wordCount} words analyzed
                     </span>
                   </div>
-                  <h2 className="text-2xl font-bold text-slate-900">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
                     ATS & Visa Sponsorship Scorecard
                   </h2>
                 </div>
@@ -411,20 +376,20 @@ export default function ATSCheckerPage() {
                   <div>
                     <div className="text-sm font-bold text-slate-900">
                       {analysis.overallScore >= 80
-                        ? "Excellent ATS Compatibility"
+                        ? "Excellent ATS & Visa Match"
                         : analysis.overallScore >= 65
-                        ? "Good - Needs Minor Tweaks"
+                        ? "Good - Ready With Minor Tweaks"
                         : "Requires ATS Optimization"}
                     </div>
                     <p className="text-xs text-slate-500 mt-0.5 max-w-xs">
-                      Based on top employer parsing algorithms (Workday, Greenhouse, Lever, Ashby).
+                      Evaluated against Enterprise ATS systems (Workday, Greenhouse, Lever, Ashby) & Global Visa Shortage registries.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Sub-Pillar Score Meters */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* 4 Sub-Pillar Score Meters */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
                   <div className="flex items-center justify-between text-xs font-bold text-slate-700">
                     <span>ATS Format & Hierarchy</span>
@@ -436,26 +401,26 @@ export default function ATSCheckerPage() {
                       style={{ width: `${analysis.atsFormattingScore}%` }}
                     />
                   </div>
-                  <p className="text-[11px] text-slate-500">Standard headers, clean contact info, error-free parsing.</p>
+                  <p className="text-[11px] text-slate-500">Standard sections, clear contact info, and readable parse tree.</p>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
                   <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                    <span>Visa Sponsorship Strength</span>
-                    <span className="text-emerald-600 font-extrabold">{analysis.visaReadinessScore}%</span>
+                    <span>Keyword Density</span>
+                    <span className="text-brand-600 font-extrabold">{analysis.keywordDensityScore}%</span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
                     <div
-                      className={`h-full ${getProgressColor(analysis.visaReadinessScore)}`}
-                      style={{ width: `${analysis.visaReadinessScore}%` }}
+                      className={`h-full ${getProgressColor(analysis.keywordDensityScore)}`}
+                      style={{ width: `${analysis.keywordDensityScore}%` }}
                     />
                   </div>
-                  <p className="text-[11px] text-slate-500">Skilled worker eligible occupation alignment & qualifications.</p>
+                  <p className="text-[11px] text-slate-500">{analysis.detectedSkills.length} domain keywords detected.</p>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
                   <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                    <span>Measurable Impact & Metrics</span>
+                    <span>Measurable Impact</span>
                     <span className="text-indigo-600 font-extrabold">{analysis.contentQualityScore}%</span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
@@ -464,7 +429,86 @@ export default function ATSCheckerPage() {
                       style={{ width: `${analysis.contentQualityScore}%` }}
                     />
                   </div>
-                  <p className="text-[11px] text-slate-500">Action verbs, numbers, percentages, and tangible outcomes.</p>
+                  <p className="text-[11px] text-slate-500">Action verbs, numbers, percentages, and metrics.</p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                    <span>Visa Readiness</span>
+                    <span className="text-emerald-600 font-extrabold">{analysis.visaReadinessScore}%</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+                    <div
+                      className={`h-full ${getProgressColor(analysis.visaReadinessScore)}`}
+                      style={{ width: `${analysis.visaReadinessScore}%` }}
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-500">Shortage list alignment & CoS feasibility.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* ── GLOBAL VISA SPONSORSHIP ELIGIBILITY MATRIX (UNIQUE MOAT) ── */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-950 text-white border border-slate-800 shadow-xl space-y-5">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck className="w-6 h-6 text-emerald-400" />
+                  <h3 className="text-lg sm:text-xl font-extrabold font-display">
+                    International Visa Sponsorship Eligibility Matrix
+                  </h3>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">
+                  Algorithmic Verification
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-sky-400">
+                    <span>🇬🇧 United Kingdom</span>
+                  </div>
+                  <div className="text-sm font-bold text-white">
+                    {analysis.visaEligibilityBreakdown.ukSkilledWorkerEligible ? "CoS Eligible (Skilled Worker)" : "Standard CoS Route"}
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    {analysis.visaEligibilityBreakdown.ukShortageOccupation}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-amber-400">
+                    <span>🇺🇸 United States</span>
+                  </div>
+                  <div className="text-sm font-bold text-white">
+                    H-1B Specialty Occupation
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    {analysis.visaEligibilityBreakdown.usH1BSuitability}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-rose-400">
+                    <span>🇨🇦 Canada</span>
+                  </div>
+                  <div className="text-sm font-bold text-white">
+                    LMIA / Global Talent Stream
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    {analysis.visaEligibilityBreakdown.canadaLMIAProfile}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
+                    <span>🇦🇺 Australia</span>
+                  </div>
+                  <div className="text-sm font-bold text-white">
+                    TSS 482 / PR 186
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    {analysis.visaEligibilityBreakdown.australiaTSS482Readiness}
+                  </p>
                 </div>
               </div>
             </div>
@@ -507,6 +551,48 @@ export default function ATSCheckerPage() {
                 </ul>
               </div>
             </div>
+
+            {/* ── ATS STAR-FORMAT BULLET REWRITES (HIGH VALUE FEATURE) ── */}
+            {analysis.suggestedBulletRewrites && analysis.suggestedBulletRewrites.length > 0 && (
+              <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2 text-slate-900 font-bold text-base">
+                    <Sparkles className="w-5 h-5 text-brand-600" />
+                    <span>AI-Generated High-Impact Bullet Points (Copy & Paste Into Your CV)</span>
+                  </div>
+                  <span className="text-xs text-slate-500">STAR Methodology Optimized</span>
+                </div>
+                <div className="space-y-3">
+                  {analysis.suggestedBulletRewrites.map((bullet, idx) => (
+                    <div
+                      key={idx}
+                      className="p-4 rounded-2xl bg-slate-50 hover:bg-brand-50/30 border border-slate-200/80 flex items-center justify-between gap-4 transition-all"
+                    >
+                      <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-mono">
+                        • {bullet}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyBullet(bullet, idx)}
+                        className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700 flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer shadow-2xs"
+                      >
+                        {copiedBulletIdx === idx ? (
+                          <>
+                            <CheckCheck className="w-3.5 h-3.5 text-emerald-600" />
+                            <span className="text-emerald-600">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Copy</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Detected Skills & Missing Keywords */}
             <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6">
@@ -554,7 +640,7 @@ export default function ATSCheckerPage() {
             <div className="space-y-5 pt-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                  <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2 font-display">
                     <Globe2 className="w-6 h-6 text-brand-600" />
                     <span>Top Visa Sponsorship Job Matches ({matches.length})</span>
                   </h2>
@@ -566,7 +652,7 @@ export default function ATSCheckerPage() {
                   href="/jobs"
                   className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700"
                 >
-                  <span>Explore all 600+ sponsor jobs</span>
+                  <span>Explore all 650+ sponsor jobs</span>
                   <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -574,10 +660,13 @@ export default function ATSCheckerPage() {
               {matches.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {matches.map((m, idx) => (
-                    <div key={idx} className="relative group">
-                      <div className="absolute top-4 right-4 z-10">
-                        <span className="px-2.5 py-1 rounded-full bg-brand-600 text-white text-[11px] font-bold shadow-xs">
-                          {m.matchScore}% Profile Match
+                    <div key={idx} className="relative group flex flex-col justify-between">
+                      <div className="mb-2 flex items-center justify-between bg-brand-50/60 px-3 py-1.5 rounded-xl border border-brand-200/60 text-xs">
+                        <span className="font-bold text-brand-900">
+                          {m.matchScore}% Skill & Seniority Match
+                        </span>
+                        <span className="text-[11px] text-brand-700 font-medium truncate max-w-[200px]">
+                          {m.matchingSkills.slice(0, 3).join(", ")}
                         </span>
                       </div>
                       <JobCard job={m.job} />
