@@ -139,7 +139,7 @@ describe("ATS Resume Scanner & Visa Matcher Service", () => {
     // Sponsorship & SOC Code mapping
     expect(intelligence.sponsorshipDiagnostics.occupationRule.socCode).toBe("2134");
     expect(intelligence.sponsorshipDiagnostics.targetCountry).toBe("United Kingdom");
-    expect(intelligence.sponsorshipDiagnostics.route).toBe("Skilled Worker (CoS)");
+    expect(intelligence.sponsorshipDiagnostics.route).toContain("Skilled Worker");
     expect(intelligence.sponsorshipDiagnostics.evidence.length).toBeGreaterThan(0);
 
     // STAR bullet recommendations

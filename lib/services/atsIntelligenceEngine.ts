@@ -388,21 +388,45 @@ export function analyzeCVIntelligence(
   const sponsorshipScore = Math.min(96, Math.max(45, sponsorshipPts));
 
   const countryNormalized = targetCountry?.toUpperCase() || "GB";
+  
+  let targetCountryName = "United Kingdom";
+  let targetRoute = "UK Home Office Skilled Worker (CoS)";
+  let salaryGuidance = `Standard Skilled Worker baseline £38,700 (or going rate for SOC ${occupationRule.socCode}).`;
+
+  if (countryNormalized === "US") {
+    targetCountryName = "United States";
+    targetRoute = "USCIS H-1B Specialty Occupation / O-1 / L-1";
+    salaryGuidance = "US Department of Labor Prevailing Wage (OEWS Level 1-4 standard for specialty occupation).";
+  } else if (countryNormalized === "CA") {
+    targetCountryName = "Canada";
+    targetRoute = "Global Talent Stream (2-Week Expedited) / Express Entry STEM";
+    salaryGuidance = `Prevailing median provincial wage for NOC ${occupationRule.canadaEligibility.nocCode} under Global Talent Stream.`;
+  } else if (countryNormalized === "AU") {
+    targetCountryName = "Australia";
+    targetRoute = "TSS Subclass 482 / Core Skills / Direct PR 186";
+    salaryGuidance = "TSMIT statutory threshold A$73,150 required for Subclass 482 employer nomination.";
+  } else if (countryNormalized === "DE" || countryNormalized === "EU") {
+    targetCountryName = "Germany (European Union)";
+    targetRoute = "EU Blue Card (§18g AufenthG) / Skilled Worker (§18b)";
+    salaryGuidance = "EU Blue Card statutory minimum €45,300 (or €41,041 for MINT shortage occupations).";
+  }
+
   const sponsorshipDiagnostics: SponsorshipReadinessDiagnostics = {
     score: sponsorshipScore,
-    targetCountry: countryNormalized === "US" ? "United States" : countryNormalized === "CA" ? "Canada" : countryNormalized === "AU" ? "Australia" : "United Kingdom",
-    route: countryNormalized === "US" ? "H-1B Specialty Occupation" : countryNormalized === "CA" ? "Global Talent Stream / LMIA" : countryNormalized === "AU" ? "TSS 482 / PR 186" : "Skilled Worker (CoS)",
+    targetCountry: targetCountryName,
+    route: targetRoute,
     occupationRule,
-    confidence: technicalSkills.length >= 6 && highestDegree !== "Not Detected" ? "High" : "Moderate",
+    confidence: technicalSkills.length >= 5 && highestDegree !== "Not Detected" ? "High" : "Moderate",
     eligibilitySignal: sponsorshipScore >= 75 ? "Highly Compatible" : "Potentially Compatible",
     salaryAssessment: {
-      guidance: `Standard skilled worker baseline £38,700 (or going rate for Code ${occupationRule.socCode}).`,
+      guidance: salaryGuidance,
       thresholdGBP: occupationRule.ukEligibility.standardThresholdGBP,
     },
     evidence: [
       `Mapped to SOC Code ${occupationRule.socCode}: ${occupationRule.title}`,
       `Degree detected: ${highestDegree} in ${degreeField}`,
-      `${estimatedYearsExperience}+ years relevant industry experience meets skilled worker seniority thresholds.`
+      `${estimatedYearsExperience}+ years relevant industry experience meets statutory seniority thresholds.`,
+      `Target Jurisdiction: ${targetCountryName} (${targetRoute})`
     ],
     disclaimer: "Estimated sponsorship compatibility based on official published immigration rules. Final sponsorship and visa granting decisions belong strictly to government authorities and licensed employers.",
     lastVerified: RULES_LAST_VERIFIED,
