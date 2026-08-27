@@ -4,15 +4,17 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Search, Menu, X, Globe, Briefcase, Building2, HelpCircle,
-  Bell, BookOpen, ArrowRight, FileText, Sparkles,
+  Search, Menu, X, Globe, Briefcase, HelpCircle,
+  Bell, FileText, Sparkles, Compass, Shield, ArrowUpRight,
 } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
 
 // Streamlined, ultra-clean primary desktop navigation
 const navLinks = [
-  { href: "/jobs",               label: "Find Jobs",          icon: Search },
-  { href: "/tools/ats-checker",  label: "ATS Resume Checker", icon: FileText, badge: "AI Tool" },
+  { href: "/jobs", label: "Find Jobs", icon: Search },
+  { href: "/tools/ats-checker", label: "ATS Resume Checker", icon: FileText, badge: "AI" },
+  { href: "/companies", label: "Companies", icon: Briefcase },
+  { href: "/blog", label: "Visa Guides", icon: Compass },
 ];
 
 export const Navbar: React.FC = () => {
@@ -37,7 +39,7 @@ export const Navbar: React.FC = () => {
 
   useEffect(() => {
     checkUserSession();
-    const handleScroll = () => setScrolled(window.scrollY > 12);
+    const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("user-session-changed", checkUserSession);
 
@@ -61,29 +63,28 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <header
-        className={`w-full sticky top-0 z-40 transition-all duration-300 ${
+        className={`w-full sticky top-0 z-40 transition-all duration-200 ${
           scrolled
-            ? "bg-white/95 backdrop-blur-xl shadow-xs border-b border-slate-200/80"
-            : "bg-white/90 backdrop-blur-md border-b border-slate-200/60"
+            ? "bg-white/80 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)]"
+            : "bg-white/95 backdrop-blur-md border-b border-slate-100"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
 
-          {/* ── Brand Logo ── */}
+          {/* ── Minimalist Modern Brand Logo ── */}
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="relative w-9 h-9 rounded-xl overflow-hidden shadow-brand-sm">
-              <div className="absolute inset-0 bg-gradient-to-br from-sky-400 via-brand-600 to-brand-800" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white font-black text-sm tracking-tight font-display">SA</span>
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="w-8 h-8 rounded-lg bg-slate-950 text-white flex items-center justify-center font-black text-xs tracking-wider shadow-sm group-hover:bg-brand-600 transition-colors duration-200">
+              <span>SA</span>
             </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900 font-display">
-              Sponsor<span className="gradient-text-brand">A</span>Jobs
-            </span>
+            <div className="flex items-baseline">
+              <span className="text-base font-extrabold tracking-tight text-slate-900 font-display">
+                SponsorAJobs
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-600 ml-0.5"></span>
+            </div>
           </Link>
 
-          {/* ── Streamlined Desktop Navigation ── */}
+          {/* ── Modern Understated Desktop Navigation ── */}
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => {
               const isActive =
@@ -93,15 +94,15 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
                     isActive
-                      ? "text-brand-600 bg-brand-50 shadow-2xs"
-                      : "text-slate-600 hover:text-brand-600 hover:bg-slate-50"
+                      ? "text-slate-950 bg-slate-100/90 font-bold"
+                      : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
                   }`}
                 >
                   <span>{link.label}</span>
                   {link.badge && (
-                    <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-brand-600 text-[10px] font-extrabold text-white leading-none shadow-2xs">
+                    <span className="px-1.5 py-0.5 rounded-md bg-brand-50 text-brand-700 text-[10px] font-bold border border-brand-200/60 leading-none">
                       {link.badge}
                     </span>
                   )}
@@ -110,30 +111,30 @@ export const Navbar: React.FC = () => {
             })}
           </nav>
 
-          {/* ── Clean Right CTAs ── */}
-          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-            {/* Job Alerts Modal Trigger */}
+          {/* ── Elegant Right Action Suite ── */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Job Alerts Ghost Trigger */}
             <button
               type="button"
-              onClick={() => {
-                setAlertModalOpen(true);
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100/90 text-amber-900 border border-amber-200/90 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              onClick={() => setAlertModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-950 hover:bg-slate-100/80 text-xs font-medium transition-colors cursor-pointer"
             >
-              <Bell className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
+              <Bell className="w-3.5 h-3.5 text-slate-500" />
               <span className="hidden sm:inline">Job Alerts</span>
             </button>
 
+            <div className="h-4 w-[1px] bg-slate-200 hidden sm:block mx-0.5" />
+
             {/* User Account / Sign In CTA */}
             {user ? (
-              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 border border-slate-200 text-xs">
-                <span className="px-2.5 py-1 font-bold text-slate-800 hidden sm:inline truncate max-w-[120px]">
+              <div className="flex items-center gap-1.5 pl-1 text-xs">
+                <span className="font-semibold text-slate-800 hidden sm:inline truncate max-w-[120px]">
                   {user.name.split(" ")[0]}
                 </span>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="px-2 py-1 rounded-lg bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 font-bold text-[11px] border border-slate-200 transition-colors cursor-pointer"
+                  className="px-2.5 py-1.5 rounded-lg text-slate-500 hover:text-rose-600 font-medium text-xs hover:bg-rose-50 transition-colors cursor-pointer"
                 >
                   Logout
                 </button>
@@ -148,26 +149,26 @@ export const Navbar: React.FC = () => {
                     })
                   );
                 }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors border border-slate-200 cursor-pointer"
+                className="px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-950 text-xs font-medium hover:bg-slate-100/80 transition-colors cursor-pointer"
               >
-                <span>Sign In / Register</span>
+                <span>Sign In</span>
               </button>
             )}
 
-            {/* Direct Search / Browse CTA */}
+            {/* Premium Primary CTA */}
             <Link
               href="/jobs"
-              className="hidden lg:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-bold shadow-brand-sm hover:shadow-brand transition-all duration-200"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-950 hover:bg-slate-850 active:scale-[0.98] text-white text-xs font-semibold shadow-xs hover:shadow transition-all duration-150"
             >
-              <Search className="w-3.5 h-3.5" />
+              <Search className="w-3.5 h-3.5 opacity-80" />
               <span>Explore Jobs</span>
             </Link>
 
-            {/* Mobile menu button */}
+            {/* Mobile menu toggle */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors border border-slate-200"
+              className="md:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -175,10 +176,10 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* ── Responsive Mobile Menu Drawer ── */}
+        {/* ── Clean Mobile Menu Drawer ── */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-2xl px-4 pt-3 pb-6 space-y-2 animate-fadeInDown shadow-lg">
-            <div className="grid grid-cols-2 gap-2 pb-2 border-b border-slate-100">
+          <div className="md:hidden border-t border-slate-100 bg-white px-4 pt-3 pb-6 space-y-2 animate-fadeInDown shadow-lg">
+            <div className="space-y-1 pb-3 border-b border-slate-100">
               {navLinks.map((link) => {
                 const Icon = link.icon;
                 const isActive = pathname === link.href || (link.href !== "/" && pathname?.startsWith(link.href));
@@ -187,36 +188,24 @@ export const Navbar: React.FC = () => {
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                    className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${
                       isActive
-                        ? "text-brand-600 bg-brand-50 border border-brand-200"
-                        : "text-slate-700 hover:text-brand-600 bg-slate-50 border border-slate-100"
+                        ? "text-slate-950 bg-slate-100 font-bold"
+                        : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
                     }`}
                   >
-                    <Icon className="w-4 h-4 text-brand-600 shrink-0" />
-                    <span>{link.label}</span>
+                    <div className="flex items-center gap-2.5">
+                      <Icon className="w-4 h-4 text-slate-400" />
+                      <span>{link.label}</span>
+                    </div>
+                    {link.badge && (
+                      <span className="px-1.5 py-0.5 rounded-md bg-brand-50 text-brand-700 text-[10px] font-bold border border-brand-200/60">
+                        {link.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
-            </div>
-
-            <div className="pt-2 grid grid-cols-2 gap-2">
-              <Link
-                href="/categories"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-brand-600 flex items-center gap-1.5"
-              >
-                <Briefcase className="w-3.5 h-3.5 text-slate-400" />
-                <span>Categories</span>
-              </Link>
-              <Link
-                href="/about"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-brand-600 flex items-center gap-1.5"
-              >
-                <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
-                <span>About Us</span>
-              </Link>
             </div>
 
             <div className="pt-2">
@@ -226,10 +215,10 @@ export const Navbar: React.FC = () => {
                   setMobileMenuOpen(false);
                   setAlertModalOpen(true);
                 }}
-                className="w-full flex justify-center items-center gap-2 py-3 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold shadow-2xs"
+                className="w-full flex justify-center items-center gap-2 py-2.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200 text-xs font-semibold transition-colors"
               >
-                <Bell className="w-4 h-4 text-amber-600" />
-                <span>Set Up Daily Job Alerts</span>
+                <Bell className="w-3.5 h-3.5 text-slate-500" />
+                <span>Set Up Job Alerts</span>
               </button>
             </div>
           </div>
