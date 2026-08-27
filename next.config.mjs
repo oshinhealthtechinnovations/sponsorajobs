@@ -22,11 +22,11 @@ const nextConfig = {
         headers: [
           {
             key: "X-Frame-Options",
-            value: "DENY", // Section 56: Clickjacking protection
+            value: "SAMEORIGIN",
           },
           {
             key: "X-Content-Type-Options",
-            value: "nosniff", // Section 56: MIME sniffing prevention
+            value: "nosniff",
           },
           {
             key: "Referrer-Policy",
@@ -43,15 +43,16 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline'",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com data:",
-              "img-src 'self' https: data: blob:",
-              "connect-src 'self' https: data:",
-              "frame-ancestors 'none'",
+              "default-src 'self' https: data:",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
+              "style-src 'self' 'unsafe-inline' https:",
+              "font-src 'self' https: data:",
+              "img-src 'self' https: data: blob: http:",
+              "connect-src 'self' https: data: wss:",
+              "frame-src 'self' https:",
+              "frame-ancestors 'self' https:",
               "base-uri 'self'",
-              "form-action 'self'",
+              "form-action 'self' https:",
             ].join("; "),
           },
         ],

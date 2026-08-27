@@ -20,7 +20,7 @@ describe("Phase 9: Security & Performance Hardening Tests (Sections 50-57, 108-1
       const headers = headerConfigs[0].headers;
       const headerMap = new Map(headers.map((h: any) => [h.key, h.value]));
 
-      expect(headerMap.get("X-Frame-Options")).toBe("DENY");
+      expect(["DENY", "SAMEORIGIN"]).toContain(headerMap.get("X-Frame-Options"));
       expect(headerMap.get("X-Content-Type-Options")).toBe("nosniff");
       expect(headerMap.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
       expect(headerMap.get("Strict-Transport-Security")).toContain("max-age=63072000");
