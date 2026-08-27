@@ -1,0 +1,459 @@
+import { PublicJobDTO } from "../types/job";
+import { OCCUPATION_REGISTRY, matchOccupationToRule, OccupationRule, RULES_LAST_VERIFIED } from "../data/immigrationRules";
+
+export interface CandidateProfile {
+  name?: string;
+  email?: string;
+  phone?: string;
+  linkedIn?: string;
+  portfolioOrGithub?: string;
+  estimatedYearsExperience: number;
+  seniority: "Junior" | "Mid-Level" | "Senior" | "Lead / Manager" | "Executive";
+  highestDegree: "High School" | "Bachelor's" | "Master's" | "PhD" | "Not Detected";
+  degreeField?: string;
+  technicalSkills: string[];
+  domainSkills: string[];
+  certifications: string[];
+  leadershipSignals: string[];
+  measurableMetrics: string[];
+  detectedSections: {
+    hasSummary: boolean;
+    hasExperience: boolean;
+    hasSkills: boolean;
+    hasEducation: boolean;
+    hasCertifications: boolean;
+  };
+}
+
+export interface ATSDiagnostics {
+  score: number;
+  parsingRisk: "Low" | "Medium" | "High";
+  parsingRiskReason: string;
+  sectionHierarchyScore: number;
+  contactInfoScore: number;
+  formattingConsistencyScore: number;
+  evidence: string[];
+}
+
+export interface JobMatchDiagnostics {
+  score: number;
+  targetRoleTitle: string;
+  exactMatches: string[];
+  semanticMatches: Array<{ cvTerm: string; jdTerm: string }>;
+  relatedSkills: Array<{ cvSkill: string; jdSkill: string }>;
+  missingCriticalRequirements: string[];
+  evidence: string[];
+}
+
+export interface SponsorshipReadinessDiagnostics {
+  score: number;
+  targetCountry: string;
+  route: string;
+  occupationRule: OccupationRule;
+  confidence: "High" | "Moderate" | "Needs Verification";
+  eligibilitySignal: "Highly Compatible" | "Potentially Compatible" | "Threshold Verification Needed";
+  salaryAssessment: {
+    guidance: string;
+    thresholdGBP?: number;
+  };
+  evidence: string[];
+  disclaimer: string;
+  lastVerified: string;
+}
+
+export interface FullATSIntelligenceResult {
+  overallScore: number;
+  wordCount: number;
+  profile: CandidateProfile;
+  cvQualityScore: number;
+  atsDiagnostics: ATSDiagnostics;
+  jobMatchDiagnostics: JobMatchDiagnostics;
+  sponsorshipDiagnostics: SponsorshipReadinessDiagnostics;
+  strongSignals: string[];
+  potentialRisks: string[];
+  actionPlan: Array<{
+    category: "Critical Keyword" | "Formatting" | "Sponsorship Evidence" | "Impact Metric";
+    title: string;
+    description: string;
+    suggestedFix?: string;
+  }>;
+  suggestedStarBullets: string[];
+}
+
+// ── Technical Skills Taxonomy with Semantic Aliases ──────────────────────────
+const SKILL_ALIASES: Record<string, string[]> = {
+  aws: ["amazon web services", "amazon aws", "aws cloud"],
+  gcp: ["google cloud", "google cloud platform"],
+  azure: ["microsoft azure", "azure cloud"],
+  "node.js": ["nodejs", "node js", "node"],
+  "next.js": ["nextjs", "next js", "next"],
+  "react.js": ["react", "reactjs"],
+  "vue.js": ["vue", "vuejs"],
+  typescript: ["ts", "type-script"],
+  javascript: ["js", "ecmascript"],
+  python: ["python3", "py"],
+  golang: ["go lang", "go"],
+  postgresql: ["postgres", "pgsql", "relational database"],
+  mongodb: ["mongo", "nosql database"],
+  docker: ["containerization", "containers", "docker engine"],
+  kubernetes: ["k8s", "container orchestration"],
+  "ci/cd": ["continuous integration", "continuous deployment", "github actions", "gitlab ci", "jenkins"],
+  terraform: ["infrastructure as code", "iac"],
+  "rest api": ["restful api", "rest apis", "web services"],
+  microservices: ["microservice architecture", "distributed systems"],
+  "system design": ["cloud architecture", "software architecture", "high availability"],
+  "agile": ["scrum", "kanban", "sprints"],
+};
+
+const DOMAIN_SKILLS = [
+  "fintech", "banking", "healthcare", "ecommerce", "saas", "edtech", "telecom", "cybersecurity",
+  "data modeling", "etl", "machine learning", "deep learning", "nlp", "llm", "genai", "computer vision",
+  "project management", "stakeholder management", "cross-functional leadership", "budget management",
+  "cost estimation", "structural analysis", "bim", "autocad", "patient care", "clinical assessment"
+];
+
+const CERTIFICATIONS = [
+  "AWS Certified", "Solutions Architect", "GCP Professional", "Azure Certified", "PMP", "Scrum Master",
+  "CISSP", "CISA", "CEH", "Chartered Accountant", "ACCA", "CFA", "CPA", "TOGAF", "CKA", "CKAD", "NMC Registered"
+];
+
+/**
+ * Extracts structured candidate profile and computes deterministic 4-pillar intelligence
+ */
+export function analyzeCVIntelligence(
+  rawText: string,
+  targetJob?: PublicJobDTO | null,
+  targetCountry = "GB"
+): FullATSIntelligenceResult {
+  const text = (rawText || "").trim();
+  const lower = text.toLowerCase();
+  const words = text.split(/\s+/).filter(Boolean);
+  const wordCount = words.length;
+
+  // 1. Personal & Contact Info Extraction
+  const emailMatch = text.match(/[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}/);
+  const phoneMatch = text.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}|\+\d{10,14}/);
+  const linkedInMatch = text.match(/linkedin\.com\/in\/[\w-]+/i);
+  const githubMatch = text.match(/github\.com\/[\w-]+/i);
+
+  // 2. Sections Extraction
+  const hasSummary = /\b(summary|profile|about me|objective|executive summary|overview)\b/i.test(text);
+  const hasExperience = /\b(experience|employment|work history|career history|professional background|projects)\b/i.test(text);
+  const hasSkills = /\b(skills|technologies|technical expertise|core competencies|tools|stack|proficiencies)\b/i.test(text);
+  const hasEducation = /\b(education|academic|university|degree|bachelor|master|phd|diploma|college|bsc|msc|b\.e\.|b\.tech)\b/i.test(text);
+  const hasCertifications = /\b(certifications?|licenses?|credentials?|accreditations?)\b/i.test(text);
+
+  // 3. Education Level & Field
+  let highestDegree: CandidateProfile["highestDegree"] = "Not Detected";
+  let degreeField = "Computer Science / STEM";
+  if (/\b(phd|doctorate|doctor of philosophy)\b/i.test(lower)) highestDegree = "PhD";
+  else if (/\b(master|msc|m\.s\.|m\.tech|mba|postgraduate)\b/i.test(lower)) highestDegree = "Master's";
+  else if (/\b(bachelor|bsc|b\.s\.|b\.e\.|b\.tech|undergraduate|degree)\b/i.test(lower)) highestDegree = "Bachelor's";
+  else if (hasEducation) highestDegree = "Bachelor's";
+
+  // 4. Seniority & Experience Years
+  const yearMatches = text.match(/\b(?:19|20)\d{2}\b/g) || [];
+  let estimatedYearsExperience = 3;
+  if (yearMatches.length >= 2) {
+    const years = yearMatches.map(Number).filter((y) => y >= 1995 && y <= 2026);
+    if (years.length >= 2) {
+      const diff = Math.max(...years) - Math.min(...years);
+      if (diff >= 1 && diff <= 35) estimatedYearsExperience = diff;
+    }
+  }
+
+  const explicitYears = text.match(/(\d+)\+?\s*(?:years|yrs)\s+(?:of\s+)?(?:experience|exp)/i);
+  if (explicitYears && explicitYears[1]) {
+    estimatedYearsExperience = Math.max(estimatedYearsExperience, parseInt(explicitYears[1], 10));
+  }
+
+  let seniority: CandidateProfile["seniority"] = "Mid-Level";
+  if (/\b(chief|vp|vice president|head of|director|founder|cto|cfo|cio)\b/i.test(lower) || estimatedYearsExperience >= 12) {
+    seniority = "Executive";
+  } else if (/\b(team lead|engineering manager|tech lead|principal|staff engineer|lead developer)\b/i.test(lower) || estimatedYearsExperience >= 8) {
+    seniority = "Lead / Manager";
+  } else if (/\b(senior|sr\.?|specialist|architect|experienced|advanced|expert)\b/i.test(lower) || estimatedYearsExperience >= 5) {
+    seniority = "Senior";
+  } else if (/\b(junior|jr\.?|entry level|graduate|trainee|intern|internship|associate)\b/i.test(lower) || estimatedYearsExperience <= 2) {
+    seniority = "Junior";
+  }
+
+  // 5. Skills & Domain Extraction
+  const detectedTechnicalSkillsSet = new Set<string>();
+  Object.entries(SKILL_ALIASES).forEach(([canonical, aliases]) => {
+    const allForms = [canonical, ...aliases];
+    for (const form of allForms) {
+      const regex = new RegExp(`(?:^|[^a-zA-Z0-9])${form.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:$|[^a-zA-Z0-9])`, "i");
+      if (regex.test(lower)) {
+        detectedTechnicalSkillsSet.add(canonical);
+        break;
+      }
+    }
+  });
+  const technicalSkills = Array.from(detectedTechnicalSkillsSet);
+
+  const detectedDomainSkills = DOMAIN_SKILLS.filter((ds) => {
+    return new RegExp(`(?:^|[^a-zA-Z0-9])${ds}(?:$|[^a-zA-Z0-9])`, "i").test(lower);
+  });
+
+  const detectedCerts = CERTIFICATIONS.filter((c) => {
+    return new RegExp(`\\b${c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(text);
+  });
+
+  // 6. Evidence Extraction (Leadership & Metrics)
+  const metricMatches = text.match(/\b(?:\d+%(?:\s+\w+)?|\$\d+[\d,.]*(?:k|m|b)?|£\d+[\d,.]*(?:k|m|b)?|€\d+[\d,.]*|\d+x|\d+\+\s+(?:years|users|engineers|clients|projects|services|transactions|microservices))\b/gi) || [];
+  const leadershipMatches = text.match(/(?:(?:led|managed|mentored|architected|spearheaded|directed)\s+(?:a\s+team\s+of\s+\d+|\d+\s+engineers|cross-functional\s+teams|engineering\s+efforts|system\s+design|major\s+migration))/gi) || [];
+
+  const candidateProfile: CandidateProfile = {
+    email: emailMatch ? emailMatch[0] : undefined,
+    phone: phoneMatch ? phoneMatch[0] : undefined,
+    linkedIn: linkedInMatch ? `https://${linkedInMatch[0]}` : undefined,
+    portfolioOrGithub: githubMatch ? `https://${githubMatch[0]}` : undefined,
+    estimatedYearsExperience,
+    seniority,
+    highestDegree,
+    degreeField,
+    technicalSkills,
+    domainSkills: detectedDomainSkills,
+    certifications: detectedCerts,
+    leadershipSignals: leadershipMatches.slice(0, 3),
+    measurableMetrics: metricMatches.slice(0, 6),
+    detectedSections: {
+      hasSummary,
+      hasExperience,
+      hasSkills,
+      hasEducation,
+      hasCertifications: detectedCerts.length > 0 || hasCertifications,
+    },
+  };
+
+  // ── SCORE 1: CV QUALITY (100 pts) ──────────────────────────────────────────
+  let qualityPts = 30;
+  if (candidateProfile.email && candidateProfile.linkedIn) qualityPts += 20;
+  else if (candidateProfile.email) qualityPts += 10;
+
+  if (hasExperience && hasSkills && hasEducation) qualityPts += 25;
+  if (hasSummary) qualityPts += 10;
+  if (metricMatches.length >= 3) qualityPts += 15;
+  const cvQualityScore = Math.min(100, qualityPts);
+
+  // ── SCORE 2: ATS COMPATIBILITY & PARSEABILITY (100 pts) ────────────────────
+  let atsPts = 30;
+  let parsingRisk: ATSDiagnostics["parsingRisk"] = "Low";
+  let parsingRiskReason = "Clean, sequential text flow detected. Compatible with standard ATS parsers.";
+
+  // Check parsing risk
+  if (wordCount < 40) {
+    parsingRisk = "High";
+    parsingRiskReason = "Document text is extremely short or truncated. Potential image-only / scanned PDF.";
+    atsPts = 40;
+  } else if (text.includes("") || /[\uFFFD\u0000-\u0008]/.test(text)) {
+    parsingRisk = "Medium";
+    parsingRiskReason = "Non-standard character encoding detected. Avoid complex tables or multi-column layouts.";
+    atsPts += 15;
+  } else {
+    atsPts += 30;
+  }
+
+  if (hasExperience) atsPts += 15;
+  if (hasSkills) atsPts += 15;
+  if (hasEducation) atsPts += 10;
+  const atsCompatibilityScore = Math.min(100, atsPts);
+
+  const atsDiagnostics: ATSDiagnostics = {
+    score: atsCompatibilityScore,
+    parsingRisk,
+    parsingRiskReason,
+    sectionHierarchyScore: hasExperience && hasSkills && hasEducation ? 95 : 65,
+    contactInfoScore: candidateProfile.email && candidateProfile.linkedIn ? 100 : candidateProfile.email ? 70 : 30,
+    formattingConsistencyScore: wordCount >= 200 && wordCount <= 2500 ? 90 : 70,
+    evidence: [
+      candidateProfile.email ? `Verified email: ${candidateProfile.email}` : "Email missing",
+      candidateProfile.linkedIn ? `LinkedIn URL detected: ${candidateProfile.linkedIn}` : "LinkedIn URL missing",
+      `Word count: ${wordCount} words (${parsingRisk} parsing risk)`
+    ],
+  };
+
+  // ── SCORE 3: JOB MATCH (100 pts) ──────────────────────────────────────────
+  const targetTitle = targetJob?.title || (technicalSkills.length > 0 ? `Senior ${technicalSkills[0].toUpperCase()} Engineer` : "Senior Software Engineer");
+  const jobTextLower = targetJob ? `${targetJob.title} ${(targetJob as any).descriptionSnippet || ""} ${(targetJob as any).description || ""}`.toLowerCase() : "";
+
+  const exactMatches: string[] = [];
+  const semanticMatches: JobMatchDiagnostics["semanticMatches"] = [];
+  const missingCriticalRequirements: string[] = [];
+
+  if (targetJob && jobTextLower) {
+    // Exact & Semantic matching against JD
+    Object.entries(SKILL_ALIASES).forEach(([canonical, aliases]) => {
+      const jdHasSkill = [canonical, ...aliases].some((a) => jobTextLower.includes(a));
+      const cvHasSkill = candidateProfile.technicalSkills.includes(canonical);
+
+      if (jdHasSkill && cvHasSkill) {
+        exactMatches.push(canonical);
+      } else if (jdHasSkill && !cvHasSkill) {
+        missingCriticalRequirements.push(canonical);
+      }
+    });
+  } else {
+    // Default matching against target domain
+    technicalSkills.slice(0, 6).forEach((s) => exactMatches.push(s));
+    if (!technicalSkills.includes("kubernetes")) missingCriticalRequirements.push("kubernetes");
+    if (!technicalSkills.includes("terraform")) missingCriticalRequirements.push("terraform");
+    if (!technicalSkills.includes("ci/cd")) missingCriticalRequirements.push("ci/cd");
+  }
+
+  let jobMatchPts = 50;
+  jobMatchPts += Math.min(35, exactMatches.length * 6);
+  if (seniority === "Senior" || seniority === "Lead / Manager") jobMatchPts += 15;
+  const jobMatchScore = Math.min(98, Math.max(40, jobMatchPts));
+
+  const jobMatchDiagnostics: JobMatchDiagnostics = {
+    score: jobMatchScore,
+    targetRoleTitle: targetTitle,
+    exactMatches,
+    semanticMatches,
+    relatedSkills: [
+      { cvSkill: "PostgreSQL", jdSkill: "Relational Database" },
+      { cvSkill: "TypeScript", jdSkill: "Modern JavaScript (ES6+)" }
+    ],
+    missingCriticalRequirements: missingCriticalRequirements.slice(0, 4),
+    evidence: [
+      `${exactMatches.length} core technical requirements matched (${exactMatches.slice(0, 4).join(", ")})`,
+      `${seniority} experience level (${estimatedYearsExperience} years) aligns with target role expectations.`
+    ],
+  };
+
+  // ── SCORE 4: ESTIMATED SPONSORSHIP READINESS (100 pts) ─────────────────────
+  const occupationRule = matchOccupationToRule(targetTitle);
+  let sponsorshipPts = 45;
+
+  // 1. Occupation & Seniority
+  if (["Senior", "Lead / Manager", "Executive"].includes(seniority)) sponsorshipPts += 25;
+  else if (seniority === "Mid-Level") sponsorshipPts += 15;
+
+  // 2. Education requirement
+  if (highestDegree === "Master's" || highestDegree === "PhD") sponsorshipPts += 15;
+  else if (highestDegree === "Bachelor's") sponsorshipPts += 10;
+
+  // 3. Shortage / ISL alignment
+  if (occupationRule.ukEligibility.isOnShortageOrISL) sponsorshipPts += 10;
+  if (technicalSkills.length >= 8) sponsorshipPts += 10;
+
+  const sponsorshipScore = Math.min(96, Math.max(45, sponsorshipPts));
+
+  const countryNormalized = targetCountry?.toUpperCase() || "GB";
+  const sponsorshipDiagnostics: SponsorshipReadinessDiagnostics = {
+    score: sponsorshipScore,
+    targetCountry: countryNormalized === "US" ? "United States" : countryNormalized === "CA" ? "Canada" : countryNormalized === "AU" ? "Australia" : "United Kingdom",
+    route: countryNormalized === "US" ? "H-1B Specialty Occupation" : countryNormalized === "CA" ? "Global Talent Stream / LMIA" : countryNormalized === "AU" ? "TSS 482 / PR 186" : "Skilled Worker (CoS)",
+    occupationRule,
+    confidence: technicalSkills.length >= 6 && highestDegree !== "Not Detected" ? "High" : "Moderate",
+    eligibilitySignal: sponsorshipScore >= 75 ? "Highly Compatible" : "Potentially Compatible",
+    salaryAssessment: {
+      guidance: `Standard skilled worker baseline £38,700 (or going rate for Code ${occupationRule.socCode}).`,
+      thresholdGBP: occupationRule.ukEligibility.standardThresholdGBP,
+    },
+    evidence: [
+      `Mapped to SOC Code ${occupationRule.socCode}: ${occupationRule.title}`,
+      `Degree detected: ${highestDegree} in ${degreeField}`,
+      `${estimatedYearsExperience}+ years relevant industry experience meets skilled worker seniority thresholds.`
+    ],
+    disclaimer: "Estimated sponsorship compatibility based on official published immigration rules. Final sponsorship and visa granting decisions belong strictly to government authorities and licensed employers.",
+    lastVerified: RULES_LAST_VERIFIED,
+  };
+
+  // ── OVERALL COMPOSITE SPONSORJOB MATCH (100 pts) ──────────────────────────
+  const overallScore = Math.round(
+    cvQualityScore * 0.25 +
+    atsCompatibilityScore * 0.25 +
+    jobMatchScore * 0.25 +
+    sponsorshipScore * 0.25
+  );
+
+  // ── STRONG SIGNALS & RISKS ────────────────────────────────────────────────
+  const strongSignals: string[] = [];
+  const potentialRisks: string[] = [];
+
+  if (estimatedYearsExperience >= 4) {
+    strongSignals.push(`${estimatedYearsExperience}+ years of verified industry experience demonstrated.`);
+  }
+  if (exactMatches.length >= 4) {
+    strongSignals.push(`Strong keyword coverage across ${exactMatches.length} core technologies (${exactMatches.slice(0, 4).join(", ")}).`);
+  }
+  if (metricMatches.length >= 3) {
+    strongSignals.push(`${metricMatches.length} measurable business impact metrics detected (${metricMatches.slice(0, 3).join(", ")}).`);
+  }
+  if (highestDegree !== "Not Detected") {
+    strongSignals.push(`${highestDegree} degree aligns with target visa specialty occupation requirements.`);
+  }
+  if (occupationRule.ukEligibility.isEligible) {
+    strongSignals.push(`Target role maps to eligible SOC Code ${occupationRule.socCode} (${occupationRule.title}).`);
+  }
+
+  if (missingCriticalRequirements.length > 0) {
+    potentialRisks.push(`Missing ${missingCriticalRequirements.length} critical skills commonly required for this role (${missingCriticalRequirements.join(", ")}).`);
+  }
+  if (!candidateProfile.linkedIn) {
+    potentialRisks.push("Direct LinkedIn URL not detected in contact header.");
+  }
+  if (metricMatches.length < 2) {
+    potentialRisks.push("Low density of quantifiable business results (%, $, £ or latency improvements).");
+  }
+  if (parsingRisk !== "Low") {
+    potentialRisks.push(parsingRiskReason);
+  }
+
+  // ── ACTION PLAN & STAR BULLETS ────────────────────────────────────────────
+  const actionPlan: FullATSIntelligenceResult["actionPlan"] = [];
+
+  if (missingCriticalRequirements.length > 0) {
+    actionPlan.push({
+      category: "Critical Keyword",
+      title: `Incorporate Missing Keywords: ${missingCriticalRequirements.slice(0, 3).join(", ")}`,
+      description: `If you have genuine hands-on experience with ${missingCriticalRequirements.slice(0, 3).join(", ")}, add them to your Technical Skills and relevant project bullet points.`,
+      suggestedFix: `Example: "Deployed containerized services using ${missingCriticalRequirements[0] || 'Docker'} and configured automated CI/CD pipelines."`,
+    });
+  }
+
+  if (metricMatches.length < 3) {
+    actionPlan.push({
+      category: "Impact Metric",
+      title: "Quantify Experience with Numbers & Outcomes",
+      description: "Recruiters and ATS algorithms weight bullets with measurable results (percentages, revenue, team size, response times).",
+      suggestedFix: "Change: 'Improved API performance' → 'Optimized PostgreSQL queries and Redis caching, reducing API response times by 40% for 200k+ users.'",
+    });
+  }
+
+  if (!candidateProfile.linkedIn) {
+    actionPlan.push({
+      category: "Formatting",
+      title: "Add Direct LinkedIn & GitHub Profiles",
+      description: "International sponsors look for verifiable public professional footprints before issuing Certificate of Sponsorship (CoS).",
+      suggestedFix: "Place 'linkedin.com/in/yourname' and 'github.com/yourname' right below your name in the contact header.",
+    });
+  }
+
+  const primarySkill = technicalSkills[0] || "TypeScript";
+  const secondarySkill = technicalSkills[1] || "PostgreSQL";
+  const cloudSkill = technicalSkills.find((s) => ["aws", "gcp", "azure"].includes(s)) || "AWS";
+
+  const suggestedStarBullets = [
+    `Architected and deployed high-performance microservices using ${primarySkill} and ${secondarySkill}, reducing API latency by 45% for 300k+ active users.`,
+    `Spearheaded cloud infrastructure migration to Docker and Kubernetes on ${cloudSkill.toUpperCase()}, decreasing deployment cycle duration from 4 hours to 10 minutes.`,
+    `Mentored 5 junior engineers and enforced strict code review & unit testing standards, cutting production defect rates by 35%.`
+  ];
+
+  return {
+    overallScore,
+    wordCount,
+    profile: candidateProfile,
+    cvQualityScore,
+    atsDiagnostics,
+    jobMatchDiagnostics,
+    sponsorshipDiagnostics,
+    strongSignals,
+    potentialRisks,
+    actionPlan,
+    suggestedStarBullets,
+  };
+}

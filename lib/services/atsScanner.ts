@@ -1,6 +1,8 @@
 import { PublicJobDTO } from "../types/job";
 import { normalizeSearchQuery } from "../utils/searchNormalizer";
 
+export * from "./atsIntelligenceEngine";
+
 export interface ATSAnalysisResult {
   overallScore: number;
   atsFormattingScore: number;

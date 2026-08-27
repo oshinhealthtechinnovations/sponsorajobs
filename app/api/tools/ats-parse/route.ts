@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { analyzeResumeATS, matchResumeToJobs } from "@/lib/services/atsScanner";
+import { analyzeCVIntelligence, analyzeResumeATS, matchResumeToJobs } from "@/lib/services/atsScanner";
 import { JobRepository } from "@/lib/repositories/jobRepository";
 
-// Dynamic require for pdf-parse to handle CommonJS export in ESM/Next.js
 const pdfParse = require("pdf-parse");
 
 export const dynamic = "force-dynamic";
@@ -13,6 +12,7 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file") as File | null;
     const rawTextParam = formData.get("text") as string | null;
     const targetCountry = (formData.get("country") as string) || "all";
+    const targetJobId = formData.get("jobId") as string | null;
 
     let extractedText = "";
 
@@ -42,28 +42,42 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 1. Run Comprehensive ATS & Visa Analysis
-    const analysis = analyzeResumeATS(extractedText);
-
-    // 2. Fetch Live Matching Verified Jobs
+    // 1. Fetch Selected Target Job if specified
     const jobRepo = new JobRepository();
+    let targetJob = null;
+    if (targetJobId) {
+      targetJob = await jobRepo.getById(targetJobId);
+    }
+
+    // 2. Run Comprehensive 5-Layer Deterministic Intelligence Analysis
+    const intelligence = analyzeCVIntelligence(
+      extractedText,
+      targetJob,
+      targetCountry === "all" ? "GB" : targetCountry
+    );
+
+    // 3. Backward-compatible legacy analysis structure
+    const legacyAnalysis = analyzeResumeATS(extractedText);
+
+    // 4. Fetch Live Matching Verified Jobs from Database
     const searchRes = await jobRepo.search({
       country: targetCountry !== "all" ? targetCountry : undefined,
-      limit: 50,
+      limit: 30,
       sort: "sponsorship",
     });
 
-    const matches = matchResumeToJobs(analysis, searchRes.jobs, targetCountry);
+    const matches = matchResumeToJobs(legacyAnalysis, searchRes.jobs, targetCountry);
 
     return NextResponse.json({
       success: true,
       extractedTextLength: extractedText.length,
-      wordCount: analysis.wordCount,
-      analysis,
+      wordCount: intelligence.wordCount,
+      intelligence,
+      analysis: legacyAnalysis,
       matches,
     });
   } catch (error: any) {
-    console.error("[ATS API Error]:", error);
+    console.error("[ATS Intelligence API Error]:", error);
     return NextResponse.json(
       { error: error?.message || "Failed to process and analyze resume document." },
       { status: 500 }

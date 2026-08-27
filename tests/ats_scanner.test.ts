@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { analyzeResumeATS, matchResumeWithJobs } from "@/lib/services/atsScanner";
+import { analyzeCVIntelligence } from "@/lib/services/atsIntelligenceEngine";
 import { PublicJobDTO } from "@/lib/types/job";
 
 describe("ATS Resume Scanner & Visa Matcher Service", () => {
@@ -119,4 +120,31 @@ describe("ATS Resume Scanner & Visa Matcher Service", () => {
     expect(matches[0].matchScore).toBeGreaterThan(matches[1].matchScore);
     expect(matches[0].matchingSkills).toContain("typescript");
   });
+
+  it("should execute full 5-layer CV Intelligence Engine with SOC mapping and evidence", () => {
+    const intelligence = analyzeCVIntelligence(sampleResume, null, "GB");
+
+    expect(intelligence.overallScore).toBeGreaterThanOrEqual(70);
+    expect(intelligence.cvQualityScore).toBeGreaterThanOrEqual(75);
+    expect(intelligence.atsDiagnostics.score).toBeGreaterThanOrEqual(70);
+    expect(["Low", "Medium"]).toContain(intelligence.atsDiagnostics.parsingRisk);
+
+    // Profile structure
+    expect(intelligence.profile.email).toBe("alex.rivera@example.com");
+    expect(intelligence.profile.linkedIn).toContain("linkedin.com/in/alexrivera-tech");
+    expect(intelligence.profile.highestDegree).toBe("Bachelor's");
+    expect(intelligence.profile.technicalSkills).toContain("typescript");
+    expect(intelligence.profile.technicalSkills).toContain("docker");
+
+    // Sponsorship & SOC Code mapping
+    expect(intelligence.sponsorshipDiagnostics.occupationRule.socCode).toBe("2134");
+    expect(intelligence.sponsorshipDiagnostics.targetCountry).toBe("United Kingdom");
+    expect(intelligence.sponsorshipDiagnostics.route).toBe("Skilled Worker (CoS)");
+    expect(intelligence.sponsorshipDiagnostics.evidence.length).toBeGreaterThan(0);
+
+    // STAR bullet recommendations
+    expect(intelligence.suggestedStarBullets.length).toBeGreaterThanOrEqual(2);
+    expect(intelligence.actionPlan.length).toBeGreaterThanOrEqual(1);
+  });
 });
+
