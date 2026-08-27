@@ -209,11 +209,11 @@ function createEdgeMemoryClient(): DatabaseClient {
             }
 
             // Company filter
-            if (q.includes("c.normalized_name") || q.includes("c.name") || q.includes("j.company_id = ?")) {
-              const compParam = boundValues.find((v) => typeof v === "string" && (v.startsWith("comp_") || inMemoryCompanies.some((c) => c.name.toLowerCase() === v.toLowerCase() || c.id === v)));
+            if (q.includes("c.normalized_name") || q.includes("c.name") || q.includes("j.company_id") || q.includes("j.company_name")) {
+              const compParam = boundValues.find((v) => typeof v === "string" && (v.startsWith("%comp_") || v.startsWith("comp_") || v.toLowerCase().includes("mace") || inMemoryCompanies.some((c) => c.name.toLowerCase().includes(String(v).replace(/%/g, "").toLowerCase()) || c.id === String(v).replace(/%/g, ""))));
               if (compParam) {
-                const term = String(compParam).toLowerCase();
-                res = res.filter((j) => j.company_id?.toLowerCase() === term || j.company_name?.toLowerCase() === term || j.company_name?.toLowerCase().includes(term));
+                const term = String(compParam).replace(/%/g, "").toLowerCase().replace(/\s*\(.*\)/, "").trim();
+                res = res.filter((j) => (j.company_id || "").toLowerCase().includes(term) || (j.company_name || "").toLowerCase().includes(term));
               }
             }
 
@@ -350,11 +350,11 @@ function createEdgeMemoryClient(): DatabaseClient {
               }
 
               // Company filter
-              if (q.includes("c.normalized_name") || q.includes("c.name") || q.includes("j.company_id = ?")) {
-                const compParam = boundValues.find((v) => typeof v === "string" && (v.startsWith("comp_") || inMemoryCompanies.some((c) => c.name.toLowerCase() === v.toLowerCase() || c.id === v)));
+              if (q.includes("c.normalized_name") || q.includes("c.name") || q.includes("j.company_id") || q.includes("j.company_name")) {
+                const compParam = boundValues.find((v) => typeof v === "string" && (v.startsWith("%comp_") || v.startsWith("comp_") || v.toLowerCase().includes("mace") || inMemoryCompanies.some((c) => c.name.toLowerCase().includes(String(v).replace(/%/g, "").toLowerCase()) || c.id === String(v).replace(/%/g, ""))));
                 if (compParam) {
-                  const term = String(compParam).toLowerCase();
-                  res = res.filter((j) => j.company_id?.toLowerCase() === term || j.company_name?.toLowerCase() === term || j.company_name?.toLowerCase().includes(term));
+                  const term = String(compParam).replace(/%/g, "").toLowerCase().replace(/\s*\(.*\)/, "").trim();
+                  res = res.filter((j) => (j.company_id || "").toLowerCase().includes(term) || (j.company_name || "").toLowerCase().includes(term));
                 }
               }
 

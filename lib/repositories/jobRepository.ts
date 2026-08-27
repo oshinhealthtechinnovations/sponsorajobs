@@ -170,11 +170,13 @@ export class JobRepository {
       }
     }
 
-    // 3b. Company filter (by slug, ID, or normalized name)
+    // 3b. Company filter (by slug, ID, name, or company title)
     if (params.company) {
-      const compVal = params.company.toLowerCase().trim();
-      conditions.push("(LOWER(c.name) = ? OR LOWER(c.normalized_name) = ? OR LOWER(c.id) = ? OR j.company_id = ?)");
-      bindings.push(compVal, compVal, compVal, params.company);
+      const rawComp = params.company.toLowerCase().trim();
+      const cleanComp = rawComp.replace(/\s*\(.*\)/, "").trim();
+      conditions.push("(LOWER(c.name) LIKE ? OR LOWER(c.normalized_name) LIKE ? OR LOWER(c.id) LIKE ? OR LOWER(j.company_id) LIKE ?)");
+      const term = `%${cleanComp}%`;
+      bindings.push(term, term, term, term);
     }
 
     // 4. City filter
