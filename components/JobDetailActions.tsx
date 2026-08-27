@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Bookmark, Share2, Bell, Check, ExternalLink, Lock, Sparkles, CheckCircle2 } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
+import { JobShareModal } from "./JobShareModal";
 
 interface JobDetailActionsProps {
   jobId: string;
@@ -48,6 +49,7 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
   const [isSaved, setIsSaved] = useState(false);
   const [copied, setCopied] = useState(false);
   const [alertModalOpen, setAlertModalOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const [user, setUser] = useState<any | null>(null);
 
   const isDirect = isDirectJobUrl(applyUrl);
@@ -101,25 +103,8 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
     }
   };
 
-  const handleShare = async () => {
-    const url = typeof window !== "undefined" ? window.location.href : "";
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${jobTitle} at ${companyName}`,
-          text: `Check out this visa sponsorship opportunity: ${jobTitle} at ${companyName}`,
-          url,
-        });
-        return;
-      } catch {
-        // User cancelled or fallback to clipboard
-      }
-    }
-    if (navigator.clipboard) {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+  const handleShare = () => {
+    setShareModalOpen(true);
   };
 
   const handleApplyClick = (e: React.MouseEvent) => {
@@ -196,17 +181,8 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
             title="Share this job"
             className="flex items-center justify-center gap-1.5 py-3 px-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer touch-manipulation"
           >
-            {copied ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-emerald-600 font-bold">Copied!</span>
-              </>
-            ) : (
-              <>
-                <Share2 className="w-3.5 h-3.5" />
-                <span>Share</span>
-              </>
-            )}
+            <Share2 className="w-3.5 h-3.5 text-brand-600" />
+            <span>Share</span>
           </button>
 
           <button
@@ -226,6 +202,14 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
         defaultRole={jobTitle}
         defaultCountry={countryCode.toLowerCase()}
         defaultCategory={categorySlug || "all"}
+      />
+
+      <JobShareModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        jobTitle={jobTitle}
+        companyName={companyName}
+        countryCode={countryCode}
       />
     </>
   );
