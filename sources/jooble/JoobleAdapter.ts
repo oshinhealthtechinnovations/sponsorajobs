@@ -67,8 +67,7 @@ export class JoobleAdapter implements JobSourceAdapter {
       };
     }
 
-    // Always fetch for ALL 5 target countries (not just the context country)
-    const targetCountries = ["GB", "US", "AU", "CA", "NZ"];
+    const targetCountries = (context as any)?.country ? [(context as any).country.toUpperCase()] : ["GB", "US", "AU", "CA", "NZ"];
     const locationMap: Record<string, string> = {
       GB: "United Kingdom", US: "United States",
       AU: "Australia", CA: "Canada", NZ: "New Zealand",
@@ -77,11 +76,13 @@ export class JoobleAdapter implements JobSourceAdapter {
     const allJobs: NormalizedJob[] = [];
     const errors: string[] = [];
 
-    for (const countryCode of targetCountries) {
-      const locationLabel = locationMap[countryCode];
+    const searchKeywords = (context as any)?.query ? [(context as any).query] : SPONSORSHIP_SEARCH_KEYWORDS.slice(0, 2);
 
-      // Search with sponsorship-specific keywords for highest precision
-      for (const keyword of SPONSORSHIP_SEARCH_KEYWORDS.slice(0, 2)) {
+    for (const countryCode of targetCountries) {
+      const locationLabel = locationMap[countryCode] || countryCode;
+
+      // Search with keywords
+      for (const keyword of searchKeywords) {
         try {
           const body = JSON.stringify({
             keywords: keyword,

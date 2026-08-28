@@ -101,14 +101,16 @@ export class DeduplicationEngine {
     }
 
     // Priority 4: Normalized Employer + Title + Location match
-    const cNormComp = candidate.companyName.toLowerCase().replace(/[^a-z0-9]+/g, "");
-    const cNormTitle = candidate.title.toLowerCase().replace(/[^a-z0-9]+/g, "");
-    const cNormLoc = candidate.location.toLowerCase().replace(/[^a-z0-9]+/g, "");
+    const cNormComp = String(candidate.companyName || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+    const cNormTitle = String(candidate.title || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+    const cLocStr = typeof candidate.location === "object" ? JSON.stringify(candidate.location) : String(candidate.location || "");
+    const cNormLoc = cLocStr.toLowerCase().replace(/[^a-z0-9]+/g, "");
 
     const matchP4 = existingJobs.find((j) => {
-      const jNormComp = (j.company_id || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
-      const jNormTitle = (j.title || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
-      const jNormLoc = (j.location || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+      const jNormComp = String(j.company_id || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+      const jNormTitle = String(j.title || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+      const jLocStr = typeof j.location === "object" ? JSON.stringify(j.location) : String(j.location || "");
+      const jNormLoc = jLocStr.toLowerCase().replace(/[^a-z0-9]+/g, "");
 
       return cNormComp.length > 2 && cNormTitle.length > 2 && cNormComp === jNormComp && cNormTitle === jNormTitle && cNormLoc === jNormLoc;
     });

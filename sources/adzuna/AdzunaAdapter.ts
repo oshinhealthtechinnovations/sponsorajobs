@@ -52,8 +52,8 @@ export class AdzunaAdapter implements JobSourceAdapter {
       };
     }
 
-    const targetCountries = ["gb", "us", "au", "ca", "nz"];
-    const keywords = ["visa sponsorship", "skilled worker"];
+    const targetCountries = (context as any)?.country ? [(context as any).country.toLowerCase()] : ["gb", "us", "au", "ca", "nz"];
+    const keywords = (context as any)?.query ? [(context as any).query] : ["visa sponsorship", "skilled worker"];
     const allJobs: NormalizedJob[] = [];
     const errors: string[] = [];
 
