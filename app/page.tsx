@@ -23,6 +23,7 @@ import {
   Clock,
   Briefcase,
   Bell,
+  Sparkles,
 } from "lucide-react";
 
 export const revalidate = 60;
@@ -338,49 +339,61 @@ export default async function HomePage() {
         )}
 
         {/* =========================================================================
-            SECTION 10: JOB ALERTS + FINAL CTA
+            SECTION 10: JOB ALERTS + FINAL CTA (Modern Balanced Bento Grid)
            ========================================================================= */}
         <section className="w-full bg-[#071522] text-white py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-t border-slate-800">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
 
-            {/* Job Alerts */}
-            <div className="space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F5B942]/10 border border-[#F5B942]/30 text-[#F5B942] text-xs font-bold uppercase tracking-wider">
-                <Bell className="w-3.5 h-3.5" />
-                <span>Job Alerts</span>
+            {/* Bento Card 1: Job Alerts Hub (7 cols) */}
+            <div className="lg:col-span-7 p-8 sm:p-10 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col justify-between space-y-6">
+              <div className="space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F5B942]/10 border border-[#F5B942]/30 text-[#F5B942] text-xs font-bold uppercase tracking-wider">
+                  <Bell className="w-3.5 h-3.5" />
+                  <span>Instant Job Alerts</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  Never Miss a Verified Opportunity
+                </h2>
+                <p className="text-sm text-slate-400 leading-relaxed max-w-xl">
+                  Receive curated notifications when newly verified international vacancies matching your target destination and profession are published.
+                </p>
               </div>
-              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
-                Never Miss a Relevant Opportunity
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                Get notified when verified jobs matching your role, destination and sponsorship preferences are added. Free — no spam — unsubscribe anytime.
-              </p>
-              <div className="max-w-sm">
+
+              {/* Clean Inline Form */}
+              <div className="pt-2">
                 <JobAlertSignup />
               </div>
             </div>
 
-            {/* Final CTA */}
-            <div className="p-8 rounded-3xl bg-white/5 border border-white/10 space-y-6 text-center">
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-white">
-                Stop Guessing.{" "}
-                <span className="text-[#19CBE0]">Start Applying.</span>
-              </h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                Find verified international opportunities that match your career goals — with sponsorship intelligence built in.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            {/* Bento Card 2: Quick Search & CV Hub (5 cols) */}
+            <div className="lg:col-span-5 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-white/10 via-white/5 to-transparent border border-white/10 backdrop-blur-md flex flex-col justify-between space-y-6">
+              <div className="space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#19CBE0]/10 border border-[#19CBE0]/30 text-[#19CBE0] text-xs font-bold uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Direct Application Platform</span>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                  Stop Guessing.{" "}
+                  <span className="text-[#19CBE0]">Start Applying.</span>
+                </h3>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Search hundreds of active vacancies with sponsorship signals and apply directly to the original employer.
+                </p>
+              </div>
+
+              <div className="space-y-3 pt-2">
                 <Link
                   href="/jobs"
-                  className="px-8 py-4 rounded-xl bg-[#19CBE0] hover:bg-[#14b8ca] text-[#071522] font-extrabold text-sm transition-colors shadow-lg"
+                  className="w-full py-4 px-6 rounded-2xl bg-[#19CBE0] hover:bg-[#14b8ca] text-[#071522] font-extrabold text-sm transition-all duration-200 shadow-lg flex items-center justify-center gap-2 group cursor-pointer"
                 >
-                  Search International Jobs →
+                  <span>Search International Jobs</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   href="/tools/ats-checker"
-                  className="px-8 py-4 rounded-xl border border-white/20 hover:border-white/40 text-white font-bold text-sm transition-colors"
+                  className="w-full py-3.5 px-6 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2"
                 >
-                  Check Your CV
+                  <span>Scan Resume Against Live Jobs (ATS Free)</span>
                 </Link>
               </div>
             </div>
