@@ -174,74 +174,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* =========================================================================
-            SECTION 03: WHY WE'RE DIFFERENT — The filtering funnel
-           ========================================================================= */}
-        <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
-            {/* Left: Headline */}
-            <div className="space-y-6">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-                Most Job Boards Show You Jobs.
-                <br />
-                <span className="text-[#19CBE0]">SponsorAJobs Shows You Which Ones Are Worth Applying To.</span>
-              </h2>
-              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                Every listing on SponsorAJobs passes through a multi-point verification process — so you spend time on applications that are actually relevant, not guessing games.
-              </p>
-              <Link
-                href="/jobs"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#071522] hover:bg-slate-800 text-white font-bold text-sm transition-colors shadow-sm"
-              >
-                Start Searching →
-              </Link>
-            </div>
-
-            {/* Right: Interactive Funnel */}
-            <div className="flex flex-col items-center max-w-sm mx-auto lg:mx-0 space-y-2">
-              {/* Stage 1: Total */}
-              <div className="w-full p-5 rounded-2xl bg-white border border-slate-200 shadow-sm text-center">
-                <div className="text-4xl font-black text-slate-900">1,000</div>
-                <div className="text-sm font-semibold text-slate-600 mt-1">Jobs Discovered</div>
-              </div>
-
-              <div className="text-slate-300 text-lg">↓</div>
-
-              {/* Filter stages */}
-              {[
-                { removed: "612", reason: "No sponsorship signal detected", color: "text-red-400 bg-red-50 border-red-100" },
-                { removed: "183", reason: "Employer verification issues", color: "text-orange-400 bg-orange-50 border-orange-100" },
-                { removed: "78",  reason: "Expired or inactive postings", color: "text-amber-500 bg-amber-50 border-amber-100" },
-              ].map((stage, i) => (
-                <React.Fragment key={i}>
-                  <div className="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between px-5">
-                    <div className={`text-base font-black ${stage.color.split(" ")[0]}`}>
-                      −{stage.removed} removed
-                    </div>
-                    <div className="text-xs font-medium text-slate-500 text-right max-w-[55%]">
-                      {stage.reason}
-                    </div>
-                  </div>
-                  <div className="text-slate-300 text-lg">↓</div>
-                </React.Fragment>
-              ))}
-
-              {/* Final result */}
-              <div className="w-full p-8 rounded-2xl bg-[#071522] text-white border-2 border-[#19CBE0]/40 text-center shadow-xl">
-                <div className="text-5xl font-black text-[#19CBE0]">127</div>
-                <div className="text-lg font-extrabold text-white mt-1">Opportunities Worth Considering</div>
-                <div className="flex items-center justify-center gap-3 text-xs text-emerald-400 font-semibold mt-3">
-                  <span>✓ Verified</span>
-                  <span>·</span>
-                  <span>✓ Active</span>
-                  <span>·</span>
-                  <span>✓ Direct Apply</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* =========================================================================
             SECTION 04: APPLICATION FIT — What the score means
