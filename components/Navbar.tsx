@@ -14,11 +14,13 @@ import {
   Bookmark,
   LogIn,
   ArrowRight,
+  Home,
 } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
 
-// Primary navigation — jobs-first, visa is secondary (under Career Guides)
+// Primary navigation — Includes explicit Home + Jobs-First items
 const NAV_LINKS = [
+  { href: "/",          label: "Home",           icon: Home },
   { href: "/jobs",      label: "Find Jobs",      icon: Search },
   { href: "/companies", label: "Companies",       icon: Briefcase },
   { href: "/countries", label: "Countries",       icon: Globe },
@@ -80,13 +82,17 @@ export const Navbar: React.FC = () => {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
 
-          {/* ── Brand Logo ── */}
-          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+          {/* ── Brand Logo (Clickable Home Link) ── */}
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 group shrink-0 cursor-pointer select-none"
+            aria-label="SponsorAJobs Homepage"
+          >
             <div className="w-8 h-8 rounded-xl bg-[#071522] text-white flex items-center justify-center font-black text-xs tracking-wider shadow-sm group-hover:bg-[#19CBE0] group-hover:text-[#071522] transition-colors shrink-0">
               <span>SA</span>
             </div>
             <div className="flex items-baseline">
-              <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 font-display">
+              <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 font-display group-hover:text-[#087F8C] transition-colors">
                 SponsorAJobs
               </span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#19CBE0] ml-0.5 mb-0.5" />
@@ -97,13 +103,14 @@ export const Navbar: React.FC = () => {
           <nav className="hidden lg:flex items-center gap-0.5">
             {NAV_LINKS.map((link) => {
               const isActive =
-                pathname === link.href ||
-                (link.href !== "/" && pathname?.startsWith(link.href));
+                link.href === "/"
+                  ? pathname === "/"
+                  : pathname === link.href || (pathname?.startsWith(link.href) && link.href !== "/");
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                  className={`px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
                     isActive
                       ? "text-[#071522] bg-slate-100 font-bold"
                       : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
@@ -121,7 +128,7 @@ export const Navbar: React.FC = () => {
             {/* Saved Jobs */}
             <Link
               href="/saved-jobs"
-              className="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors relative"
+              className="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors relative cursor-pointer"
               title="Saved Jobs"
             >
               <Bookmark className="w-4.5 h-4.5" />
@@ -145,7 +152,7 @@ export const Navbar: React.FC = () => {
             {!user && (
               <Link
                 href="/admin/login"
-                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-sm font-semibold transition-colors"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-sm font-semibold transition-colors cursor-pointer"
               >
                 <LogIn className="w-4 h-4" />
                 <span>Sign In</span>
@@ -155,7 +162,7 @@ export const Navbar: React.FC = () => {
             {/* Primary CTA: Search Jobs */}
             <Link
               href="/jobs"
-              className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#071522] hover:bg-slate-800 text-white text-sm font-bold transition-colors shadow-sm"
+              className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#071522] hover:bg-slate-800 text-white text-sm font-bold transition-colors shadow-sm cursor-pointer"
             >
               <span>Search Jobs</span>
               <ArrowRight className="w-3.5 h-3.5 text-[#19CBE0]" />
@@ -178,15 +185,16 @@ export const Navbar: React.FC = () => {
             <nav className="flex flex-col space-y-1">
               {NAV_LINKS.map((link) => {
                 const isActive =
-                  pathname === link.href ||
-                  (link.href !== "/" && pathname?.startsWith(link.href));
+                  link.href === "/"
+                    ? pathname === "/"
+                    : pathname === link.href || (pathname?.startsWith(link.href) && link.href !== "/");
                 const Icon = link.icon;
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`px-3 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2.5 transition-colors ${
+                    className={`px-3 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2.5 transition-colors cursor-pointer ${
                       isActive
                         ? "text-[#071522] bg-slate-100 font-bold"
                         : "text-slate-700 hover:bg-slate-50"
@@ -205,7 +213,7 @@ export const Navbar: React.FC = () => {
                   setMobileMenuOpen(false);
                   setAlertModalOpen(true);
                 }}
-                className="w-full py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 font-semibold text-sm flex items-center gap-2"
+                className="w-full py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 font-semibold text-sm flex items-center gap-2 cursor-pointer"
               >
                 <Bell className="w-4 h-4 text-[#F5B942]" />
                 <span>Job Alerts</span>
@@ -214,7 +222,7 @@ export const Navbar: React.FC = () => {
               <Link
                 href="/jobs"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-3 px-4 rounded-xl bg-[#071522] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm"
+                className="w-full py-3 px-4 rounded-xl bg-[#071522] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm cursor-pointer"
               >
                 <span>Search Jobs</span>
                 <ArrowRight className="w-4 h-4 text-[#19CBE0]" />
