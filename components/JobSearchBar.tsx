@@ -37,14 +37,14 @@ interface JobSearchBarProps {
 
 export const JobSearchBar: React.FC<JobSearchBarProps> = ({
   initialQuery = "",
-  initialCountry = "ALL",
+  initialCountry = "gb",
   variant = "compact",
   className = "",
 }) => {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
   const [country, setCountry] = useState(initialCountry);
-  const [experience, setExperience] = useState<string>("all");
+  const [experience, setExperience] = useState<string>("mid");
   const [isOpen, setIsOpen] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<SearchSuggestion[]>(PRESET_SUGGESTIONS);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -133,7 +133,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
             <Search className="w-5 h-5 text-slate-400 shrink-0 mr-3" />
             <div className="flex-1 min-w-0 text-left">
               <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                What do you do?
+                Job title, skill or keyword
               </label>
               <input
                 type="text"
@@ -143,7 +143,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
                   setIsOpen(true);
                 }}
                 onFocus={() => setIsOpen(true)}
-                placeholder="Software Engineer, Civil Engineer, Mace..."
+                placeholder="Software Engineer, Data Analyst, Civil Engineer..."
                 className="w-full bg-transparent text-slate-900 font-bold text-xs sm:text-sm placeholder:text-slate-400 placeholder:font-normal focus:outline-none"
               />
             </div>
@@ -165,7 +165,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
             <MapPin className="w-5 h-5 text-slate-400 shrink-0 mr-3" />
             <div className="flex-1 min-w-0 text-left">
               <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                Where do you want to go?
+                Destination
               </label>
               <select
                 value={country}
@@ -209,7 +209,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
             type="submit"
             className="px-6 py-3.5 rounded-xl sm:rounded-2xl bg-[#071421] hover:bg-[#0D1B2A] text-white font-extrabold text-xs sm:text-sm tracking-tight transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer group shrink-0"
           >
-            <span>Find Jobs I Can Actually Apply For</span>
+            <span>Find Sponsorship-Friendly Jobs</span>
             <ArrowRight className="w-4 h-4 text-[#18D6E5] group-hover:translate-x-1 transition-transform" />
           </button>
         </form>

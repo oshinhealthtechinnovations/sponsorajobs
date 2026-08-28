@@ -51,7 +51,7 @@ export const ApplicationReadinessCalculator: React.FC = () => {
           Can I Realistically Apply?
         </h2>
         <p className="text-xs sm:text-sm text-slate-600">
-          Enter your profile parameters to evaluate statutory salary alignment, occupation shortage status, and sponsor availability before applying.
+          Check if your profile matches current visa requirements and salary thresholds before you spend hours applying.
         </p>
       </div>
 
@@ -109,25 +109,25 @@ export const ApplicationReadinessCalculator: React.FC = () => {
         </div>
 
         {/* Right: Analytical Readiness Card */}
-        <div className="lg:col-span-6 p-6 rounded-2xl bg-slate-900 text-white border border-slate-800 space-y-4 shadow-md">
+        <div className="lg:col-span-6 p-6 rounded-3xl bg-blue-50/50 text-slate-900 border border-blue-100 space-y-4 shadow-sm relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Readiness Score
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Your Match Score
             </span>
-            <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-black">
-              {level} READINESS
+            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-black">
+              {level} MATCH
             </span>
           </div>
 
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl sm:text-5xl font-black font-mono text-[#18D6E5]">
+          <div className="flex items-baseline gap-2 pt-2">
+            <span className="text-5xl sm:text-6xl font-black font-display text-blue-600">
               {score}
             </span>
             <span className="text-slate-400 text-sm font-semibold">/ 100</span>
           </div>
 
           {/* Verification Checklist */}
-          <div className="pt-3 border-t border-slate-800 space-y-2 text-xs text-slate-300">
+          <div className="pt-4 space-y-3 text-xs text-slate-700">
             <div className="flex items-start gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
               <span>Occupation meets skilled shortage registry criteria.</span>
@@ -142,16 +142,16 @@ export const ApplicationReadinessCalculator: React.FC = () => {
             </div>
           </div>
 
-          <div className="pt-2 text-[11px] text-slate-400 flex items-center gap-1.5 border-t border-slate-800/80">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span>Feasibility guide only; individual visa grants depend on official authorities.</span>
+          <div className="pt-3 text-[11px] text-slate-500 flex items-start gap-1.5 border-t border-blue-100/50">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+            <span>Guide only. Official visa grants depend on government authorities.</span>
           </div>
 
           <Link
             href={`/jobs/${country}`}
-            className="block w-full py-3 px-4 rounded-xl bg-[#18D6E5] hover:bg-[#15c0ce] text-[#071421] font-bold text-center text-xs transition-colors shadow-xs"
+            className="block w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-center text-sm transition-colors shadow-sm mt-2"
           >
-            Find Realistic Opportunities &rarr;
+            See Verified Jobs &rarr;
           </Link>
         </div>
       </div>

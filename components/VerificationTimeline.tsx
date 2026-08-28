@@ -52,7 +52,7 @@ export const VerificationTimeline: React.FC = () => {
     {
       step: "06",
       title: "VERIFIED RESULT",
-      desc: "Published with transparent Application Worthiness Score.",
+      desc: "Published with transparent Job Match Score.",
       icon: CheckCircle2,
       color: "border-[#20C997] text-[#20C997]",
     },
@@ -63,13 +63,13 @@ export const VerificationTimeline: React.FC = () => {
       <div className="max-w-2xl space-y-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#20C997]/10 border border-[#20C997]/30 text-[#20C997] text-xs font-bold uppercase tracking-wider">
           <ShieldCheck className="w-3.5 h-3.5" />
-          <span>Algorithmic Gate</span>
+          <span>How We Verify Jobs</span>
         </div>
         <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-display text-white">
-          How Verification Works
+          Our Verification Process
         </h2>
         <p className="text-xs sm:text-sm text-slate-300">
-          A discovered job is never published until it clears our 6-stage deterministic verification pipeline.
+          A discovered job is never published until it clears our 6-stage verification pipeline.
         </p>
       </div>
 
@@ -95,7 +95,7 @@ export const VerificationTimeline: React.FC = () => {
 
               <div className="pt-2 flex items-center gap-1.5 text-[10px] font-bold text-emerald-400">
                 <CheckCircle2 className="w-3 h-3" />
-                <span>Deterministic Check</span>
+                <span>Verified</span>
               </div>
             </div>
           );

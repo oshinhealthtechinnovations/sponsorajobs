@@ -96,10 +96,10 @@ export const CareerRoutesNavigator: React.FC = () => {
           <span>International Career Pathways</span>
         </div>
         <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
-          Plan Your Migration Journey
+          Explore Your International Career Path
         </h2>
         <p className="text-xs sm:text-sm text-slate-600">
-          Select an occupation to visualize the statutory visa subclass, current employer pool, and realistic salary bands.
+          Select an occupation to see common visa routes and salary expectations.
         </p>
       </div>
 

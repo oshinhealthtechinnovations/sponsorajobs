@@ -61,27 +61,27 @@ export const SponsorshipRadarMap: React.FC = () => {
   const countries = OCCUPATION_DATA[activeTab] || OCCUPATION_DATA.all;
 
   return (
-    <div className="w-full rounded-3xl bg-[#071421] text-white border border-slate-800 p-6 sm:p-10 shadow-2xl space-y-8 relative overflow-hidden">
+    <div className="w-full rounded-3xl bg-white border border-slate-200 p-6 sm:p-10 shadow-sm space-y-8 relative overflow-hidden">
       {/* Subtle Atmospheric Grid Background */}
       <div className="absolute inset-0 bg-[radial-gradient(#18D6E5_1px,transparent_1px)] [background-size:24px_24px] opacity-5 pointer-events-none" />
 
       {/* Header & Occupation Filter Buttons */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 relative z-10">
         <div className="space-y-2 max-w-xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#18D6E5]/10 border border-[#18D6E5]/20 text-[#18D6E5] text-xs font-bold uppercase tracking-wider">
-            <Compass className="w-3.5 h-3.5 animate-spin-slow" />
-            <span>Global Sponsorship Radar</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold uppercase tracking-wider">
+            <Compass className="w-3.5 h-3.5" />
+            <span>Global Markets</span>
           </div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-display text-white">
-            Where is international hiring heating up?
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-display text-slate-900">
+            International Job Markets
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300">
-            Real-time hiring momentum and statutory thresholds across verified employer networks.
+          <p className="text-xs sm:text-sm text-slate-600">
+            Current visa routes and salary benchmarks by country.
           </p>
         </div>
 
         {/* Discipline Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-slate-900/90 border border-slate-800 self-start lg:self-auto">
+        <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-slate-100 border border-slate-200 self-start lg:self-auto">
           {[
             { id: "all", label: "All Disciplines" },
             { id: "software", label: "Software & Tech" },
@@ -93,8 +93,8 @@ export const SponsorshipRadarMap: React.FC = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === tab.id
-                  ? "bg-[#18D6E5] text-[#071421] shadow-xs"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  ? "bg-white text-slate-900 shadow-sm border border-slate-200"
+                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
               }`}
             >
               {tab.label}
@@ -109,47 +109,36 @@ export const SponsorshipRadarMap: React.FC = () => {
           <Link
             key={c.code}
             href={`/jobs/${c.code.toLowerCase()}`}
-            className="p-5 rounded-2xl bg-[#0D1B2A] border border-slate-800 hover:border-[#18D6E5]/60 hover:shadow-lg transition-all group flex flex-col justify-between space-y-4"
+            className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all group flex flex-col justify-between space-y-4"
           >
-            {/* Top Row: Flag + Name + Momentum */}
+            {/* Top Row: Flag + Name */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">{c.flag}</span>
-                  <span className="font-bold text-sm text-white group-hover:text-[#18D6E5] transition-colors">
-                    {c.name}
-                  </span>
-                </div>
-                <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
-                  {c.momentum}
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">{c.flag}</span>
+                <span className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors">
+                  {c.name}
                 </span>
               </div>
-
-              {/* Big Job Count */}
-              <div className="mt-3">
-                <div className="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight">
-                  {c.activeJobs}
-                </div>
-                <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
-                  Active Vacancies
-                </div>
+              
+              <div className="text-xs font-semibold text-slate-700 mt-2">
+                Top Role: <span className="font-normal text-slate-600">{c.topRole}</span>
               </div>
             </div>
 
             {/* Middle: Key details */}
-            <div className="pt-3 border-t border-slate-800/80 space-y-1.5 text-xs text-slate-300">
+            <div className="pt-3 border-t border-slate-100 space-y-2 text-xs text-slate-600">
               <div className="flex justify-between">
-                <span className="text-slate-500">Visa Route:</span>
-                <span className="font-semibold text-slate-200">{c.visaRoute}</span>
+                <span className="text-slate-500 font-medium">Visa Route:</span>
+                <span className="font-semibold text-slate-900">{c.visaRoute}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Min Salary:</span>
-                <span className="font-bold text-[#18D6E5]">{c.threshold}</span>
+                <span className="text-slate-500 font-medium">Salary Benchmark:</span>
+                <span className="font-bold text-emerald-600">{c.threshold}</span>
               </div>
             </div>
 
             {/* Bottom action indicator */}
-            <div className="pt-2 flex items-center justify-between text-xs text-[#18D6E5] font-bold group-hover:translate-x-0.5 transition-transform">
+            <div className="pt-2 flex items-center justify-between text-xs text-blue-600 font-bold group-hover:translate-x-0.5 transition-transform">
               <span>Explore Market</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </div>

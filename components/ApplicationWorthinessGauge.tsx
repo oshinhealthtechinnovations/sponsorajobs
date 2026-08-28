@@ -81,10 +81,10 @@ export const ApplicationWorthinessGauge: React.FC<ApplicationWorthinessGaugeProp
         {/* Label & Context */}
         <div>
           <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
-            <span>Application Worthiness</span>
+            <span>Job Match</span>
           </div>
           <div className="text-xs sm:text-sm font-extrabold text-slate-900">
-            {score >= 90 ? "Exceptional Match" : score >= 80 ? "High Opportunity" : "Eligible Requisition"}
+            {score >= 90 ? "Strong Match" : score >= 80 ? "Good Match" : "Fair Match"}
           </div>
         </div>
       </div>
@@ -93,19 +93,23 @@ export const ApplicationWorthinessGauge: React.FC<ApplicationWorthinessGaugeProp
       {showBreakdown && breakdown && (
         <div className="w-full mt-4 pt-3 border-t border-slate-100 space-y-2 text-xs">
           <div className="flex justify-between items-center text-slate-600">
-            <span>Sponsorship Likelihood</span>
-            <span className="font-bold text-slate-900">{breakdown.sponsorshipLikelihood}%</span>
+            <span>Role Match</span>
+            <span className="font-bold text-slate-900">{breakdown.roleMatch}%</span>
+          </div>
+          <div className="flex justify-between items-center text-slate-600">
+            <span>Sponsorship Signal</span>
+            <span className="font-bold text-emerald-600">Strong</span>
           </div>
           <div className="flex justify-between items-center text-slate-600">
             <span>Employer Verification</span>
-            <span className="font-bold text-slate-900">{breakdown.employerVerification}%</span>
+            <span className="font-bold text-emerald-600">Verified</span>
           </div>
           <div className="flex justify-between items-center text-slate-600">
-            <span>Salary Compatibility</span>
+            <span>Salary Fit</span>
             <span className="font-bold text-slate-900">{breakdown.salaryCompatibility}%</span>
           </div>
           <div className="flex justify-between items-center text-slate-600">
-            <span>Requisition Freshness</span>
+            <span>Freshness</span>
             <span className="font-bold text-slate-900">{breakdown.freshness}%</span>
           </div>
         </div>

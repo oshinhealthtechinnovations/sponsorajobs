@@ -28,8 +28,8 @@ export const JobDNAProfile: React.FC<JobDNAProps> = ({ dna, compact = false }) =
       <div className="space-y-1.5 py-1">
         <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500">
           <span className="flex items-center gap-1">
-            <Dna className="w-3 h-3 text-[#18D6E5]" />
-            <span>Job DNA Telemetry</span>
+            <Sparkles className="w-3 h-3 text-[#18D6E5]" />
+            <span>Job Match Breakdown</span>
           </span>
           <span className="font-mono text-slate-700">{dna.sponsorship}% Sponsor Signal</span>
         </div>
@@ -51,11 +51,11 @@ export const JobDNAProfile: React.FC<JobDNAProps> = ({ dna, compact = false }) =
     <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-slate-900 font-display">
-          <Dna className="w-4 h-4 text-[#18D6E5]" />
-          <span>Job DNA Profile</span>
+          <Sparkles className="w-4 h-4 text-[#18D6E5]" />
+          <span>Job Match Details</span>
         </div>
         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-          Algorithmic Telemetry
+          Smart Job Matching
         </span>
       </div>
 

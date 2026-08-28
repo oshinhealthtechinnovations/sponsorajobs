@@ -114,9 +114,8 @@ export default async function HomePage() {
             </span>
           </h1>
 
-          {/* Supporting Text */}
           <p className="mt-5 text-sm sm:text-lg text-slate-300 max-w-2xl font-normal leading-relaxed">
-            Search international jobs with sponsorship intelligence, employer verification and visa insights &mdash; then apply directly to the original employer.
+            Find international jobs from verified employers &mdash; with sponsorship signals, salary checks and direct application links.
           </p>
 
           {/* ── Interactive Sponsorship Intelligence Search ── */}
@@ -125,108 +124,149 @@ export default async function HomePage() {
           </div>
 
           {/* ── Live Telemetry Metrics Readout ── */}
-          <div className="mt-12 pt-8 border-t border-slate-800/80 w-full max-w-4xl grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-            <div className="p-3 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <div className="text-2xl sm:text-3xl font-black text-white font-mono">{totalCount > 0 ? totalCount : "760"}+</div>
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mt-1">Verified Opportunities</div>
+          <div className="mt-12 pt-8 border-t border-slate-800/80 w-full max-w-4xl grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-4 text-center">
+            <div className="flex flex-col gap-1">
+              <div className="text-2xl sm:text-3xl font-bold text-white">{totalCount > 0 ? totalCount : "760"}+</div>
+              <div className="text-xs text-slate-400">Verified Opportunities</div>
             </div>
-            <div className="p-3 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <div className="text-2xl sm:text-3xl font-black text-[#18D6E5] font-mono">287</div>
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mt-1">Licensed Employers</div>
+            <div className="flex flex-col gap-1">
+              <div className="text-2xl sm:text-3xl font-bold text-white">287</div>
+              <div className="text-xs text-slate-400">Verified Employers</div>
             </div>
-            <div className="p-3 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <div className="text-2xl sm:text-3xl font-black text-white font-mono">5 Markets</div>
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mt-1">UK, USA, AU, CA, NZ</div>
+            <div className="flex flex-col gap-1">
+              <div className="text-2xl sm:text-3xl font-bold text-white">5</div>
+              <div className="text-xs text-slate-400">International Markets</div>
             </div>
-            <div className="p-3 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <div className="text-2xl sm:text-3xl font-black text-[#20C997] font-mono">100% Direct</div>
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mt-1">Employer ATS Links</div>
+            <div className="flex flex-col gap-1">
+              <div className="text-2xl sm:text-3xl font-bold text-white">Direct Application</div>
+              <div className="text-xs text-slate-400">Employer Application Links</div>
             </div>
           </div>
         </section>
 
         {/* =========================================================================
-            SECTION 2: WASTED APPLICATIONS STORY ("Stop Applying Blindly")
+            SECTION 2: VISUAL FILTERING JOURNEY ("Stop Applying to Jobs That Don't Fit")
            ========================================================================= */}
         <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-          <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-100">
-              The Reality of International Job Hunting
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
-              Stop Applying Blindly.
+          <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
+              Stop Applying to Jobs That Don't Fit.
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600">
-              Traditional job boards force international candidates to waste hours applying to positions that will automatically reject them due to visa constraints.
+            <p className="text-base sm:text-lg text-slate-600">
+              SponsorAJobs filters opportunities before you spend your time applying.
             </p>
           </div>
 
           {/* Qualification Funnel */}
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 max-w-5xl mx-auto">
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 text-center space-y-2">
-              <div className="text-2xl font-black text-slate-400 font-mono">100</div>
-              <div className="text-xs font-bold text-slate-700">Jobs Discovered</div>
-              <p className="text-[11px] text-slate-400">Raw aggregator listings</p>
+          <div className="flex flex-col items-center max-w-lg mx-auto space-y-2">
+            
+            <div className="w-full p-5 rounded-2xl bg-white border border-slate-200 text-center shadow-sm">
+              <div className="text-3xl font-black text-slate-900">100</div>
+              <div className="text-sm font-bold text-slate-600">Jobs discovered</div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-rose-50/50 border border-rose-100 text-center space-y-2">
-              <div className="text-2xl font-black text-rose-500 font-mono">-61</div>
-              <div className="text-xs font-bold text-slate-700">No Sponsorship</div>
-              <p className="text-[11px] text-slate-500">Require existing rights to work</p>
+            <div className="text-slate-300">↓</div>
+
+            <div className="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between px-6">
+              <div className="text-xl font-bold text-slate-400">61 removed</div>
+              <div className="text-sm font-medium text-slate-500 text-right">No credible sponsorship signal</div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-amber-50/50 border border-amber-100 text-center space-y-2">
-              <div className="text-2xl font-black text-amber-500 font-mono">-23</div>
-              <div className="text-xs font-bold text-slate-700">Unlicensed Employer</div>
-              <p className="text-[11px] text-slate-500">Not accredited on registries</p>
+            <div className="text-slate-300">↓</div>
+
+            <div className="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between px-6">
+              <div className="text-xl font-bold text-slate-400">23 removed</div>
+              <div className="text-sm font-medium text-slate-500 text-right">Employer verification issue</div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-100 border border-slate-200 text-center space-y-2">
-              <div className="text-2xl font-black text-slate-500 font-mono">-9</div>
-              <div className="text-xs font-bold text-slate-700">Expired Postings</div>
-              <p className="text-[11px] text-slate-500">Ghost job ads & dead URLs</p>
+            <div className="text-slate-300">↓</div>
+
+            <div className="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between px-6">
+              <div className="text-xl font-bold text-slate-400">9 removed</div>
+              <div className="text-sm font-medium text-slate-500 text-right">Expired or inactive posting</div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#071421] text-white border border-[#18D6E5] text-center space-y-2 shadow-lg">
-              <div className="text-2xl font-black text-[#18D6E5] font-mono">7</div>
-              <div className="text-xs font-extrabold text-white">Worth Pursuing</div>
-              <p className="text-[11px] text-slate-300 font-medium">Verified & High-Worth</p>
-            </div>
-          </div>
+            <div className="text-[#18D6E5] text-xl font-bold pt-2">↓</div>
 
-          <div className="mt-8 text-center">
-            <p className="text-xs sm:text-sm font-bold text-slate-700">
-              &ldquo;SponsorAJobs filters the noise before you spend your time.&rdquo;
-            </p>
+            <div className="w-full p-8 rounded-3xl bg-[#071421] text-white border border-[#18D6E5] text-center shadow-2xl relative overflow-hidden mt-2">
+              <div className="absolute inset-0 bg-[radial-gradient(#18D6E5_1px,transparent_1px)] [background-size:20px_20px] opacity-10 pointer-events-none" />
+              <div className="relative z-10 space-y-2">
+                <div className="text-6xl font-black text-[#18D6E5]">7</div>
+                <div className="text-xl font-extrabold text-white">Worth pursuing</div>
+                <div className="flex items-center justify-center gap-2 text-sm text-emerald-400 font-semibold mt-4">
+                  <span>✓ Verified</span>
+                  <span>&middot;</span>
+                  <span>✓ Relevant</span>
+                  <span>&middot;</span>
+                  <span>✓ Recently checked</span>
+                </div>
+              </div>
+            </div>
+
           </div>
         </section>
 
         {/* =========================================================================
-            SECTION 3: APPLICATION WORTHINESS & JOB DNA SPOTLIGHT
+            SECTION 3: JOBS WORTH YOUR ATTENTION
+           ========================================================================= */}
+        <section className="w-full bg-slate-50 border-y border-slate-200/80 py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-10 space-y-3">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Jobs Worth Your Attention
+              </h2>
+              <p className="text-base text-slate-600">
+                Recently verified international opportunities with sponsorship signals.
+              </p>
+            </div>
+
+            {/* UI Filters */}
+            <div className="flex flex-col items-center gap-4 mb-10">
+              <div className="flex flex-wrap justify-center gap-2">
+                <button className="px-4 py-1.5 rounded-full bg-slate-900 text-white text-sm font-bold">All Jobs</button>
+                <button className="px-4 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold">Software & Tech</button>
+                <button className="px-4 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold">Engineering</button>
+                <button className="px-4 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold">Healthcare</button>
+                <button className="px-4 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold">Finance</button>
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                <button className="px-3 py-1 rounded-md bg-slate-200/50 text-slate-700 text-xs font-semibold hover:bg-slate-200">UK</button>
+                <button className="px-3 py-1 rounded-md bg-transparent text-slate-500 hover:text-slate-700 text-xs font-semibold">USA</button>
+                <button className="px-3 py-1 rounded-md bg-transparent text-slate-500 hover:text-slate-700 text-xs font-semibold">Australia</button>
+                <button className="px-3 py-1 rounded-md bg-transparent text-slate-500 hover:text-slate-700 text-xs font-semibold">Canada</button>
+                <button className="px-3 py-1 rounded-md bg-transparent text-slate-500 hover:text-slate-700 text-xs font-semibold">New Zealand</button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {latestJobs.map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))}
+            </div>
+            
+            <div className="mt-10 text-center">
+              <Link href="/jobs" className="inline-flex px-6 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 font-bold hover:bg-slate-50 transition-colors shadow-sm">
+                View All Verified Jobs
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================================
+            SECTION 4: JOB MATCH DETAILS (Formerly Worthiness & DNA)
            ========================================================================= */}
         <section className="w-full bg-[#0D1B2A] text-white border-y border-slate-800 py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-6 space-y-4">
               <span className="text-xs font-bold uppercase tracking-wider text-[#18D6E5] bg-[#18D6E5]/10 px-3 py-1 rounded-full border border-[#18D6E5]/20">
-                Proprietary Suitability Metric
+                Smart Job Matching
               </span>
               <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-display text-white">
-                The Application Worthiness Score
+                The Job Match Score
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Every opportunity on SponsorAJobs receives a deterministic 0&ndash;100 Application Worthiness Score. We assess sponsor licensing, salary viability against statutory thresholds, vacancy freshness, and role demand so you never apply blindly.
+                Every opportunity on SponsorAJobs receives a deterministic 0&ndash;100 Job Match Score. We assess sponsor licensing, salary viability against statutory thresholds, vacancy freshness, and role demand so you never apply blindly.
               </p>
-              <div className="pt-2 flex flex-wrap gap-2 text-xs">
-                <span className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300">
-                  ✓ 35% Sponsorship Likelihood
-                </span>
-                <span className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300">
-                  ✓ 25% Employer Registry Status
-                </span>
-                <span className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300">
-                  ✓ 15% Statutory Salary Match
-                </span>
-              </div>
             </div>
 
             {/* Analyzed Card Demonstration */}
@@ -275,66 +315,34 @@ export default async function HomePage() {
         </section>
 
         {/* =========================================================================
-            SECTION 4: VERIFICATION ENGINE & TIMELINE
+            SECTION 5: HOW WE VERIFY JOBS
            ========================================================================= */}
         <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <VerificationTimeline />
         </section>
 
         {/* =========================================================================
-            SECTION 5: GLOBAL SPONSORSHIP RADAR
+            SECTION 6: GLOBAL SPONSORSHIP RADAR
            ========================================================================= */}
         <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
           <SponsorshipRadarMap />
         </section>
 
         {/* =========================================================================
-            SECTION 6: INTERNATIONAL CAREER ROUTES NAVIGATOR
+            SECTION 7: EXPLORE YOUR INTERNATIONAL CAREER PATH
            ========================================================================= */}
         <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <CareerRoutesNavigator />
         </section>
 
         {/* =========================================================================
-            SECTION 7: CAN I REALISTICALLY APPLY? (APPLICATION READINESS)
+            SECTION 8: YOUR APPLICATION READINESS
            ========================================================================= */}
         <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 pb-16">
           <ApplicationReadinessCalculator />
         </section>
 
-        {/* =========================================================================
-            SECTION 8: FEATURED HIGH-WORTH OPPORTUNITIES
-           ========================================================================= */}
-        <section className="w-full bg-white border-y border-slate-200/80 py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                  High-Worth Opportunities
-                </span>
-                <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-2 font-display">
-                  Featured Analyzed Requisitions
-                </h2>
-                <p className="text-xs text-slate-500 mt-1">
-                  Active roles with confirmed sponsorship signals, verified employer licensing, and live ATS endpoints.
-                </p>
-              </div>
-              <Link
-                href="/jobs"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#087F8C] hover:text-[#071421] transition-colors"
-              >
-                <span>Browse all {totalCount > 0 ? totalCount : "760"}+ analyzed jobs</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {latestJobs.map((job) => (
-                <JobCard key={job.id} job={job} />
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* =========================================================================
             SECTION 9: EMPLOYER SPONSORSHIP PROFILES

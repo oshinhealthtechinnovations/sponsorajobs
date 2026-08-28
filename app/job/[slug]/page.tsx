@@ -7,7 +7,6 @@ import { JobCard } from "@/components/JobCard";
 import { RichJobDescription } from "@/components/RichJobDescription";
 import { JobDetailActions } from "@/components/JobDetailActions";
 import { ApplicationWorthinessGauge } from "@/components/ApplicationWorthinessGauge";
-import { JobDNAProfile } from "@/components/JobDNAProfile";
 import { calculateJobIntelligence } from "@/lib/utils/intelligenceScorer";
 import { JobRepository } from "@/lib/repositories/jobRepository";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/seo/schema";
@@ -281,12 +280,12 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               </div>
             </div>
 
-            {/* 🎯 "Why SponsorAJobs Matched This Opportunity" 5-Point Verification Panel */}
+            {/* 🎯 "Job Verification Details" Panel */}
             <div className="p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900 font-display">
-                  <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                  <span>Why SponsorAJobs Matched This Opportunity</span>
+                  <ShieldCheck className="w-5 h-5 text-blue-600" />
+                  <span>Job Verification Details</span>
                 </div>
                 <span className="text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full font-bold">
                   {worthScore}/100 Score
@@ -352,10 +351,10 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-5">
               <div>
                 <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                  Application Gate
+                  Application
                 </span>
                 <div className="text-sm font-extrabold text-slate-900 mt-0.5">
-                  Direct Employer ATS Requisition
+                  Apply on Employer Site
                 </div>
               </div>
 
@@ -364,10 +363,10 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 href={job.applyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full h-14 rounded-2xl bg-[#071421] hover:bg-[#0D1B2A] text-white font-black text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer group"
+                className="w-full h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer group"
               >
-                <span>Apply with Confidence</span>
-                <ArrowRight className="w-4 h-4 text-[#18D6E5] group-hover:translate-x-1 transition-transform" />
+                <span>Apply on Employer Site</span>
+                <ExternalLink className="w-4 h-4 text-white/80 group-hover:translate-x-1 transition-transform" />
               </a>
 
               <div className="grid grid-cols-2 gap-2">
@@ -387,19 +386,37 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 </button>
               </div>
 
-              {/* Application Worthiness Score Breakdown */}
+              {/* Job Match Score Breakdown */}
               <div className="pt-4 border-t border-slate-100">
-                <ApplicationWorthinessGauge
-                  score={worthScore}
-                  size="md"
-                  showBreakdown={true}
-                  breakdown={breakdown}
-                />
-              </div>
-
-              {/* Job DNA Telemetry */}
-              <div className="pt-4 border-t border-slate-100">
-                <JobDNAProfile dna={jobDNA} />
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                    Job Match Score
+                  </span>
+                  <span className="font-bold text-slate-900 text-sm">{worthScore}/100</span>
+                </div>
+                
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />Role Match</span>
+                    <span className="font-bold text-slate-900">{breakdown.roleMatch}%</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />Sponsorship Signal</span>
+                    <span className="font-bold text-emerald-600">Strong</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />Employer Verification</span>
+                    <span className="font-bold text-emerald-600">Verified</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />Salary Fit</span>
+                    <span className="font-bold text-slate-900">{breakdown.salaryCompatibility}%</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />Freshness</span>
+                    <span className="font-bold text-slate-900">{breakdown.freshness}%</span>
+                  </div>
+                </div>
               </div>
 
               {/* Provenance Trail */}
