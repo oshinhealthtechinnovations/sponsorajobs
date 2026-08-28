@@ -450,15 +450,18 @@ export class JobRepository {
           break;
         }
 
-        let score = 0;
-        for (const st of slugTokens) {
-          if (combined.includes(st)) score += 2;
-          else if (combined.some((c) => c.includes(st) || st.includes(c))) score += 1;
-        }
+        // If searching by an explicit job_ prefix ID, do not fall back to weak token match
+        if (!cleanSlug.startsWith("job_")) {
+          let score = 0;
+          for (const st of slugTokens) {
+            if (combined.includes(st)) score += 2;
+            else if (combined.some((c) => c.includes(st) || st.includes(c))) score += 1;
+          }
 
-        if (score > maxScore && score >= 3) {
-          maxScore = score;
-          bestJob = j;
+          if (score > maxScore && score >= 5) {
+            maxScore = score;
+            bestJob = j;
+          }
         }
       }
 

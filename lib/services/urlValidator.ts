@@ -46,6 +46,8 @@ const TRUSTED_ATS_DOMAINS = new Set([
   "datacom.com",
   "usajobs.gov",
   "gov.uk",
+  "burnsmcd.com", "burnsmcd.jobs",
+  "macegroup.com", "careers.macegroup.com",
 ]);
 
 // ─── Known aggregator redirect domains (functional but not direct) ─────────────

@@ -768,7 +768,7 @@ REAL_WORLD_CVS.forEach((tc) => {
     skillsFound: intel.profile.technicalSkills.length,
     topSkills: intel.profile.technicalSkills.slice(0, 5).join(", "),
     cvQualityScore: intel.cvQualityScore,
-    atsScore: intel.atsCompatibilityScore,
+    atsScore: intel.atsDiagnostics.score,
     sponsorshipScore: intel.sponsorshipDiagnostics.score,
     targetRoute: intel.sponsorshipDiagnostics.route,
     salaryGuidance: intel.sponsorshipDiagnostics.salaryAssessment.guidance,
