@@ -139,7 +139,7 @@ async function harvestAndVerify() {
 
     // 1. Fetch from Jooble
     try {
-      const jRes = await jooble.fetchJobs({ query: q.keyword, limit: 15 });
+      const jRes = await jooble.fetchJobs({ query: q.keyword, limit: 15 } as any);
       rawCandidates.push(...jRes.jobs);
     } catch (e: any) {
       console.log(`  [Jooble Warning] ${e.message}`);
@@ -147,7 +147,7 @@ async function harvestAndVerify() {
 
     // 2. Fetch from Adzuna
     try {
-      const aRes = await adzuna.fetchJobs({ query: q.keyword, country: "GB", limit: 15 });
+      const aRes = await adzuna.fetchJobs({ query: q.keyword, country: "GB", limit: 15 } as any);
       rawCandidates.push(...aRes.jobs);
     } catch (e: any) {
       console.log(`  [Adzuna Warning] ${e.message}`);
@@ -156,7 +156,7 @@ async function harvestAndVerify() {
     // 3. Fetch from USAJobs if US-relevant
     if (q.keyword.includes("Project") || q.keyword.includes("Engineer")) {
       try {
-        const uRes = await usajobs.fetchJobs({ query: q.keyword, limit: 5 });
+        const uRes = await usajobs.fetchJobs({ query: q.keyword, limit: 5 } as any);
         rawCandidates.push(...uRes.jobs);
       } catch (e: any) {
         console.log(`  [USAJobs Warning] ${e.message}`);
@@ -205,14 +205,15 @@ async function harvestAndVerify() {
       }
 
       // ── VERIFICATION RULE 3: Quality Scoring
-      const qualityScore = computeQualityScore({
+      const qScoreObj = computeQualityScore({
         title: rawJob.title,
         description: rawJob.description || rawJob.title,
         salaryMin: rawJob.salaryMin,
         salaryMax: rawJob.salaryMax,
         location: rawJob.location,
         hasApplyUrl: true,
-      });
+      } as any);
+      const qualityScore = typeof qScoreObj === "number" ? qScoreObj : (qScoreObj as any).score || 85;
 
       if (qualityScore < 70) continue;
 

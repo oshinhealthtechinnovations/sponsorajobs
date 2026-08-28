@@ -15,7 +15,18 @@ export type JobSchemaInput = Partial<JobRecord> & {
  * Google JobPosting JSON-LD Schema Generator
  * Reference: Section 46 & Google Search Central specifications
  */
-export function generateJobPostingSchema(job: JobSchemaInput): Record<string, any> {
+export function generateJobPostingSchema(job: JobSchemaInput): Record<string, any> | null {
+  // Never emit JobPosting structured data for expired, rejected, or unpublished jobs (Google Site-Reputation & Spam Compliance)
+  if (
+    job.status === "expired" ||
+    job.status === "rejected" ||
+    job.status === "quarantined" ||
+    job.is_published === 0 ||
+    job.verification_status === "EXPIRED"
+  ) {
+    return null;
+  }
+
   const publishedDate = job.published_at
     ? new Date(job.published_at).toISOString()
     : new Date().toISOString();

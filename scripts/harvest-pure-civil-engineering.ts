@@ -126,7 +126,7 @@ async function run() {
 
     // 1. Query Adzuna (UK)
     try {
-      const aRes = await adzuna.fetchJobs({ query, country: "GB", limit: 15 });
+      const aRes = await adzuna.fetchJobs({ query, country: "GB", limit: 15 } as any);
       rawListings.push(...aRes.jobs);
     } catch (err: any) {
       console.log(`  [Adzuna UK Error] ${err.message}`);
@@ -134,7 +134,7 @@ async function run() {
 
     // 2. Query Jooble
     try {
-      const jRes = await jooble.fetchJobs({ query, limit: 15 });
+      const jRes = await jooble.fetchJobs({ query, limit: 15 } as any);
       rawListings.push(...jRes.jobs);
     } catch (err: any) {
       console.log(`  [Jooble Error] ${err.message}`);
@@ -185,9 +185,10 @@ async function run() {
         description: raw.description || raw.title,
         salaryMin: raw.salaryMin,
         salaryMax: raw.salaryMax,
-        location: raw.location,
-        hasApplyUrl: true,
-      });
+        applyUrl: raw.applyUrl,
+        sponsorshipScore,
+        countryCode: raw.countryCode || "GB",
+      } as any);
       const qualityScore = typeof qScoreObj === "number" ? qScoreObj : (qScoreObj as any).score || 85;
 
       // Ensure Company exists

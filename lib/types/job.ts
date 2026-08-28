@@ -71,6 +71,9 @@ export interface PublicJobDTO {
     visaKeywords: string[];
   };
   postedAt: string | null;
+  lastVerifiedAt?: string | null;
+  sponsorshipConfidence?: number | null;
+  sponsorshipEvidenceLevel?: string | null;
   applyUrl: string;
   sourceName?: string;
   sourceAttributionRequired?: boolean;

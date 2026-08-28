@@ -99,7 +99,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const db = getDatabase();
     const jobs = await db.prepare(
-      "SELECT id, title, city, country_code, updated_at FROM jobs WHERE status = 'active' LIMIT 500"
+      "SELECT id, title, city, country_code, updated_at FROM jobs WHERE status = 'active' AND (is_published IS NULL OR is_published = 1) AND (verification_status IS NULL OR verification_status != 'EXPIRED') LIMIT 500"
     ).all<{ id: string; title: string; city: string; country_code: string; updated_at: string }>();
 
     for (const job of jobs.results) {

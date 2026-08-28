@@ -34,6 +34,8 @@ describe("Phase 8: Programmatic SEO & Structured Data Tests (Sections 41-49, 139
       };
 
       const schema = generateJobPostingSchema(mockJob);
+      expect(schema).not.toBeNull();
+      if (!schema) return;
 
       expect(schema["@context"]).toBe("https://schema.org");
       expect(schema["@type"]).toBe("JobPosting");
