@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Building2, MapPin, Sparkles, ArrowRight, X, Briefcase } from "lucide-react";
+import { Search, Building2, MapPin, Sparkles, ArrowRight, X, Briefcase, UserCheck } from "lucide-react";
 import { INITIAL_COUNTRIES } from "@/config/countries";
 
 interface SearchSuggestion {
@@ -17,16 +17,15 @@ interface SearchSuggestion {
 const PRESET_SUGGESTIONS: SearchSuggestion[] = [
   { type: "company", label: "Mace", sublabel: "UK Licensed Sponsor (10 Verified Jobs)", query: "", paramKey: "company", paramValue: "Mace" },
   { type: "company", label: "Monzo Bank", sublabel: "Fintech Leader (25+ Jobs)", query: "", paramKey: "company", paramValue: "Monzo Bank" },
-  { type: "company", label: "Stripe", sublabel: "Payments & Global Infrastructure", query: "", paramKey: "company", paramValue: "Stripe" },
-  { type: "role", label: "Project Manager", sublabel: "Construction & Tech Roles", query: "Project Manager", paramKey: "q", paramValue: "Project Manager" },
-  { type: "role", label: "Civil Engineer", sublabel: "Infrastructure & Site Engineering", query: "Civil Engineer", paramKey: "q", paramValue: "Civil Engineer" },
-  { type: "role", label: "Software Engineer", sublabel: "Full Stack, Backend & Frontend", query: "Software Engineer", paramKey: "q", paramValue: "Software Engineer" },
-  { type: "role", label: "Design Manager", sublabel: "Technical Services & Architecture", query: "Design Manager", paramKey: "q", paramValue: "Design Manager" },
-  { type: "role", label: "Data Analyst", sublabel: "Analytics, BI & Machine Learning", query: "Data Analyst", paramKey: "q", paramValue: "Data Analyst" },
+  { type: "company", label: "Google", sublabel: "Tier-1 Global Sponsor", query: "", paramKey: "company", paramValue: "Google" },
+  { type: "role", label: "Civil Engineer", sublabel: "Infrastructure & Structural Engineering", query: "Civil Engineer", paramKey: "q", paramValue: "Civil Engineer" },
+  { type: "role", label: "Software Engineer", sublabel: "Full Stack, Backend & Cloud", query: "Software Engineer", paramKey: "q", paramValue: "Software Engineer" },
   { type: "role", label: "Registered Nurse", sublabel: "Healthcare & NHS Sponsorship", query: "Nurse", paramKey: "q", paramValue: "Nurse" },
+  { type: "role", label: "Data Analyst", sublabel: "BI, Analytics & Machine Learning", query: "Data Analyst", paramKey: "q", paramValue: "Data Analyst" },
   { type: "location", label: "United Kingdom", sublabel: "Skilled Worker Visa (CoS)", query: "", paramKey: "country", paramValue: "gb" },
   { type: "location", label: "United States", sublabel: "H-1B & Tech Sponsorship", query: "", paramKey: "country", paramValue: "us" },
   { type: "location", label: "Australia", sublabel: "TSS 482 & Skilled Visas", query: "", paramKey: "country", paramValue: "au" },
+  { type: "location", label: "Canada", sublabel: "Global Talent Stream / LMIA", query: "", paramKey: "country", paramValue: "ca" },
 ];
 
 interface JobSearchBarProps {
@@ -45,6 +44,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
   const [country, setCountry] = useState(initialCountry);
+  const [experience, setExperience] = useState<string>("all");
   const [isOpen, setIsOpen] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<SearchSuggestion[]>(PRESET_SUGGESTIONS);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -71,7 +71,6 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
         (s.paramValue && s.paramValue.toLowerCase().includes(q))
     );
 
-    // If query is custom, also add as a direct role suggestion at top
     const customRole: SearchSuggestion = {
       type: "role",
       label: query.trim(),
@@ -98,125 +97,154 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
   const handleSelectSuggestion = (s: SearchSuggestion) => {
     setIsOpen(false);
     const params = new URLSearchParams();
+    if (s.paramKey === "country" && s.paramValue) {
+      router.push(`/jobs/${s.paramValue}`);
+      return;
+    }
     if (s.paramKey === "company" && s.paramValue) {
-      params.set("company", s.paramValue);
-    } else if (s.paramKey === "country" && s.paramValue) {
-      params.set("country", s.paramValue);
-    } else if (s.paramValue) {
-      params.set("q", s.paramValue);
+      router.push(`/company/${s.paramValue.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`);
+      return;
     }
-    if (country && country !== "ALL" && s.paramKey !== "country") {
-      params.set("country", country);
-    }
+    if (s.paramValue) params.set("q", s.paramValue);
+    if (country && country !== "ALL") params.set("country", country);
     router.push(`/jobs?${params.toString()}`);
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setIsOpen(false);
     const params = new URLSearchParams();
     if (query.trim()) params.set("q", query.trim());
     if (country && country !== "ALL") params.set("country", country);
+    if (experience && experience !== "all") params.set("experience", experience);
     router.push(`/jobs?${params.toString()}`);
   };
 
   if (variant === "hero") {
     return (
-      <div ref={containerRef} className={`w-full relative ${className}`}>
+      <div ref={containerRef} className={`w-full max-w-4xl mx-auto relative ${className}`}>
+        {/* Floating Search Container */}
         <form
-          onSubmit={handleFormSubmit}
-          className="w-full p-2 sm:p-2.5 bg-slate-800/90 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/50 border border-slate-700/80 flex flex-col md:flex-row gap-2 text-left relative z-30"
+          onSubmit={handleSearch}
+          className="bg-white p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl shadow-[0_20px_60px_rgba(15,23,42,0.18)] border border-slate-200/90 flex flex-col md:flex-row items-stretch gap-2"
         >
-          <div className="flex-1 flex items-center px-4 gap-3 border-b md:border-b-0 md:border-r border-slate-700/70 py-3 md:py-0">
-            <Search className="w-5 h-5 text-brand-400 shrink-0" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setIsOpen(true);
-              }}
-              onFocus={() => setIsOpen(true)}
-              placeholder="Job title, skill, or company (e.g. Civil Engineer, Mace, React)"
-              className="w-full outline-none text-white placeholder:text-slate-400 text-sm bg-transparent font-medium"
-            />
+          {/* Field 1: What do you do? */}
+          <div className="flex-1 relative flex items-center px-4 py-2 bg-slate-50 md:bg-transparent rounded-xl md:rounded-none">
+            <Search className="w-5 h-5 text-slate-400 shrink-0 mr-3" />
+            <div className="flex-1 min-w-0 text-left">
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                What do you do?
+              </label>
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setIsOpen(true);
+                }}
+                onFocus={() => setIsOpen(true)}
+                placeholder="Software Engineer, Civil Engineer, Mace..."
+                className="w-full bg-transparent text-slate-900 font-bold text-xs sm:text-sm placeholder:text-slate-400 placeholder:font-normal focus:outline-none"
+              />
+            </div>
             {query && (
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                className="text-slate-400 hover:text-white p-1"
+                className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
-          <div className="flex items-center px-4 gap-3 py-3 md:py-0 md:w-56">
-            <MapPin className="w-5 h-5 text-slate-400 shrink-0" />
-            <select
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
-              className="w-full outline-none text-slate-200 bg-transparent text-sm font-medium cursor-pointer"
-            >
-              <option value="ALL" className="bg-slate-900 text-white">All Countries (5)</option>
-              {INITIAL_COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code.toLowerCase()} className="bg-slate-900 text-white">
-                  {c.flag} {c.name}
-                </option>
-              ))}
-            </select>
+          <div className="hidden md:block w-px bg-slate-200 my-2" />
+
+          {/* Field 2: Where do you want to go? */}
+          <div className="relative flex items-center px-4 py-2 bg-slate-50 md:bg-transparent rounded-xl md:rounded-none min-w-[200px]">
+            <MapPin className="w-5 h-5 text-slate-400 shrink-0 mr-3" />
+            <div className="flex-1 min-w-0 text-left">
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                Where do you want to go?
+              </label>
+              <select
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                className="w-full bg-transparent text-slate-900 font-bold text-xs sm:text-sm focus:outline-none cursor-pointer"
+              >
+                <option value="ALL">🌍 All Destination Markets</option>
+                {INITIAL_COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.flag} {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
+          <div className="hidden md:block w-px bg-slate-200 my-2" />
+
+          {/* Field 3: Experience */}
+          <div className="relative flex items-center px-4 py-2 bg-slate-50 md:bg-transparent rounded-xl md:rounded-none min-w-[160px]">
+            <UserCheck className="w-5 h-5 text-slate-400 shrink-0 mr-3" />
+            <div className="flex-1 min-w-0 text-left">
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                Experience
+              </label>
+              <select
+                value={experience}
+                onChange={(e) => setExperience(e.target.value)}
+                className="w-full bg-transparent text-slate-900 font-bold text-xs sm:text-sm focus:outline-none cursor-pointer"
+              >
+                <option value="all">All Experience Levels</option>
+                <option value="junior">1 – 2 Years</option>
+                <option value="mid">3 – 5 Years</option>
+                <option value="senior">5+ Years (Lead)</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Primary Search CTA */}
           <button
             type="submit"
-            className="px-8 py-3.5 bg-gradient-to-r from-brand-600 to-sky-500 hover:from-brand-500 hover:to-sky-400 text-white rounded-xl sm:rounded-2xl font-bold text-sm shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shrink-0"
+            className="px-6 py-3.5 rounded-xl sm:rounded-2xl bg-[#071421] hover:bg-[#0D1B2A] text-white font-extrabold text-xs sm:text-sm tracking-tight transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer group shrink-0"
           >
-            <span>Search Jobs</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>Find Jobs I Can Actually Apply For</span>
+            <ArrowRight className="w-4 h-4 text-[#18D6E5] group-hover:translate-x-1 transition-transform" />
           </button>
         </form>
 
-        {/* Live Dropdown Suggestions */}
-        {isOpen && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-2xl border border-slate-700/90 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden z-40 text-left divide-y divide-slate-800 animate-fadeInDown">
-            <div className="p-3 bg-slate-950/60 flex items-center justify-between text-xs text-slate-400 px-4 font-semibold">
-              <span className="flex items-center gap-1.5 text-brand-400">
-                <Sparkles className="w-3.5 h-3.5" />
-                Intelligent Search Suggestions
-              </span>
-              <span>Press Enter to search</span>
+        {/* Smart Autocomplete Dropdown */}
+        {isOpen && filteredSuggestions.length > 0 && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden z-50 animate-in fade-in-50 text-left">
+            <div className="p-2 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+              <span>Sponsorship Intelligence Suggestions</span>
+              <span className="text-slate-400 font-normal">ESC to close</span>
             </div>
-
-            <div className="max-h-72 overflow-y-auto py-1.5">
-              {filteredSuggestions.slice(0, 8).map((s, idx) => (
+            <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
+              {filteredSuggestions.map((s, idx) => (
                 <button
                   key={`${s.label}-${idx}`}
                   type="button"
                   onClick={() => handleSelectSuggestion(s)}
-                  className="w-full px-4 py-2.5 hover:bg-brand-600/20 text-left flex items-center justify-between gap-3 transition-colors group cursor-pointer"
+                  className="w-full px-4 py-2.5 text-left hover:bg-slate-50 transition-colors flex items-center justify-between group cursor-pointer"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 group-hover:bg-brand-600 group-hover:text-white transition-colors">
-                      {s.type === "company" ? (
-                        <Building2 className="w-4 h-4 text-amber-400 group-hover:text-white" />
-                      ) : s.type === "location" ? (
-                        <MapPin className="w-4 h-4 text-emerald-400 group-hover:text-white" />
-                      ) : (
-                        <Briefcase className="w-4 h-4 text-sky-400 group-hover:text-white" />
-                      )}
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                      {s.type === "company" && <Building2 className="w-3.5 h-3.5 text-brand-600" />}
+                      {s.type === "role" && <Briefcase className="w-3.5 h-3.5 text-indigo-600" />}
+                      {s.type === "location" && <MapPin className="w-3.5 h-3.5 text-emerald-600" />}
                     </div>
-                    <div className="min-w-0">
-                      <div className="text-xs sm:text-sm font-bold text-white group-hover:text-brand-300 truncate">
+                    <div className="truncate">
+                      <div className="text-xs font-bold text-slate-900 group-hover:text-brand-600 transition-colors">
                         {s.label}
                       </div>
                       {s.sublabel && (
-                        <div className="text-[11px] text-slate-400 truncate">
-                          {s.sublabel}
-                        </div>
+                        <div className="text-[10px] text-slate-500 truncate">{s.sublabel}</div>
                       )}
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-brand-400 shrink-0 group-hover:translate-x-0.5 transition-all" />
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-brand-600 group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
                 </button>
               ))}
             </div>
@@ -226,89 +254,40 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
     );
   }
 
-  // Compact Variant (Jobs Page & Headers)
+  // Compact variant for secondary pages
   return (
-    <div ref={containerRef} className={`relative w-full ${className}`}>
-      <form onSubmit={handleFormSubmit} className="flex items-center gap-2">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setIsOpen(true);
-            }}
-            onFocus={() => setIsOpen(true)}
-            placeholder="Role, skill, or company (e.g. Civil Engineer, Mace, Monzo)..."
-            className="w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-brand-500 shadow-2xs text-slate-800"
-          />
-          {query && (
-            <button
-              type="button"
-              onClick={() => {
-                setQuery("");
-                setIsOpen(false);
-              }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
-        <button
-          type="submit"
-          className="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer shrink-0 touch-manipulation flex items-center gap-1.5"
-        >
-          <span>Search</span>
-        </button>
-      </form>
-
-      {/* Live Dropdown Suggestions */}
-      {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-40 text-left divide-y divide-slate-100 animate-fadeInDown">
-          <div className="p-2.5 bg-slate-50 flex items-center justify-between text-xs text-slate-500 px-3.5 font-semibold">
-            <span className="flex items-center gap-1.5 text-brand-600">
-              <Sparkles className="w-3.5 h-3.5" />
-              Smart Suggestions
-            </span>
-          </div>
-
-          <div className="max-h-64 overflow-y-auto py-1">
-            {filteredSuggestions.slice(0, 7).map((s, idx) => (
-              <button
-                key={`${s.label}-${idx}`}
-                type="button"
-                onClick={() => handleSelectSuggestion(s)}
-                className="w-full px-3.5 py-2.5 hover:bg-slate-50 text-left flex items-center justify-between gap-3 transition-colors group cursor-pointer"
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-brand-50 transition-colors">
-                    {s.type === "company" ? (
-                      <Building2 className="w-3.5 h-3.5 text-amber-600" />
-                    ) : s.type === "location" ? (
-                      <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                    ) : (
-                      <Briefcase className="w-3.5 h-3.5 text-brand-600" />
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-brand-600 truncate">
-                      {s.label}
-                    </div>
-                    {s.sublabel && (
-                      <div className="text-[10px] text-slate-400 truncate">
-                        {s.sublabel}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-brand-600 shrink-0 group-hover:translate-x-0.5 transition-all" />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+    <form
+      onSubmit={handleSearch}
+      className={`flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-xs ${className}`}
+    >
+      <div className="flex-1 flex items-center px-3 gap-2">
+        <Search className="w-4 h-4 text-slate-400 shrink-0" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search jobs, skills, companies..."
+          className="w-full bg-transparent text-slate-900 text-xs font-semibold focus:outline-none"
+        />
+      </div>
+      <select
+        value={country}
+        onChange={(e) => setCountry(e.target.value)}
+        className="bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 focus:outline-none cursor-pointer"
+      >
+        <option value="ALL">All Countries</option>
+        {INITIAL_COUNTRIES.map((c) => (
+          <option key={c.code} value={c.code}>
+            {c.flag} {c.name}
+          </option>
+        ))}
+      </select>
+      <button
+        type="submit"
+        className="px-4 py-2 bg-[#071421] hover:bg-[#0D1B2A] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+      >
+        Search
+      </button>
+    </form>
   );
 };
