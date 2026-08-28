@@ -483,28 +483,20 @@ export function AuthGateModal() {
                   </div>
                 </div>
 
-                {/* Promo / Invite Code Field */}
+                {/* Promo / Invite Code Field (Optional) */}
                 <div className="space-y-1 pt-1">
                   <div className="flex items-center justify-between">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
-                      <Gift className="w-3.5 h-3.5" />
-                      <span>Promo / Referral Invite Code</span>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                      <Gift className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Promo / Referral Code (Optional)</span>
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("trial")}
-                      className="text-[10px] text-brand-400 hover:underline font-bold"
-                    >
-                      Don't have a code?
-                    </button>
                   </div>
                   <input
                     type="text"
-                    required
                     value={promoCode}
                     onChange={(e) => setPromoCode(e.target.value)}
-                    placeholder="Enter your VIP invite / promo code"
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-amber-500/40 text-amber-300 font-mono text-xs focus:outline-none focus:border-amber-400"
+                    placeholder="Enter referral code if you have one (Optional)"
+                    className="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 font-mono text-xs focus:outline-none focus:border-brand-500"
                   />
                 </div>
 

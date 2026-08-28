@@ -55,25 +55,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ── PROMO CODE VERIFICATION (sumit_raj_linkedin) ──
-    const isValidCode = userRepository.isValidPromoCode(promoCode);
-    if (!isValidCode) {
-      return NextResponse.json(
-        {
-          success: false,
-          requireTrial: true,
-          error: "Invalid or missing invite promo code. A valid authorized promo code is required to register immediately. Alternatively, please request Free Trial Access.",
-        },
-        { status: 403 }
-      );
-    }
-
     const user = await userRepository.createUser({
       name,
       email,
       password,
       profession,
-      promoCode,
+      promoCode: promoCode ? promoCode.trim() : "",
     });
 
     // Notify Telegram in background

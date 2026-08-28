@@ -134,18 +134,6 @@ export default function ATSCheckerPage() {
       return;
     }
 
-    // ── STRICT PROMO CODE / AUTH GATE ──
-    const currentUser = overrideUser || user || checkUserAccess();
-    if (!currentUser || !currentUser.id) {
-      setError(null);
-      window.dispatchEvent(
-        new CustomEvent("open-auth-gate", {
-          detail: { defaultTab: "register" },
-        })
-      );
-      return;
-    }
-
     setIsAnalyzing(true);
     setError(null);
 

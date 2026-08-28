@@ -113,22 +113,9 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
 
   const handleApplyClick = (e: React.MouseEvent) => {
     e.preventDefault();
-
-    // Check strict user authentication & promo code trial status
-    if (!user || !user.id || (!user.has_active_trial && !user.hasActiveTrial && !user.promoCodeUsed && !user.promo_code_used)) {
-      window.dispatchEvent(
-        new CustomEvent("open-auth-gate", {
-          detail: { redirectUrl: applyUrl, defaultTab: "register" },
-        })
-      );
-      return;
-    }
-
-    // User is fully authenticated & trial is verified -> Open official apply page
+    // Direct free 1-click apply to official employer site
     window.open(applyUrl, "_blank", "noopener,noreferrer");
   };
-
-  const hasAccess = Boolean(user && user.id && (user.has_active_trial || user.hasActiveTrial || user.promoCodeUsed || user.promo_code_used));
 
   return (
     <>
@@ -159,52 +146,27 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
             onClick={handleApplyClick}
             className="flex-1 inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold text-xs shadow-md shadow-brand-600/25 transition-all text-center cursor-pointer touch-manipulation"
           >
-            {hasAccess ? (
-              <>
-                <span>{isDirect ? "Apply for This Job" : "View Employer Site"}</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </>
-            ) : (
-              <>
-                <Lock className="w-3.5 h-3.5 text-amber-300" />
-                <span>Unlock & Apply (Promo Code)</span>
-              </>
-            )}
+            <span>{isDirect ? "Apply for This Job" : "View Employer Site"}</span>
+            <ExternalLink className="w-3.5 h-3.5" />
           </button>
         </div>
       ) : (
         <div className="flex flex-col gap-3 w-full sm:w-64 shrink-0">
-          {/* === MAIN APPLY CTA (100% Gated by Auth & Promo Code) === */}
+          {/* === MAIN APPLY CTA (Direct Free Access) === */}
           <button
             type="button"
             onClick={handleApplyClick}
             className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold text-sm shadow-lg shadow-brand-600/25 transition-all text-center cursor-pointer group touch-manipulation"
           >
-            {hasAccess ? (
-              <>
-                <span>{isDirect ? "Apply for This Job" : "View on Employer Site"}</span>
-                <ExternalLink className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </>
-            ) : (
-              <>
-                <Lock className="w-4 h-4 text-amber-300" />
-                <span>Unlock & Apply (Promo Code)</span>
-              </>
-            )}
+            <span>{isDirect ? "Apply for This Job" : "View on Employer Site"}</span>
+            <ExternalLink className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </button>
 
           {/* Link quality & access notice */}
-          {hasAccess ? (
-            <p className="text-[11px] text-center text-emerald-700 font-medium flex items-center justify-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Verified Official Employer Application</span>
-            </p>
-          ) : (
-            <div className="px-3 py-2 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center gap-1.5 text-slate-700 text-[11px] font-medium">
-              <Sparkles className="w-3.5 h-3.5 text-brand-600" />
-              <span>Invite code required — Click above to unlock or request access</span>
-            </div>
-          )}
+          <p className="text-[11px] text-center text-emerald-700 font-medium flex items-center justify-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Verified Official Employer Application</span>
+          </p>
 
           {/* === Secondary Action Row === */}
           <div className="grid grid-cols-3 gap-2">
