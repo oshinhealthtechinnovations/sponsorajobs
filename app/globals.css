@@ -7,11 +7,17 @@
 :root {
   --foreground-rgb: 15, 23, 42;
   --background-rgb: 248, 250, 252;
-  --brand-primary: #0284c7;
-  --brand-gradient: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #075985 100%);
+  /* Brand Color System */
+  --navy:         #071522;
+  --brand-cyan:   #19CBE0;
+  --brand-green:  #19C98B;
+  --brand-amber:  #F5B942;
+  --brand-danger: #F0445E;
+  --brand-primary: #19CBE0;
+  --brand-gradient: linear-gradient(135deg, #19CBE0 0%, #0ea5e9 50%, #0284c7 100%);
   --glass-bg: rgba(255, 255, 255, 0.75);
   --glass-border: rgba(255, 255, 255, 0.5);
-  --shadow-brand: 0 20px 60px -10px rgba(2, 132, 199, 0.25);
+  --shadow-brand: 0 20px 60px -10px rgba(25, 203, 224, 0.2);
 }
 
 /* =========================================

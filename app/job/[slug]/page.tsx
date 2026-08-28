@@ -280,31 +280,45 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               </div>
             </div>
 
-            {/* 🎯 "Job Verification Details" Panel */}
+            {/* Application Fit Panel */}
             <div className="p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900 font-display">
-                  <ShieldCheck className="w-5 h-5 text-blue-600" />
-                  <span>Job Verification Details</span>
+                <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
+                  <ShieldCheck className="w-5 h-5 text-emerald-500" />
+                  <span>Application Fit</span>
                 </div>
-                <span className="text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full font-bold">
-                  {worthScore}/100 Score
+                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  {worthScore}/100
                 </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                {whyWorthApplying.map((reason, idx) => (
+                {whyWorthApplying.slice(0, 4).map((reason, idx) => (
                   <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span className="text-slate-700 font-medium leading-relaxed">{reason}</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                    <span className="text-slate-700 font-medium leading-relaxed">
+                      {reason
+                        .replace("Sponsorship likelihood is extremely high", "Strong sponsorship signal detected")
+                        .replace("Verified licensed employer", "Employer verified")
+                        .replace("Deterministic", "Verified")
+                      }
+                    </span>
                   </div>
                 ))}
               </div>
 
+              {/* Sponsorship Information — per spec §20 */}
               {job.sponsorship.positiveEvidence.length > 0 && (
-                <div className="p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/60 text-xs text-emerald-950">
-                  <span className="font-bold block mb-1">Detected Sponsorship Language in Vacancy Text:</span>
-                  <p className="italic leading-relaxed">&ldquo;{job.sponsorship.positiveEvidence[0]}&rdquo;</p>
+                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 space-y-1.5">
+                  <div className="flex items-center gap-1.5 font-bold text-emerald-800">
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                    <span>Sponsorship Information</span>
+                  </div>
+                  <div className="font-semibold text-emerald-700">Sponsorship signal detected</div>
+                  <p className="italic leading-relaxed text-emerald-900/80">&ldquo;{job.sponsorship.positiveEvidence[0]}&rdquo;</p>
+                  <p className="text-[10px] text-emerald-700/70">
+                    Sponsorship availability may vary by role, candidate and employer. Not a visa guarantee.
+                  </p>
                 </div>
               )}
             </div>
@@ -348,26 +362,39 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
              ─────────────────────────────────────────────────────────── */}
           <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
             {/* Action Box */}
-            <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-5">
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                  Application
-                </span>
-                <div className="text-sm font-extrabold text-slate-900 mt-0.5">
-                  Apply on Employer Site
+            <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-4">
+              {/* Freshness — per spec §21 */}
+              <div className="flex items-center justify-between text-xs text-slate-500">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                  <span className="font-semibold text-emerald-700">Active</span>
+                </div>
+                <div className="flex items-center gap-1 font-medium">
+                  <Clock className="w-3.5 h-3.5 shrink-0" />
+                  <span>
+                    {job.postedAt
+                      ? `Posted ${Math.floor((new Date().getTime() - new Date(job.postedAt).getTime()) / (1000 * 3600 * 24))} days ago`
+                      : "Recently posted"}
+                  </span>
                 </div>
               </div>
 
-              {/* Dominant 56px Apply Button */}
+              {/* Primary Apply CTA — per spec §19 */}
               <a
                 href={job.applyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer group"
+                className="w-full h-14 rounded-2xl bg-[#071522] hover:bg-slate-800 text-white font-black text-sm flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg transition-all cursor-pointer group"
               >
-                <span>Apply on Employer Site</span>
-                <ExternalLink className="w-4 h-4 text-white/80 group-hover:translate-x-1 transition-transform" />
+                <span>Apply on Employer Website</span>
+                <ExternalLink className="w-4 h-4 text-[#19CBE0] group-hover:translate-x-0.5 transition-transform" />
               </a>
+
+              {/* Trust signal */}
+              <div className="text-center text-[11px] text-slate-500">
+                <span className="font-semibold text-slate-700">Direct Employer Application</span>
+                {" · "}You will be redirected to the employer's original application page.
+              </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -386,11 +413,11 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 </button>
               </div>
 
-              {/* Job Match Score Breakdown */}
+              {/* Application Fit Score breakdown */}
               <div className="pt-4 border-t border-slate-100">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-3">
                   <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                    Job Match Score
+                    Application Fit Score
                   </span>
                   <span className="font-bold text-slate-900 text-sm">{worthScore}/100</span>
                 </div>
@@ -419,19 +446,19 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 </div>
               </div>
 
-              {/* Provenance Trail */}
+              {/* Verification Details */}
               <div className="pt-4 border-t border-slate-100 space-y-2 text-[11px] text-slate-500">
                 <div className="flex justify-between">
-                  <span>Employer License:</span>
-                  <span className="font-bold text-slate-800">Confirmed Registry</span>
+                  <span>Employer:</span>
+                  <span className="font-bold text-slate-800">Verified</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Verification Date:</span>
-                  <span className="font-bold text-slate-800">Verified Today</span>
+                  <span>Last Verified:</span>
+                  <span className="font-bold text-slate-800">Recently verified</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Direct URL:</span>
-                  <span className="font-bold text-emerald-600">Active ATS Endpoint</span>
+                  <span>Application Link:</span>
+                  <span className="font-bold text-emerald-600">Active</span>
                 </div>
               </div>
             </div>
@@ -454,8 +481,8 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           <div className="mt-16 pt-10 border-t border-slate-200">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 font-display">
-                  Related Analyzed Opportunities
+                <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
+                  Similar Opportunities
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
                   More verified vacancies in {job.location.country}

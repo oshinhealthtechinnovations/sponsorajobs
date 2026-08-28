@@ -15,15 +15,15 @@ interface SearchSuggestion {
 }
 
 const PRESET_SUGGESTIONS: SearchSuggestion[] = [
-  { type: "company", label: "Mace", sublabel: "UK Licensed Sponsor (10 Verified Jobs)", query: "", paramKey: "company", paramValue: "Mace" },
-  { type: "company", label: "Monzo Bank", sublabel: "Fintech Leader (25+ Jobs)", query: "", paramKey: "company", paramValue: "Monzo Bank" },
-  { type: "company", label: "Google", sublabel: "Tier-1 Global Sponsor", query: "", paramKey: "company", paramValue: "Google" },
+  { type: "company", label: "Mace", sublabel: "Licensed Sponsor · 10+ Jobs", query: "", paramKey: "company", paramValue: "Mace" },
+  { type: "company", label: "Monzo Bank", sublabel: "Fintech · 25+ Jobs", query: "", paramKey: "company", paramValue: "Monzo Bank" },
+  { type: "company", label: "Google", sublabel: "Global Employer · Multiple Countries", query: "", paramKey: "company", paramValue: "Google" },
   { type: "role", label: "Civil Engineer", sublabel: "Infrastructure & Structural Engineering", query: "Civil Engineer", paramKey: "q", paramValue: "Civil Engineer" },
   { type: "role", label: "Software Engineer", sublabel: "Full Stack, Backend & Cloud", query: "Software Engineer", paramKey: "q", paramValue: "Software Engineer" },
-  { type: "role", label: "Registered Nurse", sublabel: "Healthcare & NHS Sponsorship", query: "Nurse", paramKey: "q", paramValue: "Nurse" },
+  { type: "role", label: "Registered Nurse", sublabel: "Healthcare & NHS", query: "Nurse", paramKey: "q", paramValue: "Nurse" },
   { type: "role", label: "Data Analyst", sublabel: "BI, Analytics & Machine Learning", query: "Data Analyst", paramKey: "q", paramValue: "Data Analyst" },
-  { type: "location", label: "United Kingdom", sublabel: "Skilled Worker Visa (CoS)", query: "", paramKey: "country", paramValue: "gb" },
-  { type: "location", label: "United States", sublabel: "H-1B & Tech Sponsorship", query: "", paramKey: "country", paramValue: "us" },
+  { type: "location", label: "United Kingdom", sublabel: "Skilled Worker Visa", query: "", paramKey: "country", paramValue: "gb" },
+  { type: "location", label: "United States", sublabel: "H-1B & Specialty Occupation", query: "", paramKey: "country", paramValue: "us" },
   { type: "location", label: "Australia", sublabel: "TSS 482 & Skilled Visas", query: "", paramKey: "country", paramValue: "au" },
   { type: "location", label: "Canada", sublabel: "Global Talent Stream / LMIA", query: "", paramKey: "country", paramValue: "ca" },
 ];
@@ -37,14 +37,15 @@ interface JobSearchBarProps {
 
 export const JobSearchBar: React.FC<JobSearchBarProps> = ({
   initialQuery = "",
-  initialCountry = "gb",
+  initialCountry = "ALL",
   variant = "compact",
   className = "",
 }) => {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
   const [country, setCountry] = useState(initialCountry);
-  const [experience, setExperience] = useState<string>("mid");
+  const [experience, setExperience] = useState<string>("all");
+  const [sponsorship, setSponsorship] = useState<string>("any");
   const [isOpen, setIsOpen] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<SearchSuggestion[]>(PRESET_SUGGESTIONS);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -128,51 +129,50 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
           onSubmit={handleSearch}
           className="bg-white p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl shadow-[0_20px_60px_rgba(15,23,42,0.18)] border border-slate-200/90 flex flex-col md:flex-row items-stretch gap-2"
         >
-          {/* Field 1: What do you do? */}
-          <div className="flex-1 relative flex items-center px-4 py-2 bg-slate-50 md:bg-transparent rounded-xl md:rounded-none">
-            <Search className="w-5 h-5 text-slate-400 shrink-0 mr-3" />
-            <div className="flex-1 min-w-0 text-left">
-              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                Job title, skill or keyword
-              </label>
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setIsOpen(true);
-                }}
-                onFocus={() => setIsOpen(true)}
-                placeholder="Software Engineer, Data Analyst, Civil Engineer..."
-                className="w-full bg-transparent text-slate-900 font-bold text-xs sm:text-sm placeholder:text-slate-400 placeholder:font-normal focus:outline-none"
-              />
+            <div className="flex-1 relative flex items-center px-4 py-2 bg-slate-50 md:bg-transparent rounded-xl md:rounded-none">
+              <Search className="w-5 h-5 text-slate-400 shrink-0 mr-3" />
+              <div className="flex-1 min-w-0 text-left">
+                <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                  Job title, skill or keyword
+                </label>
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setIsOpen(true);
+                  }}
+                  onFocus={() => setIsOpen(true)}
+                  placeholder="e.g. Software Engineer, Civil Engineer, Data Analyst"
+                  className="w-full bg-transparent text-slate-900 font-bold text-xs sm:text-sm placeholder:text-slate-400 placeholder:font-normal focus:outline-none"
+                />
+              </div>
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
-            {query && (
-              <button
-                type="button"
-                onClick={() => setQuery("")}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 cursor-pointer"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
 
           <div className="hidden md:block w-px bg-slate-200 my-2" />
 
-          {/* Field 2: Where do you want to go? */}
-          <div className="relative flex items-center px-4 py-2 bg-slate-50 md:bg-transparent rounded-xl md:rounded-none min-w-[200px]">
+          {/* Field 2: Location */}
+          <div className="relative flex items-center px-4 py-2 bg-slate-50 md:bg-transparent rounded-xl md:rounded-none min-w-[180px]">
             <MapPin className="w-5 h-5 text-slate-400 shrink-0 mr-3" />
             <div className="flex-1 min-w-0 text-left">
               <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                Destination
+                Location
               </label>
               <select
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
                 className="w-full bg-transparent text-slate-900 font-bold text-xs sm:text-sm focus:outline-none cursor-pointer"
               >
-                <option value="ALL">🌍 All Destination Markets</option>
+                <option value="ALL">🌍 Country, city or remote</option>
                 {INITIAL_COUNTRIES.map((c) => (
                   <option key={c.code} value={c.code}>
                     {c.flag} {c.name}
@@ -185,7 +185,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
           <div className="hidden md:block w-px bg-slate-200 my-2" />
 
           {/* Field 3: Experience */}
-          <div className="relative flex items-center px-4 py-2 bg-slate-50 md:bg-transparent rounded-xl md:rounded-none min-w-[160px]">
+          <div className="relative flex items-center px-4 py-2 bg-slate-50 md:bg-transparent rounded-xl md:rounded-none min-w-[150px]">
             <UserCheck className="w-5 h-5 text-slate-400 shrink-0 mr-3" />
             <div className="flex-1 min-w-0 text-left">
               <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
@@ -196,10 +196,12 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
                 onChange={(e) => setExperience(e.target.value)}
                 className="w-full bg-transparent text-slate-900 font-bold text-xs sm:text-sm focus:outline-none cursor-pointer"
               >
-                <option value="all">All Experience Levels</option>
+                <option value="all">Any Experience</option>
+                <option value="entry">Entry Level</option>
                 <option value="junior">1 – 2 Years</option>
                 <option value="mid">3 – 5 Years</option>
-                <option value="senior">5+ Years (Lead)</option>
+                <option value="senior">5 – 8 Years</option>
+                <option value="lead">8+ Years</option>
               </select>
             </div>
           </div>
@@ -207,18 +209,18 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
           {/* Primary Search CTA */}
           <button
             type="submit"
-            className="px-6 py-3.5 rounded-xl sm:rounded-2xl bg-[#071421] hover:bg-[#0D1B2A] text-white font-extrabold text-xs sm:text-sm tracking-tight transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer group shrink-0"
+            className="px-6 py-3.5 rounded-xl sm:rounded-2xl bg-[#071522] hover:bg-slate-800 text-white font-extrabold text-sm tracking-tight transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer group shrink-0"
           >
-            <span>Find Sponsorship-Friendly Jobs</span>
-            <ArrowRight className="w-4 h-4 text-[#18D6E5] group-hover:translate-x-1 transition-transform" />
+            <span>Search Jobs</span>
+            <ArrowRight className="w-4 h-4 text-[#19CBE0] group-hover:translate-x-1 transition-transform" />
           </button>
         </form>
 
         {/* Smart Autocomplete Dropdown */}
         {isOpen && filteredSuggestions.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden z-50 animate-in fade-in-50 text-left">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden z-50 text-left">
             <div className="p-2 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-              <span>Sponsorship Intelligence Suggestions</span>
+              <span>Suggested Searches</span>
               <span className="text-slate-400 font-normal">ESC to close</span>
             </div>
             <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">

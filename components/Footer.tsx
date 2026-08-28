@@ -1,190 +1,133 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
-import { INITIAL_COUNTRIES } from "@/config/countries";
-import { INITIAL_CATEGORIES } from "@/config/categories";
-import {
-  ShieldCheck,
-  Globe,
-  Sparkles,
-  Heart,
-  ArrowUpRight,
-  Building2,
-  FileCheck,
-  CheckCircle2,
-} from "lucide-react";
+import { JobAlertSignup } from "./JobAlertSignup";
+import { ShieldCheck, Globe2, Briefcase } from "lucide-react";
+
+const FOOTER_LINKS = {
+  findJobs: {
+    label: "Find Jobs",
+    links: [
+      { href: "/jobs/uk", label: "Jobs in UK" },
+      { href: "/jobs/usa", label: "Jobs in USA" },
+      { href: "/jobs/australia", label: "Jobs in Australia" },
+      { href: "/jobs/canada", label: "Jobs in Canada" },
+      { href: "/jobs/new-zealand", label: "Jobs in New Zealand" },
+    ],
+  },
+  careerTools: {
+    label: "Career Tools",
+    links: [
+      { href: "/tools/ats-checker", label: "Application Fit Checker" },
+      { href: "/", label: "Eligibility Checker" },
+      { href: "/", label: "Job Alerts" },
+      { href: "/blog", label: "Career Paths" },
+      { href: "/visa-sponsorship", label: "Sponsorship Intelligence" },
+    ],
+  },
+  resources: {
+    label: "Resources",
+    links: [
+      { href: "/blog?q=uk", label: "UK Career Guide" },
+      { href: "/blog?q=australia", label: "Australia Career Guide" },
+      { href: "/blog?q=canada", label: "Canada Career Guide" },
+      { href: "/blog", label: "International Career Guides" },
+    ],
+  },
+  company: {
+    label: "SponsorAJobs",
+    links: [
+      { href: "/about", label: "About" },
+      { href: "/trust", label: "How It Works" },
+      { href: "/contact", label: "Contact" },
+      { href: "/privacy", label: "Privacy" },
+      { href: "/terms", label: "Terms" },
+    ],
+  },
+};
 
 export const Footer: React.FC = () => {
+  const year = new Date().getFullYear();
+
   return (
-    <footer className="w-full border-t border-slate-800 bg-slate-950 text-slate-300 mt-auto">
-      {/* Upper Footer Highlights */}
-      <div className="border-b border-slate-800/80 bg-slate-900/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 shrink-0">
-                <FileCheck className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-white">Sponsorship Signal Parsing</h4>
-                <p className="text-xs text-slate-400 mt-0.5">Deterministic visa keyword & CoS detection.</p>
-              </div>
-            </div>
+    <footer className="w-full bg-[#071522] text-slate-300 border-t border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
 
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-white">Direct Employer Links</h4>
-                <p className="text-xs text-slate-400 mt-0.5">Apply directly on original verified ATS boards.</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 shrink-0">
-                <Globe className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-white">5 Global Jurisdictions</h4>
-                <p className="text-xs text-slate-400 mt-0.5">UK, USA, Australia, Canada, & New Zealand.</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-white">100% Free For Job Seekers</h4>
-                <p className="text-xs text-slate-400 mt-0.5">No hidden charges or mandatory fees.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Footer Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {/* Brand & Purpose */}
-          <div className="space-y-4 lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-400 to-brand-700 text-white flex items-center justify-center font-black text-sm shadow-md">
+          {/* Brand + Mission */}
+          <div className="lg:col-span-4 space-y-5">
+            <Link href="/" className="flex items-center gap-2.5 group w-fit">
+              <div className="w-9 h-9 rounded-xl bg-white/10 text-white flex items-center justify-center font-black text-sm tracking-wider border border-white/20">
                 SA
               </div>
-              <span className="text-xl font-bold text-white font-display">
-                Sponsor<span className="text-brand-400">A</span>Jobs
-              </span>
+              <div className="flex items-baseline">
+                <span className="text-lg font-black tracking-tight text-white">SponsorAJobs</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#19CBE0] ml-0.5 mb-0.5" />
+              </div>
             </Link>
-            <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              SponsorAJobs is an immigration-intelligence job discovery engine helping global software engineers, civil engineers, healthcare professionals, and technical specialists locate verified employer visa sponsorship opportunities worldwide.
+
+            <p className="text-sm text-slate-400 leading-relaxed max-w-sm">
+              Find international jobs you can actually apply for. Search verified opportunities with sponsorship signals, employer verification and direct application links.
             </p>
-            <div className="flex flex-col gap-2 pt-1">
-              <div className="flex items-center gap-2 text-xs text-emerald-400">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>Indexed & updated daily with active feeds</span>
+
+            {/* Trust badges */}
+            <div className="flex flex-col gap-2 text-xs text-slate-500">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>Employer Verification on every listing</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Globe2 className="w-3.5 h-3.5 text-[#19CBE0] shrink-0" />
+                <span>Sponsorship Signal Detection</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span>Direct employer application links only</span>
               </div>
             </div>
           </div>
 
-          {/* Target Countries */}
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-3 font-display">
-              Target Countries
-            </h4>
-            <ul className="space-y-2 text-xs text-slate-400">
-              {INITIAL_COUNTRIES.map((c) => (
-                <li key={c.code}>
-                  <Link
-                    href={`/jobs/${c.slug}`}
-                    className="hover:text-brand-400 transition-colors flex items-center gap-1.5"
-                  >
-                    <span>{c.flag}</span>
-                    <span>Jobs in {c.name}</span>
-                  </Link>
-                </li>
-              ))}
-              <li className="pt-1">
-                <Link href="/countries" className="text-brand-400 hover:text-brand-300 font-semibold flex items-center gap-1">
-                  <span>View all destinations</span>
-                  <ArrowUpRight className="w-3 h-3" />
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Visa Guides */}
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-3 font-display">
-              Visa Sponsorship Guides
-            </h4>
-            <ul className="space-y-2 text-xs text-slate-400">
-              <li>
-                <Link href="/visa-sponsorship/uk" className="hover:text-brand-400 transition-colors">
-                  UK Skilled Worker & CoS Guide
-                </Link>
-              </li>
-              <li>
-                <Link href="/visa-sponsorship/usa" className="hover:text-brand-400 transition-colors">
-                  USA H-1B & Green Card Guide
-                </Link>
-              </li>
-              <li>
-                <Link href="/visa-sponsorship/australia" className="hover:text-brand-400 transition-colors">
-                  Australia TSS 482 & 186 Guide
-                </Link>
-              </li>
-              <li>
-                <Link href="/visa-sponsorship/canada" className="hover:text-brand-400 transition-colors">
-                  Canada LMIA & Express Entry
-                </Link>
-              </li>
-              <li>
-                <Link href="/visa-sponsorship/new-zealand" className="hover:text-brand-400 transition-colors">
-                  NZ AEWV & Green List Guide
-                </Link>
-              </li>
-              <li className="pt-1">
-                <Link href="/blog" className="text-brand-400 font-semibold hover:text-brand-300 transition-colors flex items-center gap-1">
-                  <span>Explore All Career Guides & Blog</span>
-                  <ArrowUpRight className="w-3 h-3" />
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Platform & Trust */}
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-3 font-display">
-              Candidate Tools & Trust
-            </h4>
-            <ul className="space-y-2 text-xs text-slate-400">
-              <li>
-                <Link href="/tools/ats-checker" className="text-amber-400 hover:text-amber-300 font-semibold transition-colors flex items-center gap-1">
-                  <span>✨ ATS Resume Score Predictor</span>
-                </Link>
-              </li>
-              <li><Link href="/about" className="hover:text-brand-400 transition-colors">About Us</Link></li>
-              <li><Link href="/disclaimer" className="hover:text-brand-400 transition-colors">Sponsorship Disclaimer</Link></li>
-              <li><Link href="/privacy" className="hover:text-brand-400 transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="hover:text-brand-400 transition-colors">Terms of Service</Link></li>
-              <li><Link href="/contact" className="hover:text-brand-400 transition-colors">Contact Support</Link></li>
-              <li><Link href="/employers" className="hover:text-brand-400 transition-colors">Employer Job Posting</Link></li>
-            </ul>
+          {/* Navigation Columns */}
+          <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+            {Object.values(FOOTER_LINKS).map((section) => (
+              <div key={section.label} className="space-y-4">
+                <h4 className="text-xs font-extrabold uppercase tracking-widest text-slate-400">
+                  {section.label}
+                </h4>
+                <ul className="space-y-2.5">
+                  {section.links.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
+                        className="text-sm text-slate-500 hover:text-white transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Informational Disclaimer Notice */}
-        <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex items-center gap-2 text-slate-400 text-center md:text-left">
-            <ShieldCheck className="w-4 h-4 text-brand-400 shrink-0" />
-            <span>
-              Disclaimer: SponsorAJobs is an independent search aggregator. Sponsorship signals are extracted from public job text and do not constitute legal advice.
-            </span>
-          </div>
-          <p className="shrink-0 text-slate-400">
-            © {new Date().getFullYear()} SponsorAJobs.com. All rights reserved.
+        {/* Bottom bar */}
+        <div className="mt-14 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-slate-600 text-center sm:text-left">
+            &copy; {year} SponsorAJobs. All job listings link to original employer postings.
+            Not a visa advisory or immigration legal service.
           </p>
+
+          <div className="flex items-center gap-4 text-xs text-slate-600">
+            <Link href="/privacy" className="hover:text-slate-400 transition-colors">Privacy</Link>
+            <span>·</span>
+            <Link href="/terms" className="hover:text-slate-400 transition-colors">Terms</Link>
+            <span>·</span>
+            <Link href="/disclaimer" className="hover:text-slate-400 transition-colors">Disclaimer</Link>
+            <span>·</span>
+            <Link href="/contact" className="hover:text-slate-400 transition-colors">Contact</Link>
+          </div>
         </div>
       </div>
     </footer>
