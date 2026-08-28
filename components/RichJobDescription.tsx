@@ -109,6 +109,41 @@ function parseContentLine(rawLine: string): { isBullet: boolean; text: string } 
   return { isBullet: false, text: trimmed };
 }
 
+// Helper to auto-format unsegmented plain text and detect hidden section headers
+function preprocessDescriptionText(raw: string): string {
+  if (!raw) return "";
+
+  let text = raw;
+
+  // 1. Convert common inline section headers to markdown ## headers if not already formatted
+  const headerReplacements: [RegExp, string][] = [
+    [/(?:^|\n)\s*(?:[-*•]\s*)?(?:Summary|Overview|About the (?:Role|Position|Job|Company|Agency)|Primary Purpose):?\s*(?=\n|[A-Z])/gi, "\n\n## Overview\n"],
+    [/(?:^|\n)\s*(?:[-*•]\s*)?(?:Key Responsibilities|Responsibilities|Duties|What You(?:'ll| will) Do|Major Duties|Job Duties):?\s*(?=\n|[A-Z])/gi, "\n\n## Key Responsibilities\n"],
+    [/(?:^|\n)\s*(?:[-*•]\s*)?(?:Basic Requirements|Requirements|Qualifications|Minimum Qualifications|In order to qualify|Eligibility|Who You Are|What You(?:'ll| will) Bring|Skills & Experience):?\s*(?=\n|[A-Z])/gi, "\n\n## Qualifications & Requirements\n"],
+    [/(?:^|\n)\s*(?:[-*•]\s*)?(?:Visa Sponsorship|Immigration Support|Relocation Assistance|Certificate of Sponsorship):?\s*(?=\n|[A-Z])/gi, "\n\n## Visa Sponsorship & Relocation\n"],
+    [/(?:^|\n)\s*(?:[-*•]\s*)?(?:Benefits|What We Offer|Compensation & Perks|Salary & Benefits|Perks):?\s*(?=\n|[A-Z])/gi, "\n\n## Benefits & Compensation\n"],
+    [/(?:^|\n)\s*(?:[-*•]\s*)?(?:How to Apply|Application (?:Process|Instructions)|Next Steps):?\s*(?=\n|[A-Z])/gi, "\n\n## How to Apply\n"],
+  ];
+
+  for (const [pattern, replacement] of headerReplacements) {
+    text = text.replace(pattern, replacement);
+  }
+
+  // 2. Break up dense walls of text (like federal OPM / job board continuous text)
+  // Split on prominent list patterns like (a), (b), (c), A), B), C), 1., 2., GS-07:, GS-09:, OR Leading to..., etc.
+  text = text
+    .replace(/;\s+and\s+\((?:[a-g]|\d+)\)\s+/gi, ";\n• ")
+    .replace(/;\s+\((?:[a-g]|\d+)\)\s+/gi, ";\n• ")
+    .replace(/\s+\(([a-g])\)\s+/g, "\n• ")
+    .replace(/\s+([A-D]\))\s+/g, "\n\n**$1** ")
+    .replace(/\s+(GS-\d+:)\s+/g, "\n\n**$1** ")
+    .replace(/\s+(OR\s+(?:Include|Leading|Training|You have|education|Specialized))/gi, "\n\n**OR**\n• $1")
+    .replace(/\s+(In addition to meeting the basic requirement[^:]*:)\s+/gi, "\n\n$1\n\n")
+    .replace(/\s+(You may qualify if you meet one of the following:)\s+/gi, "\n\n$1\n\n");
+
+  return text;
+}
+
 export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
   description,
   companyName,
@@ -117,7 +152,8 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
 }) => {
   // Parse markdown-style sections (## Section Title) with robust HTML decoding & cleaning
   const sections = React.useMemo(() => {
-    const cleanMarkdown = cleanHtmlToMarkdown(description || "");
+    const preprocessed = preprocessDescriptionText(description || "");
+    const cleanMarkdown = cleanHtmlToMarkdown(preprocessed);
     const rawLines = cleanMarkdown.split("\n");
     const parsedSections: { title: string; type: string; content: string[] }[] = [];
     let currentTitle = "Overview";
@@ -145,7 +181,8 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
         t.includes("who you are") ||
         t.includes("skills") ||
         t.includes("love to hear from you") ||
-        t.includes("experience")
+        t.includes("experience") ||
+        t.includes("eligib")
       ) {
         return "requirements";
       }
@@ -173,7 +210,7 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
       if (t.includes("apply") || t.includes("how to") || t.includes("process") || t.includes("guidelines")) {
         return "apply";
       }
-      if (t.includes("about") || t.includes("overview") || t.includes("who we are") || t.includes("team")) {
+      if (t.includes("about") || t.includes("overview") || t.includes("who we are") || t.includes("team") || t.includes("summary")) {
         return "about";
       }
       return "general";
@@ -193,7 +230,23 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
         currentType = getSectionType(currentTitle);
         currentLines = [];
       } else if (trimmed) {
-        currentLines.push(trimmed);
+        // Split extra-long lines that contain sentence clusters
+        if (trimmed.length > 250 && !trimmed.startsWith("•") && !trimmed.startsWith("-") && !trimmed.startsWith("*")) {
+          // If long sentence block, split into readable paragraph chunks
+          const sentences = trimmed.split(/(?<=[.!?])\s+(?=[A-Z0-9])/);
+          let chunk = "";
+          for (const s of sentences) {
+            if ((chunk + " " + s).length > 200) {
+              if (chunk) currentLines.push(chunk.trim());
+              chunk = s;
+            } else {
+              chunk = chunk ? chunk + " " + s : s;
+            }
+          }
+          if (chunk) currentLines.push(chunk.trim());
+        } else {
+          currentLines.push(trimmed);
+        }
       }
     }
 
