@@ -12,6 +12,7 @@ import {
   ArrowRight,
   Bookmark,
   CheckCircle2,
+  AlertTriangle,
   ExternalLink,
   Building2,
 } from "lucide-react";
@@ -97,7 +98,8 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
 
   const fitInfo = getFitLabel(worthScore);
   const salary = formatSalary();
-  const hasSponsorship = confidence.label.includes("VERIFIED") || confidence.label.includes("HIGH CONFIDENCE");
+  const hasNegative = (job.sponsorship.negativeEvidence && job.sponsorship.negativeEvidence.length > 0) || job.sponsorship.label === "Explicitly Not Offered";
+  const hasSponsorship = !hasNegative && (confidence.label === "VERIFIED" || confidence.label === "HIGH CONFIDENCE" || confidence.label === "SIGNAL DETECTED");
 
   return (
     <>
@@ -193,10 +195,20 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
                 <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
                 <span>Employer Verified</span>
               </div>
-              {hasSponsorship && (
+              {hasNegative ? (
+                <div className="flex items-center gap-1.5 text-[11px] text-amber-700">
+                  <AlertTriangle className="w-3 h-3 text-amber-500 shrink-0" />
+                  <span>No Visa Sponsorship</span>
+                </div>
+              ) : hasSponsorship ? (
                 <div className="flex items-center gap-1.5 text-[11px] text-slate-600">
                   <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
                   <span>Sponsorship Signal</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                  <CheckCircle2 className="w-3 h-3 text-slate-400 shrink-0" />
+                  <span>Direct Apply Active</span>
                 </div>
               )}
               {salary && (

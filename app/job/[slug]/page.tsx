@@ -241,10 +241,17 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                     >
                       {job.company.name}
                     </Link>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                      <span>Verified Sponsor</span>
-                    </span>
+                    {intelligence.breakdown.employerVerification >= 90 && !job.sponsorship.negativeEvidence?.length ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        <span>Verified Sponsor</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                        <Building2 className="w-3 h-3 text-slate-500" />
+                        <span>Direct Employer</span>
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
                     <MapPin className="w-3.5 h-3.5 text-slate-400" />
@@ -308,7 +315,19 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               </div>
 
               {/* Sponsorship Information — per spec §20 */}
-              {job.sponsorship.positiveEvidence.length > 0 && (
+              {job.sponsorship.negativeEvidence && job.sponsorship.negativeEvidence.length > 0 ? (
+                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 space-y-1.5">
+                  <div className="flex items-center gap-1.5 font-bold text-amber-800">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                    <span>Sponsorship Information</span>
+                  </div>
+                  <div className="font-semibold text-amber-800">Sponsorship not offered for this role</div>
+                  <p className="italic leading-relaxed text-amber-900/90">&ldquo;{job.sponsorship.negativeEvidence[0]}&rdquo;</p>
+                  <p className="text-[10px] text-amber-700">
+                    Employer public posting indicates that visa sponsorship is unavailable for this specific role.
+                  </p>
+                </div>
+              ) : job.sponsorship.positiveEvidence && job.sponsorship.positiveEvidence.length > 0 ? (
                 <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 space-y-1.5">
                   <div className="flex items-center gap-1.5 font-bold text-emerald-800">
                     <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
@@ -318,6 +337,16 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                   <p className="italic leading-relaxed text-emerald-900/80">&ldquo;{job.sponsorship.positiveEvidence[0]}&rdquo;</p>
                   <p className="text-[10px] text-emerald-700/70">
                     Sponsorship availability may vary by role, candidate and employer. Not a visa guarantee.
+                  </p>
+                </div>
+              ) : (
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-1.5">
+                  <div className="flex items-center gap-1.5 font-bold text-slate-800">
+                    <ShieldCheck className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                    <span>Sponsorship Status</span>
+                  </div>
+                  <p className="leading-relaxed text-slate-600">
+                    No explicit sponsorship statement declared in the public vacancy. Direct application endpoint verified with the employer.
                   </p>
                 </div>
               )}
@@ -428,8 +457,17 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                     <span className="font-bold text-slate-900">{breakdown.roleMatch}%</span>
                   </div>
                   <div className="flex justify-between items-center text-slate-600">
-                    <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />Sponsorship Signal</span>
-                    <span className="font-bold text-emerald-600">Strong</span>
+                    <span className="flex items-center gap-1.5">
+                      {breakdown.sponsorshipLikelihood >= 60 ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                      ) : (
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                      )}
+                      Sponsorship Signal
+                    </span>
+                    <span className={`font-bold ${breakdown.sponsorshipLikelihood >= 75 ? "text-emerald-600" : breakdown.sponsorshipLikelihood >= 50 ? "text-amber-600" : "text-slate-500"}`}>
+                      {breakdown.sponsorshipLikelihood >= 75 ? "Strong" : breakdown.sponsorshipLikelihood >= 50 ? "Possible" : "Not Detected"}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center text-slate-600">
                     <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />Employer Verification</span>
