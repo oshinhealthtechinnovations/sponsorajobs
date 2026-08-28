@@ -4,18 +4,30 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Search, Menu, X, Globe, Briefcase, HelpCircle,
-  Bell, FileText, Sparkles, Compass, Shield, ArrowUpRight, LogIn, User as UserIcon
+  Search,
+  Menu,
+  X,
+  Globe,
+  Briefcase,
+  Bell,
+  Compass,
+  Bookmark,
+  ShieldCheck,
+  ArrowRight,
+  LogIn,
+  User as UserIcon,
+  Sparkles,
+  ExternalLink,
 } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
 
-// Primary navigation links
-const navLinks = [
-  { href: "/jobs", label: "Find Jobs", icon: Search },
-  { href: "/tools/cv-job-match", label: "CV Job Match", icon: Sparkles, badge: "NEW" },
-  { href: "/tools/ats-checker", label: "ATS Checker", icon: FileText },
-  { href: "/companies", label: "Companies", icon: Briefcase },
-  { href: "/blog", label: "Visa Guides", icon: Compass },
+// Primary navigation links conforming to tier-1 specification
+const NAV_LINKS = [
+  { href: "/jobs", label: "Jobs", icon: Search },
+  { href: "/countries", label: "Countries", icon: Globe },
+  { href: "/companies", label: "Employers", icon: Briefcase },
+  { href: "/visa-sponsorship", label: "Visa Intelligence", icon: ShieldCheck },
+  { href: "/blog", label: "Career Guides", icon: Compass },
 ];
 
 export const Navbar: React.FC = () => {
@@ -23,6 +35,7 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [savedCount, setSavedCount] = useState(0);
   const [user, setUser] = useState<any | null>(null);
 
   const checkUserSession = () => {
@@ -33,8 +46,11 @@ export const Navbar: React.FC = () => {
       } else {
         setUser(null);
       }
+      const saved = JSON.parse(localStorage.getItem("sa_saved_jobs") || "[]");
+      setSavedCount(Array.isArray(saved) ? saved.length : 0);
     } catch {
       setUser(null);
+      setSavedCount(0);
     }
   };
 
@@ -43,10 +59,12 @@ export const Navbar: React.FC = () => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("user-session-changed", checkUserSession);
+    window.addEventListener("storage", checkUserSession);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("user-session-changed", checkUserSession);
+      window.removeEventListener("storage", checkUserSession);
     };
   }, []);
 
@@ -66,28 +84,27 @@ export const Navbar: React.FC = () => {
       <header
         className={`w-full sticky top-0 z-40 transition-all duration-200 ${
           scrolled
-            ? "bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)]"
-            : "bg-white/95 backdrop-blur-md border-b border-slate-100"
+            ? "bg-white/95 backdrop-blur-xl border-b border-slate-200/90 shadow-sm"
+            : "bg-white border-b border-slate-100"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-15 sm:h-16 flex items-center justify-between gap-2 sm:gap-4 overflow-hidden">
-
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* ── Brand Logo ── */}
-          <Link href="/" className="flex items-center gap-2 group shrink-0">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-950 text-white flex items-center justify-center font-black text-[11px] sm:text-xs tracking-wider shadow-sm group-hover:bg-brand-600 transition-colors duration-200 shrink-0">
+          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-slate-950 text-white flex items-center justify-center font-black text-xs tracking-wider shadow-sm group-hover:bg-brand-600 transition-colors shrink-0">
               <span>SA</span>
             </div>
-            <div className="flex items-baseline min-w-0">
-              <span className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 font-display truncate">
+            <div className="flex items-baseline">
+              <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 font-display">
                 SponsorAJobs
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-600 ml-0.5 shrink-0"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-600 ml-0.5"></span>
             </div>
           </Link>
 
-          {/* ── Desktop Navigation Links ── */}
-          <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => {
+          {/* ── Desktop Primary Navigation Links ── */}
+          <nav className="hidden lg:flex items-center gap-1">
+            {NAV_LINKS.map((link) => {
               const isActive =
                 pathname === link.href ||
                 (link.href !== "/" && pathname?.startsWith(link.href));
@@ -95,181 +112,118 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
                     isActive
-                      ? "text-slate-950 bg-slate-100/90 font-bold"
-                      : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
+                      ? "text-brand-600 bg-brand-50/80 font-bold"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                   }`}
                 >
                   <span>{link.label}</span>
-                  {link.badge && (
-                    <span className="px-1.5 py-0.5 rounded-md bg-brand-50 text-brand-700 text-[10px] font-bold border border-brand-200/60 leading-none">
-                      {link.badge}
-                    </span>
-                  )}
                 </Link>
               );
             })}
           </nav>
 
-          {/* ── Action Suite (Desktop & Mobile-Optimized) ── */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* Job Alerts Trigger (Desktop / Tablet only) */}
-            <button
-              type="button"
-              onClick={() => setAlertModalOpen(true)}
-              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-950 hover:bg-slate-100/80 text-xs font-medium transition-colors cursor-pointer"
-            >
-              <Bell className="w-3.5 h-3.5 text-slate-500" />
-              <span>Job Alerts</span>
-            </button>
-
-            <div className="h-4 w-[1px] bg-slate-200 hidden lg:block mx-0.5" />
-
-            {/* User Account / Sign In CTA (Desktop / Tablet only) */}
-            {user ? (
-              <div className="hidden md:flex items-center gap-1.5 pl-1 text-xs">
-                <span className="font-semibold text-slate-800 truncate max-w-[100px]">
-                  {user.name.split(" ")[0]}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="px-2 py-1 rounded-lg text-slate-500 hover:text-rose-600 font-medium text-xs hover:bg-rose-50 transition-colors cursor-pointer"
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  window.dispatchEvent(
-                    new CustomEvent("open-auth-gate", {
-                      detail: { defaultTab: "register" },
-                    })
-                  );
-                }}
-                className="hidden md:inline-flex px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-950 text-xs font-medium hover:bg-slate-100/80 transition-colors cursor-pointer"
-              >
-                <span>Sign In</span>
-              </button>
-            )}
-
-            {/* Explore Jobs Button (Always visible but compact on mobile) */}
+          {/* ── Right Action Controls ── */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Saved Jobs Link */}
             <Link
-              href="/jobs"
-              className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg bg-slate-950 hover:bg-slate-850 active:scale-[0.98] text-white text-[11px] sm:text-xs font-semibold shadow-xs hover:shadow transition-all duration-150 shrink-0"
+              href="/saved-jobs"
+              className="p-2 sm:px-3 sm:py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-colors flex items-center gap-1.5"
+              title="Saved Jobs"
             >
-              <Search className="w-3 sm:w-3.5 h-3 sm:h-3.5 opacity-80" />
-              <span>Explore</span>
+              <div className="relative">
+                <Bookmark className="w-4 h-4 text-slate-600" />
+                {savedCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-brand-600 text-white text-[9px] font-extrabold flex items-center justify-center">
+                    {savedCount}
+                  </span>
+                )}
+              </div>
+              <span className="hidden sm:inline">Saved</span>
             </Link>
 
-            {/* Mobile Menu Toggle Button */}
+            {/* Job Alert Button */}
             <button
-              type="button"
+              onClick={() => setAlertModalOpen(true)}
+              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            >
+              <Bell className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">Create Job Alert</span>
+              <span className="sm:hidden">Alerts</span>
+            </button>
+
+            {/* Mobile Menu Toggle */}
+            <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1.5 sm:p-2 rounded-lg text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition-colors shrink-0 cursor-pointer"
-              aria-label="Toggle navigation menu"
+              className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 lg:hidden cursor-pointer"
+              aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
-        {/* ── Mobile Menu Drawer (Complete Navigation & Auth) ── */}
+        {/* ── Mobile Navigation Drawer ── */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-100 bg-white/98 backdrop-blur-xl px-4 pt-3 pb-6 space-y-3 animate-fadeInDown shadow-xl">
-            {/* Nav Links */}
-            <div className="space-y-1 pb-3 border-b border-slate-100">
-              {navLinks.map((link) => {
+          <div className="lg:hidden border-t border-slate-100 bg-white px-4 pt-3 pb-6 space-y-3 animate-fade-in shadow-xl">
+            <nav className="flex flex-col space-y-1">
+              {NAV_LINKS.map((link) => {
+                const isActive =
+                  pathname === link.href ||
+                  (link.href !== "/" && pathname?.startsWith(link.href));
                 const Icon = link.icon;
-                const isActive = pathname === link.href || (link.href !== "/" && pathname?.startsWith(link.href));
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors ${
+                    className={`px-3 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2.5 transition-colors ${
                       isActive
-                        ? "text-slate-950 bg-slate-100 font-bold"
-                        : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
+                        ? "text-brand-600 bg-brand-50 font-bold"
+                        : "text-slate-700 hover:bg-slate-50"
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <Icon className="w-4 h-4 text-slate-400" />
-                      <span>{link.label}</span>
-                    </div>
-                    {link.badge && (
-                      <span className="px-1.5 py-0.5 rounded-md bg-brand-50 text-brand-700 text-[10px] font-bold border border-brand-200/60">
-                        {link.badge}
-                      </span>
-                    )}
+                    <Icon className="w-4 h-4 text-slate-400" />
+                    <span>{link.label}</span>
                   </Link>
                 );
               })}
-            </div>
+            </nav>
 
-            {/* Mobile Auth & Account Row */}
-            <div className="pt-1 pb-2 border-b border-slate-100">
-              {user ? (
-                <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
-                    <UserIcon className="w-4 h-4 text-brand-600" />
-                    <span>{user.name}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleLogout();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="px-2.5 py-1 rounded-lg bg-white text-rose-600 hover:bg-rose-50 text-xs font-semibold border border-slate-200 transition-colors"
-                  >
-                    Logout
-                  </button>
+            <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
+              <Link
+                href="/saved-jobs"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 flex items-center justify-between"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Bookmark className="w-4 h-4 text-slate-400" />
+                  <span>Saved Jobs</span>
                 </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    window.dispatchEvent(
-                      new CustomEvent("open-auth-gate", {
-                        detail: { defaultTab: "register" },
-                      })
-                    );
-                  }}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors"
-                >
-                  <LogIn className="w-4 h-4 text-slate-500" />
-                  <span>Sign In / Unlock Access</span>
-                </button>
-              )}
-            </div>
+                {savedCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-brand-100 text-brand-700 text-xs font-bold">
+                    {savedCount}
+                  </span>
+                )}
+              </Link>
 
-            {/* Mobile Job Alert Trigger */}
-            <div>
               <button
-                type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   setAlertModalOpen(true);
                 }}
-                className="w-full flex justify-center items-center gap-2 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 text-xs font-bold transition-colors"
+                className="w-full py-3 px-4 rounded-xl bg-brand-600 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md shadow-brand-600/25"
               >
-                <Bell className="w-3.5 h-3.5 text-amber-600" />
-                <span>Set Up Daily Job Alerts</span>
+                <Bell className="w-4 h-4 text-amber-300" />
+                <span>Create Instant Job Alert</span>
               </button>
             </div>
           </div>
         )}
       </header>
 
-      <JobAlertModal
-        isOpen={alertModalOpen}
-        onClose={() => setAlertModalOpen(false)}
-      />
+      <JobAlertModal isOpen={alertModalOpen} onClose={() => setAlertModalOpen(false)} />
     </>
   );
 };
