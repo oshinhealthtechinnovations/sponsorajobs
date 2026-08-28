@@ -1,11 +1,11 @@
 import React from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { JobCard } from "@/components/JobCard";
 import { CountryRepository } from "@/lib/repositories/countryRepository";
 import { JobRepository } from "@/lib/repositories/jobRepository";
-import { INITIAL_CATEGORIES } from "@/config/categories";
+import { INITIAL_CATEGORIES, getCategoryBySlug } from "@/config/categories";
 import { getCountryBySlug, INITIAL_COUNTRIES } from "@/config/countries";
 import Link from "next/link";
 import { Globe, ArrowRight, ShieldCheck, Search } from "lucide-react";
@@ -17,6 +17,14 @@ interface CountryJobsPageProps {
 }
 
 export default async function CountryJobsPage({ params }: CountryJobsPageProps) {
+  const slugLower = (params.country || "").toLowerCase().trim();
+
+  // If the user typed a category slug like /jobs/engineering or /jobs/healthcare, redirect seamlessly
+  const isCategory = getCategoryBySlug(slugLower) || INITIAL_CATEGORIES.some((c) => c.slug === slugLower || c.subcategories?.some((s) => s.slug === slugLower));
+  if (isCategory) {
+    redirect(`/jobs?category=${slugLower}`);
+  }
+
   const countryRepo = new CountryRepository();
   const country = await countryRepo.getBySlug(params.country);
 
