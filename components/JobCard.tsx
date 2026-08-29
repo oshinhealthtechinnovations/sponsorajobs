@@ -159,69 +159,43 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
             </h3>
           </Link>
 
-          {/* Salary */}
-          {salary && (
-            <div className="flex items-center gap-1.5 text-sm font-bold text-emerald-700">
-              <Banknote className="w-4 h-4 text-emerald-500 shrink-0" />
-              <span>{salary}</span>
-            </div>
-          )}
+          {/* Tags & Key Badges: Salary, Visa Sponsorship, Category */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            {salary && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 font-bold text-xs border border-emerald-200/80">
+                <Banknote className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>{salary}</span>
+              </span>
+            )}
 
-          {/* Tags: Category, Employment Type */}
-          <div className="flex flex-wrap gap-1.5">
+            {hasNegative ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 font-bold text-xs border border-amber-200">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span>No Sponsorship</span>
+              </span>
+            ) : hasSponsorship ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-800 font-bold text-xs border border-sky-200">
+                <CheckCircle2 className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                <span>Visa Sponsorship</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold text-xs border border-slate-200">
+                <CheckCircle2 className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <span>Direct Employer</span>
+              </span>
+            )}
+
             {job.category && (
-              <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-semibold">
+              <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">
                 {job.category.name}
               </span>
             )}
+
             {job.employmentType && job.employmentType !== "UNKNOWN" && (
-              <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-semibold capitalize">
+              <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium capitalize">
                 {job.employmentType.toLowerCase().replace("_", " ")}
               </span>
             )}
-          </div>
-
-          {/* Application Fit Score + Verification Checks */}
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Application Fit</span>
-              <div className={`px-2.5 py-0.5 rounded-lg border text-xs font-bold ${fitInfo.color}`}>
-                {worthScore} / 100 · {fitInfo.label}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-1">
-              <div className="flex items-center gap-1.5 text-[11px] text-slate-600">
-                <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
-                <span>Employer Verified</span>
-              </div>
-              {hasNegative ? (
-                <div className="flex items-center gap-1.5 text-[11px] text-amber-700">
-                  <AlertTriangle className="w-3 h-3 text-amber-500 shrink-0" />
-                  <span>No Visa Sponsorship</span>
-                </div>
-              ) : hasSponsorship ? (
-                <div className="flex items-center gap-1.5 text-[11px] text-slate-600">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
-                  <span>Sponsorship Signal</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
-                  <CheckCircle2 className="w-3 h-3 text-slate-400 shrink-0" />
-                  <span>Direct Apply Active</span>
-                </div>
-              )}
-              {salary && (
-                <div className="flex items-center gap-1.5 text-[11px] text-slate-600">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
-                  <span>Salary Listed</span>
-                </div>
-              )}
-              <div className="flex items-center gap-1.5 text-[11px] text-slate-600">
-                <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
-                <span>Recently Verified</span>
-              </div>
-            </div>
           </div>
 
           {/* Footer: Date + CTAs */}
@@ -234,17 +208,17 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
             <div className="flex items-center gap-2 shrink-0">
               <Link
                 href={`/job/${job.slug}`}
-                className="px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
+                className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
               >
-                View
+                View Details
               </Link>
               <button
                 type="button"
                 onClick={handleApplyClick}
-                className="px-3 py-2 rounded-lg bg-[#071522] hover:bg-slate-800 text-white text-xs font-bold transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-[#071421] hover:bg-slate-800 text-white text-xs font-bold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <span>Apply</span>
-                <ExternalLink className="w-3 h-3 text-[#19CBE0]" />
+                <ExternalLink className="w-3 h-3 text-[#18D6E5]" />
               </button>
             </div>
           </div>

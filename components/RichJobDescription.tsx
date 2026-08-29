@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import {
   Briefcase,
   CheckCircle2,
@@ -8,19 +8,12 @@ import {
   Globe2,
   Gift,
   Send,
-  Building2,
-  GraduationCap,
+  FileCheck2,
   Sparkles,
   Info,
+  GraduationCap,
+  ShieldCheck,
   Check,
-  MapPin,
-  Banknote,
-  ShieldAlert,
-  Layers,
-  ChevronRight,
-  Code2,
-  FileCheck2,
-  HelpCircle,
 } from "lucide-react";
 import { cleanHtmlToMarkdown, decodeHtmlEntities } from "@/normalization";
 
@@ -31,53 +24,57 @@ interface RichJobDescriptionProps {
   applyUrl: string;
 }
 
-export interface ParsedSection {
+export interface FormattedSection {
   id: string;
   title: string;
   type: "overview" | "responsibilities" | "requirements" | "education" | "visa" | "benefits" | "apply" | "general";
-  lines: string[];
-  bulletItems?: string[];
-  subClauses?: { prefix: string; text: string }[];
+  paragraphs: string[];
+  bulletPoints?: string[];
 }
 
 /**
- * Strips artificial crawler artifacts, broken fragments, and duplicate headers
+ * Aggressively scrubs scraper artifacts, crawler buttons, and boilerplate noise
  */
 function sanitizeJobDescription(raw: string): string {
   if (!raw) return "";
 
   let text = decodeHtmlEntities(raw);
 
-  // 1. Remove artificial crawler metadata injections
+  // 1. Scrub crawler / feed specific action button boilerplate
   text = text
+    .replace(/Click\s+on\s+["“']?Learn\s+more\s+about\s+this\s+agency["”']?\s+button\s+below[^\n.]*\.?/gi, "")
+    .replace(/to\s+view\s+Eligibilities\s+being\s+considered\s+and\s+other\s+IMPORTANT\s+information\.?/gi, "")
     .replace(/##\s*How to Apply\s*\n+Click\s+["“]Apply for this Job["”][^\n]*/gi, "")
     .replace(/Click\s+["“]Apply for this Job["”]\s+to visit the original job posting[^\n]*/gi, "")
     .replace(/This listing has been identified as containing visa sponsorship language\.?/gi, "")
     .replace(/•\s*\*+How to Apply\*+:\s*Click\s+["“]Apply for this Job["”][^\n]*/gi, "");
 
-  // 2. Remove duplicate raw header meta fields that mirror top header
+  // 2. Remove duplicate header meta fields
   text = text
     .replace(/##\s*Role Overview\s*\n+(?:\*\*|\*|•)*\s*(?:Company|Location|Salary):[^\n]*\n+/gi, "")
     .replace(/^[•\-\*]*\s*\*+(?:Company|Location|Salary)\*+:[^\n]*$/gim, "")
     .replace(/^(?:\*\*|\*)*(?:Company|Location|Salary):[^\n]*$/gim, "");
 
-  // 3. Clean broken leading truncation fragments
+  // 3. Clean broken leading/trailing artifacts
   text = text
     .replace(/^\s*\.{2,}[^\n]*will not be considered\.?\s*/gim, "")
     .replace(/^\s*\.{2,}[^\n]*career portal\.?\s*/gim, "")
-    .replace(/^\s*\.{2,}[^\n]*MY DOCUMENTS[^\n]*\s*/gim, "");
+    .replace(/^\s*\.{2,}[^\n]*MY DOCUMENTS[^\n]*\s*/gim, "")
+    .replace(/\bPART-TIME\s*$/gi, "")
+    .replace(/\bFULL-TIME\s*$/gi, "");
 
-  // 4. Normalize line breaks and separators
+  // 4. Normalize line breaks and formatting
   text = text
     .replace(/\r\n/g, "\n")
     .replace(/\r/g, "\n")
-    .replace(/\*{4,}/g, "**");
+    .replace(/\*{4,}/g, "**")
+    .trim();
 
-  return text.trim();
+  return text;
 }
 
 /**
- * Inline text formatter for bold/italic/highlights
+ * Inline text formatter for bolding, italics, and key phrases
  */
 function formatInline(text: string): React.ReactNode {
   if (!text) return null;
@@ -112,118 +109,156 @@ function formatInline(text: string): React.ReactNode {
 }
 
 /**
- * Intelligent section identifier from natural plain text lines
+ * Preprocesses unformatted text into clean sections
  */
-function identifySectionHeader(line: string): { isHeader: boolean; title: string; type: ParsedSection["type"] } | null {
-  const trimmed = line.trim().replace(/^#+\s*/, "").replace(/^[*_•\-]+\s*/, "").trim();
-  const lower = trimmed.toLowerCase();
+function preprocessTextToSections(rawText: string): FormattedSection[] {
+  let text = sanitizeJobDescription(rawText);
 
-  // Explicit Markdown Headings
-  if (line.startsWith("## ") || line.startsWith("### ") || line.startsWith("#### ")) {
-    const title = line.replace(/^#+\s+/, "").replace(/[*_#`:]+/g, " ").trim();
-    return { isHeader: true, title, type: classifySectionType(title) };
+  // Mark natural section breaks
+  text = text
+    .replace(/(?:^|\n+)(The\s+primary\s+purpose\s+of\s+this\s+position\s+is:?)/gi, "\n\n## Role Purpose & Overview\n$1")
+    .replace(/(?:^|\n+)(In\s+order\s+to\s+qualify[,\s]+you\s+must\s+meet[^\n:]*:?)/gi, "\n\n## Qualifications & Requirements\n$1")
+    .replace(/(?:,\s*|\.\s*|\n+)?(0800\s+Basic\s+Requirements?:?|Basic\s+Requirements?:?)/gi, "\n\n## Basic Requirements & Qualifications\n")
+    .replace(/(?:^|\n+)(Major\s+Duties|Duties\s+and\s+Responsibilities|Key\s+Responsibilities):?/gi, "\n\n## Key Responsibilities\n")
+    .replace(/(?:^|\n+)(Conditions\s+of\s+Employment|Eligibilities\s+being\s+considered):?/gi, "\n\n## Conditions of Employment\n")
+    .replace(/(?:^|\n+)(How\s+You\s+Will\s+Be\s+Evaluated|How\s+to\s+Apply):?/gi, "\n\n## Evaluation & Application Process\n")
+    .replace(/(?:^|\n+)(Benefits\s+and\s+Other\s+Info|Benefits):?/gi, "\n\n## Compensation & Benefits\n")
+    .replace(/(?:^|\n+)(Visa\s+Sponsorship|Work\s+Authorization|Immigration\s+Support):?/gi, "\n\n## Visa Sponsorship & Work Authorization\n");
+
+  const cleanMarkdown = cleanHtmlToMarkdown(text);
+  const rawLines = cleanMarkdown.split("\n");
+
+  const sections: FormattedSection[] = [];
+  let currentTitle = "Role Overview";
+  let currentType: FormattedSection["type"] = "overview";
+  let currentParagraphs: string[] = [];
+  let currentBullets: string[] = [];
+
+  const flushSection = () => {
+    const validParagraphs = currentParagraphs.filter((p) => p.trim().length > 0);
+    const validBullets = currentBullets.filter((b) => b.trim().length > 0);
+
+    if (validParagraphs.length > 0 || validBullets.length > 0) {
+      sections.push({
+        id: `sec_${sections.length}_${currentType}`,
+        title: currentTitle,
+        type: currentType,
+        paragraphs: validParagraphs,
+        bulletPoints: validBullets.length > 0 ? validBullets : undefined,
+      });
+    }
+    currentParagraphs = [];
+    currentBullets = [];
+  };
+
+  for (const rawLine of rawLines) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    // Check for Markdown Headings
+    if (line.startsWith("## ") || line.startsWith("### ")) {
+      flushSection();
+      currentTitle = line.replace(/^#+\s+/, "").replace(/[*_#`:]+/g, " ").trim();
+      const lower = currentTitle.toLowerCase();
+      if (lower.includes("responsibilit") || lower.includes("duties")) currentType = "responsibilities";
+      else if (lower.includes("qualif") || lower.includes("require") || lower.includes("eligib")) currentType = "requirements";
+      else if (lower.includes("education") || lower.includes("degree")) currentType = "education";
+      else if (lower.includes("visa") || lower.includes("sponsor") || lower.includes("immigration")) currentType = "visa";
+      else if (lower.includes("benefit") || lower.includes("compensation")) currentType = "benefits";
+      else if (lower.includes("evaluat") || lower.includes("apply")) currentType = "apply";
+      else currentType = "overview";
+      continue;
+    }
+
+    // Check for list items
+    if (/^[•\-\*]\s+/.test(line) || /^\d+\.\s+/.test(line)) {
+      const cleanBullet = line.replace(/^[•\-\*]\s+/, "").replace(/^\d+\.\s+/, "").trim();
+      if (cleanBullet) currentBullets.push(cleanBullet);
+      continue;
+    }
+
+    // Check for inline sub-lists like "(a) ...; (b) ...; (c) ..." within a long paragraph
+    if (/\([a-e]\)\s+[^;]+;\s+\([b-f]\)/i.test(line)) {
+      // Split the lead-in from the sub-clauses
+      const matchIdx = line.search(/\([a-z]\)\s+/i);
+      if (matchIdx > 0) {
+        currentParagraphs.push(line.slice(0, matchIdx).trim());
+      }
+      const clauses = line.slice(matchIdx).split(/;\s*(?:and\s+)?(?=\([a-z]\))/i);
+      clauses.forEach((cl) => {
+        const cleanClause = cl.replace(/^[;\s]+/, "").replace(/[;\s]+$/, "").trim();
+        if (cleanClause) currentBullets.push(cleanClause);
+      });
+      continue;
+    }
+
+    currentParagraphs.push(line);
   }
 
-  // Common Header Patterns without Markdown #
-  const patterns: { regex: RegExp; title: string; type: ParsedSection["type"] }[] = [
-    { regex: /^(the\s+)?primary\s+purpose\s+of\s+this\s+position\s+is:?$/i, title: "Role Purpose & Overview", type: "overview" },
-    { regex: /^(about\s+the\s+role|role\s+overview|job\s+summary|position\s+summary|overview|who\s+we\s+are):?$/i, title: "Role Overview", type: "overview" },
-    { regex: /^(duties|responsibilities|key\s+responsibilities|what\s+you('ll|\s+will)\s+do|your\s+role|day-to-day):?$/i, title: "Key Responsibilities", type: "responsibilities" },
-    { regex: /^(requirements|qualifications|basic\s+requirements|what\s+you\s+bring|skills\s+required|minimum\s+qualifications|specialized\s+experience):?$/i, title: "Qualifications & Requirements", type: "requirements" },
-    { regex: /^(in\s+order\s+to\s+qualify[,\s].*)/i, title: "Eligibility & Qualification Standards", type: "requirements" },
-    { regex: /^(education\s+requirements?|degree\s+requirements?|academic\s+background):?$/i, title: "Education & Academic Criteria", type: "education" },
-    { regex: /^(visa\s+sponsorship|work\s+authorization|immigration\s+support|right\s+to\s+work|relocation):?$/i, title: "Visa Sponsorship & Work Authorization", type: "visa" },
-    { regex: /^(benefits|compensation|what\s+we\s+offer|perks\s+(&|and)\s+benefits|salary\s+(&|and)\s+benefits):?$/i, title: "Compensation & Benefits", type: "benefits" },
-    { regex: /^(how\s+to\s+apply|how\s+you\s+will\s+be\s+evaluated|application\s+process):?$/i, title: "How You Will Be Evaluated", type: "apply" },
-    { regex: /^(conditions\s+of\s+employment|additional\s+information|other\s+information):?$/i, title: "Conditions of Employment", type: "general" },
+  flushSection();
+
+  // If no sections were created or empty
+  if (sections.length === 0 && rawText) {
+    sections.push({
+      id: "sec_overview",
+      title: "Role Overview",
+      type: "overview",
+      paragraphs: [sanitizeJobDescription(rawText)],
+    });
+  }
+
+  return sections;
+}
+
+/**
+ * Extracts high-signal, non-duplicate technical and domain keywords
+ */
+function extractDistinctCompetencies(description: string): string[] {
+  const dictionary = [
+    "Civil Engineer",
+    "Mechanical Engineer",
+    "Electrical Engineer",
+    "Software Engineer",
+    "Full Stack",
+    "Frontend",
+    "Backend",
+    "ABET",
+    "AutoCAD",
+    "Civil 3D",
+    "Revit",
+    "Python",
+    "TypeScript",
+    "JavaScript",
+    "React",
+    "Node.js",
+    "AWS",
+    "Docker",
+    "Kubernetes",
+    "Calculus",
+    "Thermodynamics",
+    "Fluid Mechanics",
+    "Statics",
+    "Project Management",
+    "Security Clearance",
+    "H-1B Sponsor",
+    "Skilled Worker CoS",
   ];
 
-  for (const p of patterns) {
-    if (p.regex.test(trimmed) || (trimmed.endsWith(":") && p.regex.test(trimmed.slice(0, -1)))) {
-      return { isHeader: true, title: p.title, type: p.type };
-    }
-  }
+  const found: string[] = [];
+  const lowerDesc = description.toLowerCase();
 
-  // Short all-caps headings like "BASIC REQUIREMENTS:" or "QUALIFICATIONS:"
-  if (/^[A-Z\s&/–—]{3,30}:?$/.test(trimmed) && trimmed.length >= 4 && !trimmed.includes(".")) {
-    const formattedTitle = trimmed.replace(/:$/, "").split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
-    return { isHeader: true, title: formattedTitle, type: classifySectionType(trimmed) };
-  }
-
-  return null;
-}
-
-function classifySectionType(title: string): ParsedSection["type"] {
-  const t = title.toLowerCase();
-  if (t.includes("responsibilit") || t.includes("what you'll do") || t.includes("duties") || t.includes("day-to-day")) return "responsibilities";
-  if (t.includes("requirement") || t.includes("qualification") || t.includes("what you bring") || t.includes("skills") || t.includes("eligib") || t.includes("experience")) return "requirements";
-  if (t.includes("education") || t.includes("degree") || t.includes("academic") || t.includes("abet")) return "education";
-  if (t.includes("visa") || t.includes("sponsor") || t.includes("immigration") || t.includes("relocation") || t.includes("work authorization")) return "visa";
-  if (t.includes("benefit") || t.includes("compensation") || t.includes("perks") || t.includes("offer") || t.includes("salary")) return "benefits";
-  if (t.includes("apply") || t.includes("how to") || t.includes("evaluated") || t.includes("process")) return "apply";
-  if (t.includes("about") || t.includes("overview") || t.includes("purpose") || t.includes("summary") || t.includes("who we are")) return "overview";
-  return "general";
-}
-
-/**
- * Formats dense text paragraphs into structured sentences, subclauses (a, b, c), and checklists
- */
-function processSectionText(rawText: string): { paragraphs: string[]; subClauses: { prefix: string; text: string }[] } {
-  const paragraphs: string[] = [];
-  const subClauses: { prefix: string; text: string }[] = [];
-
-  // Check for inline sublists like (a) statics... (b) strength... OR 1. ... 2. ...
-  const clauseMatches = rawText.match(/(?:\(([a-z0-9])\)|\b(\d+)\.)\s+([^;(]+(?:;|\.(?=\s+(?:\([a-z0-9]\)|\d+\.))|$))/gi);
-
-  if (clauseMatches && clauseMatches.length >= 2) {
-    // Extract base lead-in text before the clauses
-    const firstClauseIdx = rawText.search(/(?:\([a-z0-9]\)|\b\d+\.)\s+/i);
-    if (firstClauseIdx > 0) {
-      paragraphs.push(rawText.slice(0, firstClauseIdx).trim());
-    }
-
-    clauseMatches.forEach((m) => {
-      const clean = m.replace(/^;\s*/, "").replace(/;\s*$/, "").trim();
-      const prefixMatch = clean.match(/^(\([a-z0-9]\)|\d+\.)/i);
-      const prefix = prefixMatch ? prefixMatch[1] : "•";
-      const content = clean.replace(/^(\([a-z0-9]\)|\d+\.)\s*/i, "").replace(/^(and|or)\s+/i, "");
-      if (content.trim()) {
-        subClauses.push({ prefix, text: content.trim() });
+  for (const item of dictionary) {
+    const lowerItem = item.toLowerCase();
+    if (lowerDesc.includes(lowerItem)) {
+      // Prevent redundant substrings (e.g. don't add "Engineering" if "Civil Engineer" is already added)
+      const isDuplicate = found.some((existing) => existing.toLowerCase().includes(lowerItem) || lowerItem.includes(existing.toLowerCase()));
+      if (!isDuplicate) {
+        found.push(item);
       }
-    });
-  } else {
-    // Break on explicit OR branches or major sentence boundaries if very long
-    const orSegments = rawText.split(/\s+(?:OR\s+|--\s+OR\s+)\b/);
-    if (orSegments.length > 1) {
-      paragraphs.push(orSegments[0].trim());
-      for (let i = 1; i < orSegments.length; i++) {
-        subClauses.push({ prefix: `Option ${i + 1}`, text: orSegments[i].trim() });
-      }
-    } else {
-      paragraphs.push(rawText.trim());
     }
   }
 
-  return { paragraphs, subClauses };
-}
-
-/**
- * Preprocesses unformatted continuous text blocks by injecting section breaks at natural linguistic boundaries
- */
-function preprocessRawDescription(raw: string): string {
-  let text = sanitizeJobDescription(raw || "");
-
-  // Insert markdown headers before common inline federal / scraped section lead-ins
-  text = text
-    .replace(/(?:^|\.\s+|\n+)(The\s+primary\s+purpose\s+of\s+this\s+position\s+is:?)/gi, "\n\n## Role Purpose & Overview\n$1")
-    .replace(/(?:^|\.\s+|\n+)(In\s+order\s+to\s+qualify[,\s]+you\s+must\s+meet[^\n:]*:?)/gi, "\n\n## Eligibility & Qualification Standards\n$1")
-    .replace(/(?:,\s*|\.\s*|\n+)?(0800\s+Basic\s+Requirements?:?|Basic\s+Requirements?:?)/gi, "\n\n## Basic Requirements & Qualifications\n")
-    .replace(/(?:^|\.\s+|\n+)(Major\s+Duties|Duties\s+and\s+Responsibilities|Key\s+Responsibilities):?/gi, "\n\n## Key Responsibilities\n")
-    .replace(/(?:^|\.\s+|\n+)(Conditions\s+of\s+Employment|Eligibilities\s+being\s+considered):?/gi, "\n\n## Conditions of Employment\n")
-    .replace(/(?:^|\.\s+|\n+)(How\s+You\s+Will\s+Be\s+Evaluated|How\s+to\s+Apply):?/gi, "\n\n## How You Will Be Evaluated\n")
-    .replace(/(?:^|\.\s+|\n+)(Benefits\s+and\s+Other\s+Info|Benefits):?/gi, "\n\n## Compensation & Benefits\n");
-
-  return text;
+  return found.slice(0, 6);
 }
 
 export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
@@ -232,89 +267,10 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
   countryCode,
   applyUrl,
 }) => {
-  const [activeTab, setActiveTab] = useState<string>("all");
+  const sections = useMemo(() => preprocessTextToSections(description || ""), [description]);
+  const competencies = useMemo(() => extractDistinctCompetencies(description || ""), [description]);
 
-  const { sections, detectedSkills } = useMemo(() => {
-    const preprocessed = preprocessRawDescription(description || "");
-    const cleanMarkdown = cleanHtmlToMarkdown(preprocessed);
-    const rawLines = cleanMarkdown.split("\n");
-
-    const parsed: ParsedSection[] = [];
-    let currentTitle = "About the Role";
-    let currentType: ParsedSection["type"] = "overview";
-    let currentLines: string[] = [];
-
-    const flushSection = () => {
-      const validLines = currentLines.filter((l) => l.trim().length > 0);
-      if (validLines.length > 0) {
-        const fullBlock = validLines.join("\n");
-        const { paragraphs, subClauses } = processSectionText(fullBlock);
-        parsed.push({
-          id: `sec_${parsed.length}_${currentType}`,
-          title: currentTitle,
-          type: currentType,
-          lines: paragraphs,
-          subClauses: subClauses.length > 0 ? subClauses : undefined,
-        });
-      }
-      currentLines = [];
-    };
-
-    for (const rawLine of rawLines) {
-      const line = rawLine.trim();
-      if (!line) continue;
-
-      const headerInfo = identifySectionHeader(line);
-      if (headerInfo) {
-        flushSection();
-        currentTitle = headerInfo.title;
-        currentType = headerInfo.type;
-        continue;
-      }
-
-      // Check for inline split triggers like "In order to qualify..." or "Basic Requirements:"
-      if (/In order to qualify,\s+you must meet/i.test(line) && currentLines.length > 0) {
-        const parts = line.split(/(?=In order to qualify,\s+you must meet)/i);
-        currentLines.push(parts[0].trim());
-        flushSection();
-        currentTitle = "Eligibility & Qualifications";
-        currentType = "requirements";
-        if (parts[1]) currentLines.push(parts[1].trim());
-        continue;
-      }
-
-      currentLines.push(line);
-    }
-
-    flushSection();
-
-    // Fallback if empty
-    if (parsed.length === 0 && description) {
-      const { paragraphs, subClauses } = processSectionText(description);
-      parsed.push({
-        id: "sec_fallback",
-        title: "About the Role",
-        type: "overview",
-        lines: paragraphs,
-        subClauses,
-      });
-    }
-
-    // Extract key skills & tech tags
-    const skillList = [
-      "Civil Engineer", "Civil Engineering", "Mechanical Engineer", "Electrical Engineer", "Engineering", "ABET", "CAD", "AutoCAD", "Civil 3D",
-      "Python", "TypeScript", "JavaScript", "React", "Node.js", "AWS", "Docker", "Kubernetes", "SQL",
-      "Calculus", "Physics", "Thermodynamics", "Statics", "Fluid Mechanics", "Project Management",
-      "Security Clearance", "H-1B", "Skilled Worker", "Direct Hire"
-    ];
-    const detected = skillList.filter((s) => new RegExp(`\\b${s}\\b`, "i").test(description));
-
-    return { sections: parsed, detectedSkills: detected };
-  }, [description]);
-
-  const visibleSections = activeTab === "all" ? sections : sections.filter((s) => s.id === activeTab || s.type === activeTab);
-
-  const getSectionIcon = (type: ParsedSection["type"]) => {
+  const getSectionIcon = (type: FormattedSection["type"]) => {
     switch (type) {
       case "overview":
         return <Briefcase className="w-4 h-4 text-sky-600" />;
@@ -337,195 +293,111 @@ export const RichJobDescription: React.FC<RichJobDescriptionProps> = ({
 
   return (
     <div className="rounded-3xl bg-white border border-slate-200/90 shadow-sm overflow-hidden divide-y divide-slate-100">
-      {/* ── Top Header Banner with Skills Tag Cloud ── */}
-      <div className="p-6 sm:p-8 bg-gradient-to-b from-slate-50/90 to-white space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-[#071421] text-[#18D6E5] flex items-center justify-center shadow-sm shrink-0 border border-slate-800">
-              <FileCheck2 className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-display">
-                Structured Job Specification
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Official role breakdown, eligibility criteria, and core responsibilities
-              </p>
-            </div>
+      {/* ── Section Header & Competency Tags ── */}
+      <div className="p-6 sm:p-8 bg-gradient-to-b from-slate-50/80 to-white space-y-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-[#071421] text-[#18D6E5] flex items-center justify-center shadow-sm shrink-0">
+            <FileCheck2 className="w-5 h-5" />
           </div>
-
-          <div className="flex items-center gap-2 text-xs">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 font-bold border border-emerald-200">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Verified Listing</span>
-            </span>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight font-display">
+              Job Description & Specifications
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Official role breakdown, eligibility standards, and core responsibilities
+            </p>
           </div>
         </div>
 
-        {/* Extracted Key Competencies Tags */}
-        {detectedSkills.length > 0 && (
-          <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1">
+        {/* Clean Competency Tags */}
+        {competencies.length > 0 && (
+          <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1">
               <Sparkles className="w-3 h-3 text-brand-500" />
-              <span>Key Competencies:</span>
+              <span>Key Requirements:</span>
             </span>
-            {detectedSkills.slice(0, 8).map((skill, idx) => (
+            {competencies.map((tag, idx) => (
               <span
                 key={idx}
-                className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] border border-slate-200/80 transition-colors"
+                className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold text-xs border border-slate-200/70"
               >
-                {skill}
+                {tag}
               </span>
-            ))}
-          </div>
-        )}
-
-        {/* Section Jump Quick Filter Bar */}
-        {sections.length > 2 && (
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none pt-2">
-            <button
-              onClick={() => setActiveTab("all")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                activeTab === "all"
-                  ? "bg-[#071421] text-white shadow-xs"
-                  : "bg-slate-100 hover:bg-slate-200 text-slate-600"
-              }`}
-            >
-              All Sections ({sections.length})
-            </button>
-            {sections.map((sec) => (
-              <button
-                key={sec.id}
-                onClick={() => setActiveTab(sec.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
-                  activeTab === sec.id
-                    ? "bg-[#071421] text-white shadow-xs"
-                    : "bg-slate-100 hover:bg-slate-200 text-slate-600"
-                }`}
-              >
-                {getSectionIcon(sec.type)}
-                <span>{sec.title}</span>
-              </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* ── Structured Sections Content ── */}
+      {/* ── Editorial Prose & Clean Sections ── */}
       <div className="p-6 sm:p-8 space-y-8">
-        {visibleSections.map((section, sIdx) => {
-          // Special Visa Section Styling
+        {sections.map((section) => {
+          // Special High-Trust Visa Section Styling
           if (section.type === "visa") {
             return (
               <div
                 key={section.id}
-                className="p-6 rounded-2xl bg-gradient-to-br from-emerald-50/90 via-teal-50/50 to-white border border-emerald-200/90 text-emerald-950 space-y-4 shadow-xs"
+                className="p-6 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-emerald-950 space-y-3 shadow-xs"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">
-                    <Globe2 className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-extrabold text-emerald-950 tracking-tight">
-                      {section.title}
-                    </h3>
-                    <span className="text-xs font-semibold text-emerald-700">
-                      Work authorization and international sponsorship policy
-                    </span>
-                  </div>
+                <div className="flex items-center gap-2.5">
+                  <Globe2 className="w-5 h-5 text-emerald-700 shrink-0" />
+                  <h3 className="text-base font-bold text-emerald-950 tracking-tight">
+                    {section.title}
+                  </h3>
                 </div>
 
-                <div className="space-y-3 text-sm text-emerald-950 leading-relaxed">
-                  {section.lines.map((line, lIdx) => (
-                    <p key={lIdx} className="leading-relaxed font-medium">
-                      {formatInline(line)}
-                    </p>
+                <div className="space-y-2 text-sm text-emerald-900 leading-relaxed font-medium">
+                  {section.paragraphs.map((p, idx) => (
+                    <p key={idx}>{formatInline(p)}</p>
                   ))}
                 </div>
 
-                {section.subClauses && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
-                    {section.subClauses.map((clause, cIdx) => (
-                      <div key={cIdx} className="p-3 rounded-xl bg-white/90 border border-emerald-200/80 flex items-start gap-2.5">
-                        <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase shrink-0">
-                          {clause.prefix}
-                        </span>
-                        <span className="text-xs text-emerald-900 font-semibold leading-relaxed">
-                          {formatInline(clause.text)}
-                        </span>
-                      </div>
+                {section.bulletPoints && section.bulletPoints.length > 0 && (
+                  <ul className="space-y-2 pt-2 border-t border-emerald-200/60">
+                    {section.bulletPoints.map((bp, bIdx) => (
+                      <li key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-emerald-900">
+                        <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <span className="leading-relaxed">{formatInline(bp)}</span>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 )}
               </div>
             );
           }
 
           return (
-            <div key={section.id} className="space-y-4">
+            <div key={section.id} className="space-y-3.5">
               {/* Section Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
-                    {getSectionIcon(section.type)}
-                  </div>
-                  <h3 className="text-lg font-black text-slate-900 tracking-tight font-display">
-                    {section.title}
-                  </h3>
+              <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+                <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                  {getSectionIcon(section.type)}
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200/60">
-                  {section.type}
-                </span>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                  {section.title}
+                </h3>
               </div>
 
-              {/* Lead-in Paragraphs */}
-              <div className="space-y-3 text-sm text-slate-700 leading-relaxed">
-                {section.lines.map((line, lIdx) => {
-                  const trimmed = line.trim();
-                  if (!trimmed) return null;
-
-                  const isBullet = /^(?:[•\-\*]\s+|\d+\.\s+)/.test(trimmed);
-                  const cleanText = trimmed.replace(/^(?:[•\-\*]\s+|\d+\.\s+)/, "");
-
-                  if (isBullet) {
-                    return (
-                      <div key={lIdx} className="flex items-start gap-3 pl-1 py-0.5">
-                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#18D6E5]" />
-                        <span className="leading-relaxed font-medium text-slate-800">{formatInline(cleanText)}</span>
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <p key={lIdx} className="leading-relaxed text-slate-700">
-                      {formatInline(trimmed)}
+              {/* Lead Paragraphs */}
+              {section.paragraphs.length > 0 && (
+                <div className="space-y-3 text-sm sm:text-base text-slate-700 leading-relaxed">
+                  {section.paragraphs.map((p, pIdx) => (
+                    <p key={pIdx} className="leading-relaxed">
+                      {formatInline(p)}
                     </p>
-                  );
-                })}
-              </div>
-
-              {/* Sub-clauses / Alphanumeric Criteria Cards (a, b, c, 1, 2, 3) */}
-              {section.subClauses && section.subClauses.length > 0 && (
-                <div className="space-y-2.5 pt-1">
-                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                    Specified Requirements & Criteria:
-                  </div>
-                  <div className="grid grid-cols-1 gap-2">
-                    {section.subClauses.map((clause, cIdx) => (
-                      <div
-                        key={cIdx}
-                        className="p-3.5 rounded-2xl bg-slate-50/90 hover:bg-slate-100/80 border border-slate-200/80 flex items-start gap-3 transition-colors"
-                      >
-                        <div className="w-6 h-6 rounded-lg bg-white border border-slate-200 text-slate-800 flex items-center justify-center font-black text-xs shrink-0 shadow-xs mt-0.5">
-                          {clause.prefix.replace(/[()]/g, "")}
-                        </div>
-                        <div className="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed flex-1">
-                          {formatInline(clause.text)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  ))}
                 </div>
+              )}
+
+              {/* Clean Styled Bullet List */}
+              {section.bulletPoints && section.bulletPoints.length > 0 && (
+                <ul className="space-y-2.5 pt-1 pl-1">
+                  {section.bulletPoints.map((bp, bIdx) => (
+                    <li key={bIdx} className="flex items-start gap-3 text-sm text-slate-800">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#18D6E5]" />
+                      <span className="leading-relaxed font-medium">{formatInline(bp)}</span>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
           );
