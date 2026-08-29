@@ -174,8 +174,16 @@ function createEdgeMemoryClient(): DatabaseClient {
             }
             let res = [...inMemoryJobs];
 
+            // Specific Job By canonical_hash match
+            if (q.includes("canonical_hash = ?") || q.includes("canonical_hash =") || q.includes("canonical_hash")) {
+              const hashParam = boundValues.find((v) => typeof v === "string" && v.startsWith("job_"));
+              const targetHash = hashParam ? String(hashParam) : (boundValues.length > 0 ? String(boundValues[0]) : "");
+              const match = res.filter((j) => j.canonical_hash === targetHash);
+              return { results: match as unknown as T[], success: true };
+            }
+
             // Specific Job By ID or Slug match
-            if (q.includes("where j.id = ?") || q.includes("where j.id like ?") || q.includes("where j.id")) {
+            if (q.includes("where j.id = ?") || q.includes("where id = ?") || q.includes("where j.id like ?") || q.includes("where j.id")) {
               const rawVals = boundValues.map((v) => String(v || "").replace(/%/g, "").toLowerCase()).filter(Boolean);
               const match = res.filter((j) => {
                 const jId = (j.id || "").toLowerCase();
@@ -522,13 +530,15 @@ function createEdgeMemoryClient(): DatabaseClient {
                 apply_url: boundValues[19],
                 source_url: boundValues[20],
                 published_at: boundValues[21],
+                first_seen_at: new Date().toISOString(),
+                last_seen_at: new Date().toISOString(),
                 sponsorship_score: boundValues[22],
                 sponsorship_label: boundValues[23],
                 sponsorship_positive_evidence: boundValues[24],
                 sponsorship_negative_evidence: boundValues[25],
                 visa_keywords: boundValues[26],
                 quality_score: boundValues[27] || 100,
-                status: "active",
+                status: boundValues[28] || "active",
                 is_featured: 0,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
@@ -541,6 +551,21 @@ function createEdgeMemoryClient(): DatabaseClient {
                 inMemoryJobs.unshift(newJob);
               }
             }
+            return { results: [], success: true };
+          }
+
+          // Mutate inMemoryJobs on UPDATE
+          if (q.includes("update jobs")) {
+            const targetId = boundValues[boundValues.length - 1];
+            if (targetId) {
+              const idx = inMemoryJobs.findIndex((j) => j.id === targetId || j.canonical_hash === targetId);
+              if (idx >= 0) {
+                inMemoryJobs[idx].last_seen_at = new Date().toISOString();
+                inMemoryJobs[idx].updated_at = new Date().toISOString();
+                inMemoryJobs[idx].status = "active";
+              }
+            }
+            return { results: [], success: true };
           }
 
           // Mutate inMemoryCompanies on INSERT
@@ -564,6 +589,7 @@ function createEdgeMemoryClient(): DatabaseClient {
                 });
               }
             }
+            return { results: [], success: true };
           }
 
           return { results: [], success: true };

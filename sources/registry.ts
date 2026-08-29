@@ -8,6 +8,10 @@ import { AdzunaAdapter }    from "./adzuna/AdzunaAdapter";
 import { RemotiveAdapter }  from "./remotive/RemotiveAdapter";
 import { ArbeitnowAdapter } from "./arbeitnow/ArbeitnowAdapter";
 import { JoobleAdapter }    from "./jooble/JoobleAdapter";
+import { RemoteOKAdapter }  from "./remoteok/RemoteOKAdapter";
+import { JobicyAdapter }    from "./jobicy/JobicyAdapter";
+import { HimalayasAdapter } from "./himalayas/HimalayasAdapter";
+import { TheMuseAdapter }   from "./themuse/TheMuseAdapter";
 
 /**
  * Central Source Registry & Execution Orchestrator
@@ -17,11 +21,15 @@ import { JoobleAdapter }    from "./jooble/JoobleAdapter";
  *  2. Lever       — DIRECT COMPANY ATS (Revolut, Spotify, Atlassian, Eventbrite)
  *  3. Ashby       — DIRECT COMPANY ATS (Notion, Linear, Ramp, Deel, Retool)
  *  4. Arbeitnow   — FREE, no key, visa_sponsorship:true tagged
- *  5. Adzuna      — Active API, UK/US/AU/CA/NZ
- *  6. USAJobs     — Active federal API, US direct federal hire
- *  7. Jooble      — Active API, global reach
- *  8. Remotive    — Tech/engineering remote jobs
- *  9. Workable    — ATS feed integration
+ *  5. RemoteOK    — FREE, no key, global tech & engineering jobs
+ *  6. Jobicy      — FREE, no key, geo-targeted remote jobs
+ *  7. Himalayas   — FREE, no key, curated remote tech jobs
+ *  8. The Muse    — FREE, no key, corporate employer postings
+ *  9. Adzuna      — Active API, UK/US/AU/CA/NZ
+ * 10. USAJobs     — Active federal API, US direct federal hire
+ * 11. Jooble      — Active API, global reach
+ * 12. Remotive    — Tech/engineering remote jobs
+ * 13. Workable    — ATS feed integration
  */
 export class SourceRegistry {
   private adapters: Map<string, JobSourceAdapter> = new Map();
@@ -34,6 +42,10 @@ export class SourceRegistry {
 
     // ── Free zero-key sources ──────────────────────────────────────────────
     this.register(new ArbeitnowAdapter());
+    this.register(new RemoteOKAdapter());
+    this.register(new JobicyAdapter());
+    this.register(new HimalayasAdapter());
+    this.register(new TheMuseAdapter());
     this.register(new RemotiveAdapter());
 
     // ── Active API key sources ─────────────────────────────────────────────

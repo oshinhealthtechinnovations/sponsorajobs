@@ -4,9 +4,10 @@ import { EmploymentType, RemoteType } from "@/lib/types/database";
  * Country Code Normalization (Section 108)
  * Maps variants like "United Kingdom", "UK", "Great Britain" to "GB"
  */
-export function normalizeCountryCode(rawCountry: string): string {
+export function normalizeCountryCode(rawCountry: any): string {
   if (!rawCountry) return "UNKNOWN";
-  const clean = rawCountry.trim().toLowerCase();
+  const str = Array.isArray(rawCountry) ? rawCountry.join(" ") : String(rawCountry);
+  const clean = str.trim().toLowerCase();
 
   if (["gb", "uk", "united kingdom", "great britain", "england", "scotland", "wales"].includes(clean)) {
     return "GB";
@@ -30,9 +31,10 @@ export function normalizeCountryCode(rawCountry: string): string {
 /**
  * Remote Status Normalization (Section 111)
  */
-export function normalizeRemoteType(raw: string): RemoteType {
+export function normalizeRemoteType(raw: any): RemoteType {
   if (!raw) return "UNKNOWN";
-  const clean = raw.trim().toLowerCase();
+  const str = Array.isArray(raw) ? raw.join(" ") : String(raw);
+  const clean = str.trim().toLowerCase();
   if (clean.includes("remote") || clean.includes("work from home") || clean.includes("wfh")) {
     return "REMOTE";
   }
@@ -48,9 +50,10 @@ export function normalizeRemoteType(raw: string): RemoteType {
 /**
  * Employment Type Normalization (Section 112)
  */
-export function normalizeEmploymentType(raw: string): EmploymentType {
+export function normalizeEmploymentType(raw: any): EmploymentType {
   if (!raw) return "UNKNOWN";
-  const clean = raw.trim().toLowerCase();
+  const str = Array.isArray(raw) ? raw.join(" ") : String(raw);
+  const clean = str.trim().toLowerCase();
   if (clean.includes("full") || clean.includes("perm") || clean.includes("direct hire")) {
     return "FULL_TIME";
   }

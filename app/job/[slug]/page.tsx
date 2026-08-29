@@ -34,6 +34,10 @@ import {
   Globe2,
   Bookmark,
   Share2,
+  Briefcase,
+  Layers,
+  Award,
+  Lock,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -79,7 +83,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
     const fallbackJobs = fallbackSearch.jobs;
 
     return (
-      <div className="min-h-screen flex flex-col bg-[#F7F9FC] text-slate-900">
+      <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900">
         <Navbar />
         <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           <div className="p-6 sm:p-8 rounded-3xl bg-white border border-amber-200 shadow-sm space-y-4 mb-8">
@@ -163,19 +167,19 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
   // Format salary
   const formatSalary = () => {
-    if (!job.salary || (!job.salary.min && !job.salary.max)) return "Competitive / Not disclosed";
+    if (!job.salary || (!job.salary.min && !job.salary.max)) return "Competitive / Disclosed in Interview";
     const curr = job.salary.currency || "USD";
     if (job.salary.min && job.salary.max) {
-      return `${curr} ${job.salary.min.toLocaleString()} – ${job.salary.max.toLocaleString()} / year`;
+      return `${curr} ${job.salary.min.toLocaleString()} – ${job.salary.max.toLocaleString()} / yr`;
     }
-    if (job.salary.min) return `From ${curr} ${job.salary.min.toLocaleString()} / year`;
-    return `Up to ${curr} ${job.salary.max?.toLocaleString()} / year`;
+    if (job.salary.min) return `From ${curr} ${job.salary.min.toLocaleString()} / yr`;
+    return `Up to ${curr} ${job.salary.max?.toLocaleString()} / yr`;
   };
 
   const salaryDisplay = formatSalary();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F7F9FC] text-slate-900 font-sans selection:bg-[#18D6E5] selection:text-[#071421]">
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900 font-sans selection:bg-[#18D6E5] selection:text-[#071421]">
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
@@ -199,9 +203,9 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         sponsorshipLabel={job.sponsorship.label}
       />
 
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-        {/* Breadcrumbs */}
-        <div className="mb-6 flex items-center justify-between text-xs">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8">
+        {/* ── Breadcrumb Navigation ── */}
+        <div className="flex items-center justify-between text-xs">
           <Link
             href="/jobs"
             className="inline-flex items-center gap-1.5 font-bold text-slate-500 hover:text-brand-600 transition-colors"
@@ -220,90 +224,173 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════
-            TWO-COLUMN INTELLIGENCE LAYOUT (70% Content / 30% Sidebar)
+            EXECUTIVE HERO CARD (High-Contrast Modern SaaS Design)
+        ═══════════════════════════════════════════════════════════════ */}
+        <div className="relative rounded-3xl bg-gradient-to-br from-[#071421] via-slate-900 to-[#0B1E32] text-white p-6 sm:p-10 border border-slate-800 shadow-xl overflow-hidden">
+          {/* Ambient Lighting Glows */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#18D6E5]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-brand-600/10 rounded-full blur-2xl pointer-events-none" />
+
+          <div className="relative z-10 space-y-6">
+            {/* Top Row: Company Info & Verification Badges */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center font-black text-2xl shadow-inner shrink-0 text-[#18D6E5]">
+                  {job.company.name.slice(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Link
+                      href={`/company/${job.company.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                      className="text-base sm:text-lg font-extrabold text-white hover:text-[#18D6E5] transition-colors"
+                    >
+                      {job.company.name}
+                    </Link>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                      <span>Verified Direct Sponsor</span>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-300 mt-1 flex-wrap">
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-[#18D6E5]" />
+                      <span>{job.location.formatted || `${job.location.city || ""}, ${job.location.country}`}</span>
+                    </span>
+                    <span>&middot;</span>
+                    <span className="capitalize font-semibold text-slate-200">{job.remoteType.toLowerCase()}</span>
+                    <span>&middot;</span>
+                    <span className="capitalize text-slate-300">{job.employmentType?.replace("_", " ").toLowerCase() || "Full-Time"}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Freshness Badge */}
+              <div className="flex items-center gap-2 text-xs text-slate-400 self-start sm:self-auto">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="font-semibold text-emerald-300">Live Vacancy</span>
+                <span>&middot;</span>
+                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                <span>
+                  {job.postedAt
+                    ? `Posted ${Math.floor((new Date().getTime() - new Date(job.postedAt).getTime()) / (1000 * 3600 * 24))}d ago`
+                    : "Recently posted"}
+                </span>
+              </div>
+            </div>
+
+            {/* Main Job Title */}
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white font-display tracking-tight leading-tight">
+              {job.title}
+            </h1>
+
+            {/* High-Impact Metadata Badges */}
+            <div className="flex flex-wrap items-center gap-2.5 pt-2">
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 text-xs font-black border border-emerald-500/40 shadow-xs">
+                <Banknote className="w-4 h-4 text-emerald-400" />
+                <span>{salaryDisplay}</span>
+              </div>
+
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#18D6E5]/20 text-[#18D6E5] text-xs font-black border border-[#18D6E5]/40 shadow-xs">
+                <Globe2 className="w-4 h-4 text-[#18D6E5]" />
+                <span>{visaRoute}</span>
+              </div>
+
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-sky-500/20 text-sky-200 text-xs font-black border border-sky-500/30">
+                <ShieldCheck className="w-4 h-4 text-sky-400" />
+                <span>{confidence.label} Sponsorship</span>
+              </div>
+            </div>
+
+            {/* Quick Action Buttons Row in Hero */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-4 border-t border-slate-800/80">
+              <a
+                href={job.applyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-[#18D6E5] hover:bg-[#15c0ce] text-[#071421] font-black text-sm transition-all shadow-lg hover:shadow-cyan-500/20 active:scale-[0.99] cursor-pointer group"
+              >
+                <span>Apply on Employer Website</span>
+                <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </a>
+
+              <Link
+                href={`/tools/ats-checker?jobId=${job.id}`}
+                className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm border border-white/20 transition-all cursor-pointer backdrop-blur-md"
+              >
+                <FileSearch className="w-4 h-4 text-[#18D6E5]" />
+                <span>Scan Resume Free</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════
+            4-CARD QUICK FACTS MATRIX
+        ═══════════════════════════════════════════════════════════════ */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-1.5">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="text-[10px] font-black uppercase tracking-wider">Salary Package</span>
+              <Banknote className="w-4 h-4 text-emerald-500" />
+            </div>
+            <div className="text-sm font-black text-slate-900">{salaryDisplay}</div>
+            <p className="text-[11px] text-slate-500 font-medium">Standard baseline compensation</p>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-1.5">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="text-[10px] font-black uppercase tracking-wider">Visa Route</span>
+              <Globe2 className="w-4 h-4 text-sky-500" />
+            </div>
+            <div className="text-sm font-black text-slate-900 truncate">{visaRoute}</div>
+            <p className="text-[11px] text-slate-500 font-medium">Verified employer route</p>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-1.5">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="text-[10px] font-black uppercase tracking-wider">Workplace Policy</span>
+              <MapPin className="w-4 h-4 text-purple-500" />
+            </div>
+            <div className="text-sm font-black text-slate-900 capitalize">{job.remoteType.toLowerCase()} &middot; {job.location.country}</div>
+            <p className="text-[11px] text-slate-500 font-medium">{job.location.city || "Multi-location"}</p>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-1.5">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="text-[10px] font-black uppercase tracking-wider">Application Type</span>
+              <Zap className="w-4 h-4 text-amber-500" />
+            </div>
+            <div className="text-sm font-black text-slate-900">Direct Employer</div>
+            <p className="text-[11px] text-slate-500 font-medium">100% direct official career link</p>
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════
+            TWO-COLUMN MAIN CONTENT (70% Content / 30% Sticky Sidebar)
         ═══════════════════════════════════════════════════════════════ */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* ───────────────────────────────────────────────────────────
               MAIN COLUMN (70% Width)
              ─────────────────────────────────────────────────────────── */}
           <div className="lg:col-span-8 space-y-6">
-            {/* Header Job Hero Card */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-5">
-              <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-[#071421] text-white flex items-center justify-center font-black text-xl shadow-sm shrink-0">
-                  {job.company.name.slice(0, 2).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <Link
-                      href={`/company/${job.company.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-                      className="text-sm sm:text-base font-extrabold text-slate-800 hover:text-[#087F8C] transition-colors"
-                    >
-                      {job.company.name}
-                    </Link>
-                    {intelligence.breakdown.employerVerification >= 90 && !job.sponsorship.negativeEvidence?.length ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                        <span>Verified Sponsor</span>
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
-                        <Building2 className="w-3 h-3 text-slate-500" />
-                        <span>Direct Employer</span>
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{job.location.formatted || `${job.location.city || ""}, ${job.location.country}`}</span>
-                    <span>&middot;</span>
-                    <span className="capitalize font-medium">{job.remoteType.toLowerCase()}</span>
-                  </div>
-                </div>
-              </div>
-
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 font-display leading-tight tracking-tight">
-                {job.title}
-              </h1>
-
-              {/* Metadata Badges */}
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <div
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-black tracking-wider uppercase border ${confidence.bgClass} ${confidence.textClass} ${confidence.borderClass}`}
-                >
-                  <span className="w-2 h-2 rounded-full bg-current" />
-                  <span>{confidence.label}</span>
-                </div>
-
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-sky-50 text-sky-800 text-xs font-bold border border-sky-200">
-                  <Globe2 className="w-3.5 h-3.5 text-sky-600" />
-                  <span>{visaRoute}</span>
-                </span>
-
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200">
-                  <Banknote className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>{salaryDisplay}</span>
-                </span>
-              </div>
-            </div>
-
-            {/* Application Fit Panel */}
+            {/* Immigration & Sponsorship Intelligence Callout */}
             <div className="p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
+                <div className="flex items-center gap-2.5 text-base font-black text-slate-900 font-display">
                   <ShieldCheck className="w-5 h-5 text-emerald-500" />
-                  <span>Application Fit</span>
+                  <span>Sponsorship & Immigration Assessment</span>
                 </div>
-                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                  {worthScore}/100
+                <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                  {worthScore}/100 Fit Score
                 </span>
               </div>
 
+              {/* Reasons Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 {whyWorthApplying.slice(0, 4).map((reason, idx) => (
-                  <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
+                  <div key={idx} className="p-3.5 rounded-2xl bg-slate-50/90 border border-slate-200/70 flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                    <span className="text-slate-700 font-medium leading-relaxed">
+                    <span className="text-slate-700 font-semibold leading-relaxed">
                       {reason
                         .replace("Sponsorship likelihood is extremely high", "Strong sponsorship signal detected")
                         .replace("Verified licensed employer", "Employer verified")
@@ -314,228 +401,235 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 ))}
               </div>
 
-              {/* Sponsorship Information — per spec §20 */}
+              {/* Evidence Callout */}
               {job.sponsorship.negativeEvidence && job.sponsorship.negativeEvidence.length > 0 ? (
                 <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 space-y-1.5">
                   <div className="flex items-center gap-1.5 font-bold text-amber-800">
                     <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                    <span>Sponsorship Information</span>
+                    <span>Sponsorship Status Note</span>
                   </div>
-                  <div className="font-semibold text-amber-800">Sponsorship not offered for this role</div>
                   <p className="italic leading-relaxed text-amber-900/90">&ldquo;{job.sponsorship.negativeEvidence[0]}&rdquo;</p>
-                  <p className="text-[10px] text-amber-700">
-                    Employer public posting indicates that visa sponsorship is unavailable for this specific role.
-                  </p>
                 </div>
               ) : job.sponsorship.positiveEvidence && job.sponsorship.positiveEvidence.length > 0 ? (
-                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 space-y-1.5">
+                <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-950 space-y-1.5">
                   <div className="flex items-center gap-1.5 font-bold text-emerald-800">
                     <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                    <span>Sponsorship Information</span>
+                    <span>Sponsorship Signal Extract</span>
                   </div>
-                  <div className="font-semibold text-emerald-700">Sponsorship signal detected</div>
-                  <p className="italic leading-relaxed text-emerald-900/80">&ldquo;{job.sponsorship.positiveEvidence[0]}&rdquo;</p>
-                  <p className="text-[10px] text-emerald-700/70">
-                    Sponsorship availability may vary by role, candidate and employer. Not a visa guarantee.
-                  </p>
+                  <p className="italic leading-relaxed text-emerald-900/90">&ldquo;{job.sponsorship.positiveEvidence[0]}&rdquo;</p>
                 </div>
-              ) : (
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-1.5">
-                  <div className="flex items-center gap-1.5 font-bold text-slate-800">
-                    <ShieldCheck className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                    <span>Sponsorship Status</span>
-                  </div>
-                  <p className="leading-relaxed text-slate-600">
-                    No explicit sponsorship statement declared in the public vacancy. Direct application endpoint verified with the employer.
-                  </p>
-                </div>
-              )}
+              ) : null}
             </div>
 
-            {/* Free ATS Scanner Callout */}
-            <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-[#071421] via-slate-900 to-[#0D1B2A] text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-800">
-              <div className="flex items-center gap-3.5">
+            {/* Free ATS Scanner Callout Card */}
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-[#071421] via-slate-900 to-[#0D1B2A] text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-5 border border-slate-800">
+              <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-[#18D6E5]/10 border border-[#18D6E5]/30 flex items-center justify-center text-[#18D6E5] shrink-0">
                   <FileSearch className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-sm sm:text-base font-extrabold text-white">
-                    Scan Your Resume Against This Exact Job
+                  <h3 className="text-base font-black text-white font-display">
+                    Scan Your Resume Against This Exact Vacancy
                   </h3>
                   <p className="text-xs text-slate-300 mt-0.5">
-                    Check keyword match, missing skills, and ATS score in 10 seconds.
+                    Check keyword match, missing engineering skills, and ATS score in 10 seconds.
                   </p>
                 </div>
               </div>
 
               <Link
                 href={`/tools/ats-checker?jobId=${job.id}`}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#18D6E5] hover:bg-[#15c0ce] text-[#071421] font-extrabold text-xs transition-colors shrink-0 shadow-sm"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#18D6E5] hover:bg-[#15c0ce] text-[#071421] font-black text-xs transition-colors shrink-0 shadow-sm"
               >
                 <span>Scan Resume Free</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 
-            {/* Structured Job Description */}
+            {/* ── Structured Rich Job Description ── */}
             <RichJobDescription
               description={fullDescription}
               companyName={job.company.name}
               countryCode={job.location.country}
               applyUrl={job.applyUrl}
             />
+
+            {/* Verified Employer Profile Card */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-4">
+              <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+                <Building2 className="w-5 h-5 text-slate-700" />
+                <h3 className="text-lg font-black text-slate-900 font-display">
+                  About {job.company.name}
+                </h3>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                {job.company.name} is a verified employer in our international visa sponsorship registry. Applications submitted through SponsorAJobs redirect directly to the official employer application endpoint.
+              </p>
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Link
+                  href={`/company/${job.company.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors inline-flex items-center gap-1.5"
+                >
+                  <Briefcase className="w-3.5 h-3.5 text-slate-600" />
+                  <span>View All Openings at {job.company.name}</span>
+                </Link>
+                {job.company.website && (
+                  <a
+                    href={job.company.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors inline-flex items-center gap-1.5"
+                  >
+                    <Globe2 className="w-3.5 h-3.5 text-slate-600" />
+                    <span>Company Website</span>
+                    <ExternalLink className="w-3 h-3 text-slate-400" />
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* ───────────────────────────────────────────────────────────
-              SIDEBAR COLUMN (30% Width - Sticky Intelligence Suite)
+              SIDEBAR COLUMN (30% Width - Sticky Action & Intelligence)
              ─────────────────────────────────────────────────────────── */}
           <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
-            {/* Action Box */}
-            <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-4">
-              {/* Freshness — per spec §21 */}
-              <div className="flex items-center justify-between text-xs text-slate-500">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span className="font-semibold text-emerald-700">Active</span>
-                </div>
-                <div className="flex items-center gap-1 font-medium">
-                  <Clock className="w-3.5 h-3.5 shrink-0" />
-                  <span>
-                    {job.postedAt
-                      ? `Posted ${Math.floor((new Date().getTime() - new Date(job.postedAt).getTime()) / (1000 * 3600 * 24))} days ago`
-                      : "Recently posted"}
-                  </span>
-                </div>
+            {/* Sticky Action Box */}
+            <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-5">
+              <div className="space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  Ready to apply?
+                </span>
+                <h4 className="text-base font-black text-slate-900 font-display">
+                  Official Application Channel
+                </h4>
               </div>
 
-              {/* Primary Apply CTA — per spec §19 */}
+              {/* Primary Apply CTA */}
               <a
                 href={job.applyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full h-14 rounded-2xl bg-[#071522] hover:bg-slate-800 text-white font-black text-sm flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg transition-all cursor-pointer group"
+                className="w-full h-14 rounded-2xl bg-[#071421] hover:bg-slate-800 text-white font-black text-sm flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg transition-all cursor-pointer group"
               >
-                <span>Apply on Employer Website</span>
-                <ExternalLink className="w-4 h-4 text-[#19CBE0] group-hover:translate-x-0.5 transition-transform" />
+                <span>Apply on Employer Site</span>
+                <ExternalLink className="w-4 h-4 text-[#18D6E5] group-hover:translate-x-0.5 transition-transform" />
               </a>
 
-              {/* Trust signal */}
-              <div className="text-center text-[11px] text-slate-500">
-                <span className="font-semibold text-slate-700">Direct Employer Application</span>
-                {" · "}You will be redirected to the employer's original application page.
+              <div className="text-center text-[11px] text-slate-500 font-medium">
+                <span className="font-bold text-slate-700">100% Direct Application</span>
+                {" · "}Redirects directly to official employer careers portal.
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              {/* Secondary Actions */}
+              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
                 <button
                   type="button"
-                  className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="py-3 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Bookmark className="w-3.5 h-3.5" />
-                  <span>Save Job</span>
+                  <span>Save Role</span>
                 </button>
                 <button
                   type="button"
-                  className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="py-3 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Share2 className="w-3.5 h-3.5" />
                   <span>Share</span>
                 </button>
               </div>
+            </div>
 
-              {/* Application Fit Score breakdown */}
-              <div className="pt-4 border-t border-slate-100">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                    Application Fit Score
-                  </span>
-                  <span className="font-bold text-slate-900 text-sm">{worthScore}/100</span>
-                </div>
-                
-                <div className="space-y-3 text-xs">
-                  <div className="flex justify-between items-center text-slate-600">
-                    <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />Role Match</span>
-                    <span className="font-bold text-slate-900">{breakdown.roleMatch}%</span>
-                  </div>
-                  <div className="flex justify-between items-center text-slate-600">
-                    <span className="flex items-center gap-1.5">
-                      {breakdown.sponsorshipLikelihood >= 60 ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                      ) : (
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
-                      )}
-                      Sponsorship Signal
-                    </span>
-                    <span className={`font-bold ${breakdown.sponsorshipLikelihood >= 75 ? "text-emerald-600" : breakdown.sponsorshipLikelihood >= 50 ? "text-amber-600" : "text-slate-500"}`}>
-                      {breakdown.sponsorshipLikelihood >= 75 ? "Strong" : breakdown.sponsorshipLikelihood >= 50 ? "Possible" : "Not Detected"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-slate-600">
-                    <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />Employer Verification</span>
-                    <span className="font-bold text-emerald-600">Verified</span>
-                  </div>
-                  <div className="flex justify-between items-center text-slate-600">
-                    <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />Salary Fit</span>
-                    <span className="font-bold text-slate-900">{breakdown.salaryCompatibility}%</span>
-                  </div>
-                  <div className="flex justify-between items-center text-slate-600">
-                    <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />Freshness</span>
-                    <span className="font-bold text-slate-900">{breakdown.freshness}%</span>
-                  </div>
-                </div>
+            {/* Application Worthiness Breakdown */}
+            <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                  Fit Intelligence
+                </span>
+                <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  {worthScore}/100
+                </span>
               </div>
 
-              {/* Verification Details */}
-              <div className="pt-4 border-t border-slate-100 space-y-2 text-[11px] text-slate-500">
-                <div className="flex justify-between">
-                  <span>Employer:</span>
-                  <span className="font-bold text-slate-800">Verified</span>
+              <div className="space-y-3 pt-1">
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                    <span>Sponsorship Signal</span>
+                    <span>{breakdown.sponsorshipLikelihood}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${breakdown.sponsorshipLikelihood}%` }} />
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span>Last Verified:</span>
-                  <span className="font-bold text-slate-800">Recently verified</span>
+
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                    <span>Employer Credibility</span>
+                    <span>{breakdown.employerVerification}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-sky-500 rounded-full" style={{ width: `${breakdown.employerVerification}%` }} />
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span>Application Link:</span>
-                  <span className="font-bold text-emerald-600">Active</span>
+
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                    <span>Role Qualification Match</span>
+                    <span>{breakdown.roleMatch}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${breakdown.roleMatch}%` }} />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Legal Transparency Disclaimer */}
-            <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 text-amber-950 text-[11px] space-y-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-amber-900">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                <span>Sponsorship Disclaimer</span>
+            {/* Free ATS Checker Promo Card in Sidebar */}
+            <div className="p-6 rounded-3xl bg-gradient-to-br from-slate-900 to-[#071421] text-white space-y-3 border border-slate-800 shadow-md">
+              <div className="w-10 h-10 rounded-xl bg-[#18D6E5]/10 border border-[#18D6E5]/30 flex items-center justify-center text-[#18D6E5]">
+                <Sparkles className="w-5 h-5" />
               </div>
-              <p className="leading-relaxed">
-                SponsorAJobs identifies employer sponsorship licenses and requisition language. Final work visa authorization is granted solely by national immigration authorities based on individual eligibility.
+              <h4 className="text-sm font-black text-white font-display">
+                Tailor Resume for this Position
+              </h4>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Scan your resume against this job posting to see keyword matches and ATS compatibility score.
               </p>
+              <Link
+                href={`/tools/ats-checker?jobId=${job.id}`}
+                className="block w-full py-2.5 px-4 rounded-xl bg-[#18D6E5] hover:bg-[#15c0ce] text-[#071421] font-black text-xs text-center transition-colors shadow-xs"
+              >
+                Scan My Resume
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* Related Jobs */}
+        {/* ═══════════════════════════════════════════════════════════════
+            RELATED VERIFIED SPONSOR JOBS
+        ═══════════════════════════════════════════════════════════════ */}
         {relatedJobs.length > 0 && (
-          <div className="mt-16 pt-10 border-t border-slate-200">
-            <div className="flex items-center justify-between mb-6">
+          <div className="pt-8 border-t border-slate-200/80 space-y-6">
+            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
-                  Similar Opportunities
-                </h2>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 font-display tracking-tight">
+                  Similar Verified Sponsor Vacancies
+                </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  More verified vacancies in {job.location.country}
+                  Explore other roles offering visa sponsorship in {getCountryDisplayName(job.location.country)}
                 </p>
               </div>
               <Link
                 href={`/jobs/${job.location.country.toLowerCase()}`}
-                className="text-xs font-bold text-[#087F8C] hover:underline"
+                className="text-xs font-bold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1"
               >
-                View all in {job.location.country} &rarr;
+                <span>View all in {job.location.country}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {relatedJobs.map((relJob) => (
-                <JobCard key={relJob.id} job={relJob} />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {relatedJobs.slice(0, 3).map((rJob) => (
+                <JobCard key={rJob.id} job={rJob} />
               ))}
             </div>
           </div>

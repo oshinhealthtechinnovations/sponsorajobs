@@ -4,10 +4,14 @@ import realData from "./realJobsData.json";
 
 export const STATIC_SOURCES = [
   { id: "arbeitnow", name: "Arbeitnow Visa Jobs API", type: "api", active: 1, terms_url: "https://www.arbeitnow.com/terms-conditions", attribution_required: 0 },
+  { id: "remoteok", name: "RemoteOK Tech Jobs API", type: "api", active: 1, terms_url: "https://remoteok.com/terms", attribution_required: 1 },
+  { id: "jobicy", name: "Jobicy Remote Jobs API", type: "api", active: 1, terms_url: "https://jobicy.com/terms", attribution_required: 0 },
+  { id: "himalayas", name: "Himalayas Tech Jobs API", type: "api", active: 1, terms_url: "https://himalayas.app/terms", attribution_required: 0 },
+  { id: "themuse", name: "The Muse Careers API", type: "api", active: 1, terms_url: "https://www.themuse.com/terms", attribution_required: 0 },
   { id: "remotive", name: "Remotive Remote Jobs API", type: "api", active: 1, terms_url: "https://remotive.com/api/terms", attribution_required: 1 },
   { id: "jooble", name: "Jooble Global Jobs API", type: "api", active: 1, terms_url: "https://jooble.org/api-terms", attribution_required: 1 },
-  { id: "usajobs", name: "USAJobs Federal API", type: "api", active: 0, terms_url: "https://developer.usajobs.gov/API-Terms", attribution_required: 0 },
-  { id: "adzuna", name: "Adzuna Job API", type: "api", active: 0, terms_url: "https://developer.adzuna.com/terms", attribution_required: 1 },
+  { id: "usajobs", name: "USAJobs Federal API", type: "api", active: 1, terms_url: "https://developer.usajobs.gov/API-Terms", attribution_required: 0 },
+  { id: "adzuna", name: "Adzuna Job API", type: "api", active: 1, terms_url: "https://developer.adzuna.com/terms", attribution_required: 1 },
 ];
 
 export const STATIC_COUNTRIES = INITIAL_COUNTRIES.map((c) => ({
