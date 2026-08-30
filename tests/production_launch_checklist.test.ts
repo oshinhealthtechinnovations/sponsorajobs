@@ -3,7 +3,7 @@ import { runSeed } from "../scripts/seed";
 import { INITIAL_COUNTRIES } from "../config/countries";
 import { INITIAL_CATEGORIES } from "../config/categories";
 import { POSITIVE_SPONSORSHIP_PATTERNS, NEGATIVE_SPONSORSHIP_PATTERNS } from "../config/sponsorship-rules";
-import { DatabaseClient, DbPreparedStatement, DbResult } from "../lib/db/client";
+import { DatabaseClient, DbPreparedStatement, DbResult, setLocalDatabaseInstance } from "../lib/db/client";
 import { GET as healthHandler } from "../app/api/health/route";
 
 describe("Phase 10: Production Launch Checklist & System Verification (Sections 99, 148, 150)", () => {
@@ -12,6 +12,7 @@ describe("Phase 10: Production Launch Checklist & System Verification (Sections 
 
   beforeAll(async () => {
     rawDb = await runSeed();
+    setLocalDatabaseInstance(rawDb);
 
     dbClient = {
       prepare(query: string) {

@@ -155,9 +155,16 @@ function createEdgeMemoryClient(): DatabaseClient {
           // 3. Companies
           if (q.includes("from companies")) {
             let res = [...inMemoryCompanies];
-            if (q.includes("id = ?") && boundValues.length > 0) {
-              const id = String(boundValues[0]);
-              res = res.filter((c) => c.id === id);
+            if ((q.includes("normalized_name") || q.includes("lower(normalized_name)")) && boundValues.length > 0) {
+              const term = String(boundValues[0]).toLowerCase().trim();
+              res = res.filter((c) => 
+                c.normalized_name?.toLowerCase() === term || 
+                c.name?.toLowerCase() === term || 
+                c.id?.toLowerCase() === term
+              );
+            } else if (q.includes("id = ?") && boundValues.length > 0) {
+              const id = String(boundValues[0]).toLowerCase();
+              res = res.filter((c) => c.id.toLowerCase() === id);
             }
             return { results: res as unknown as T[], success: true };
           }
@@ -353,6 +360,11 @@ function createEdgeMemoryClient(): DatabaseClient {
               const token = String(boundValues[0]);
               res = res.filter((c) => c.share_token === token);
             }
+
+            if (q.includes("count(*)")) {
+              return { results: [{ total: res.length, count: res.length }] as unknown as T[], success: true };
+            }
+
             if (q.includes("order by created_at desc")) {
               res.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
             }
