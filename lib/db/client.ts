@@ -231,9 +231,15 @@ function createEdgeMemoryClient(): DatabaseClient {
               res = res.filter((j) => j.sponsorship_label === sponParam);
             }
 
-            // Company filter
-            if (q.includes("c.normalized_name") || q.includes("c.name") || q.includes("j.company_id") || q.includes("j.company_name")) {
-              const compParam = boundValues.find((v) => typeof v === "string" && (v.startsWith("%comp_") || v.startsWith("comp_") || v.toLowerCase().includes("mace") || inMemoryCompanies.some((c) => c.name.toLowerCase().includes(String(v).replace(/%/g, "").toLowerCase()) || c.id === String(v).replace(/%/g, ""))));
+            // Company filter (only apply when a dedicated company condition is in the query, not generic keyword search)
+            if (q.includes("lower(c.normalized_name) like ?") || (q.includes("c.normalized_name") && !q.includes("lower(j.title) like ?"))) {
+              const compParam = boundValues.find(
+                (v) => typeof v === "string" && (
+                  v.startsWith("%comp_") || 
+                  v.startsWith("comp_") || 
+                  inMemoryCompanies.some((c) => c.name.toLowerCase() === String(v).replace(/%/g, "").toLowerCase() || c.id === String(v).replace(/%/g, ""))
+                )
+              );
               if (compParam) {
                 const term = String(compParam).replace(/%/g, "").toLowerCase().replace(/\s*\(.*\)/, "").trim();
                 res = res.filter((j) => (j.company_id || "").toLowerCase().includes(term) || (j.company_name || "").toLowerCase().includes(term));
@@ -308,6 +314,11 @@ function createEdgeMemoryClient(): DatabaseClient {
               res = scored.map((s) => s.job);
             }
 
+            // Return count aggregation if requested
+            if (q.includes("count(*)") || q.includes("count(1)")) {
+              return { results: [{ total: res.length }] as unknown as T[], success: true };
+            }
+
             // Pagination slice
             const numParams = boundValues.filter((v) => typeof v === "number");
             if (numParams.length >= 2) {
@@ -359,90 +370,6 @@ function createEdgeMemoryClient(): DatabaseClient {
           return { results: [], success: true };
         },
         async first<T = any>(col?: string): Promise<T | null> {
-          const q = query.toLowerCase();
-
-          // Count Queries
-          if (q.includes("count(*)")) {
-            if (q.includes("from cv_analyses")) {
-              return ({ total: inMemoryCVAnalyses.length, count: inMemoryCVAnalyses.length } as unknown) as T;
-            }
-
-            if (q.includes("1 = 0")) {
-              return ({ total: 0, count: 0 } as unknown) as T;
-            }
-            if (q.includes("from jobs")) {
-              let res = [...inMemoryJobs];
-
-              const kwParams = boundValues.filter((v) => typeof v === "string" && v.startsWith("%") && v.endsWith("%"));
-              const countryParam = boundValues.find(
-                (v) => typeof v === "string" && ["GB", "US", "AU", "CA", "NZ"].includes(v.toUpperCase())
-              );
-              const remoteParam = q.includes("remote_type")
-                ? boundValues.find((v) => typeof v === "string" && ["REMOTE", "HYBRID", "ONSITE"].includes(v.toUpperCase()))
-                : undefined;
-              const empParam = q.includes("employment_type")
-                ? boundValues.find((v) => typeof v === "string" && ["FULL_TIME", "PART_TIME", "CONTRACT"].includes(v.toUpperCase()))
-                : undefined;
-              const sponParam = q.includes("sponsorship_label")
-                ? boundValues.find((v) => typeof v === "string" && ["Strong", "Likely", "Possible"].includes(v))
-                : undefined;
-
-              if (countryParam) {
-                res = res.filter((j) => j.country_code?.toUpperCase() === String(countryParam).toUpperCase());
-              }
-              if (remoteParam) {
-                res = res.filter((j) => j.remote_type?.toUpperCase() === String(remoteParam).toUpperCase());
-              }
-              if (empParam) {
-                res = res.filter((j) => j.employment_type?.toUpperCase() === String(empParam).toUpperCase());
-              }
-              if (sponParam) {
-                res = res.filter((j) => j.sponsorship_label === sponParam);
-              }
-
-              // Company filter
-              if (q.includes("c.normalized_name") || q.includes("c.name") || q.includes("j.company_id") || q.includes("j.company_name")) {
-                const compParam = boundValues.find((v) => typeof v === "string" && (v.startsWith("%comp_") || v.startsWith("comp_") || v.toLowerCase().includes("mace") || inMemoryCompanies.some((c) => c.name.toLowerCase().includes(String(v).replace(/%/g, "").toLowerCase()) || c.id === String(v).replace(/%/g, ""))));
-                if (compParam) {
-                  const term = String(compParam).replace(/%/g, "").toLowerCase().replace(/\s*\(.*\)/, "").trim();
-                  res = res.filter((j) => (j.company_id || "").toLowerCase().includes(term) || (j.company_name || "").toLowerCase().includes(term));
-                }
-              }
-
-              if (kwParams.length > 0) {
-                const rawTerms = kwParams.map((kw) => String(kw).slice(1, -1).toLowerCase()).filter(Boolean);
-                const terms = Array.from(new Set(rawTerms));
-                const phrase = terms.join(" ");
-
-                res = res.filter((j) => {
-                  const title = (j.title || "").toLowerCase();
-                  const desc = (j.description || "").toLowerCase();
-                  const comp = (j.company_name || j.company_id || "").toLowerCase();
-                  const cat = (j.category_name || j.category_slug || "").toLowerCase();
-
-                  let titleMatches = 0;
-                  let descMatches = 0;
-
-                  for (const t of terms) {
-                    if (title.includes(t)) titleMatches++;
-                    if (desc.includes(t)) descMatches++;
-                  }
-
-                  if (terms.length <= 1) {
-                    return titleMatches > 0 || (phrase && desc.includes(phrase)) || comp.includes(phrase) || cat.includes(phrase) || descMatches > 0;
-                  } else {
-                    const hasRoleOrTitleRelevance = titleMatches > 0 || (phrase && desc.includes(phrase)) || comp.includes(phrase);
-                    return Boolean(hasRoleOrTitleRelevance || descMatches === terms.length);
-                  }
-                });
-              }
-
-              const count = res.length;
-              return ({ total: count, count } as unknown) as T;
-            }
-            return ({ total: inMemoryJobs.length, count: inMemoryJobs.length } as unknown) as T;
-          }
-
           const res = await this.all<T>();
           if (!res.results.length) return null;
           const row: any = res.results[0];
