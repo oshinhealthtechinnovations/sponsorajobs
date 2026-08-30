@@ -148,17 +148,6 @@ export const Navbar: React.FC = () => {
               <span>Job Alerts</span>
             </button>
 
-            {/* Sign In */}
-            {!user && (
-              <Link
-                href="/admin/login"
-                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-sm font-semibold transition-colors cursor-pointer"
-              >
-                <LogIn className="w-4 h-4" />
-                <span>Sign In</span>
-              </Link>
-            )}
-
             {/* Primary CTA: Search Jobs */}
             <Link
               href="/jobs"

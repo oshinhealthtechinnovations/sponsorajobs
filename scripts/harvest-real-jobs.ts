@@ -215,15 +215,37 @@ async function harvestRealJobs() {
     });
   }
 
-  console.log(`Successfully processed ${processedJobs.length} real jobs across ${processedCompanies.size} companies!`);
+  // Load and merge with existing jobs from previous days
+  let existingJobs: any[] = [];
+  let existingCompanies: any[] = [];
+  try {
+    const rawPrev = fs.readFileSync(path.resolve("./lib/db/realJobsData.json"), "utf8");
+    const parsedPrev = JSON.parse(rawPrev);
+    existingJobs = parsedPrev.jobs || [];
+    existingCompanies = parsedPrev.companies || [];
+  } catch (e) {
+    // If file doesn't exist, start fresh
+  }
+
+  // Deduplicate and merge jobs
+  const mergedJobsMap = new Map<string, any>();
+  existingJobs.forEach((j) => mergedJobsMap.set(j.canonical_hash || j.id, j));
+  processedJobs.forEach((j) => mergedJobsMap.set(j.canonical_hash || j.id, j));
+
+  // Deduplicate and merge companies
+  const mergedCompaniesMap = new Map<string, any>();
+  existingCompanies.forEach((c) => mergedCompaniesMap.set(c.id, c));
+  Array.from(processedCompanies.values()).forEach((c) => mergedCompaniesMap.set(c.id, c));
+
+  console.log(`Successfully merged today's harvest with historical listings: ${mergedJobsMap.size} total jobs across ${mergedCompaniesMap.size} companies!`);
 
   const outData = {
-    companies: Array.from(processedCompanies.values()),
-    jobs: processedJobs,
+    companies: Array.from(mergedCompaniesMap.values()),
+    jobs: Array.from(mergedJobsMap.values()),
   };
 
   fs.writeFileSync(path.resolve("./lib/db/realJobsData.json"), JSON.stringify(outData, null, 2));
-  console.log("Saved real jobs to ./lib/db/realJobsData.json");
+  console.log("Saved cumulative jobs dataset to ./lib/db/realJobsData.json");
 }
 
 harvestRealJobs().catch(console.error);
