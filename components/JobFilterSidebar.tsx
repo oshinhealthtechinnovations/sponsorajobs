@@ -7,6 +7,8 @@ import { INITIAL_CATEGORIES } from "@/config/categories";
 import { Filter, RotateCcw, Calendar, Banknote, MapPin, Briefcase, Building2 } from "lucide-react";
 
 const TOP_SPONSOR_COMPANIES = [
+  { id: "comp_wsp", name: "WSP", tag: "Global Engineering (92+)" },
+  { id: "comp_jacobs", name: "Jacobs", tag: "Global Engineering" },
   { id: "comp_mace_group", name: "Mace", tag: "UK Sponsor" },
   { id: "comp_monzo_bank", name: "Monzo Bank", tag: "Fintech" },
   { id: "comp_stripe", name: "Stripe", tag: "Payments" },
