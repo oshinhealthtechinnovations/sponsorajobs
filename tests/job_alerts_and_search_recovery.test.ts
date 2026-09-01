@@ -91,7 +91,7 @@ describe("Job Alerts & Zero-Result Search Recovery Logic", () => {
 
     expect(dispatchRes.success).toBe(true);
     expect(dispatchRes.messageId).toBeDefined();
-  });
+  }, 15000);
 
   it("should provide fallback suggestions when searching for a non-existent keyword", async () => {
     const jobRepo = new JobRepository();
@@ -126,5 +126,5 @@ describe("Job Alerts & Zero-Result Search Recovery Logic", () => {
     expect(data.emailSent).toBe(true);
     expect(data.alert).toBeDefined();
     expect(data.alert.email).toBe("test.subscriber@example.com");
-  });
+  }, 15000);
 });

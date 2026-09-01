@@ -152,4 +152,20 @@ describe("Candidate Email Verification & Application Tracker", () => {
       expect(userApps.length).toBe(0);
     });
   });
+
+  describe("3. Email Service Daily Quota & Failover Engine", () => {
+    it("should report daily quota status and indicate active provider", async () => {
+      const { EmailService } = await import("@/lib/services/emailService");
+      const service = new EmailService();
+      const quota = service.getDailyQuotaStatus();
+
+      expect(quota).toBeDefined();
+      expect(quota.resendDailyLimit).toBe(100);
+      expect(typeof quota.resendUsedToday).toBe("number");
+      expect(typeof quota.resendRemaining).toBe("number");
+      expect(quota.resendRemaining).toBeLessThanOrEqual(100);
+      expect(quota.date).toBe(new Date().toISOString().split("T")[0]);
+    });
+  });
 });
+

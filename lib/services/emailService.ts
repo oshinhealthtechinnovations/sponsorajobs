@@ -15,6 +15,39 @@ export interface EmailDispatchResult {
   messageId: string;
   provider: "resend" | "smtp" | "simulated";
   previewUrl?: string;
+  quotaRemaining?: number;
+}
+
+// ─── Resend Free Tier Daily Quota Manager ────────────────────────────────────
+// Resend free tier allows 100 emails/day.
+// Once reached, the system automatically routes all further OTPs and alerts to Gmail SMTP.
+const RESEND_DAILY_LIMIT = 100;
+
+interface DailyEmailStats {
+  date: string; // YYYY-MM-DD
+  count: number;
+}
+
+let dailyStats: DailyEmailStats = {
+  date: new Date().toISOString().split("T")[0],
+  count: 0,
+};
+
+function getDailyCount(): number {
+  const today = new Date().toISOString().split("T")[0];
+  if (dailyStats.date !== today) {
+    dailyStats = { date: today, count: 0 };
+  }
+  return dailyStats.count;
+}
+
+function incrementDailyCount(): number {
+  const today = new Date().toISOString().split("T")[0];
+  if (dailyStats.date !== today) {
+    dailyStats = { date: today, count: 0 };
+  }
+  dailyStats.count++;
+  return dailyStats.count;
 }
 
 export class EmailService {
@@ -22,6 +55,31 @@ export class EmailService {
 
   constructor() {
     this.siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://sponsorajobs.com";
+  }
+
+  /**
+   * Returns current daily quota status for monitoring and diagnostics
+   */
+  getDailyQuotaStatus() {
+    const today = new Date().toISOString().split("T")[0];
+    const count = getDailyCount();
+    return {
+      date: today,
+      resendUsedToday: count,
+      resendDailyLimit: RESEND_DAILY_LIMIT,
+      resendRemaining: Math.max(0, RESEND_DAILY_LIMIT - count),
+      isPrimaryActive: count < RESEND_DAILY_LIMIT,
+      activeProvider: count < RESEND_DAILY_LIMIT ? "resend" : "smtp",
+    };
+  }
+
+  private canUseResend(): boolean {
+    const count = getDailyCount();
+    if (count >= RESEND_DAILY_LIMIT) {
+      console.log(`[EmailService:Quota] Resend daily cap reached (${count}/${RESEND_DAILY_LIMIT}). Auto-routed to Gmail SMTP Relay.`);
+      return false;
+    }
+    return true;
   }
 
   private getApiKey(): string {
@@ -191,8 +249,8 @@ export class EmailService {
     const messageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
     const apiKey = this.getApiKey();
 
-    // 1. Try Resend API if API Key is configured
-    if (apiKey) {
+    // 1. Primary: Resend API (if daily quota < 100)
+    if (apiKey && this.canUseResend()) {
       try {
         const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <auth@sponsorajobs.com>";
         const res = await fetch("https://api.resend.com/emails", {
@@ -211,13 +269,15 @@ export class EmailService {
 
         if (res.ok) {
           const data = await res.json() as { id?: string };
+          const used = incrementDailyCount();
           return {
             success: true,
             messageId: data.id || messageId,
             provider: "resend",
+            quotaRemaining: Math.max(0, RESEND_DAILY_LIMIT - used),
           };
         } else {
-          console.warn("[EmailService] Resend API returned non-200:", await res.text());
+          console.warn("[EmailService] Resend API returned non-200, routing to Gmail SMTP fallback:", await res.text());
         }
       } catch (err) {
         console.error("[EmailService] Resend API network error:", err);
@@ -246,7 +306,8 @@ export class EmailService {
     const messageId = `msg_digest_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
     const apiKey = this.getApiKey();
 
-    if (apiKey) {
+    // 1. Primary: Resend API (if daily quota < 100)
+    if (apiKey && this.canUseResend()) {
       try {
         const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <auth@sponsorajobs.com>";
         const res = await fetch("https://api.resend.com/emails", {
@@ -265,10 +326,12 @@ export class EmailService {
 
         if (res.ok) {
           const data = (await res.json()) as { id?: string };
+          const used = incrementDailyCount();
           return {
             success: true,
             messageId: data.id || messageId,
             provider: "resend",
+            quotaRemaining: Math.max(0, RESEND_DAILY_LIMIT - used),
           };
         }
       } catch (err) {
@@ -336,8 +399,8 @@ export class EmailService {
 </html>
     `;
 
-    // 1. Try Resend API first
-    if (apiKey) {
+    // 1. Primary: Resend API (if daily quota < 100)
+    if (apiKey && this.canUseResend()) {
       try {
         const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <auth@sponsorajobs.com>";
         const res = await fetch("https://api.resend.com/emails", {
@@ -356,14 +419,16 @@ export class EmailService {
 
         if (res.ok) {
           const data = (await res.json()) as { id?: string };
+          const used = incrementDailyCount();
           return {
             success: true,
             messageId: data.id || messageId,
             provider: "resend",
+            quotaRemaining: Math.max(0, RESEND_DAILY_LIMIT - used),
           };
         } else {
           const errText = await res.text();
-          console.warn("[EmailService:Verify] Resend non-200 response:", errText);
+          console.warn("[EmailService:Verify] Resend non-200 response, switching to Gmail SMTP:", errText);
         }
       } catch (err) {
         console.error("[EmailService:Verify] Error dispatching verification code via Resend:", err);
