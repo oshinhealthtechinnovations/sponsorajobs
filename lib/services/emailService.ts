@@ -666,5 +666,222 @@ export class EmailService {
       provider: "simulated",
     };
   }
+
+  /**
+   * Send Hourly Website, Employee & Operations Executive Report
+   */
+  async sendHourlyOperationalReportEmail(params: {
+    toEmail: string;
+    timestamp?: string;
+    metrics: {
+      totalJobs: number;
+      totalCompanies: number;
+      activeApplications: number;
+      systemErrors: number;
+      apiHealth: string;
+      supabaseHealth: string;
+    };
+    employeeActivities: {
+      name: string;
+      role: string;
+      currentAction: string;
+      progress: string;
+    }[];
+    userActivitySummary: {
+      totalActiveCandidates: number;
+      recentApplications: number;
+      recentLogins: number;
+      topSearchedTerms: string[];
+    };
+    suggestions: string[];
+  }): Promise<EmailDispatchResult> {
+    const messageId = `hourly_report_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    const apiKey = this.getApiKey();
+    const formattedTime = params.timestamp || new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" });
+
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SponsorAJobs Hourly Operations & Intelligence Report</title>
+</head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#071522;margin:0;padding:24px 12px;color:#ffffff;">
+  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:650px;margin:0 auto;background:#0d2137;border-radius:24px;overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,0.7);border:1px solid rgba(25,203,224,0.3);">
+    <!-- Header -->
+    <tr>
+      <td style="background:linear-gradient(135deg,#071522 0%,#0e3050 50%,#071522 100%);padding:32px 28px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.1);">
+        <div style="display:inline-block;padding:6px 14px;background:rgba(25,203,224,0.15);border:1px solid rgba(25,203,224,0.4);border-radius:20px;font-size:11px;font-weight:800;color:#19CBE0;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">
+          ⚡ HOURLY EXECUTIVE INTELLIGENCE DISPATCH
+        </div>
+        <h1 style="margin:0;font-size:24px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;">SponsorAJobs 360° Operations Report</h1>
+        <p style="margin:6px 0 0 0;font-size:13px;color:#94a3b8;">Timestamp: <strong>${formattedTime} IST</strong> &middot; Automated System Audit</p>
+      </td>
+    </tr>
+
+    <!-- Quick Health Dashboard -->
+    <tr>
+      <td style="padding:24px 28px;background:#0a192f;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <h3 style="margin:0 0 16px 0;font-size:14px;font-weight:800;color:#19CBE0;text-transform:uppercase;letter-spacing:0.5px;">
+          📊 1. Core Platform Health & Metrics
+        </h3>
+        <table width="100%" border="0" cellspacing="6" cellpadding="10" style="font-size:13px;color:#e2e8f0;">
+          <tr>
+            <td style="background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.08);width:50%;">
+              <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;font-weight:700;">Live Verified Jobs</div>
+              <div style="font-size:20px;font-weight:900;color:#10b981;margin-top:2px;">${params.metrics.totalJobs.toLocaleString()}</div>
+            </td>
+            <td style="background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.08);width:50%;">
+              <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;font-weight:700;">Verified Sponsors</div>
+              <div style="font-size:20px;font-weight:900;color:#38bdf8;margin-top:2px;">${params.metrics.totalCompanies.toLocaleString()}</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.08);">
+              <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;font-weight:700;">API / Frontend Status</div>
+              <div style="font-size:14px;font-weight:800;color:#10b981;margin-top:2px;">🟢 ${params.metrics.apiHealth}</div>
+            </td>
+            <td style="background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.08);">
+              <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;font-weight:700;">Supabase Postgres DB</div>
+              <div style="font-size:14px;font-weight:800;color:#10b981;margin-top:2px;">🟢 ${params.metrics.supabaseHealth}</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.08);">
+              <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;font-weight:700;">System Errors / Crashes</div>
+              <div style="font-size:16px;font-weight:800;color:#10b981;margin-top:2px;">${params.metrics.systemErrors === 0 ? "0 (Clean)" : params.metrics.systemErrors}</div>
+            </td>
+            <td style="background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.08);">
+              <div style="color:#94a3b8;font-size:11px;text-transform:uppercase;font-weight:700;">Applications Tracked</div>
+              <div style="font-size:16px;font-weight:800;color:#f59e0b;margin-top:2px;">${params.metrics.activeApplications}</div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <!-- Employee & Staff Operations -->
+    <tr>
+      <td style="padding:24px 28px;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <h3 style="margin:0 0 16px 0;font-size:14px;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:0.5px;">
+          👥 2. Employee & Autonomous Agent Operations
+        </h3>
+        <div style="space-y:12px;">
+          ${params.employeeActivities
+            .map(
+              (emp) => `
+          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-bottom:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+              <strong style="color:#ffffff;font-size:14px;">${emp.name}</strong>
+              <span style="background:rgba(245,158,11,0.2);color:#fbbf24;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;">${emp.role}</span>
+            </div>
+            <p style="margin:4px 0;font-size:12px;color:#cbd5e1;"><strong>Current Duty:</strong> ${emp.currentAction}</p>
+            <p style="margin:4px 0 0 0;font-size:11px;color:#10b981;"><strong>Status & Progress:</strong> ${emp.progress}</p>
+          </div>
+          `
+            )
+            .join("")}
+        </div>
+      </td>
+    </tr>
+
+    <!-- Candidate & Visitor Activity -->
+    <tr>
+      <td style="padding:24px 28px;background:#0a192f;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <h3 style="margin:0 0 16px 0;font-size:14px;font-weight:800;color:#38bdf8;text-transform:uppercase;letter-spacing:0.5px;">
+          🎯 3. Frontend Candidate & Visitor Actions
+        </h3>
+        <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:#cbd5e1;">
+          <li><strong>Active Registered Candidates:</strong> ${params.userActivitySummary.totalActiveCandidates} users registered & verified via OTP</li>
+          <li><strong>Recent Applications / Apply Clicks:</strong> ${params.userActivitySummary.recentApplications} submissions logged in tracker</li>
+          <li><strong>Recent Candidate Logins / Sessions:</strong> ${params.userActivitySummary.recentLogins} active sessions verified</li>
+          <li><strong>Trending Visa Search Topics:</strong> ${params.userActivitySummary.topSearchedTerms.join(", ")}</li>
+        </ul>
+      </td>
+    </tr>
+
+    <!-- Strategic AI Recommendations & Action Items -->
+    <tr>
+      <td style="padding:24px 28px;background:rgba(25,203,224,0.04);">
+        <h3 style="margin:0 0 14px 0;font-size:14px;font-weight:800;color:#19CBE0;text-transform:uppercase;letter-spacing:0.5px;">
+          💡 4. Strategic AI Suggestions & Action Plan
+        </h3>
+        <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:#e2e8f0;">
+          ${params.suggestions.map((s) => `<li>${s}</li>`).join("")}
+        </ul>
+      </td>
+    </tr>
+
+    <!-- Footer -->
+    <tr>
+      <td style="background:#071522;padding:24px;text-align:center;border-top:1px solid rgba(255,255,255,0.08);">
+        <p style="margin:0 0 8px 0;font-size:12px;color:#94a3b8;">
+          Admin Portal: <a href="https://sponsorajobs.com/admin" style="color:#19CBE0;text-decoration:none;font-weight:700;">sponsorajobs.com/admin</a>
+        </p>
+        <p style="margin:0;font-size:11px;color:#64748b;">
+          &copy; ${new Date().getFullYear()} SponsorAJobs. Automated Operational Intelligence Dispatch.
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `;
+
+    // 1. Dispatch via Resend (Primary)
+    if (apiKey && this.canUseResend()) {
+      try {
+        const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs Operations <auth@sponsorajobs.com>";
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            from: fromEmail,
+            to: [params.toEmail],
+            subject: `⚡ [SponsorAJobs Operations] Hourly Platform & Employee Report — ${formattedTime}`,
+            html,
+          }),
+        });
+
+        if (res.ok) {
+          const data = (await res.json()) as { id?: string };
+          const used = incrementDailyCount();
+          return {
+            success: true,
+            messageId: data.id || messageId,
+            provider: "resend",
+            quotaRemaining: Math.max(0, RESEND_DAILY_LIMIT - used),
+          };
+        } else {
+          console.warn("[EmailService:Hourly] Resend non-200, routing to Gmail SMTP:", await res.text());
+        }
+      } catch (err) {
+        console.error("[EmailService:Hourly] Resend API error:", err);
+      }
+    }
+
+    // 2. Direct SMTP Relay Fallback (Gmail SMTP)
+    const smtpResult = await this.sendMailViaSmtp(
+      params.toEmail,
+      `⚡ [SponsorAJobs Operations] Hourly Platform & Employee Report — ${formattedTime}`,
+      html
+    );
+    if (smtpResult) {
+      return smtpResult;
+    }
+
+    // 3. Simulated Fallback
+    console.log(`[EmailService:Hourly] Operational report sent to ${params.toEmail}`);
+    return {
+      success: true,
+      messageId,
+      provider: "simulated",
+    };
+  }
 }
+
 
