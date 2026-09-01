@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ExternalLink, Bookmark, Share2, Sparkles, Building2, CheckCircle2 } from "lucide-react";
+import { ExternalLink, Bookmark, Share2, Sparkles, Building2, CheckCircle2, Lock } from "lucide-react";
 import { JobShareModal } from "./JobShareModal";
+import { useSession } from "@/hooks/useSession";
 
 interface StickyJobApplyBarProps {
   jobId: string;
@@ -26,6 +27,7 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
   const [isVisible, setIsVisible] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const { isLoggedIn } = useSession();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,6 +52,15 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
   }, [jobId]);
 
   const toggleSave = () => {
+    if (!isLoggedIn) {
+      window.dispatchEvent(
+        new CustomEvent("open-auth-gate", {
+          detail: { defaultTab: "register", redirectUrl: applyUrl },
+        })
+      );
+      return;
+    }
+
     try {
       const saved: string[] = JSON.parse(localStorage.getItem("sa_saved_jobs") || "[]");
       let updated: string[];
@@ -61,12 +72,22 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
         setIsSaved(true);
       }
       localStorage.setItem("sa_saved_jobs", JSON.stringify(updated));
+      window.dispatchEvent(new Event("storage"));
     } catch {
       setIsSaved(!isSaved);
     }
   };
 
   const handleApply = () => {
+    if (!isLoggedIn) {
+      window.dispatchEvent(
+        new CustomEvent("open-auth-gate", {
+          detail: { defaultTab: "register", redirectUrl: applyUrl },
+        })
+      );
+      return;
+    }
+
     try {
       fetch("/api/user/applications", {
         method: "POST",

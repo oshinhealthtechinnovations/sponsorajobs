@@ -15,6 +15,8 @@ import { generateJobSlug } from "@/lib/seo/slugs";
 import { getCountryDisplayName } from "@/config/countries";
 import Link from "next/link";
 import { StickyJobApplyBar } from "@/components/StickyJobApplyBar";
+import { JobApplyButton } from "@/components/JobApplyButton";
+import { JobDetailSidebarActions } from "@/components/JobDetailSidebarActions";
 import {
   MapPin,
   Building2,
@@ -302,15 +304,15 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
             {/* Quick Action Buttons Row in Hero */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-4 border-t border-slate-800/80">
-              <a
-                href={job.applyUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-[#18D6E5] hover:bg-[#15c0ce] text-[#071421] font-black text-sm transition-all shadow-lg hover:shadow-cyan-500/20 active:scale-[0.99] cursor-pointer group"
-              >
-                <span>Apply on Employer Website</span>
-                <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-              </a>
+              <JobApplyButton
+                jobId={job.id}
+                jobTitle={job.title}
+                companyName={job.company.name}
+                locationFormatted={job.location.formatted || `${job.location.city || ""}, ${job.location.country}`}
+                salaryFormatted={salaryDisplay}
+                applyUrl={job.applyUrl}
+                variant="hero"
+              />
 
               <Link
                 href={`/tools/ats-checker?jobId=${job.id}`}
@@ -469,39 +471,16 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 </h4>
               </div>
 
-              {/* Primary Apply CTA */}
-              <a
-                href={job.applyUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full h-14 rounded-2xl bg-[#071421] hover:bg-slate-800 text-white font-black text-sm flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg transition-all cursor-pointer group"
-              >
-                <span>Apply on Official Website</span>
-                <ExternalLink className="w-4 h-4 text-[#18D6E5] group-hover:translate-x-0.5 transition-transform" />
-              </a>
-
-              <div className="text-center text-[11px] text-slate-500 font-medium">
-                <span className="font-bold text-slate-700">100% Direct Application</span>
-                {" · "}Redirects directly to the employer's official career portal.
-              </div>
-
-              {/* Secondary Actions */}
-              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
-                <button
-                  type="button"
-                  className="py-3 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <Bookmark className="w-3.5 h-3.5" />
-                  <span>Save Role</span>
-                </button>
-                <button
-                  type="button"
-                  className="py-3 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span>Share</span>
-                </button>
-              </div>
+              {/* Primary & Secondary Apply/Save Actions */}
+              <JobDetailSidebarActions
+                jobId={job.id}
+                jobTitle={job.title}
+                companyName={job.company.name}
+                locationFormatted={job.location.formatted || `${job.location.city || ""}, ${job.location.country}`}
+                salaryFormatted={salaryDisplay}
+                applyUrl={job.applyUrl}
+                countryCode={job.location.country}
+              />
             </div>
 
             {/* Quick Job Summary Box */}

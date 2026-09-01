@@ -6,6 +6,8 @@ import { JobAlertModal } from "./JobAlertModal";
 import { JobShareModal } from "./JobShareModal";
 import { ReportIssueModal } from "./ReportIssueModal";
 
+import { useSession } from "@/hooks/useSession";
+
 interface JobDetailActionsProps {
   jobId: string;
   jobTitle: string;
@@ -54,43 +56,29 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
-  const [user, setUser] = useState<any | null>(null);
+  const { isLoggedIn } = useSession();
 
   const isDirect = isDirectJobUrl(applyUrl);
 
-  const checkUserAccess = () => {
-    try {
-      const stored = localStorage.getItem("sa_user");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed?.id && (parsed.has_active_trial || parsed.hasActiveTrial || parsed.promoCodeUsed || parsed.promo_code_used)) {
-          setUser(parsed);
-          return;
-        }
-      }
-      setUser(null);
-    } catch {
-      setUser(null);
-    }
-  };
-
   useEffect(() => {
-    checkUserAccess();
-    window.addEventListener("user-session-changed", checkUserAccess);
-
     try {
       const saved = JSON.parse(localStorage.getItem("sa_saved_jobs") || "[]");
       setIsSaved(saved.includes(jobId));
     } catch {
       // safe fallback
     }
-
-    return () => {
-      window.removeEventListener("user-session-changed", checkUserAccess);
-    };
   }, [jobId]);
 
   const toggleSave = () => {
+    if (!isLoggedIn) {
+      window.dispatchEvent(
+        new CustomEvent("open-auth-gate", {
+          detail: { defaultTab: "register", redirectUrl: applyUrl },
+        })
+      );
+      return;
+    }
+
     try {
       const saved = JSON.parse(localStorage.getItem("sa_saved_jobs") || "[]");
       let updated: string[];
@@ -102,6 +90,7 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
         setIsSaved(true);
       }
       localStorage.setItem("sa_saved_jobs", JSON.stringify(updated));
+      window.dispatchEvent(new Event("storage"));
     } catch {
       // safe fallback
     }
@@ -113,6 +102,15 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
 
   const handleApplyClick = (e: React.MouseEvent) => {
     e.preventDefault();
+
+    if (!isLoggedIn) {
+      window.dispatchEvent(
+        new CustomEvent("open-auth-gate", {
+          detail: { defaultTab: "register", redirectUrl: applyUrl },
+        })
+      );
+      return;
+    }
 
     // Asynchronously log to application tracker
     try {
