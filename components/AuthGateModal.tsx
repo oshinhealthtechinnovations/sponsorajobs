@@ -16,7 +16,6 @@ import {
   ArrowRight,
   ShieldCheck,
   Send,
-  Linkedin,
   Trophy,
   PartyPopper,
   Zap,
@@ -345,17 +344,6 @@ export function AuthGateModal() {
                 <span>{pendingUrl ? "Proceed to Job Application" : "Go to Candidate Dashboard & Jobs"}</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
-
-              <a
-                href="https://www.linkedin.com/in/ersumitraj/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-850 text-sky-400 hover:text-sky-300 font-bold text-xs border border-slate-800 hover:border-sky-500/40 transition-all flex items-center justify-center gap-2"
-              >
-                <Linkedin className="w-3.5 h-3.5 text-sky-400" />
-                <span>Connect with Sumit Raj on LinkedIn</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
             </div>
           </div>
         ) : (
@@ -384,7 +372,7 @@ export function AuthGateModal() {
                     ? `Enter the 6-digit code sent to ${email} to activate your account.`
                     : "Unlock direct job application links, application tracking, and verified employer sponsorship."
                   : activeTab === "trial"
-                  ? "Submit your details for complimentary trial access or contact Sumit Raj on LinkedIn."
+                  ? "Submit your details for complimentary trial access to sponsor directories and application links."
                   : "Access your saved jobs, personalized alerts, and verified sponsor listings."}
               </p>
             </div>
@@ -675,23 +663,6 @@ export function AuthGateModal() {
                     <span>{loading ? "Submitting Request..." : "Request 7-Day Free Trial Access"}</span>
                   </button>
                 </form>
-
-                {/* Direct LinkedIn Referral Action Button */}
-                <div className="pt-3 border-t border-slate-800 space-y-2">
-                  <p className="text-center text-[11px] text-slate-400">
-                    Want instant approval? Request a direct referral code from Sumit Raj on LinkedIn:
-                  </p>
-                  <a
-                    href="https://www.linkedin.com/in/ersumitraj/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-850 text-sky-400 hover:text-sky-300 font-bold text-xs border border-slate-800 hover:border-sky-500/40 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Linkedin className="w-4 h-4 text-sky-400" />
-                    <span>Connect & Message Sumit Raj on LinkedIn</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                </div>
               </div>
             )}
 
