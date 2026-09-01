@@ -15,8 +15,13 @@ import {
   LogIn,
   ArrowRight,
   Home,
+  User,
+  LogOut,
+  ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
+import { AuthGateModal } from "./AuthGateModal";
 
 // Primary navigation — Includes explicit Home + Jobs-First items
 const NAV_LINKS = [
@@ -36,14 +41,22 @@ export const Navbar: React.FC = () => {
   const [savedCount, setSavedCount] = useState(0);
   const [user, setUser] = useState<any | null>(null);
 
-  const checkUserSession = () => {
+  const checkUserSession = async () => {
     try {
-      const stored = localStorage.getItem("sa_user");
-      setUser(stored ? JSON.parse(stored) : null);
+      const res = await fetch("/api/auth/me");
+      const data = await res.json();
+      if (data.success && data.user) {
+        setUser(data.user);
+        localStorage.setItem("sa_user", JSON.stringify(data.user));
+      } else {
+        const stored = localStorage.getItem("sa_user");
+        setUser(stored ? JSON.parse(stored) : null);
+      }
       const saved = JSON.parse(localStorage.getItem("sa_saved_jobs") || "[]");
       setSavedCount(Array.isArray(saved) ? saved.length : 0);
     } catch {
-      setUser(null);
+      const stored = localStorage.getItem("sa_user");
+      setUser(stored ? JSON.parse(stored) : null);
       setSavedCount(0);
     }
   };
@@ -70,6 +83,10 @@ export const Navbar: React.FC = () => {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const openAuth = (defaultTab: "register" | "trial" | "login" = "login") => {
+    window.dispatchEvent(new CustomEvent("open-auth-gate", { detail: { defaultTab } }));
   };
 
   return (
@@ -149,6 +166,48 @@ export const Navbar: React.FC = () => {
               <span>Job Alerts</span>
             </button>
 
+            {/* Candidate Auth Session / Sign In Button */}
+            {user ? (
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 transition-colors text-xs font-bold border border-slate-200"
+                  title="Candidate Dashboard & Applications"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-[#071522] text-white flex items-center justify-center text-[11px] font-black">
+                    {user.name ? user.name.slice(0, 2).toUpperCase() : "CA"}
+                  </div>
+                  <span className="max-w-[110px] truncate hidden md:inline">{user.name?.split(" ")[0]}</span>
+                </Link>
+
+                <button
+                  onClick={handleLogout}
+                  title="Sign Out"
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer hidden md:flex items-center justify-center"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => openAuth("login")}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-xs sm:text-sm font-bold transition-colors cursor-pointer"
+                >
+                  <LogIn className="w-4 h-4 text-[#087F8C]" />
+                  <span>Sign In</span>
+                </button>
+
+                <button
+                  onClick={() => openAuth("register")}
+                  className="hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#087F8C]/10 text-[#087F8C] hover:bg-[#087F8C]/20 border border-[#087F8C]/20 text-xs font-bold transition-colors cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#087F8C]" />
+                  <span>Join Free</span>
+                </button>
+              </div>
+            )}
+
             {/* Primary CTA: Search Jobs */}
             <Link
               href="/jobs"
@@ -172,6 +231,50 @@ export const Navbar: React.FC = () => {
         {/* ── Mobile Navigation Drawer ── */}
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-slate-100 bg-white px-4 pt-3 pb-6 space-y-3 shadow-xl">
+            {/* User status card on mobile */}
+            {user ? (
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between mb-2">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-[#071522] text-white flex items-center justify-center text-xs font-black shrink-0">
+                    {user.name ? user.name.slice(0, 2).toUpperCase() : "CA"}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold text-slate-900 truncate">{user.name}</div>
+                    <div className="text-[11px] text-slate-500 truncate">{user.email}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
+                >
+                  Log Out
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openAuth("login");
+                  }}
+                  className="w-full py-2 px-3 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5"
+                >
+                  <LogIn className="w-3.5 h-3.5 text-[#087F8C]" />
+                  <span>Sign In</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openAuth("register");
+                  }}
+                  className="w-full py-2 px-3 rounded-xl bg-[#087F8C] text-white font-bold text-xs flex items-center justify-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Create Account</span>
+                </button>
+              </div>
+            )}
+
             <nav className="flex flex-col space-y-1">
               {NAV_LINKS.map((link) => {
                 const isActive =
@@ -223,6 +326,7 @@ export const Navbar: React.FC = () => {
       </header>
 
       <JobAlertModal isOpen={alertModalOpen} onClose={() => setAlertModalOpen(false)} />
+      <AuthGateModal />
     </>
   );
 };
