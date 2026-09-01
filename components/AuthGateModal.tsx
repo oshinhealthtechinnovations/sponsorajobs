@@ -21,6 +21,7 @@ import {
   PartyPopper,
   Zap,
   Check,
+  RotateCcw,
 } from "lucide-react";
 
 export function AuthGateModal() {
@@ -34,6 +35,11 @@ export function AuthGateModal() {
   const [password, setPassword] = useState("");
   const [profession, setProfession] = useState("");
   const [promoCode, setPromoCode] = useState("");
+
+  // Registration OTP State
+  const [registerStep, setRegisterStep] = useState<"form" | "otp">("form");
+  const [registerOtp, setRegisterOtp] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   // Status & Feedback
   const [loading, setLoading] = useState(false);
@@ -53,6 +59,8 @@ export function AuthGateModal() {
       setErrorMsg(null);
       setSuccessMsg(null);
       setCelebrationData(null);
+      setRegisterStep("form");
+      setRegisterOtp("");
       if (e.detail?.redirectUrl) {
         setPendingUrl(e.detail.redirectUrl);
       }
@@ -66,6 +74,14 @@ export function AuthGateModal() {
     return () => window.removeEventListener("open-auth-gate" as any, handleOpenAuth);
   }, []);
 
+  // Cooldown countdown timer for resending OTP
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown((prev) => prev - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
+  // STEP 1: Submit details -> Send 6-digit OTP to user's email
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -88,6 +104,45 @@ export function AuthGateModal() {
       const data = await res.json();
 
       if (res.ok && data.success) {
+        setRegisterStep("otp");
+        setResendCooldown(60);
+        setSuccessMsg(`📧 6-digit verification code sent to ${email}!`);
+      } else {
+        setErrorMsg(data.error || "Registration failed. Please check your information.");
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || "Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // STEP 2: Verify OTP code -> Activate account & Celebrate
+  const handleVerifyRegistrationOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!registerOtp || registerOtp.length < 6) {
+      setErrorMsg("Please enter the complete 6-digit code sent to your email.");
+      return;
+    }
+
+    setLoading(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          otpCode: registerOtp,
+          action: "verify_otp",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
         localStorage.setItem("sa_user", JSON.stringify(data.user));
         window.dispatchEvent(new Event("user-session-changed"));
 
@@ -99,10 +154,40 @@ export function AuthGateModal() {
           promoCode: data.user.promoCodeUsed || promoCode,
         });
       } else {
-        setErrorMsg(data.error || "Registration failed.");
+        setErrorMsg(data.error || "Invalid or expired verification code.");
       }
     } catch (err: any) {
-      setErrorMsg(err.message || "Network error. Please try again.");
+      setErrorMsg(err.message || "Verification failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Resend OTP code
+  const handleResendOtp = async () => {
+    if (resendCooldown > 0) return;
+    setLoading(true);
+    setErrorMsg(null);
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          action: "resend_otp",
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSuccessMsg(`🚀 Fresh 6-digit verification code sent to ${email}!`);
+        setResendCooldown(60);
+      } else {
+        setErrorMsg(data.error || "Failed to resend code.");
+      }
+    } catch {
+      setErrorMsg("Failed to resend verification code.");
     } finally {
       setLoading(false);
     }
@@ -225,10 +310,10 @@ export function AuthGateModal() {
                 <span>Congratulations!</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-display">
-                Welcome! You Have Received Free Premium Trial Access!
+                Email Verified & Candidate Account Active!
               </h2>
               <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-                Your VIP invite code has been successfully validated. You now have full access to direct employer application links.
+                Your email address has been verified. You now have full access to direct employer application links, candidate tracker, and salary insights.
               </p>
             </div>
 
@@ -244,36 +329,8 @@ export function AuthGateModal() {
                 </div>
               </div>
               <span className="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold uppercase tracking-wider shrink-0">
-                VIP Trial Active
+                Verified Candidate
               </span>
-            </div>
-
-            {/* Unlocked Benefits Checklist */}
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 text-left space-y-2.5">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-amber-400" />
-                <span>Unlocked Candidate Privileges:</span>
-              </p>
-              <div className="grid grid-cols-1 gap-2 text-xs text-slate-200">
-                <div className="flex items-start gap-2">
-                  <div className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
-                    <Check className="w-2.5 h-2.5" />
-                  </div>
-                  <span><strong>Direct Employer ATS Links</strong> (Greenhouse, Lever, Workable & ATS endpoints)</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <div className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
-                    <Check className="w-2.5 h-2.5" />
-                  </div>
-                  <span><strong>Deterministic Visa Sponsorship Audits</strong> (UK CoS, US H-1B, Canada LMIA, Australia 482)</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <div className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
-                    <Check className="w-2.5 h-2.5" />
-                  </div>
-                  <span><strong>Unlimited Job Alert Preferences & Saved Bookmarks</strong></span>
-                </div>
-              </div>
             </div>
 
             {/* Action Buttons */}
@@ -283,7 +340,7 @@ export function AuthGateModal() {
                 onClick={proceedWithApplication}
                 className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-brand-600 hover:from-emerald-500 hover:to-brand-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer group"
               >
-                <span>{pendingUrl ? "Proceed to Job Application" : "Start Exploring Sponsored Jobs"}</span>
+                <span>{pendingUrl ? "Proceed to Job Application" : "Go to Candidate Dashboard & Jobs"}</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
 
@@ -294,7 +351,7 @@ export function AuthGateModal() {
                 className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-850 text-sky-400 hover:text-sky-300 font-bold text-xs border border-slate-800 hover:border-sky-500/40 transition-all flex items-center justify-center gap-2"
               >
                 <Linkedin className="w-3.5 h-3.5 text-sky-400" />
-                <span>Connect & Thank Sumit Raj on LinkedIn</span>
+                <span>Connect with Sumit Raj on LinkedIn</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
@@ -312,65 +369,74 @@ export function AuthGateModal() {
               </div>
               <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
                 {activeTab === "register"
-                  ? "Create Your Verified Candidate Account"
+                  ? registerStep === "otp"
+                    ? "Verify Your Email Address"
+                    : "Create Candidate Account"
                   : activeTab === "trial"
                   ? "Request Free Trial Access"
                   : "Sign In to Your Account"}
               </h2>
               <p className="text-xs text-slate-300 leading-relaxed">
                 {activeTab === "register"
-                  ? "Unlock direct job application links, employer sponsor verification records, and instant salary benchmarking."
+                  ? registerStep === "otp"
+                    ? `Enter the 6-digit code sent to ${email} to activate your account.`
+                    : "Unlock direct job application links, application tracking, and verified employer sponsorship."
                   : activeTab === "trial"
-                  ? "Don't have an invite code? Submit your details for complimentary 7-day access or contact Sumit Raj directly on LinkedIn."
+                  ? "Submit your details for complimentary trial access or contact Sumit Raj on LinkedIn."
                   : "Access your saved jobs, personalized alerts, and verified sponsor listings."}
               </p>
             </div>
 
-            {/* Navigation Tabs */}
-            <div className="flex items-center gap-1 p-1 rounded-2xl bg-slate-900 border border-slate-800 text-xs font-bold">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("register");
-                  setErrorMsg(null);
-                }}
-                className={`flex-1 py-2 px-3 rounded-xl transition-all text-center cursor-pointer ${
-                  activeTab === "register"
-                    ? "bg-brand-600 text-white shadow-xs"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                Create Account
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("trial");
-                  setErrorMsg(null);
-                }}
-                className={`flex-1 py-2 px-3 rounded-xl transition-all text-center cursor-pointer ${
-                  activeTab === "trial"
-                    ? "bg-amber-600 text-white shadow-xs"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                Request Trial
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("login");
-                  setErrorMsg(null);
-                }}
-                className={`flex-1 py-2 px-3 rounded-xl transition-all text-center cursor-pointer ${
-                  activeTab === "login"
-                    ? "bg-slate-800 text-white shadow-xs"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                Sign In
-              </button>
-            </div>
+            {/* Navigation Tabs (Only when not in OTP step) */}
+            {registerStep === "form" && (
+              <div className="flex items-center gap-1 p-1 rounded-2xl bg-slate-900 border border-slate-800 text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("register");
+                    setErrorMsg(null);
+                    setSuccessMsg(null);
+                  }}
+                  className={`flex-1 py-2 px-3 rounded-xl transition-all text-center cursor-pointer ${
+                    activeTab === "register"
+                      ? "bg-brand-600 text-white shadow-xs"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  Create Account
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("trial");
+                    setErrorMsg(null);
+                    setSuccessMsg(null);
+                  }}
+                  className={`flex-1 py-2 px-3 rounded-xl transition-all text-center cursor-pointer ${
+                    activeTab === "trial"
+                      ? "bg-amber-600 text-white shadow-xs"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  Request Trial
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("login");
+                    setErrorMsg(null);
+                    setSuccessMsg(null);
+                  }}
+                  className={`flex-1 py-2 px-3 rounded-xl transition-all text-center cursor-pointer ${
+                    activeTab === "login"
+                      ? "bg-slate-800 text-white shadow-xs"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  Sign In
+                </button>
+              </div>
+            )}
 
             {/* Feedback Messages */}
             {errorMsg && (
@@ -379,27 +445,6 @@ export function AuthGateModal() {
                   <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                   <span>{errorMsg}</span>
                 </p>
-                {activeTab === "register" && (
-                  <div className="pt-2 border-t border-rose-500/20 flex flex-col sm:flex-row gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("trial")}
-                      className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[11px] font-bold border border-amber-500/30 transition-colors"
-                    >
-                      Request Free Trial Access →
-                    </button>
-                    <a
-                      href="https://www.linkedin.com/in/ersumitraj/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-[11px] font-bold border border-sky-500/30 transition-colors"
-                    >
-                      <Linkedin className="w-3 h-3" />
-                      <span>Ask Sumit Raj on LinkedIn</span>
-                      <ExternalLink className="w-2.5 h-2.5" />
-                    </a>
-                  </div>
-                )}
               </div>
             )}
 
@@ -410,8 +455,8 @@ export function AuthGateModal() {
               </div>
             )}
 
-            {/* ── TAB 1: CREATE ACCOUNT WITH PROMO CODE ── */}
-            {activeTab === "register" && (
+            {/* ── TAB 1: CREATE ACCOUNT (STEP 1: FORM) ── */}
+            {activeTab === "register" && registerStep === "form" && (
               <form onSubmit={handleRegister} className="space-y-3.5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
@@ -485,12 +530,10 @@ export function AuthGateModal() {
 
                 {/* Promo / Invite Code Field (Optional) */}
                 <div className="space-y-1 pt-1">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <Gift className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Promo / Referral Code (Optional)</span>
-                    </label>
-                  </div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                    <Gift className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Promo / Referral Code (Optional)</span>
+                  </label>
                   <input
                     type="text"
                     value={promoCode}
@@ -505,10 +548,74 @@ export function AuthGateModal() {
                   disabled={loading}
                   className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 via-sky-600 to-emerald-500 hover:from-brand-500 hover:to-emerald-400 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
-                  <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span>{loading ? "Verifying Promo Code..." : "Create Account & Unlock Free Trial"}</span>
+                  <Mail className="w-4 h-4 text-white" />
+                  <span>{loading ? "Sending 6-Digit OTP Code..." : "Create Account & Send Verification Code"}</span>
                 </button>
               </form>
+            )}
+
+            {/* ── TAB 1: CREATE ACCOUNT (STEP 2: OTP VERIFICATION) ── */}
+            {activeTab === "register" && registerStep === "otp" && (
+              <div className="space-y-5 text-center py-2 animate-fade-in">
+                <div className="w-14 h-14 rounded-2xl bg-brand-500/10 text-brand-400 border border-brand-500/30 flex items-center justify-center mx-auto shadow-inner">
+                  <Mail className="w-7 h-7" />
+                </div>
+
+                <div className="space-y-1">
+                  <h3 className="text-base font-extrabold text-white">
+                    Enter Verification Code
+                  </h3>
+                  <p className="text-xs text-slate-300 max-w-sm mx-auto">
+                    We sent a 6-digit code to <strong className="text-white">{email}</strong>. Please enter it below to verify your email.
+                  </p>
+                </div>
+
+                <div className="py-2">
+                  <input
+                    type="text"
+                    maxLength={6}
+                    autoFocus
+                    placeholder="123456"
+                    value={registerOtp}
+                    onChange={(e) => setRegisterOtp(e.target.value.replace(/[^0-9]/g, ""))}
+                    className="w-48 text-center tracking-[10px] text-3xl font-black py-3 rounded-2xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-brand-500 mx-auto block shadow-inner"
+                  />
+                </div>
+
+                <div className="flex items-center justify-center gap-4 text-xs">
+                  <button
+                    type="button"
+                    disabled={resendCooldown > 0 || loading}
+                    onClick={handleResendOtp}
+                    className="text-brand-400 hover:text-brand-300 font-bold disabled:text-slate-500 cursor-pointer flex items-center gap-1"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>{resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend Code"}</span>
+                  </button>
+                  <span className="text-slate-700">•</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRegisterStep("form");
+                      setErrorMsg(null);
+                    }}
+                    className="text-slate-400 hover:text-slate-200 font-medium cursor-pointer"
+                  >
+                    Change email
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  disabled={loading || registerOtp.length < 6}
+                  onClick={() => handleVerifyRegistrationOtp()}
+                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-brand-600 hover:from-emerald-500 hover:to-brand-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>{loading ? "Verifying..." : "Verify OTP & Activate Account"}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             )}
 
             {/* ── TAB 2: REQUEST FREE TRIAL ACCESS ── */}

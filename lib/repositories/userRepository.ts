@@ -1,6 +1,6 @@
 /**
  * User & Free Trial Request Repository
- * Handles user authentication, referral code validation (sumit_raj_linkedin), and trial requests.
+ * Handles user authentication, referral code validation (sumit_raj_linkedin), email OTP verification, and trial requests.
  */
 
 export interface UserAccount {
@@ -19,6 +19,16 @@ export interface UserAccount {
   lastLoginAt: string;
 }
 
+export interface PendingRegistration {
+  name: string;
+  email: string;
+  passwordHash: string;
+  profession: string;
+  promoCode: string;
+  otpCode: string;
+  expiresAt: string;
+}
+
 export interface TrialAccessRequest {
   id: string;
   name: string;
@@ -28,15 +38,15 @@ export interface TrialAccessRequest {
   createdAt: string;
 }
 
-// In-memory store initialized with demo admin/test accounts for persistence across edge requests
+// In-memory stores
 let inMemoryUsers: UserAccount[] = [];
+let inMemoryPendingRegistrations: Map<string, PendingRegistration> = new Map();
 let inMemoryTrialRequests: TrialAccessRequest[] = [];
 
 export const VALID_PROMO_CODES = ["sumit_raj_linkedin"];
 
 /**
  * Hash a password using SHA-256 via SubtleCrypto (edge-runtime compatible, zero dependencies).
- * For production use, consider PBKDF2 with a salt for stronger security.
  */
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -72,7 +82,95 @@ export class UserRepository {
   }
 
   /**
-   * Register a new user with verified promo code
+   * Stage a pending registration and generate a 6-digit OTP code
+   */
+  async createPendingRegistration(data: {
+    name: string;
+    email: string;
+    password: string;
+    profession: string;
+    promoCode?: string;
+  }): Promise<{ otpCode: string; email: string }> {
+    const cleanEmail = data.email.trim().toLowerCase();
+    const existing = await this.findByEmail(cleanEmail);
+    if (existing) {
+      throw new Error("An account with this email address already exists. Please sign in.");
+    }
+
+    const hashedPassword = await hashPassword(data.password);
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+
+    inMemoryPendingRegistrations.set(cleanEmail, {
+      name: data.name.trim(),
+      email: cleanEmail,
+      passwordHash: hashedPassword,
+      profession: data.profession.trim(),
+      promoCode: data.promoCode ? data.promoCode.trim().toLowerCase() : "",
+      otpCode,
+      expiresAt,
+    });
+
+    return { otpCode, email: cleanEmail };
+  }
+
+  /**
+   * Resend a fresh 6-digit OTP code for a pending registration
+   */
+  async resendRegistrationOtp(email: string): Promise<string> {
+    const cleanEmail = email.trim().toLowerCase();
+    const pending = inMemoryPendingRegistrations.get(cleanEmail);
+    if (!pending) {
+      throw new Error("No pending registration found for this email. Please restart registration.");
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    pending.otpCode = otpCode;
+    pending.expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    return otpCode;
+  }
+
+  /**
+   * Verify the 6-digit OTP and activate the user account
+   */
+  async verifyAndCreateUser(email: string, otpCode: string): Promise<UserAccount> {
+    const cleanEmail = email.trim().toLowerCase();
+    const pending = inMemoryPendingRegistrations.get(cleanEmail);
+
+    if (!pending) {
+      throw new Error("No pending registration found or session expired. Please register again.");
+    }
+
+    if (pending.otpCode !== otpCode.trim()) {
+      throw new Error("Invalid 6-digit verification code. Please check your email.");
+    }
+
+    if (new Date(pending.expiresAt) < new Date()) {
+      throw new Error("Verification code has expired. Please request a new one.");
+    }
+
+    const newUser: UserAccount = {
+      id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      name: pending.name,
+      email: pending.email,
+      passwordHash: pending.passwordHash,
+      profession: pending.profession,
+      promoCodeUsed: pending.promoCode,
+      isTrial: false,
+      isActive: true,
+      isEmailVerified: true,
+      createdAt: new Date().toISOString(),
+      lastLoginAt: new Date().toISOString(),
+    };
+
+    inMemoryUsers.unshift(newUser);
+    inMemoryPendingRegistrations.delete(cleanEmail);
+
+    return newUser;
+  }
+
+  /**
+   * Direct registration (fallback / programmatic test helper)
    */
   async createUser(data: {
     name: string;
@@ -87,7 +185,6 @@ export class UserRepository {
       throw new Error("An account with this email address already exists.");
     }
 
-    // ✅ CRIT-003 Fix: Hash password before storing
     const hashedPassword = await hashPassword(data.password);
 
     const newUser: UserAccount = {
@@ -117,7 +214,7 @@ export class UserRepository {
   }
 
   /**
-   * Generate a 6-digit OTP verification code for a user
+   * Generate a 6-digit OTP verification code for an existing user
    */
   async generateVerificationCode(email: string): Promise<string> {
     const cleanEmail = email.trim().toLowerCase();
@@ -128,13 +225,12 @@ export class UserRepository {
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     user.verificationCode = code;
-    // Valid for 15 minutes
     user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000).toISOString();
     return code;
   }
 
   /**
-   * Verify email using 6-digit OTP code
+   * Verify email using 6-digit OTP code for existing user
    */
   async verifyEmailCode(email: string, code: string): Promise<boolean> {
     const cleanEmail = email.trim().toLowerCase();
@@ -146,7 +242,7 @@ export class UserRepository {
     }
 
     if (user.verificationCodeExpires && new Date(user.verificationCodeExpires) < new Date()) {
-      return false; // expired
+      return false;
     }
 
     user.isEmailVerified = true;

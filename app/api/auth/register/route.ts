@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { userRepository } from "@/lib/repositories/userRepository";
 import { telegramService } from "@/lib/services/telegramService";
+import { EmailService } from "@/lib/services/emailService";
 import { authRateLimiter } from "@/lib/security/rateLimiter";
-
 
 export async function POST(request: NextRequest) {
   const isDev = process.env.NODE_ENV !== "production";
   try {
-    // MED-005: CSRF — validate origin
+    // CSRF — validate origin
     const origin = request.headers.get("origin");
     if (origin && !origin.includes("sponsorajobs.com") && !origin.includes("localhost")) {
       return NextResponse.json({ success: false, error: "Request origin not allowed." }, { status: 403 });
     }
 
-    // MED-002: Rate limit registrations per IP
+    // Rate limit registrations per IP
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
     const limitCheck = authRateLimiter.check(`register_${ip}`);
     if (!limitCheck.allowed) {
@@ -24,8 +24,82 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, email, password, profession, promoCode } = body;
+    const { action, email, password, name, profession, promoCode, otpCode } = body;
 
+    // ─────────────────────────────────────────────────────────────
+    // STEP 2: VERIFY OTP CODE & ACTIVATE ACCOUNT
+    // ─────────────────────────────────────────────────────────────
+    if (action === "verify_otp" || otpCode) {
+      if (!email || !otpCode || otpCode.trim().length < 6) {
+        return NextResponse.json(
+          { success: false, error: "Please enter the complete 6-digit verification code." },
+          { status: 400 }
+        );
+      }
+
+      const user = await userRepository.verifyAndCreateUser(email, otpCode.trim());
+
+      // Notify Telegram in background
+      try {
+        telegramService.notifyUserRegistered({
+          name: user.name,
+          email: user.email,
+          profession: user.profession,
+          promoCode: user.promoCodeUsed,
+        }).catch(console.error);
+      } catch (e) {
+        console.error(e);
+      }
+
+      const sessionPayload = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        profession: user.profession,
+        promoCodeUsed: user.promoCodeUsed,
+        isEmailVerified: true,
+        createdAt: user.createdAt,
+      };
+
+      const response = NextResponse.json({
+        success: true,
+        message: "Email verified and account successfully activated!",
+        user: sessionPayload,
+      });
+
+      // Set user session cookie (30 days)
+      response.cookies.set("sa_user_session", JSON.stringify(sessionPayload), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 30 * 24 * 60 * 60,
+        path: "/",
+      });
+
+      return response;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // STEP 2B: RESEND REGISTRATION OTP
+    // ─────────────────────────────────────────────────────────────
+    if (action === "resend_otp") {
+      if (!email) {
+        return NextResponse.json({ success: false, error: "Email is required to resend code." }, { status: 400 });
+      }
+
+      const freshCode = await userRepository.resendRegistrationOtp(email);
+      const emailService = new EmailService();
+      await emailService.sendVerificationCodeEmail(email, freshCode);
+
+      return NextResponse.json({
+        success: true,
+        message: "A fresh 6-digit verification code has been dispatched to your email.",
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // STEP 1: VALIDATE DETAILS & SEND INITIAL 6-DIGIT OTP
+    // ─────────────────────────────────────────────────────────────
     if (!email || !email.includes("@") || email.length > 254) {
       return NextResponse.json(
         { success: false, error: "Please provide a valid email address." },
@@ -54,54 +128,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await userRepository.createUser({
+    // Create pending registration and send 6-digit OTP code
+    const { otpCode: generatedCode } = await userRepository.createPendingRegistration({
       name,
       email,
       password,
       profession,
-      promoCode: promoCode ? promoCode.trim() : "",
+      promoCode,
     });
 
-    // Notify Telegram in background
-    try {
-      telegramService.notifyUserRegistered({
-        name: user.name,
-        email: user.email,
-        profession: user.profession,
-        promoCode: user.promoCodeUsed,
-      }).catch(console.error);
-    } catch (e) {
-      console.error(e);
-    }
+    const emailService = new EmailService();
+    const dispatch = await emailService.sendVerificationCodeEmail(email, generatedCode, name);
 
-    const sessionPayload = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      profession: user.profession,
-      promoCodeUsed: user.promoCodeUsed,
-      createdAt: user.createdAt,
-    };
-
-    const response = NextResponse.json({
+    return NextResponse.json({
       success: true,
-      message: "Account successfully created and verified!",
-      user: sessionPayload,
+      step: "otp_required",
+      email: email.trim().toLowerCase(),
+      message: `A 6-digit verification code has been sent to ${email}.`,
+      provider: dispatch.provider,
     });
-
-    // Set user session cookie (30 days)
-    response.cookies.set("sa_user_session", JSON.stringify(sessionPayload), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 30 * 24 * 60 * 60,
-      path: "/",
-    });
-
-    return response;
   } catch (err: any) {
     return NextResponse.json(
-      { success: false, error: isDev ? (err.message || "Registration failed.") : "Registration failed. Please try again." },
+      { success: false, error: isDev ? (err.message || "Registration failed.") : (err.message || "Registration failed. Please try again.") },
       { status: 400 }
     );
   }

@@ -10,7 +10,42 @@ describe("Candidate Email Verification & Application Tracker", () => {
   });
 
   describe("1. Email Verification Code System", () => {
-    it("should generate a 6-digit verification code and verify email successfully", async () => {
+    it("should stage pending registration, generate 6-digit OTP, and activate verified user", async () => {
+      const regEmail = `pending_${Date.now()}@example.com`;
+
+      // 1. Stage pending registration
+      const { otpCode, email } = await userRepository.createPendingRegistration({
+        name: "OTP Candidate",
+        email: regEmail,
+        password: "SecurePassword123!",
+        profession: "Full Stack Engineer",
+        promoCode: "sumit_raj_linkedin",
+      });
+
+      expect(email).toBe(regEmail);
+      expect(otpCode).toBeDefined();
+      expect(otpCode.length).toBe(6);
+      expect(/^\d{6}$/.test(otpCode)).toBe(true);
+
+      // 2. Reject incorrect OTP
+      await expect(
+        userRepository.verifyAndCreateUser(regEmail, "000000")
+      ).rejects.toThrow("Invalid 6-digit verification code.");
+
+      // 3. Resend OTP
+      const freshOtp = await userRepository.resendRegistrationOtp(regEmail);
+      expect(freshOtp).toBeDefined();
+      expect(freshOtp.length).toBe(6);
+
+      // 4. Verify with fresh OTP
+      const user = await userRepository.verifyAndCreateUser(regEmail, freshOtp);
+      expect(user).toBeDefined();
+      expect(user.isEmailVerified).toBe(true);
+      expect(user.name).toBe("OTP Candidate");
+      expect(user.email).toBe(regEmail);
+    });
+
+    it("should generate a 6-digit verification code and verify email for existing users", async () => {
       // 1. Create a user
       const user = await userRepository.createUser({
         name: "Test Candidate",
