@@ -6,7 +6,8 @@ import { INITIAL_COUNTRIES } from "@/config/countries";
 import { INITIAL_CATEGORIES } from "@/config/categories";
 import { Filter, RotateCcw, Calendar, Banknote, MapPin, Briefcase, Building2 } from "lucide-react";
 
-const TOP_SPONSOR_COMPANIES = [
+const FEATURED_SPONSORS = [
+  { id: "comp_balfour_beatty", name: "Balfour Beatty", tag: "UK Infrastructure & Engineering (64+)" },
   { id: "comp_wsp", name: "WSP", tag: "Global Engineering (92+)" },
   { id: "comp_jacobs", name: "Jacobs", tag: "Global Engineering" },
   { id: "comp_mace_group", name: "Mace", tag: "UK Sponsor" },
@@ -44,6 +45,18 @@ export const JobFilterSidebar: React.FC = () => {
   const [companyInput, setCompanyInput] = useState(company);
   const [minSalaryInput, setMinSalaryInput] = useState(minSalary);
   const [maxSalaryInput, setMaxSalaryInput] = useState(maxSalary);
+  const [allCompanies, setAllCompanies] = useState<Array<{ id: string; name: string }>>([]);
+
+  useEffect(() => {
+    fetch("/api/companies")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data)) {
+          setAllCompanies(data.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     setCityInput(city);
@@ -123,12 +136,26 @@ export const JobFilterSidebar: React.FC = () => {
           onChange={(e) => updateFilters({ company: e.target.value })}
           className="w-full p-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none transition-all cursor-pointer mb-2"
         >
-          <option value="">All Companies (254+)</option>
-          {TOP_SPONSOR_COMPANIES.map((c) => (
-            <option key={c.id} value={c.name}>
-              {c.name} ({c.tag})
-            </option>
-          ))}
+          <option value="">All Companies ({allCompanies.length > 0 ? `${allCompanies.length}+` : "472+"})</option>
+          <optgroup label="🌟 Featured Verified Sponsors">
+            {FEATURED_SPONSORS.map((c) => (
+              <option key={c.id} value={c.name}>
+                {c.name} ({c.tag})
+              </option>
+            ))}
+          </optgroup>
+          {allCompanies.length > 0 && (
+            <optgroup label="All Verified Employers A-Z">
+              {allCompanies
+                .filter((c) => !FEATURED_SPONSORS.some((f) => f.name.toLowerCase() === c.name.toLowerCase()))
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((c) => (
+                  <option key={c.id} value={c.name}>
+                    {c.name}
+                  </option>
+                ))}
+            </optgroup>
+          )}
         </select>
 
         <form onSubmit={handleCompanySubmit} className="flex gap-1.5">
