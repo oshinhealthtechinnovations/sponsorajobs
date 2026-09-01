@@ -34,6 +34,9 @@ export class TelegramService {
    * Check if Telegram integration is configured
    */
   isConfigured(): boolean {
+    if (process.env.ENABLE_TELEGRAM === "false" || !process.env.ENABLE_TELEGRAM) {
+      return Boolean(this.botToken && this.adminChatId);
+    }
     return Boolean(this.botToken && this.adminChatId);
   }
 
@@ -49,6 +52,11 @@ export class TelegramService {
       disableWebPagePreview?: boolean;
     }
   ): Promise<{ success: boolean; error?: string }> {
+    // Completely disabled per instruction
+    if (process.env.ENABLE_TELEGRAM !== "true") {
+      return { success: true };
+    }
+
     const token = this.botToken || process.env.TELEGRAM_BOT_TOKEN;
     const destChatId =
       options?.targetChatId ||
@@ -56,8 +64,6 @@ export class TelegramService {
       process.env.TELEGRAM_CHAT_ID;
 
     if (!token || !destChatId) {
-      // In dev or when not yet configured, log gracefully
-      console.log(`[Telegram Log (Not Configured)]:\n${text}`);
       return { success: false, error: "TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not configured" };
     }
 

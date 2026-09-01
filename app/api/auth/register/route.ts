@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { userRepository } from "@/lib/repositories/userRepository";
-import { telegramService } from "@/lib/services/telegramService";
 import { EmailService } from "@/lib/services/emailService";
 import { authRateLimiter } from "@/lib/security/rateLimiter";
 
@@ -38,18 +37,6 @@ export async function POST(request: NextRequest) {
       }
 
       const user = await userRepository.verifyAndCreateUser(email, otpCode.trim());
-
-      // Notify Telegram in background
-      try {
-        telegramService.notifyUserRegistered({
-          name: user.name,
-          email: user.email,
-          profession: user.profession,
-          promoCode: user.promoCodeUsed,
-        }).catch(console.error);
-      } catch (e) {
-        console.error(e);
-      }
 
       const sessionPayload = {
         id: user.id,
@@ -90,12 +77,6 @@ export async function POST(request: NextRequest) {
       const freshCode = await userRepository.resendRegistrationOtp(email);
       const emailService = new EmailService();
       const dispatch = await emailService.sendVerificationCodeEmail(email, freshCode);
-
-      try {
-        telegramService.sendMessage(
-          `🔄 <b>CANDIDATE RESENT OTP CODE</b>\n━━━━━━━━━━━━━━━━━━━━\n📧 <b>Email:</b> <code>${email}</code>\n🔢 <b>Fresh 6-Digit OTP:</b> <code>${freshCode}</code>\n━━━━━━━━━━━━━━━━━━━━`
-        ).catch(console.error);
-      } catch {}
 
       return NextResponse.json({
         success: true,
@@ -146,15 +127,6 @@ export async function POST(request: NextRequest) {
 
     const emailService = new EmailService();
     const dispatch = await emailService.sendVerificationCodeEmail(email, generatedCode, name);
-
-    // Dispatch to Telegram instant notification channel
-    try {
-      telegramService.sendMessage(
-        `🔐 <b>CANDIDATE OTP VERIFICATION</b>\n━━━━━━━━━━━━━━━━━━━━\n👤 <b>Candidate:</b> ${name}\n📧 <b>Email:</b> <code>${email}</code>\n💼 <b>Role:</b> ${profession}\n🔢 <b>6-Digit OTP:</b> <code>${generatedCode}</code>\n━━━━━━━━━━━━━━━━━━━━`
-      ).catch(console.error);
-    } catch (e) {
-      console.error(e);
-    }
 
     return NextResponse.json({
       success: true,

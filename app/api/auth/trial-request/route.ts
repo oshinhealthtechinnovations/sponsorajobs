@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { userRepository } from "@/lib/repositories/userRepository";
-import { telegramService } from "@/lib/services/telegramService";
-
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,20 +33,9 @@ export async function POST(request: NextRequest) {
       email,
     });
 
-    // Notify Telegram instantly
-    try {
-      telegramService.notifyTrialRequested({
-        name,
-        email,
-        profession,
-      }).catch(console.error);
-    } catch (e) {
-      console.error(e);
-    }
-
     return NextResponse.json({
       success: true,
-      message: "Your Free Trial Request has been successfully received! Our team will review and activate your access, or you can message Sumit Raj on LinkedIn for instant referral code approval.",
+      message: "Your Free Trial Request has been successfully received! Our team will activate your access shortly.",
       request: trialRequest,
     });
   } catch (err: any) {
