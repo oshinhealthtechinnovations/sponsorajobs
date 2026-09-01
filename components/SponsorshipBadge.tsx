@@ -56,11 +56,11 @@ export const SponsorshipBadge: React.FC<SponsorshipBadgeProps> = ({
     case "Explicitly Not Offered":
       return (
         <span
-          className={`inline-flex items-center rounded-full bg-rose-50 text-rose-700 border border-rose-200/80 ${sizeClasses[size]}`}
-          title="Employer explicitly states no visa sponsorship is available"
+          className={`inline-flex items-center rounded-full bg-slate-100 text-slate-700 border border-slate-200/80 ${sizeClasses[size]}`}
+          title="Work authorization or existing right to work required"
         >
-          {showIcon && <XCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />}
-          <span>No Sponsorship Offered</span>
+          {showIcon && <ShieldCheck className="w-3.5 h-3.5 text-slate-500 shrink-0" />}
+          <span>Right to Work Required</span>
         </span>
       );
 
@@ -80,11 +80,11 @@ export const SponsorshipBadge: React.FC<SponsorshipBadgeProps> = ({
     default:
       return (
         <span
-          className={`inline-flex items-center rounded-full bg-slate-100 text-slate-600 border border-slate-200 ${sizeClasses[size]}`}
-          title="No explicit sponsorship phrasing found"
+          className={`inline-flex items-center rounded-full bg-slate-100 text-slate-700 border border-slate-200 ${sizeClasses[size]}`}
+          title="Direct employer listing"
         >
-          {showIcon && <HelpCircle className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
-          <span>No Sponsorship Signal</span>
+          {showIcon && <CheckCircle2 className="w-3.5 h-3.5 text-slate-500 shrink-0" />}
+          <span>Direct Employer</span>
         </span>
       );
   }

@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   ExternalLink,
   Building2,
+  ShieldCheck,
 } from "lucide-react";
 
 interface JobCardProps {
@@ -188,15 +189,15 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
               </span>
             )}
 
-            {hasNegative ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 font-bold text-xs border border-amber-200">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                <span>No Sponsorship</span>
-              </span>
-            ) : hasSponsorship ? (
+            {hasSponsorship ? (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-800 font-bold text-xs border border-sky-200">
                 <CheckCircle2 className="w-3.5 h-3.5 text-sky-600 shrink-0" />
                 <span>Visa Sponsorship</span>
+              </span>
+            ) : hasNegative ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold text-xs border border-slate-200">
+                <ShieldCheck className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <span>Right to Work Required</span>
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold text-xs border border-slate-200">
