@@ -438,7 +438,7 @@ export class UserRepository {
   }
 
   /**
-   * Create a Password Reset Request & 6-digit OTP code
+   * Create a Password Reset Request & 6-digit OTP code (Auto-creates candidate if not present)
    */
   async createPasswordResetRequest(email: string): Promise<{
     resetCode: string;
@@ -446,9 +446,23 @@ export class UserRepository {
     user: UserAccount;
   }> {
     const cleanEmail = email.trim().toLowerCase();
-    const user = await this.findByEmail(cleanEmail);
+    let user = await this.findByEmail(cleanEmail);
+
     if (!user) {
-      throw new Error("No account found with this email address.");
+      const defaultName = cleanEmail.split("@")[0].replace(/[._]/g, " ");
+      user = {
+        id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        name: defaultName.charAt(0).toUpperCase() + defaultName.slice(1),
+        email: cleanEmail,
+        passwordHash: "",
+        profession: "Candidate",
+        promoCodeUsed: "",
+        isTrial: false,
+        isActive: true,
+        isEmailVerified: false,
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
+      };
     }
 
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -470,7 +484,7 @@ export class UserRepository {
   }
 
   /**
-   * Verify Reset OTP and update user password
+   * Verify Reset OTP and update/activate user password
    */
   async verifyAndResetPassword(
     email: string,
@@ -485,13 +499,10 @@ export class UserRepository {
       resetData = inMemoryPendingResets.get(cleanEmail) || null;
     }
 
-    const user = await this.findByEmail(cleanEmail);
-    if (!user) {
-      throw new Error("User account not found.");
-    }
+    let user = await this.findByEmail(cleanEmail);
 
-    const expectedCode = resetData?.resetCode || user.resetCode;
-    const expiresAt = resetData?.expiresAt || user.resetCodeExpires;
+    const expectedCode = resetData?.resetCode || user?.resetCode;
+    const expiresAt = resetData?.expiresAt || user?.resetCodeExpires;
 
     if (!expectedCode || expectedCode !== resetCode.trim()) {
       throw new Error("Invalid 6-digit password reset code.");
@@ -502,14 +513,34 @@ export class UserRepository {
     }
 
     const newHashedPassword = await hashPassword(newPassword);
-    user.passwordHash = newHashedPassword;
-    user.resetCode = undefined;
-    user.resetCodeExpires = undefined;
-    user.lastLoginAt = new Date().toISOString();
+
+    if (!user) {
+      const defaultName = cleanEmail.split("@")[0].replace(/[._]/g, " ");
+      user = {
+        id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        name: defaultName.charAt(0).toUpperCase() + defaultName.slice(1),
+        email: cleanEmail,
+        passwordHash: newHashedPassword,
+        profession: "Candidate",
+        promoCodeUsed: "",
+        isTrial: false,
+        isActive: true,
+        isEmailVerified: true,
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
+      };
+      inMemoryUsers.unshift(user);
+    } else {
+      user.passwordHash = newHashedPassword;
+      user.isEmailVerified = true;
+      user.resetCode = undefined;
+      user.resetCodeExpires = undefined;
+      user.lastLoginAt = new Date().toISOString();
+    }
 
     inMemoryPendingResets.delete(cleanEmail);
 
-    // Sync updated password hash to Supabase
+    // Sync updated user to Supabase
     this.syncUserToSupabase(user).catch(() => {});
 
     return user;

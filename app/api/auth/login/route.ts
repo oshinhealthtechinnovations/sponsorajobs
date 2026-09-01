@@ -16,8 +16,19 @@ export async function POST(request: NextRequest) {
 
     const user = await userRepository.authenticate(email, password);
     if (!user) {
+      const existingUser = await userRepository.findByEmail(email);
+      if (!existingUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "No account found with this email. Please switch to 'Create Account' or use 'Forgot Password?' to set up your password.",
+            noAccount: true,
+          },
+          { status: 401 }
+        );
+      }
       return NextResponse.json(
-        { success: false, error: "Invalid email or password." },
+        { success: false, error: "Incorrect password. You can reset it using 'Forgot Password?' below." },
         { status: 401 }
       );
     }
