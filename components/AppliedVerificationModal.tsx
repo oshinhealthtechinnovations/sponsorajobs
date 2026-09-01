@@ -97,6 +97,23 @@ export function AppliedVerificationModal() {
         applyUrl: jobData.applyUrl || "",
         status: "APPLIED",
       });
+
+      try {
+        fetch("/api/user/applications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jobId: jobData.jobId,
+            jobTitle: jobData.jobTitle,
+            companyName: jobData.companyName,
+            location: jobData.location || "Global",
+            salary: jobData.salary || null,
+            applyUrl: jobData.applyUrl || "",
+            status: "APPLIED",
+          }),
+        }).catch(() => {});
+        window.dispatchEvent(new Event("user-session-changed"));
+      } catch {}
     }
     // Auto-close after short confirmation toast
     setTimeout(() => {

@@ -117,12 +117,18 @@ export default function DashboardPage() {
 
   // Load user session
   const fetchSession = async () => {
+    // Read local apps immediately on page mount before network requests
+    const initialApps = getLocalApplications();
+    if (initialApps.length > 0) {
+      setApplications(initialApps);
+    }
+
     try {
       const res = await fetch("/api/auth/me");
       const data = await res.json();
       if (data.success && data.user) {
         setUser(data.user);
-        fetchApplications();
+        fetchApplications(data.user.id);
       } else {
         setUser(null);
         setLoading(false);
@@ -134,9 +140,10 @@ export default function DashboardPage() {
   };
 
   // Fetch applications
-  const fetchApplications = async () => {
+  const fetchApplications = async (targetUserId?: string) => {
     // 1. Immediately read from local-first storage so applications display with zero delay
-    const localApps = getLocalApplications(user?.id);
+    const currentUserId = targetUserId || user?.id;
+    const localApps = getLocalApplications(currentUserId);
     if (localApps.length > 0) {
       setApplications(localApps);
     }
@@ -144,7 +151,7 @@ export default function DashboardPage() {
     try {
       const res = await fetch("/api/user/applications");
       const data = await res.json();
-      if (data.success && Array.isArray(data.data)) {
+      if (data.success && Array.isArray(data.data) && data.data.length > 0) {
         // Merge remote + local applications so nothing is lost across serverless instances
         const map = new Map<string, JobApplication>();
         for (const a of localApps) map.set(a.jobId || a.id, a);
@@ -156,9 +163,14 @@ export default function DashboardPage() {
         if (typeof window !== "undefined") {
           localStorage.setItem("sa_user_applications", JSON.stringify(merged));
         }
+      } else if (localApps.length > 0) {
+        setApplications(localApps);
       }
     } catch (err) {
       console.error("Failed to load applications from API:", err);
+      if (localApps.length > 0) {
+        setApplications(localApps);
+      }
     } finally {
       setLoading(false);
     }

@@ -22,6 +22,7 @@ import {
   Check,
   RotateCcw,
 } from "lucide-react";
+import { saveLocalApplication } from "@/lib/utils/clientApplicationTracker";
 
 export function AuthGateModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -66,8 +67,31 @@ export function AuthGateModal() {
     promoCode: string;
   } | null>(null);
 
+  // Pending Job Data for automatic tracking
+  const [pendingJobData, setPendingJobData] = useState<{
+    jobId: string;
+    jobTitle: string;
+    companyName: string;
+    companyLogo?: string | null;
+    location?: string;
+    salary?: string | null;
+    applyUrl: string;
+  } | null>(null);
+
   useEffect(() => {
-    const handleOpenAuth = (e: CustomEvent<{ redirectUrl?: string; defaultTab?: "register" | "login" }>) => {
+    const handleOpenAuth = (
+      e: CustomEvent<{
+        redirectUrl?: string;
+        defaultTab?: "register" | "login";
+        jobId?: string;
+        jobTitle?: string;
+        companyName?: string;
+        companyLogo?: string | null;
+        location?: string;
+        salary?: string | null;
+        applyUrl?: string;
+      }>
+    ) => {
       setErrorMsg(null);
       setSuccessMsg(null);
       setCelebrationData(null);
@@ -76,8 +100,21 @@ export function AuthGateModal() {
       setPendingToken(null);
       setPreviewOtp(null);
       setForgotStep("closed");
-      if (e.detail?.redirectUrl) {
-        setPendingUrl(e.detail.redirectUrl);
+
+      const targetUrl = e.detail?.redirectUrl || e.detail?.applyUrl;
+      if (targetUrl) {
+        setPendingUrl(targetUrl);
+      }
+      if (e.detail?.jobId || e.detail?.jobTitle || targetUrl) {
+        setPendingJobData({
+          jobId: e.detail.jobId || `job_${Date.now()}`,
+          jobTitle: e.detail.jobTitle || "Sponsored Job Position",
+          companyName: e.detail.companyName || "Verified Sponsor Employer",
+          companyLogo: e.detail.companyLogo || null,
+          location: e.detail.location || "Global / UK",
+          salary: e.detail.salary || null,
+          applyUrl: targetUrl || "#",
+        });
       }
       if (e.detail?.defaultTab) {
         setActiveTab(e.detail.defaultTab);
@@ -173,6 +210,19 @@ export function AuthGateModal() {
 
       if (res.ok && data.success) {
         localStorage.setItem("sa_user", JSON.stringify(data.user));
+        
+        // Auto-save pending application upon account verification
+        if (pendingJobData) {
+          saveLocalApplication(pendingJobData, data.user?.id);
+          try {
+            fetch("/api/user/applications", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(pendingJobData),
+            }).catch(() => {});
+          } catch {}
+        }
+
         window.dispatchEvent(new Event("user-session-changed"));
 
         // Trigger Congratulation Celebration Screen!
@@ -254,6 +304,19 @@ export function AuthGateModal() {
         if (data.user) {
           localStorage.setItem("sa_user", JSON.stringify(data.user));
         }
+
+        // Auto-save pending application upon login
+        if (pendingJobData) {
+          saveLocalApplication(pendingJobData, data.user?.id);
+          try {
+            fetch("/api/user/applications", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(pendingJobData),
+            }).catch(() => {});
+          } catch {}
+        }
+
         window.dispatchEvent(new Event("user-session-changed"));
 
         setTimeout(() => {

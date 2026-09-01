@@ -6,8 +6,13 @@ export function getLocalApplications(userId?: string): JobApplication[] {
     const raw = localStorage.getItem("sa_user_applications");
     if (!raw) return [];
     const list: JobApplication[] = JSON.parse(raw);
+    if (!Array.isArray(list)) return [];
+    
+    // If userId provided and list has items with matching userId, prioritize them,
+    // otherwise return all local applications saved on this browser
     if (userId) {
-      return list.filter((a) => !a.userId || a.userId === userId);
+      const userMatched = list.filter((a) => !a.userId || a.userId === userId);
+      if (userMatched.length > 0) return userMatched;
     }
     return list;
   } catch {
@@ -50,13 +55,14 @@ export function saveLocalApplication(
       const list: JobApplication[] = raw ? JSON.parse(raw) : [];
 
       const existingIdx = list.findIndex(
-        (a) => a.jobId === app.jobId && (!userId || !a.userId || a.userId === userId)
+        (a) => (a.jobId === app.jobId || a.id === app.id)
       );
 
       if (existingIdx >= 0) {
         list[existingIdx] = {
           ...list[existingIdx],
           ...app,
+          userId: userId || list[existingIdx].userId || "",
           status: (app.status as ApplicationStatus) || list[existingIdx].status || "APPLIED",
           lastUpdatedAt: now,
         };
@@ -98,8 +104,8 @@ export function deleteLocalApplication(appId: string): void {
     const raw = localStorage.getItem("sa_user_applications");
     if (!raw) return;
     const list: JobApplication[] = JSON.parse(raw);
-    const updated = list.filter((a) => a.id !== appId && a.jobId !== appId);
-    localStorage.setItem("sa_user_applications", JSON.stringify(updated));
+    const filtered = list.filter((a) => a.id !== appId && a.jobId !== appId);
+    localStorage.setItem("sa_user_applications", JSON.stringify(filtered));
     window.dispatchEvent(new Event("user-session-changed"));
   } catch {}
 }
