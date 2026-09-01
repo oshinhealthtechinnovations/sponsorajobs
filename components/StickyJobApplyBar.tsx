@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { ExternalLink, Bookmark, Share2, Sparkles, Building2, CheckCircle2, Lock } from "lucide-react";
 import { JobShareModal } from "./JobShareModal";
 import { useSession } from "@/hooks/useSession";
+import { saveLocalApplication } from "@/lib/utils/clientApplicationTracker";
 
 interface StickyJobApplyBarProps {
   jobId: string;
@@ -27,7 +28,7 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
   const [isVisible, setIsVisible] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const { isLoggedIn } = useSession();
+  const { isLoggedIn, user } = useSession();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -87,6 +88,20 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
       );
       return;
     }
+
+    // Immediately save to local application tracker
+    saveLocalApplication(
+      {
+        jobId,
+        jobTitle,
+        companyName,
+        location: locationFormatted,
+        salary: salaryFormatted !== "Competitive / Not disclosed" ? salaryFormatted : null,
+        applyUrl,
+        status: "APPLIED",
+      },
+      user?.id
+    );
 
     try {
       fetch("/api/user/applications", {

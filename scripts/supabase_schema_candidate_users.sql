@@ -36,3 +36,48 @@ CREATE POLICY "Allow anon update to candidate_users"
 
 -- Index for instant email lookups
 CREATE INDEX IF NOT EXISTS idx_candidate_users_email ON candidate_users(email);
+
+-- ==============================================================================
+-- Candidate Job Applications Table
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS candidate_applications (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  job_id TEXT NOT NULL,
+  job_title TEXT NOT NULL,
+  job_slug TEXT,
+  company_name TEXT NOT NULL,
+  company_logo TEXT,
+  location TEXT,
+  salary TEXT,
+  apply_url TEXT NOT NULL,
+  status TEXT DEFAULT 'APPLIED',
+  notes TEXT DEFAULT '',
+  interview_date TIMESTAMPTZ,
+  applied_at TIMESTAMPTZ DEFAULT NOW(),
+  last_updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security (RLS)
+ALTER TABLE candidate_applications ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow anon insert to candidate_applications" 
+  ON candidate_applications FOR INSERT 
+  WITH CHECK (true);
+
+CREATE POLICY "Allow anon select from candidate_applications" 
+  ON candidate_applications FOR SELECT 
+  USING (true);
+
+CREATE POLICY "Allow anon update to candidate_applications" 
+  ON candidate_applications FOR UPDATE 
+  USING (true);
+
+CREATE POLICY "Allow anon delete from candidate_applications" 
+  ON candidate_applications FOR DELETE 
+  USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_candidate_applications_user ON candidate_applications(user_id);
+CREATE INDEX IF NOT EXISTS idx_candidate_applications_job ON candidate_applications(job_id);
+

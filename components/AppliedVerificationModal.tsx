@@ -14,6 +14,8 @@ import {
   Check,
 } from "lucide-react";
 
+import { saveLocalApplication, deleteLocalApplication } from "@/lib/utils/clientApplicationTracker";
+
 export interface VerifyJobEventDetail {
   jobId: string;
   jobTitle: string;
@@ -41,6 +43,17 @@ export function AppliedVerificationModal() {
       setCountdown(AUTO_CONFIRM_SECONDS);
       setStatusState("pending");
       setIsOpen(true);
+
+      // Pre-save into local tracker immediately
+      saveLocalApplication({
+        jobId: e.detail.jobId,
+        jobTitle: e.detail.jobTitle,
+        companyName: e.detail.companyName,
+        location: e.detail.location || "Global",
+        salary: e.detail.salary || null,
+        applyUrl: e.detail.applyUrl || "",
+        status: "APPLIED",
+      });
     };
 
     window.addEventListener("verify-job-application" as any, handleVerifyEvent);
@@ -74,6 +87,17 @@ export function AppliedVerificationModal() {
   // Auto-confirm fallback (assumed applied)
   const handleAutoConfirm = () => {
     setStatusState("confirmed");
+    if (jobData) {
+      saveLocalApplication({
+        jobId: jobData.jobId,
+        jobTitle: jobData.jobTitle,
+        companyName: jobData.companyName,
+        location: jobData.location || "Global",
+        salary: jobData.salary || null,
+        applyUrl: jobData.applyUrl || "",
+        status: "APPLIED",
+      });
+    }
     // Auto-close after short confirmation toast
     setTimeout(() => {
       setIsOpen(false);
@@ -86,6 +110,16 @@ export function AppliedVerificationModal() {
     setStatusState("confirmed");
 
     if (jobData) {
+      saveLocalApplication({
+        jobId: jobData.jobId,
+        jobTitle: jobData.jobTitle,
+        companyName: jobData.companyName,
+        location: jobData.location || "Global",
+        salary: jobData.salary || null,
+        applyUrl: jobData.applyUrl || "",
+        status: "APPLIED",
+      });
+
       try {
         await fetch("/api/user/applications", {
           method: "POST",
@@ -115,6 +149,7 @@ export function AppliedVerificationModal() {
     setStatusState("saved");
 
     if (jobData?.jobId) {
+      deleteLocalApplication(jobData.jobId);
       try {
         // Save to saved jobs in localStorage
         const saved: string[] = JSON.parse(localStorage.getItem("sa_saved_jobs") || "[]");

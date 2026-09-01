@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ExternalLink, Bookmark, Share2, Lock } from "lucide-react";
 import { useSession } from "@/hooks/useSession";
+import { saveLocalApplication } from "@/lib/utils/clientApplicationTracker";
 import { JobShareModal } from "./JobShareModal";
 
 interface JobDetailSidebarActionsProps {
@@ -26,7 +27,7 @@ export function JobDetailSidebarActions({
 }: JobDetailSidebarActionsProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const { isLoggedIn } = useSession();
+  const { isLoggedIn, user } = useSession();
 
   useEffect(() => {
     try {
@@ -74,7 +75,21 @@ export function JobDetailSidebarActions({
       return;
     }
 
-    // 1. Asynchronously log application to user tracker
+    // 1. Immediately save to local application tracker
+    saveLocalApplication(
+      {
+        jobId,
+        jobTitle,
+        companyName,
+        location: locationFormatted,
+        salary: salaryFormatted,
+        applyUrl,
+        status: "APPLIED",
+      },
+      user?.id
+    );
+
+    // 2. Asynchronously log application to user tracker backend
     try {
       fetch("/api/user/applications", {
         method: "POST",
@@ -91,10 +106,10 @@ export function JobDetailSidebarActions({
       }).catch(() => {});
     } catch {}
 
-    // 2. Open official career portal in new tab
+    // 3. Open official career portal in new tab
     window.open(applyUrl, "_blank", "noopener,noreferrer");
 
-    // 3. Trigger cross-verification prompt
+    // 4. Trigger cross-verification prompt
     window.dispatchEvent(
       new CustomEvent("verify-job-application", {
         detail: {

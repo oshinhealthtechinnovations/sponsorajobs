@@ -31,6 +31,12 @@ import {
 
 import { JobApplication, ApplicationStatus } from "@/lib/repositories/applicationRepository";
 import { AuthGateModal } from "@/components/AuthGateModal";
+import {
+  getLocalApplications,
+  saveLocalApplication,
+  updateLocalApplicationStatus,
+  deleteLocalApplication,
+} from "@/lib/utils/clientApplicationTracker";
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
@@ -129,14 +135,30 @@ export default function DashboardPage() {
 
   // Fetch applications
   const fetchApplications = async () => {
+    // 1. Immediately read from local-first storage so applications display with zero delay
+    const localApps = getLocalApplications(user?.id);
+    if (localApps.length > 0) {
+      setApplications(localApps);
+    }
+
     try {
       const res = await fetch("/api/user/applications");
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        setApplications(data.data);
+        // Merge remote + local applications so nothing is lost across serverless instances
+        const map = new Map<string, JobApplication>();
+        for (const a of localApps) map.set(a.jobId || a.id, a);
+        for (const a of data.data) map.set(a.jobId || a.id, a);
+        const merged = Array.from(map.values()).sort(
+          (a, b) => new Date(b.lastUpdatedAt).getTime() - new Date(a.lastUpdatedAt).getTime()
+        );
+        setApplications(merged);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("sa_user_applications", JSON.stringify(merged));
+        }
       }
     } catch (err) {
-      console.error("Failed to load applications:", err);
+      console.error("Failed to load applications from API:", err);
     } finally {
       setLoading(false);
     }
@@ -152,18 +174,17 @@ export default function DashboardPage() {
   // Handle status update
   const handleUpdateStatus = async (appId: string, newStatus: ApplicationStatus) => {
     setUpdatingId(appId);
+    updateLocalApplicationStatus(appId, newStatus);
+    setApplications((prev) =>
+      prev.map((a) => (a.id === appId || a.jobId === appId ? { ...a, status: newStatus, lastUpdatedAt: new Date().toISOString() } : a))
+    );
+
     try {
-      const res = await fetch("/api/user/applications", {
+      await fetch("/api/user/applications", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: appId, status: newStatus }),
       });
-      const data = await res.json();
-      if (data.success) {
-        setApplications((prev) =>
-          prev.map((a) => (a.id === appId ? { ...a, status: newStatus, lastUpdatedAt: new Date().toISOString() } : a))
-        );
-      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -174,8 +195,18 @@ export default function DashboardPage() {
   // Handle save notes
   const handleSaveNotes = async () => {
     if (!selectedApp) return;
+    updateLocalApplicationStatus(selectedApp.id, editStatus, editNotes);
+    setApplications((prev) =>
+      prev.map((a) =>
+        a.id === selectedApp.id || a.jobId === selectedApp.id
+          ? { ...a, status: editStatus, notes: editNotes, lastUpdatedAt: new Date().toISOString() }
+          : a
+      )
+    );
+    setNotesModalOpen(false);
+
     try {
-      const res = await fetch("/api/user/applications", {
+      await fetch("/api/user/applications", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -184,17 +215,6 @@ export default function DashboardPage() {
           notes: editNotes,
         }),
       });
-      const data = await res.json();
-      if (data.success) {
-        setApplications((prev) =>
-          prev.map((a) =>
-            a.id === selectedApp.id
-              ? { ...a, status: editStatus, notes: editNotes, lastUpdatedAt: new Date().toISOString() }
-              : a
-          )
-        );
-        setNotesModalOpen(false);
-      }
     } catch (err) {
       console.error(err);
     }
@@ -203,12 +223,11 @@ export default function DashboardPage() {
   // Handle delete application
   const handleDeleteApplication = async (appId: string) => {
     if (!confirm("Are you sure you want to remove this job from your tracker?")) return;
+    deleteLocalApplication(appId);
+    setApplications((prev) => prev.filter((a) => a.id !== appId && a.jobId !== appId));
+
     try {
-      const res = await fetch(`/api/user/applications?id=${appId}`, { method: "DELETE" });
-      const data = await res.json();
-      if (data.success) {
-        setApplications((prev) => prev.filter((a) => a.id !== appId));
-      }
+      await fetch(`/api/user/applications?id=${appId}`, { method: "DELETE" });
     } catch (err) {
       console.error(err);
     }
@@ -222,35 +241,38 @@ export default function DashboardPage() {
       return;
     }
 
+    const newApp = saveLocalApplication(
+      {
+        jobId: `manual_${Date.now()}`,
+        jobTitle: manualForm.jobTitle,
+        companyName: manualForm.companyName,
+        location: manualForm.location || "Worldwide",
+        salary: manualForm.salary || null,
+        applyUrl: manualForm.applyUrl,
+        status: manualForm.status,
+        notes: manualForm.notes,
+      },
+      user?.id
+    );
+
+    setApplications((prev) => [newApp, ...prev]);
+    setAddModalOpen(false);
+    setManualForm({
+      jobTitle: "",
+      companyName: "",
+      location: "",
+      salary: "",
+      applyUrl: "",
+      status: "APPLIED",
+      notes: "",
+    });
+
     try {
-      const res = await fetch("/api/user/applications", {
+      await fetch("/api/user/applications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jobId: `manual_${Date.now()}`,
-          jobTitle: manualForm.jobTitle,
-          companyName: manualForm.companyName,
-          location: manualForm.location || "Worldwide",
-          salary: manualForm.salary || null,
-          applyUrl: manualForm.applyUrl,
-          status: manualForm.status,
-          notes: manualForm.notes,
-        }),
+        body: JSON.stringify(newApp),
       });
-      const data = await res.json();
-      if (data.success && data.data) {
-        setApplications((prev) => [data.data, ...prev]);
-        setAddModalOpen(false);
-        setManualForm({
-          jobTitle: "",
-          companyName: "",
-          location: "",
-          salary: "",
-          applyUrl: "",
-          status: "APPLIED",
-          notes: "",
-        });
-      }
     } catch (err) {
       console.error(err);
     }

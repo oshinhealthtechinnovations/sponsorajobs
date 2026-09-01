@@ -6,6 +6,7 @@ import { PublicJobDTO } from "@/lib/types/job";
 import { calculateJobIntelligence } from "@/lib/utils/intelligenceScorer";
 import { JobShareModal } from "./JobShareModal";
 import { useSession } from "@/hooks/useSession";
+import { saveLocalApplication } from "@/lib/utils/clientApplicationTracker";
 import {
   MapPin,
   Banknote,
@@ -28,7 +29,7 @@ interface JobCardProps {
 export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
   const [isSaved, setIsSaved] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
-  const { isLoggedIn } = useSession();
+  const { isLoggedIn, user } = useSession();
 
   const intelligence = calculateJobIntelligence(job);
   const { worthScore, confidence } = intelligence;
@@ -90,6 +91,22 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
     requireAuth(
       e,
       () => {
+        // Save to local tracker immediately
+        saveLocalApplication(
+          {
+            jobId: job.id,
+            jobTitle: job.title,
+            jobSlug: job.slug,
+            companyName: job.company.name,
+            companyLogo: job.company.logoUrl,
+            location: job.location.formatted || job.location.country,
+            salary: salary || null,
+            applyUrl: job.applyUrl,
+            status: "APPLIED",
+          },
+          user?.id
+        );
+
         // Asynchronously log application to user tracker
         try {
           fetch("/api/user/applications", {

@@ -7,6 +7,7 @@ import { JobShareModal } from "./JobShareModal";
 import { ReportIssueModal } from "./ReportIssueModal";
 
 import { useSession } from "@/hooks/useSession";
+import { saveLocalApplication } from "@/lib/utils/clientApplicationTracker";
 
 interface JobDetailActionsProps {
   jobId: string;
@@ -56,7 +57,7 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
-  const { isLoggedIn } = useSession();
+  const { isLoggedIn, user } = useSession();
 
   const isDirect = isDirectJobUrl(applyUrl);
 
@@ -111,6 +112,18 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
       );
       return;
     }
+
+    // Immediately save to local application tracker
+    saveLocalApplication(
+      {
+        jobId,
+        jobTitle,
+        companyName,
+        applyUrl,
+        status: "APPLIED",
+      },
+      user?.id
+    );
 
     // Asynchronously log to application tracker
     try {

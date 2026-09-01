@@ -3,6 +3,7 @@
 import React from "react";
 import { ExternalLink, Lock } from "lucide-react";
 import { useSession } from "@/hooks/useSession";
+import { saveLocalApplication } from "@/lib/utils/clientApplicationTracker";
 
 interface JobApplyButtonProps {
   jobId: string;
@@ -27,7 +28,7 @@ export function JobApplyButton({
   label,
   className = "",
 }: JobApplyButtonProps) {
-  const { isLoggedIn } = useSession();
+  const { isLoggedIn, user } = useSession();
 
   const handleApplyClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -46,7 +47,21 @@ export function JobApplyButton({
       return;
     }
 
-    // 2. User is logged in -> Log application in tracker backend
+    // 2. User is logged in -> Immediately save to local application tracker
+    saveLocalApplication(
+      {
+        jobId,
+        jobTitle,
+        companyName,
+        location: locationFormatted,
+        salary: salaryFormatted,
+        applyUrl,
+        status: "APPLIED",
+      },
+      user?.id
+    );
+
+    // 3. Asynchronously sync to backend / Supabase
     try {
       fetch("/api/user/applications", {
         method: "POST",
