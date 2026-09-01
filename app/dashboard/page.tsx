@@ -66,6 +66,49 @@ export default function DashboardPage() {
     notes: "",
   });
 
+  // Pro Waitlist State
+  const [waitlistEmail, setWaitlistEmail] = useState("");
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
+  const [waitlistSuccess, setWaitlistSuccess] = useState(false);
+  const [waitlistMsg, setWaitlistMsg] = useState<string | null>(null);
+  const [waitlistError, setWaitlistError] = useState<string | null>(null);
+
+  const handleJoinWaitlist = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const targetEmail = (waitlistEmail || user?.email || "").trim();
+    if (!targetEmail || !targetEmail.includes("@")) {
+      setWaitlistError("Please enter a valid email address.");
+      return;
+    }
+
+    setWaitlistLoading(true);
+    setWaitlistError(null);
+
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: targetEmail,
+          name: user?.name,
+          profession: user?.profession,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setWaitlistSuccess(true);
+        setWaitlistMsg(data.message || `🎉 You're on the waitlist! We'll notify you at ${targetEmail}`);
+      } else {
+        setWaitlistError(data.error || "Failed to join waitlist. Please try again.");
+      }
+    } catch {
+      setWaitlistError("Network error. Please try again.");
+    } finally {
+      setWaitlistLoading(false);
+    }
+  };
+
+
   // Load user session
   const fetchSession = async () => {
     try {
@@ -487,19 +530,67 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* CTA */}
-            <div className="flex flex-col items-center gap-3 shrink-0 text-center">
-              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#19CBE0]/20 to-violet-500/20 border border-[#19CBE0]/30 flex items-center justify-center">
-                <Award className="w-12 h-12 text-[#19CBE0]" />
+            {/* CTA — Direct Email Submission */}
+            <div className="flex flex-col items-center gap-3 shrink-0 text-center w-full lg:w-72 bg-white/5 border border-white/10 rounded-3xl p-5 backdrop-blur-md">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#19CBE0]/20 to-violet-500/20 border border-[#19CBE0]/30 flex items-center justify-center">
+                <Award className="w-7 h-7 text-[#19CBE0]" />
               </div>
-              <a
-                href="mailto:hello@sponsorajobs.com?subject=SponsorAJobs Pro Waitlist&body=Hi, I'd like to join the SponsorAJobs Pro waitlist!"
-                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#19CBE0] to-violet-500 hover:from-[#14b8d4] hover:to-violet-600 text-white font-extrabold text-sm shadow-lg shadow-[#19CBE0]/20 transition-all flex items-center gap-2 cursor-pointer"
-              >
-                <Mail className="w-4 h-4" />
-                <span>Join Waitlist</span>
-              </a>
-              <p className="text-[10px] text-slate-500 max-w-[140px]">Free — no credit card needed. Be first.</p>
+
+              {waitlistSuccess ? (
+                <div className="space-y-2 py-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>You're on the Waitlist!</span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 leading-relaxed">
+                    {waitlistMsg || "We'll notify you as soon as Pro launches with early access perks."}
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleJoinWaitlist} className="w-full space-y-2.5">
+                  <div className="space-y-1 text-left">
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      Join Early Access
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="email"
+                        required
+                        value={waitlistEmail || user?.email || ""}
+                        onChange={(e) => setWaitlistEmail(e.target.value)}
+                        placeholder="your.email@example.com"
+                        className="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-900/90 border border-slate-700 focus:border-[#19CBE0] text-white text-xs placeholder:text-slate-500 focus:outline-none transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  {waitlistError && (
+                    <p className="text-[10px] text-rose-400 font-medium text-left">
+                      {waitlistError}
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={waitlistLoading}
+                    className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#19CBE0] to-violet-500 hover:from-[#14b8d4] hover:to-violet-600 text-white font-extrabold text-xs shadow-lg shadow-[#19CBE0]/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {waitlistLoading ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>Join Waitlist</span>
+                      </>
+                    )}
+                  </button>
+                  <p className="text-[10px] text-slate-400">Free · 1-click early access</p>
+                </form>
+              )}
             </div>
           </div>
         </div>

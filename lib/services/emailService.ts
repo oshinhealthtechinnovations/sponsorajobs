@@ -546,4 +546,125 @@ export class EmailService {
       provider: "simulated",
     };
   }
+
+  /**
+   * Send SponsorAJobs Pro Waitlist Confirmation Email
+   */
+  async sendWaitlistConfirmationEmail(toEmail: string, name?: string, profession?: string): Promise<EmailDispatchResult> {
+    const messageId = `waitlist_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    const apiKey = this.getApiKey();
+
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You're on the SponsorAJobs Pro Waitlist!</title>
+</head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#071522;margin:0;padding:24px 12px;color:#ffffff;">
+  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:540px;margin:0 auto;background:#0d2137;border-radius:24px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.5);border:1px solid rgba(25,203,224,0.3);">
+    <tr>
+      <td style="background:linear-gradient(135deg,#071522 0%,#0e3050 50%,#071522 100%);padding:36px 28px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.1);">
+        <div style="display:inline-block;padding:6px 16px;background:rgba(25,203,224,0.15);border:1px solid rgba(25,203,224,0.4);border-radius:20px;font-size:12px;font-weight:700;color:#19CBE0;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">
+          ✨ Early Access Reserved
+        </div>
+        <h1 style="margin:0;font-size:24px;font-weight:800;color:#ffffff;">You're on the Pro Waitlist!</h1>
+        <p style="margin:8px 0 0 0;font-size:14px;color:#94a3b8;">SponsorAJobs Pro &middot; Accelerate Your International Career</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:28px;color:#e2e8f0;">
+        <p style="font-size:15px;line-height:1.6;color:#e2e8f0;margin:0 0 20px 0;">
+          Hi ${name || "there"},<br><br>
+          Thanks for your interest in <strong>SponsorAJobs Pro</strong>! You've secured your priority spot on our early-access waitlist.
+        </p>
+
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:20px;margin:20px 0;">
+          <h3 style="margin:0 0 12px 0;font-size:14px;color:#19CBE0;text-transform:uppercase;letter-spacing:0.5px;">What You'll Unlock as a Pro Member:</h3>
+          <ul style="margin:0;padding-left:20px;font-size:13px;color:#cbd5e1;line-height:1.8;">
+            <li>🤖 <strong>AI CV Rewrite & ATS Optimiser</strong> tailored for each visa job</li>
+            <li>📊 <strong>Salary Negotiation Intelligence</strong> by destination country</li>
+            <li>🎯 <strong>Guaranteed Interview Shortlist</strong> matched to your skills</li>
+            <li>📩 <strong>Unlimited Real-time Job Alerts</strong></li>
+            <li>🛂 <strong>Visa Sponsorship Probability Score</strong> per vacancy</li>
+          </ul>
+        </div>
+
+        <p style="font-size:13px;color:#94a3b8;line-height:1.6;margin:20px 0 0 0;">
+          We are rolling out early invites in batches. As a registered candidate${profession ? ` in <strong>${profession}</strong>` : ""}, you will receive an exclusive discount and early onboarding invite before public release.
+        </p>
+
+        <div style="text-align:center;margin:28px 0 10px 0;">
+          <a href="${this.siteUrl}/jobs" style="display:inline-block;background:linear-gradient(135deg,#19CBE0 0%,#7c3aed 100%);color:#ffffff;text-decoration:none;font-weight:800;font-size:14px;padding:14px 32px;border-radius:14px;box-shadow:0 8px 20px rgba(25,203,224,0.3);">
+            Explore Active Verified Jobs &rarr;
+          </a>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="background:#071522;border-top:1px solid rgba(255,255,255,0.06);padding:20px;text-align:center;font-size:11px;color:#64748b;">
+        <p style="margin:0 0 4px 0;">
+          SponsorAJobs &middot; The Verified International Jobs Platform
+        </p>
+        <p style="margin:0;">
+          This email was sent to ${toEmail}. No spam, ever.
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `;
+
+    // 1. Primary: Resend API
+    if (apiKey && this.canUseResend()) {
+      try {
+        const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <auth@sponsorajobs.com>";
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            from: fromEmail,
+            to: [toEmail],
+            subject: "You're on the SponsorAJobs Pro Waitlist! 🚀",
+            html,
+          }),
+        });
+
+        if (res.ok) {
+          const data = (await res.json()) as { id?: string };
+          const used = incrementDailyCount();
+          return {
+            success: true,
+            messageId: data.id || messageId,
+            provider: "resend",
+            quotaRemaining: Math.max(0, RESEND_DAILY_LIMIT - used),
+          };
+        } else {
+          console.warn("[EmailService:Waitlist] Resend non-200, routing to Gmail SMTP:", await res.text());
+        }
+      } catch (err) {
+        console.error("[EmailService:Waitlist] Resend API error:", err);
+      }
+    }
+
+    // 2. Direct SMTP Relay Fallback
+    const smtpResult = await this.sendMailViaSmtp(toEmail, "You're on the SponsorAJobs Pro Waitlist! 🚀", html);
+    if (smtpResult) {
+      return smtpResult;
+    }
+
+    // 3. Fallback
+    console.log(`[EmailService:Waitlist] Waitlist confirmation for ${toEmail}`);
+    return {
+      success: true,
+      messageId,
+      provider: "simulated",
+    };
+  }
 }
+
