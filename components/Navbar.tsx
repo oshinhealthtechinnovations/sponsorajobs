@@ -23,12 +23,11 @@ import {
 import { JobAlertModal } from "./JobAlertModal";
 import { AuthGateModal } from "./AuthGateModal";
 
-// Primary navigation — Includes explicit Home + Jobs-First items + For Employers
+// Primary navigation — Clean Candidate Frontend
 const NAV_LINKS = [
   { href: "/",          label: "Home",             icon: Home },
   { href: "/jobs",      label: "Find Jobs",        icon: Search },
   { href: "/dashboard", label: "My Applications",  icon: Briefcase },
-  { href: "/employers", label: "For Employers",    icon: Sparkles },
   { href: "/companies", label: "Companies",         icon: Briefcase },
   { href: "/countries", label: "Countries",         icon: Globe },
 ];
