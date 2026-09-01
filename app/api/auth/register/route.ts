@@ -144,6 +144,13 @@ export async function POST(request: NextRequest) {
       success: true,
       step: "otp_required",
       email: email.trim().toLowerCase(),
+      user: {
+        id: "pending",
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        profession: profession.trim(),
+        promoCodeUsed: promoCode ? promoCode.trim().toLowerCase() : "",
+      },
       message: `A 6-digit verification code has been sent to ${email}.`,
       provider: dispatch.provider,
     });

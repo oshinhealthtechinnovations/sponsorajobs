@@ -148,10 +148,10 @@ export function AuthGateModal() {
 
         // Trigger Congratulation Celebration Screen!
         setCelebrationData({
-          name: data.user.name,
-          profession: data.user.profession,
-          email: data.user.email,
-          promoCode: data.user.promoCodeUsed || promoCode,
+          name: data.user?.name || name || "Candidate",
+          profession: data.user?.profession || profession || "Professional",
+          email: data.user?.email || email,
+          promoCode: data.user?.promoCodeUsed || promoCode,
         });
       } else {
         setErrorMsg(data.error || "Invalid or expired verification code.");
@@ -209,8 +209,10 @@ export function AuthGateModal() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setSuccessMsg(`👋 Welcome back, ${data.user.name}!`);
-        localStorage.setItem("sa_user", JSON.stringify(data.user));
+        setSuccessMsg(`👋 Welcome back, ${data.user?.name || "Candidate"}!`);
+        if (data.user) {
+          localStorage.setItem("sa_user", JSON.stringify(data.user));
+        }
         window.dispatchEvent(new Event("user-session-changed"));
 
         setTimeout(() => {
