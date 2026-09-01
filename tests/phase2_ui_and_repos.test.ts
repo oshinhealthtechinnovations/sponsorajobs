@@ -139,6 +139,13 @@ describe("Phase 2: Database Repositories & Search Engine Verification", () => {
     expect(related.every((r) => r.id !== latest[0].id)).toBe(true);
   });
 
+  it("should resolve company slugs with ampersands and hyphens like burns-mcdonnell", async () => {
+    const compRepo = new CompanyRepository(dbClient);
+    const company = await compRepo.getBySlug("burns-mcdonnell");
+    expect(company).not.toBeNull();
+    expect(company?.name).toBe("Burns & McDonnell");
+  });
+
   it("should compute dynamic job counts for countries", async () => {
     const countryRepo = new CountryRepository(dbClient);
     const ukCount = await countryRepo.getJobCountByCountry("GB");
