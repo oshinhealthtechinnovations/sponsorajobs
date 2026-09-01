@@ -34,6 +34,8 @@ import {
   Plus,
 } from "lucide-react";
 import { RecommendationResultItem, CandidateMatchingPreferences } from "@/lib/services/cvJobMatchEngine";
+import { useSession } from "@/hooks/useSession";
+import { JobApplyButton } from "@/components/JobApplyButton";
 
 const SAMPLE_PRESETS = [
   {
@@ -122,6 +124,7 @@ BSc in Computer Systems & Networking | University of Edinburgh`,
 ];
 
 export default function CVJobMatchPage() {
+  const { isLoggedIn } = useSession();
   const [activeTab, setActiveTab] = useState<"upload" | "paste">("upload");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [resumeText, setResumeText] = useState("");
@@ -153,18 +156,35 @@ export default function CVJobMatchPage() {
   const [showShortlistModal, setShowShortlistModal] = useState(false);
   const [shortlistEmail, setShortlistEmail] = useState("");
   const [shortlistSubscribed, setShortlistSubscribed] = useState(false);
+  const [minMatchThreshold, setMinMatchThreshold] = useState(50);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
 
-  const processingStepsText = [
-    "Decompressing & reading PDF text streams (zlib)...",
-    "Extracting experience chronology & seniority...",
-    "Cross-referencing 250+ canonical ESCO skills...",
-    "Classifying UK SOC 2020 & O*NET occupation codes...",
-    "Executing 2-stage ranking across 650+ verified sponsor jobs...",
-  ];
+  // Initialize saved jobs from localStorage
+  useEffect(() => {
+    try {
+      const saved: string[] = JSON.parse(localStorage.getItem("sa_saved_jobs") || "[]");
+      setSavedJobIds(new Set(saved));
+    } catch {}
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      const validTypes = [
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "text/plain",
+      ];
+      if (!validTypes.includes(file.type) && !file.name.endsWith(".txt") && !file.name.endsWith(".pdf") && !file.name.endsWith(".docx")) {
+        setError("Invalid file format. Please upload a PDF (.pdf), Word Document (.docx), or Plain Text (.txt) file.");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setError("File size exceeds 5MB limit. Please upload a smaller document.");
+        return;
+      }
+      setSelectedFile(file);
       setError(null);
     }
   };
@@ -174,6 +194,14 @@ export default function CVJobMatchPage() {
     setResumeText(preset.text);
     setError(null);
   };
+
+  const processingStepsText = [
+    "Decompressing & reading PDF text streams (zlib)...",
+    "Extracting experience chronology & seniority...",
+    "Cross-referencing 250+ canonical ESCO skills...",
+    "Classifying UK SOC 2020 & O*NET occupation codes...",
+    "Executing 2-stage ranking across 650+ verified sponsor jobs...",
+  ];
 
   const handleFindJobs = async () => {
     if (activeTab === "upload" && !selectedFile) {
@@ -247,7 +275,31 @@ export default function CVJobMatchPage() {
     });
   };
 
-  const handleToggleSave = (jobId: string) => {
+  const handleToggleSave = (e: React.MouseEvent, jobId: string, applyUrl?: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isLoggedIn) {
+      window.dispatchEvent(
+        new CustomEvent("open-auth-gate", {
+          detail: { defaultTab: "register", redirectUrl: applyUrl },
+        })
+      );
+      return;
+    }
+
+    try {
+      const saved: string[] = JSON.parse(localStorage.getItem("sa_saved_jobs") || "[]");
+      let updated: string[];
+      if (saved.includes(jobId)) {
+        updated = saved.filter((id) => id !== jobId);
+      } else {
+        updated = [...saved, jobId];
+      }
+      localStorage.setItem("sa_saved_jobs", JSON.stringify(updated));
+      window.dispatchEvent(new Event("storage"));
+    } catch {}
+
     setSavedJobIds((prev) => {
       const next = new Set(prev);
       if (next.has(jobId)) next.delete(jobId);
@@ -835,7 +887,7 @@ export default function CVJobMatchPage() {
                           </Link>
 
                           <button
-                            onClick={() => handleToggleSave(rec.job.id)}
+                            onClick={(e) => handleToggleSave(e, rec.job.id, rec.job.applyUrl || (rec.job as any).jobUrl)}
                             className={`p-2.5 rounded-xl border text-xs font-semibold transition-colors cursor-pointer ${
                               isSaved ? "bg-brand-50 border-brand-200 text-brand-600" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                             }`}
@@ -844,15 +896,16 @@ export default function CVJobMatchPage() {
                             <Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
                           </button>
 
-                          <a
-                            href={rec.job.applyUrl || (rec.job as any).jobUrl || "#"}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors"
-                          >
-                            <span>Apply Directly</span>
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </a>
+                          <JobApplyButton
+                            jobId={rec.job.id}
+                            jobTitle={rec.job.title}
+                            companyName={rec.job.company.name}
+                            locationFormatted={rec.job.location.formatted || rec.job.location.country}
+                            applyUrl={rec.job.applyUrl || (rec.job as any).jobUrl || "#"}
+                            label="Apply Directly"
+                            variant="card"
+                            className="flex-1 sm:flex-none h-9 px-4 text-xs font-bold rounded-xl"
+                          />
                         </div>
                       </div>
                     </div>

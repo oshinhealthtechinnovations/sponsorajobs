@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { JobCard } from "@/components/JobCard";
 import { CompanyRepository } from "@/lib/repositories/companyRepository";
 import { JobRepository } from "@/lib/repositories/jobRepository";
+import { CompanyCareersButton } from "@/components/CompanyCareersButton";
 import Link from "next/link";
 import { Building2, Globe, ExternalLink, ArrowLeft, ShieldCheck } from "lucide-react";
 
@@ -66,15 +67,10 @@ export default async function CompanyProfilePage({ params }: CompanyProfilePageP
             </div>
 
             {company.website && (
-              <a
-                href={company.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors shrink-0"
-              >
-                <span>Official Careers Portal</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+              <CompanyCareersButton
+                companyName={company.name}
+                websiteUrl={company.website}
+              />
             )}
           </div>
 
