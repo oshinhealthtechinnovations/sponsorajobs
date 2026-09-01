@@ -146,6 +146,7 @@ export class EmailService {
     // 1. Try Resend API if API Key is configured
     if (apiKey) {
       try {
+        const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <onboarding@resend.dev>";
         const res = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
@@ -153,7 +154,7 @@ export class EmailService {
             Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
-            from: process.env.EMAIL_FROM || "SponsorAJobs Alerts <alerts@sponsorajobs.com>",
+            from: fromEmail,
             to: [params.toEmail],
             subject: "Your Visa Sponsorship Job Alerts Are Active 🚀",
             html,
@@ -194,6 +195,7 @@ export class EmailService {
 
     if (apiKey) {
       try {
+        const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <onboarding@resend.dev>";
         const res = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
@@ -201,7 +203,7 @@ export class EmailService {
             Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
-            from: process.env.EMAIL_FROM || "SponsorAJobs Alerts <alerts@sponsorajobs.com>",
+            from: fromEmail,
             to: [params.toEmail],
             subject: `New Visa Sponsorship Jobs Matching "${params.keyword || "Your Preferences"}" 🚀`,
             html,
@@ -277,6 +279,7 @@ export class EmailService {
 
     if (apiKey) {
       try {
+        const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <onboarding@resend.dev>";
         const res = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
@@ -284,7 +287,7 @@ export class EmailService {
             Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
-            from: process.env.EMAIL_FROM || "SponsorAJobs Verification <auth@sponsorajobs.com>",
+            from: fromEmail,
             to: [toEmail],
             subject: `Your SponsorAJobs Verification Code is ${code}`,
             html,
@@ -298,6 +301,9 @@ export class EmailService {
             messageId: data.id || messageId,
             provider: "resend",
           };
+        } else {
+          const errText = await res.text();
+          console.warn("[EmailService:Verify] Resend non-200 response:", errText);
         }
       } catch (err) {
         console.error("[EmailService:Verify] Error dispatching verification code:", err);
