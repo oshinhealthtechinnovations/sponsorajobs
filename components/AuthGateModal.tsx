@@ -32,8 +32,13 @@ export function AuthGateModal() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [profession, setProfession] = useState("");
   const [promoCode, setPromoCode] = useState("");
+
+  // Derived: password match state
+  const passwordsMatch = confirmPassword === "" || password === confirmPassword;
+  const confirmTouched = confirmPassword.length > 0;
 
   // Registration OTP State
   const [registerStep, setRegisterStep] = useState<"form" | "otp">("form");
@@ -94,6 +99,11 @@ export function AuthGateModal() {
   // STEP 1: Submit details -> Send 6-digit OTP to user's email
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Validate passwords match before submitting
+    if (password !== confirmPassword) {
+      setErrorMsg("Passwords do not match. Please check and try again.");
+      return;
+    }
     setLoading(true);
     setErrorMsg(null);
     setSuccessMsg(null);
@@ -601,6 +611,35 @@ export function AuthGateModal() {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="At least 6 characters"
                       className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-brand-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Confirm Password */}
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                    <span>Confirm Password <span className="text-rose-400">*</span></span>
+                    {confirmTouched && (
+                      passwordsMatch
+                        ? <span className="text-emerald-400 text-[10px] font-semibold flex items-center gap-1"><Check className="w-3 h-3" /> Passwords match</span>
+                        : <span className="text-rose-400 text-[10px] font-semibold">✗ Do not match</span>
+                    )}
+                  </label>
+                  <div className="relative">
+                    <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="password"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Re-enter your password"
+                      className={`w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border text-white text-xs focus:outline-none transition-colors ${
+                        !confirmTouched
+                          ? "border-slate-800 focus:border-brand-500"
+                          : passwordsMatch
+                          ? "border-emerald-600 focus:border-emerald-500"
+                          : "border-rose-600 focus:border-rose-500"
+                      }`}
                     />
                   </div>
                 </div>

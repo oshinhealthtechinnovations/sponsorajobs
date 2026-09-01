@@ -10,6 +10,7 @@ import { CareerRoutesNavigator } from "@/components/CareerRoutesNavigator";
 import { ApplicationReadinessCalculator } from "@/components/ApplicationReadinessCalculator";
 import { VerificationTimeline } from "@/components/VerificationTimeline";
 import { JobAlertSignup } from "@/components/JobAlertSignup";
+import { CreateAccountCTA } from "@/components/CreateAccountCTA";
 import { JobRepository } from "@/lib/repositories/jobRepository";
 import { blogRepository } from "@/lib/repositories/blogRepository";
 import {
@@ -79,11 +80,11 @@ export default async function HomePage() {
             {/* Trust Metrics — simplified per spec §7 */}
             <div className="mt-10 pt-8 border-t border-white/10 w-full max-w-3xl grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-4 text-center">
               <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-black text-white">{totalCount > 0 ? `${totalCount}+` : "760+"}</div>
+                <div className="text-2xl sm:text-3xl font-black text-white">{totalCount > 0 ? `${totalCount.toLocaleString()}+` : "1,400+"}</div>
                 <div className="text-xs text-slate-400 font-medium">Verified Jobs</div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-black text-white">287</div>
+                <div className="text-2xl sm:text-3xl font-black text-white">472+</div>
                 <div className="text-xs text-slate-400 font-medium">Verified Employers</div>
               </div>
               <div className="space-y-1">
@@ -337,6 +338,95 @@ export default async function HomePage() {
             </div>
           </section>
         )}
+
+
+        {/* =========================================================================
+            SECTION 08: HOW IT WORKS — 3-step visual
+           ========================================================================= */}
+        <section className="w-full bg-white border-b border-slate-100 py-16 sm:py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold uppercase tracking-wider mb-4">
+              <Sparkles className="w-3.5 h-3.5 text-[#19CBE0]" />
+              <span>Simple Process</span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">How SponsorAJobs Works</h2>
+            <p className="text-sm text-slate-500 max-w-xl mx-auto mb-12">
+              From search to successful application in three simple steps.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+              {/* Connector line (desktop only) */}
+              <div className="hidden md:block absolute top-10 left-[calc(16.7%+32px)] right-[calc(16.7%+32px)] h-[2px] bg-gradient-to-r from-[#19CBE0]/30 via-[#19CBE0] to-[#19CBE0]/30 pointer-events-none" />
+              {[
+                {
+                  step: "01",
+                  icon: <Search className="w-6 h-6 text-[#19CBE0]" />,
+                  title: "Search Verified Jobs",
+                  desc: "Browse 1,400+ verified international openings filtered by country, salary, sponsorship signal, and sector.",
+                  color: "bg-[#19CBE0]/10 border-[#19CBE0]/30",
+                },
+                {
+                  step: "02",
+                  icon: <ShieldCheck className="w-6 h-6 text-emerald-500" />,
+                  title: "Create Your Free Account",
+                  desc: "Save jobs, track applications, get alerts, and unlock your personalised candidate dashboard — completely free.",
+                  color: "bg-emerald-50 border-emerald-200",
+                },
+                {
+                  step: "03",
+                  icon: <ArrowRight className="w-6 h-6 text-violet-500" />,
+                  title: "Apply Directly to Employers",
+                  desc: "No recruiters, no middlemen. Every application link goes straight to the official employer careers page.",
+                  color: "bg-violet-50 border-violet-200",
+                },
+              ].map((item) => (
+                <div key={item.step} className="flex flex-col items-center text-center p-6 rounded-3xl bg-slate-50 border border-slate-200 hover:shadow-md transition-all duration-200 relative">
+                  <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center mb-4 ${item.color}`}>
+                    {item.icon}
+                  </div>
+                  <span className="text-[10px] font-black text-slate-300 tracking-widest mb-1">STEP {item.step}</span>
+                  <h3 className="text-base font-extrabold text-slate-900 mb-2">{item.title}</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================================
+            SECTION 09: WHY CREATE A FREE ACCOUNT — conversion nudge
+           ========================================================================= */}
+        <section className="w-full bg-[#F7F9FC] border-b border-slate-200 py-16 sm:py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-4">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Always Free</span>
+              </div>
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Why Create a Free Account?</h2>
+              <p className="text-sm text-slate-500 mt-3 max-w-xl mx-auto">
+                An account unlocks your full candidate toolkit. No credit card, no commitment.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                { icon: "📁", title: "Save Jobs", desc: "Bookmark any job instantly and revisit your shortlist anytime — across all devices." },
+                { icon: "📊", title: "Application Tracker", desc: "Log every application with status, notes, and employer contacts. Know exactly where you stand." },
+                { icon: "🔔", title: "Job Alerts", desc: "Get notified the moment new verified jobs matching your profile are posted." },
+                { icon: "🎯", title: "Personalised Recommendations", desc: "Smart job suggestions based on your profession and application history." },
+                { icon: "🛂", title: "Sponsorship Score", desc: "See a visa sponsorship probability score for every job you track." },
+                { icon: "📈", title: "Career Insights", desc: "Understand salary ranges, in-demand skills, and hiring trends in your target market." },
+              ].map((b) => (
+                <div key={b.title} className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-brand-200 hover:shadow-sm transition-all duration-200">
+                  <div className="text-2xl mb-3">{b.icon}</div>
+                  <h3 className="text-sm font-extrabold text-slate-900 mb-1.5">{b.title}</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">{b.desc}</p>
+                </div>
+              ))}
+            </div>
+            <CreateAccountCTA />
+
+          </div>
+        </section>
 
         {/* =========================================================================
             SECTION 10: JOB ALERTS + FINAL CTA (Modern Balanced Bento Grid)

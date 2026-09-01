@@ -26,7 +26,9 @@ import {
   Bookmark,
   Mail,
   RefreshCw,
+  Lock,
 } from "lucide-react";
+
 import { JobApplication, ApplicationStatus } from "@/lib/repositories/applicationRepository";
 import { AuthGateModal } from "@/components/AuthGateModal";
 
@@ -431,6 +433,118 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* ── PRO MEMBERSHIP TEASER CARD ── */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#071522] via-[#0d2137] to-[#071522] border border-[#19CBE0]/20 shadow-xl mb-8 p-6 sm:p-8">
+          {/* Background glow */}
+          <div className="absolute top-0 right-0 w-80 h-full bg-[#19CBE0]/5 blur-3xl pointer-events-none rounded-full" />
+          <div className="absolute bottom-0 left-1/4 w-64 h-32 bg-violet-500/5 blur-2xl pointer-events-none rounded-full" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-6">
+            <div className="flex-1 space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#19CBE0]/10 border border-[#19CBE0]/30 text-[#19CBE0] text-xs font-bold">
+                  <Sparkles className="w-3.5 h-3.5" /> SponsorAJobs Pro
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-[10px] font-bold uppercase tracking-wider">
+                  Coming Soon
+                </span>
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-extrabold text-white leading-tight">
+                  Unlock Your Full Potential.<br />
+                  <span className="text-[#19CBE0]">Get Hired Faster.</span>
+                </h2>
+                <p className="text-sm text-slate-400 mt-2 max-w-lg">
+                  Pro members land interviews 3× faster. Join the waitlist to be first in line when we launch.
+                </p>
+              </div>
+
+              {/* Feature grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {[
+                  { icon: "🤖", label: "AI CV Rewrite & ATS Optimiser", desc: "Tailored to every job you apply for" },
+                  { icon: "📊", label: "Salary Negotiation Intelligence", desc: "Know your market worth by city & role" },
+                  { icon: "🎯", label: "Guaranteed Interview Shortlist", desc: "Curated roles matched to your profile" },
+                  { icon: "📩", label: "Unlimited Job Alerts", desc: "Instant notifications for new openings" },
+                  { icon: "🛂", label: "Visa Sponsorship Score", desc: "Probability rating per application" },
+                  { icon: "🧑‍💼", label: "1-on-1 Application Coaching", desc: "Expert review of your application" },
+                ].map((f) => (
+                  <div
+                    key={f.label}
+                    className="flex items-start gap-2.5 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/8 transition-colors"
+                  >
+                    <span className="text-base shrink-0 mt-0.5">{f.icon}</span>
+                    <div>
+                      <div className="text-xs font-bold text-white">{f.label}</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">{f.desc}</div>
+                    </div>
+                    <span className="ml-auto shrink-0">
+                      <Lock className="w-3.5 h-3.5 text-slate-500" />
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="flex flex-col items-center gap-3 shrink-0 text-center">
+              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#19CBE0]/20 to-violet-500/20 border border-[#19CBE0]/30 flex items-center justify-center">
+                <Award className="w-12 h-12 text-[#19CBE0]" />
+              </div>
+              <a
+                href="mailto:hello@sponsorajobs.com?subject=SponsorAJobs Pro Waitlist&body=Hi, I'd like to join the SponsorAJobs Pro waitlist!"
+                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#19CBE0] to-violet-500 hover:from-[#14b8d4] hover:to-violet-600 text-white font-extrabold text-sm shadow-lg shadow-[#19CBE0]/20 transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <Mail className="w-4 h-4" />
+                <span>Join Waitlist</span>
+              </a>
+              <p className="text-[10px] text-slate-500 max-w-[140px]">Free — no credit card needed. Be first.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* ── SMART RECOMMENDATIONS ── */}
+        {user?.profession && (
+          <div className="mb-8 p-5 sm:p-6 rounded-3xl bg-white border border-slate-200 shadow-xs">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-violet-50 border border-violet-200 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-violet-600" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-extrabold text-slate-900">Recommended For You</h3>
+                  <p className="text-[11px] text-slate-500">Based on your profile: {user.profession}</p>
+                </div>
+              </div>
+              <Link
+                href={`/jobs?q=${encodeURIComponent(user.profession)}`}
+                className="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1"
+              >
+                View All <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                user.profession,
+                `${user.profession} UK`,
+                `${user.profession} Australia`,
+                `${user.profession} Canada`,
+                `Senior ${user.profession}`,
+                `${user.profession} Remote`,
+              ].map((query) => (
+                <Link
+                  key={query}
+                  href={`/jobs?q=${encodeURIComponent(query)}`}
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-50 hover:bg-brand-50 border border-slate-200 hover:border-brand-200 text-slate-700 hover:text-brand-700 text-xs font-semibold transition-all flex items-center gap-1.5"
+                >
+                  <Search className="w-3 h-3 text-slate-400" />
+                  {query}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Filter and Search Bar */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6">

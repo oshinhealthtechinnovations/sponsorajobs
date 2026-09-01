@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PublicJobDTO } from "@/lib/types/job";
 import { calculateJobIntelligence } from "@/lib/utils/intelligenceScorer";
 import { JobShareModal } from "./JobShareModal";
+import { useSession } from "@/hooks/useSession";
 import {
   MapPin,
   Banknote,
@@ -16,6 +17,7 @@ import {
   ExternalLink,
   Building2,
   ShieldCheck,
+  Lock,
 } from "lucide-react";
 
 interface JobCardProps {
@@ -26,6 +28,7 @@ interface JobCardProps {
 export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
   const [isSaved, setIsSaved] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const { isLoggedIn } = useSession();
 
   const intelligence = calculateJobIntelligence(job);
   const { worthScore, confidence } = intelligence;
@@ -39,50 +42,77 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
     }
   }, [job.id]);
 
-  const toggleSave = (e: React.MouseEvent) => {
+  /** Open auth gate if not logged in; otherwise run the callback */
+  const requireAuth = (
+    e: React.MouseEvent,
+    callback: () => void,
+    redirectUrl?: string
+  ) => {
     e.preventDefault();
     e.stopPropagation();
-    try {
-      const saved: string[] = JSON.parse(localStorage.getItem("sa_saved_jobs") || "[]");
-      let updated: string[];
-      if (saved.includes(job.id)) {
-        updated = saved.filter((id) => id !== job.id);
-        setIsSaved(false);
-      } else {
-        updated = [...saved, job.id];
-        setIsSaved(true);
-      }
-      localStorage.setItem("sa_saved_jobs", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-    } catch {
-      setIsSaved(!isSaved);
+    if (!isLoggedIn) {
+      window.dispatchEvent(
+        new CustomEvent("open-auth-gate", {
+          detail: {
+            defaultTab: "register",
+            redirectUrl,
+          },
+        })
+      );
+      return;
     }
+    callback();
+  };
+
+  const toggleSave = (e: React.MouseEvent) => {
+    requireAuth(e, () => {
+      try {
+        const saved: string[] = JSON.parse(
+          localStorage.getItem("sa_saved_jobs") || "[]"
+        );
+        let updated: string[];
+        if (saved.includes(job.id)) {
+          updated = saved.filter((id) => id !== job.id);
+          setIsSaved(false);
+        } else {
+          updated = [...saved, job.id];
+          setIsSaved(true);
+        }
+        localStorage.setItem("sa_saved_jobs", JSON.stringify(updated));
+        window.dispatchEvent(new Event("storage"));
+      } catch {
+        setIsSaved(!isSaved);
+      }
+    });
   };
 
   const handleApplyClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    requireAuth(
+      e,
+      () => {
+        // Asynchronously log application to user tracker
+        try {
+          fetch("/api/user/applications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              jobId: job.id,
+              jobTitle: job.title,
+              jobSlug: job.slug,
+              companyName: job.company.name,
+              companyLogo: job.company.logoUrl,
+              location: job.location.formatted || job.location.country,
+              salary: salary || null,
+              applyUrl: job.applyUrl,
+              status: "APPLIED",
+            }),
+          }).catch(() => {});
+        } catch {}
 
-    // Asynchronously log application to user tracker
-    try {
-      fetch("/api/user/applications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jobId: job.id,
-          jobTitle: job.title,
-          jobSlug: job.slug,
-          companyName: job.company.name,
-          companyLogo: job.company.logoUrl,
-          location: job.location.formatted || job.location.country,
-          salary: salary || null,
-          applyUrl: job.applyUrl,
-          status: "APPLIED",
-        }),
-      }).catch(() => {});
-    } catch {}
-
-    window.open(job.applyUrl, "_blank", "noopener,noreferrer");
+        window.open(job.applyUrl, "_blank", "noopener,noreferrer");
+      },
+      job.applyUrl
+    );
   };
 
   // Format salary
@@ -162,17 +192,24 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
               </div>
             </div>
 
+            {/* Save button — gated behind auth */}
             <button
               onClick={toggleSave}
               type="button"
-              aria-label={isSaved ? "Remove from saved" : "Save job"}
-              className={`p-1.5 rounded-lg transition-all cursor-pointer shrink-0 ${
+              aria-label={isLoggedIn ? (isSaved ? "Remove from saved" : "Save job") : "Sign in to save job"}
+              title={!isLoggedIn ? "Create a free account to save jobs" : undefined}
+              className={`p-1.5 rounded-lg transition-all cursor-pointer shrink-0 relative ${
                 isSaved
                   ? "bg-rose-50 text-rose-500 border border-rose-200"
                   : "text-slate-300 hover:text-slate-600 hover:bg-slate-50"
               }`}
             >
               <Bookmark className={`w-3.5 h-3.5 ${isSaved ? "fill-rose-400" : ""}`} />
+              {!isLoggedIn && (
+                <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-amber-400 flex items-center justify-center">
+                  <Lock className="w-1.5 h-1.5 text-white" />
+                </span>
+              )}
             </button>
           </div>
 
@@ -236,11 +273,14 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
               >
                 View Details
               </Link>
+              {/* Apply button — gated behind auth */}
               <button
                 type="button"
                 onClick={handleApplyClick}
-                className="px-3.5 py-2 rounded-xl bg-[#071421] hover:bg-slate-800 text-white text-xs font-bold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+                title={!isLoggedIn ? "Create a free account to apply" : "Apply now"}
+                className="px-3.5 py-2 rounded-xl bg-[#071421] hover:bg-slate-800 text-white text-xs font-bold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer relative"
               >
+                {!isLoggedIn && <Lock className="w-3 h-3 text-amber-400" />}
                 <span>Apply</span>
                 <ExternalLink className="w-3 h-3 text-[#18D6E5]" />
               </button>
