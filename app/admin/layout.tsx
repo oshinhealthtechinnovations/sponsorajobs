@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { LayoutDashboard, Briefcase, Radio, History, Settings, ArrowLeft, Bell, BookOpen, Globe, FileText } from "lucide-react";
+import { LayoutDashboard, Briefcase, Radio, History, Settings, ArrowLeft, Bell, BookOpen, Globe, FileText, Users } from "lucide-react";
 import { AdminLogoutButton } from "@/components/AdminLogoutButton";
 
 export const metadata = {
@@ -52,6 +52,14 @@ export default function AdminLayout({
             >
               <Briefcase className="w-4 h-4 text-emerald-400" />
               <span>Job Management</span>
+            </Link>
+
+            <Link
+              href="/admin/employees"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+            >
+              <Users className="w-4 h-4 text-amber-400" />
+              <span>Employees & Staff</span>
             </Link>
 
             <Link
