@@ -580,6 +580,9 @@ export function AuthGateModal() {
                     onChange={(e) => setRegisterOtp(e.target.value.replace(/[^0-9]/g, ""))}
                     className="w-48 text-center tracking-[10px] text-3xl font-black py-3 rounded-2xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-brand-500 mx-auto block shadow-inner"
                   />
+                  <p className="text-[11px] text-slate-400 pt-1">
+                    💡 If not in your primary inbox, please check your <strong className="text-slate-300">Spam</strong> or <strong className="text-slate-300">Promotions</strong> tab.
+                  </p>
                 </div>
 
                 <div className="flex items-center justify-center gap-4 text-xs">
