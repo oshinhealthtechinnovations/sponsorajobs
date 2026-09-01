@@ -64,9 +64,11 @@ export function getStatutoryVisaRoute(countryCode?: string): string {
  * Computes deterministic intelligence metrics for any job
  */
 export function calculateJobIntelligence(job: PublicJobDTO): JobIntelligenceProfile {
-  const hasNegative = (job.sponsorship.negativeEvidence && job.sponsorship.negativeEvidence.length > 0) ||
-    job.sponsorship.label === "Explicitly Not Offered";
-  const hasPositive = job.sponsorship.positiveEvidence && job.sponsorship.positiveEvidence.length > 0;
+  const hasNegative = job.sponsorship.label === "Explicitly Not Offered";
+  const hasPositive =
+    job.sponsorship.label === "Strong" ||
+    job.sponsorship.label === "Likely" ||
+    (job.sponsorship.positiveEvidence && job.sponsorship.positiveEvidence.length > 0);
 
   // 1. Sponsorship Likelihood (0-100)
   let sponsorshipScore = 50;

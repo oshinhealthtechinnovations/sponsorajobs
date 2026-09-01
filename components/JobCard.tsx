@@ -119,8 +119,11 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
 
   const fitInfo = getFitLabel(worthScore);
   const salary = formatSalary();
-  const hasNegative = (job.sponsorship.negativeEvidence && job.sponsorship.negativeEvidence.length > 0) || job.sponsorship.label === "Explicitly Not Offered";
-  const hasSponsorship = !hasNegative && (confidence.label === "VERIFIED" || confidence.label === "HIGH CONFIDENCE" || confidence.label === "SIGNAL DETECTED");
+  const hasNegative = job.sponsorship.label === "Explicitly Not Offered";
+  const hasSponsorship =
+    job.sponsorship.label === "Strong" ||
+    job.sponsorship.label === "Likely" ||
+    (!hasNegative && (confidence.label === "VERIFIED" || confidence.label === "HIGH CONFIDENCE" || confidence.label === "SIGNAL DETECTED"));
 
   return (
     <>
