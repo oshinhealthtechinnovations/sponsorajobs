@@ -152,7 +152,7 @@ export class EmailService {
     // 1. Try Resend API if API Key is configured
     if (apiKey) {
       try {
-        const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <onboarding@resend.dev>";
+        const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <auth@sponsorajobs.com>";
         const res = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
@@ -201,7 +201,7 @@ export class EmailService {
 
     if (apiKey) {
       try {
-        const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <onboarding@resend.dev>";
+        const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <auth@sponsorajobs.com>";
         const res = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
@@ -285,7 +285,7 @@ export class EmailService {
 
     if (apiKey) {
       try {
-        const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <onboarding@resend.dev>";
+        const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <auth@sponsorajobs.com>";
         const res = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
