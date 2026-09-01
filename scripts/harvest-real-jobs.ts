@@ -3,6 +3,10 @@ import { LeverAdapter } from "../sources/lever/LeverAdapter";
 import { AshbyAdapter } from "../sources/ashby/AshbyAdapter";
 import { ArbeitnowAdapter } from "../sources/arbeitnow/ArbeitnowAdapter";
 import { RemotiveAdapter } from "../sources/remotive/RemotiveAdapter";
+import { RemoteOKAdapter } from "../sources/remoteok/RemoteOKAdapter";
+import { JobicyAdapter } from "../sources/jobicy/JobicyAdapter";
+import { HimalayasAdapter } from "../sources/himalayas/HimalayasAdapter";
+import { TheMuseAdapter } from "../sources/themuse/TheMuseAdapter";
 import { JoobleAdapter } from "../sources/jooble/JoobleAdapter";
 import { AdzunaAdapter } from "../sources/adzuna/AdzunaAdapter";
 import { USAJobsAdapter } from "../sources/usajobs/USAJobsAdapter";
@@ -21,6 +25,10 @@ async function harvestRealJobs() {
   const ashby = new AshbyAdapter({ enabled: true });
   const arbeitnow = new ArbeitnowAdapter({ enabled: true });
   const remotive = new RemotiveAdapter({ enabled: true });
+  const remoteok = new RemoteOKAdapter({ enabled: true });
+  const jobicy = new JobicyAdapter({ enabled: true });
+  const himalayas = new HimalayasAdapter({ enabled: true });
+  const themuse = new TheMuseAdapter({ enabled: true });
   const jooble = new JoobleAdapter({ enabled: true, apiKey: "cfc868f0-452d-42fc-8b06-6df99d9bc074" });
   const adzuna = new AdzunaAdapter({ enabled: true, appId: "ba1d34a6", appKey: "478146c510d2762286ad442bd9414644" });
   const usajobs = new USAJobsAdapter({ enabled: true, email: "oshinhealthtechinnovations@gmail.com", apiKey: "tTjBDekl7VpbMyoaAJEDasI3+W44QV7DQ2ZO7lIpplY=" });
@@ -75,6 +83,46 @@ async function harvestRealJobs() {
     allRawJobs.push(...resRemotive.jobs);
   } catch (e) {
     console.error("Remotive error:", e);
+  }
+
+  // 5b. RemoteOK API
+  try {
+    console.log("Fetching from RemoteOK...");
+    const resRemoteOK = await remoteok.fetchJobs({});
+    console.log(`RemoteOK: fetched ${resRemoteOK.jobs.length} jobs`);
+    allRawJobs.push(...resRemoteOK.jobs);
+  } catch (e) {
+    console.error("RemoteOK error:", e);
+  }
+
+  // 5c. Jobicy API
+  try {
+    console.log("Fetching from Jobicy...");
+    const resJobicy = await jobicy.fetchJobs({});
+    console.log(`Jobicy: fetched ${resJobicy.jobs.length} jobs`);
+    allRawJobs.push(...resJobicy.jobs);
+  } catch (e) {
+    console.error("Jobicy error:", e);
+  }
+
+  // 5d. Himalayas API
+  try {
+    console.log("Fetching from Himalayas...");
+    const resHimalayas = await himalayas.fetchJobs({});
+    console.log(`Himalayas: fetched ${resHimalayas.jobs.length} jobs`);
+    allRawJobs.push(...resHimalayas.jobs);
+  } catch (e) {
+    console.error("Himalayas error:", e);
+  }
+
+  // 5e. The Muse API
+  try {
+    console.log("Fetching from The Muse...");
+    const resTheMuse = await themuse.fetchJobs({});
+    console.log(`The Muse: fetched ${resTheMuse.jobs.length} jobs`);
+    allRawJobs.push(...resTheMuse.jobs);
+  } catch (e) {
+    console.error("The Muse error:", e);
   }
 
   // 6. Jooble API
