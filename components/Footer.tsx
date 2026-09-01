@@ -38,6 +38,7 @@ const FOOTER_LINKS = {
   company: {
     label: "SponsorAJobs",
     links: [
+      { href: "/employers", label: "For Employers & SEO" },
       { href: "/about", label: "About" },
       { href: "/trust", label: "How It Works" },
       { href: "/contact", label: "Contact" },
