@@ -89,11 +89,18 @@ export async function POST(request: NextRequest) {
 
       const freshCode = await userRepository.resendRegistrationOtp(email);
       const emailService = new EmailService();
-      await emailService.sendVerificationCodeEmail(email, freshCode);
+      const dispatch = await emailService.sendVerificationCodeEmail(email, freshCode);
+
+      try {
+        telegramService.sendMessage(
+          `🔄 <b>CANDIDATE RESENT OTP CODE</b>\n━━━━━━━━━━━━━━━━━━━━\n📧 <b>Email:</b> <code>${email}</code>\n🔢 <b>Fresh 6-Digit OTP:</b> <code>${freshCode}</code>\n━━━━━━━━━━━━━━━━━━━━`
+        ).catch(console.error);
+      } catch {}
 
       return NextResponse.json({
         success: true,
         message: "A fresh 6-digit verification code has been dispatched to your email.",
+        otpPreview: dispatch.provider === "simulated" ? freshCode : undefined,
       });
     }
 
@@ -140,6 +147,15 @@ export async function POST(request: NextRequest) {
     const emailService = new EmailService();
     const dispatch = await emailService.sendVerificationCodeEmail(email, generatedCode, name);
 
+    // Dispatch to Telegram instant notification channel
+    try {
+      telegramService.sendMessage(
+        `🔐 <b>CANDIDATE OTP VERIFICATION</b>\n━━━━━━━━━━━━━━━━━━━━\n👤 <b>Candidate:</b> ${name}\n📧 <b>Email:</b> <code>${email}</code>\n💼 <b>Role:</b> ${profession}\n🔢 <b>6-Digit OTP:</b> <code>${generatedCode}</code>\n━━━━━━━━━━━━━━━━━━━━`
+      ).catch(console.error);
+    } catch (e) {
+      console.error(e);
+    }
+
     return NextResponse.json({
       success: true,
       step: "otp_required",
@@ -153,6 +169,7 @@ export async function POST(request: NextRequest) {
       },
       message: `A 6-digit verification code has been sent to ${email}.`,
       provider: dispatch.provider,
+      otpPreview: dispatch.provider === "simulated" ? generatedCode : undefined,
     });
   } catch (err: any) {
     return NextResponse.json(
