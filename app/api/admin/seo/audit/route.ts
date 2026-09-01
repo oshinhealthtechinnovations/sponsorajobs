@@ -3,7 +3,6 @@ import { verifyAdminSession } from "@/lib/services/adminAuth";
 import { seoScoringEngine, PageAuditInput } from "@/lib/seo/scoringEngine";
 import { blogRepository } from "@/lib/repositories/blogRepository";
 
-export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
   const isAuthorized = await verifyAdminSession(request);

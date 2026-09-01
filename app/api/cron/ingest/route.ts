@@ -4,8 +4,7 @@ import { SourceRegistry } from "@/sources/registry";
 import { telegramService } from "@/lib/services/telegramService";
 import { JobRepository } from "@/lib/repositories/jobRepository";
 
-export const runtime = "edge";
-
+export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   // MED-001: Strictly enforce cron secret. Never allow unauthenticated access.
   const authHeader = request.headers.get("authorization");

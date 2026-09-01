@@ -3,7 +3,6 @@ import { JobRepository } from "@/lib/repositories/jobRepository";
 import { publicApiRateLimiter } from "@/lib/security/rateLimiter";
 import { sanitizeSearchQuery } from "@/lib/security/sanitize";
 
-export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
   // 1. Rate Limiting Check (Section 54, 110)

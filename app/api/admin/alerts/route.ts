@@ -3,7 +3,6 @@ import { AlertRepository } from "@/lib/repositories/alertRepository";
 import { CloudStorageService, StoredSubscriber } from "@/lib/services/cloudStorageService";
 import { verifyAdminSession } from "@/lib/services/adminAuth";
 
-export const runtime = "edge";
 
 export async function GET(req: NextRequest) {
   const isAuthorized = await verifyAdminSession(req);

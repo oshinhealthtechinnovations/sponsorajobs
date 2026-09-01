@@ -6,7 +6,6 @@ import { JobRepository } from "@/lib/repositories/jobRepository";
 import { INITIAL_COUNTRIES } from "@/config/countries";
 import { INITIAL_CATEGORIES } from "@/config/categories";
 
-export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
   const isAuthorized = await verifyAdminSession(request);

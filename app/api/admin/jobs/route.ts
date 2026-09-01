@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/db/client";
 import { verifyAdminSession } from "@/lib/services/adminAuth";
 
-export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
   const isAuthorized = await verifyAdminSession(request);

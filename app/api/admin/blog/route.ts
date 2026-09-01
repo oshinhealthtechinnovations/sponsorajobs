@@ -3,7 +3,6 @@ import { blogRepository } from "@/lib/repositories/blogRepository";
 import { blogGenerator } from "@/lib/blog/generator";
 import { verifyAdminSession } from "@/lib/services/adminAuth";
 
-export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
   const isAuthorized = await verifyAdminSession(request);

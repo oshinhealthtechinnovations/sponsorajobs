@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSecret, isValidAdminSecret, ADMIN_COOKIE_CONFIG } from "@/lib/services/adminAuth";
 
-export const runtime = "edge";
 
 // In-memory rate limiting map for edge runtime: IP -> { attempts: number, resetAt: number }
 const loginRateLimitMap = new Map<string, { attempts: number; resetAt: number }>();

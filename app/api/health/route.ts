@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getDatabase } from "@/lib/db/client";
 import { SourceRegistry } from "@/sources/registry";
 
-export const runtime = "edge";
 
 /**
  * Production Health & Diagnostic Telemetry Endpoint

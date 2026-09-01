@@ -5,7 +5,6 @@ import { JobRepository } from "@/lib/repositories/jobRepository";
 import { CloudStorageService } from "@/lib/services/cloudStorageService";
 import { userRepository } from "@/lib/repositories/userRepository";
 
-export const runtime = "edge";
 
 export async function GET(req: NextRequest) {
   const isAuth = await verifyAdminSession(req);

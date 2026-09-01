@@ -5,7 +5,6 @@ import { getDatabase } from "@/lib/db/client";
 import { generateJobSlug } from "@/lib/seo/slugs";
 import { blogRepository } from "@/lib/repositories/blogRepository";
 
-export const runtime = "edge";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://sponsorajobs.com";

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { CountryRepository } from "@/lib/repositories/countryRepository";
 
-export const runtime = "edge";
 
 export async function GET() {
   const repo = new CountryRepository();

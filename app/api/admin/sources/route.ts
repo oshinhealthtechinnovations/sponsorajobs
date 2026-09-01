@@ -4,7 +4,6 @@ import { IngestionService } from "@/lib/services/ingestionService";
 import { SourceRegistry } from "@/sources/registry";
 import { verifyAdminSession } from "@/lib/services/adminAuth";
 
-export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
   const isAuthorized = await verifyAdminSession(request);

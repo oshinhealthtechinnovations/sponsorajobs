@@ -4,7 +4,6 @@ import sitemap from "@/app/sitemap";
 import { blogRepository } from "@/lib/repositories/blogRepository";
 import { JobRepository } from "@/lib/repositories/jobRepository";
 
-export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
   const isAuthorized = await verifyAdminSession(request);

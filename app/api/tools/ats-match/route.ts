@@ -3,7 +3,6 @@ import { analyzeResumeATS, matchResumeWithJobs } from "@/lib/services/atsScanner
 import { JobRepository } from "@/lib/repositories/jobRepository";
 import { publicApiRateLimiter } from "@/lib/security/rateLimiter";
 
-export const runtime = "edge";
 
 export async function POST(req: NextRequest) {
   const isDev = process.env.NODE_ENV !== "production";

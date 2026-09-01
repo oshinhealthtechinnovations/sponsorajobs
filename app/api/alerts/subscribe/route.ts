@@ -7,7 +7,6 @@ import { CloudStorageService } from "@/lib/services/cloudStorageService";
 import { publicApiRateLimiter } from "@/lib/security/rateLimiter";
 import { telegramService } from "@/lib/services/telegramService";
 
-export const runtime = "edge";
 
 interface AlertSubscriptionPayload {
   email: string;

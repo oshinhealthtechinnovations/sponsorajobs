@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { blogGenerator } from "@/lib/blog/generator";
 
-export const runtime = "edge";
-
+export const dynamic = "force-dynamic";
 /**
  * Automated Cron Worker for Blog Post Publishing
  * Generates and publishes targeted SEO articles periodically

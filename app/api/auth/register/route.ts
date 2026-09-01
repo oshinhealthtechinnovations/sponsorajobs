@@ -3,7 +3,6 @@ import { userRepository } from "@/lib/repositories/userRepository";
 import { telegramService } from "@/lib/services/telegramService";
 import { authRateLimiter } from "@/lib/security/rateLimiter";
 
-export const runtime = "edge";
 
 export async function POST(request: NextRequest) {
   const isDev = process.env.NODE_ENV !== "production";

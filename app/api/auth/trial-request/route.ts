@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { userRepository } from "@/lib/repositories/userRepository";
 import { telegramService } from "@/lib/services/telegramService";
 
-export const runtime = "edge";
 
 export async function POST(request: NextRequest) {
   try {

@@ -4,8 +4,7 @@ import { JobRepository } from "@/lib/repositories/jobRepository";
 import { EmailService } from "@/lib/services/emailService";
 import { telegramService } from "@/lib/services/telegramService";
 
-export const runtime = "edge";
-
+export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   // 1. Verify cron secret or admin session for security
   const authHeader = req.headers.get("authorization");
