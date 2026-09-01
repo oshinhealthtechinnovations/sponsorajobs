@@ -167,5 +167,54 @@ describe("Candidate Email Verification & Application Tracker", () => {
       expect(quota.date).toBe(new Date().toISOString().split("T")[0]);
     });
   });
+
+  describe("4. Candidate Forgot & Reset Password Engine", () => {
+    const resetUserEmail = `reset_candidate_${Date.now()}@example.com`;
+
+    it("should process password reset request and update user password", async () => {
+      // 1. Create candidate user
+      const user = await userRepository.createUser({
+        name: "Reset Candidate",
+        email: resetUserEmail,
+        password: "OldPassword123!",
+        profession: "Cloud Architect",
+        promoCode: "sumit_raj_linkedin",
+      });
+
+      expect(user).toBeDefined();
+
+      // 2. Request password reset
+      const { resetCode, resetToken } = await userRepository.createPasswordResetRequest(resetUserEmail);
+      expect(resetCode).toBeDefined();
+      expect(resetCode.length).toBe(6);
+      expect(/^\d{6}$/.test(resetCode)).toBe(true);
+      expect(resetToken).toBeDefined();
+
+      // 3. Reject invalid reset code
+      await expect(
+        userRepository.verifyAndResetPassword(resetUserEmail, "000000", "NewPassword456!", resetToken)
+      ).rejects.toThrow("Invalid 6-digit password reset code.");
+
+      // 4. Verify and reset with valid code
+      const updatedUser = await userRepository.verifyAndResetPassword(
+        resetUserEmail,
+        resetCode,
+        "NewPassword456!",
+        resetToken
+      );
+
+      expect(updatedUser).toBeDefined();
+
+      // 5. Authenticate with new password
+      const authenticated = await userRepository.authenticate(resetUserEmail, "NewPassword456!");
+      expect(authenticated).not.toBeNull();
+      expect(authenticated?.email).toBe(resetUserEmail);
+
+      // 6. Old password should fail
+      const oldAuth = await userRepository.authenticate(resetUserEmail, "OldPassword123!");
+      expect(oldAuth).toBeNull();
+    });
+  });
 });
+
 

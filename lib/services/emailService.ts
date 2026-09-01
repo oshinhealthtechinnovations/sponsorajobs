@@ -449,4 +449,101 @@ export class EmailService {
       provider: "simulated",
     };
   }
+
+  /**
+   * Send a 6-digit Candidate Password Reset OTP Code
+   */
+  async sendPasswordResetEmail(toEmail: string, code: string, name?: string): Promise<EmailDispatchResult> {
+    const messageId = `reset_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    const apiKey = this.getApiKey();
+
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Your Password - SponsorAJobs</title>
+</head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#f8fafc;margin:0;padding:24px 12px;color:#1e293b;">
+  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:540px;margin:0 auto;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.06);border:1px solid #e2e8f0;">
+    <tr>
+      <td style="background:linear-gradient(135deg,#dc2626 0%,#ea580c 50%,#f97316 100%);padding:28px;text-align:center;color:#ffffff;">
+        <h1 style="margin:0;font-size:22px;font-weight:800;">Password Reset Request</h1>
+        <p style="margin:6px 0 0 0;font-size:13px;color:#ffedd5;">SponsorAJobs Account Security</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:28px;text-align:center;">
+        <p style="font-size:14px;color:#475569;margin-bottom:20px;text-align:left;">
+          Hello ${name || "Candidate"},<br><br>
+          We received a request to reset your SponsorAJobs account password. Use the following 6-digit verification code to choose a new password:
+        </p>
+
+        <div style="background:#fef2f2;border:2px dashed #ef4444;border-radius:12px;padding:18px;margin:24px 0;display:inline-block;">
+          <span style="font-size:32px;font-weight:900;letter-spacing:6px;color:#b91c1c;font-family:monospace;">
+            ${code}
+          </span>
+        </div>
+
+        <p style="font-size:12px;color:#94a3b8;margin-top:16px;">
+          This code will expire in 15 minutes. If you did not request a password reset, you can safely ignore this email — your account remains secure.
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `;
+
+    // 1. Primary: Resend API (if daily quota < 100)
+    if (apiKey && this.canUseResend()) {
+      try {
+        const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <auth@sponsorajobs.com>";
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            from: fromEmail,
+            to: [toEmail],
+            subject: `Your SponsorAJobs Password Reset Code is ${code}`,
+            html,
+          }),
+        });
+
+        if (res.ok) {
+          const data = (await res.json()) as { id?: string };
+          const used = incrementDailyCount();
+          return {
+            success: true,
+            messageId: data.id || messageId,
+            provider: "resend",
+            quotaRemaining: Math.max(0, RESEND_DAILY_LIMIT - used),
+          };
+        } else {
+          const errText = await res.text();
+          console.warn("[EmailService:Reset] Resend non-200 response, switching to Gmail SMTP:", errText);
+        }
+      } catch (err) {
+        console.error("[EmailService:Reset] Error dispatching password reset code via Resend:", err);
+      }
+    }
+
+    // 2. Direct SMTP Relay Fallback (Gmail SMTP)
+    const smtpResult = await this.sendMailViaSmtp(toEmail, `Your SponsorAJobs Password Reset Code is ${code}`, html);
+    if (smtpResult) {
+      return smtpResult;
+    }
+
+    // 3. Fallback
+    console.log(`[EmailService:Reset] Password reset code for ${toEmail}: ${code}`);
+    return {
+      success: true,
+      messageId,
+      provider: "simulated",
+    };
+  }
 }

@@ -1,6 +1,6 @@
 /**
  * User & Free Trial Request Repository
- * Handles user authentication, referral code validation (sumit_raj_linkedin), email OTP verification, and trial requests.
+ * Handles user authentication, referral code validation (sumit_raj_linkedin), email OTP verification, trial requests, Supabase database persistence, and Forgot/Reset Password workflows.
  */
 
 export interface UserAccount {
@@ -15,6 +15,8 @@ export interface UserAccount {
   isEmailVerified: boolean;
   verificationCode?: string;
   verificationCodeExpires?: string;
+  resetCode?: string;
+  resetCodeExpires?: string;
   createdAt: string;
   lastLoginAt: string;
 }
@@ -29,6 +31,12 @@ export interface PendingRegistration {
   expiresAt: string;
 }
 
+export interface PendingPasswordReset {
+  email: string;
+  resetCode: string;
+  expiresAt: string;
+}
+
 export interface TrialAccessRequest {
   id: string;
   name: string;
@@ -38,9 +46,10 @@ export interface TrialAccessRequest {
   createdAt: string;
 }
 
-// In-memory stores
+// In-memory stores (Fast local cache)
 let inMemoryUsers: UserAccount[] = [];
 let inMemoryPendingRegistrations: Map<string, PendingRegistration> = new Map();
+let inMemoryPendingResets: Map<string, PendingPasswordReset> = new Map();
 let inMemoryTrialRequests: TrialAccessRequest[] = [];
 
 export const VALID_PROMO_CODES = ["sumit_raj_linkedin"];
@@ -48,7 +57,7 @@ export const VALID_PROMO_CODES = ["sumit_raj_linkedin"];
 /**
  * Hash a password using SHA-256 via SubtleCrypto (edge-runtime compatible, zero dependencies).
  */
-async function hashPassword(password: string): Promise<string> {
+export async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
@@ -57,7 +66,7 @@ async function hashPassword(password: string): Promise<string> {
     .join("");
 }
 
-async function createPendingToken(data: PendingRegistration): Promise<string> {
+export async function createPendingToken(data: PendingRegistration): Promise<string> {
   const payload = JSON.stringify(data);
   const secret = process.env.ADMIN_SECRET || "sponsorajobs_secure_auth_secret_key_2026";
   const encoder = new TextEncoder();
@@ -77,7 +86,7 @@ async function createPendingToken(data: PendingRegistration): Promise<string> {
   return `${payloadB64}.${sigHex}`;
 }
 
-async function verifyPendingToken(tokenStr?: string | null): Promise<PendingRegistration | null> {
+export async function verifyPendingToken(tokenStr?: string | null): Promise<PendingRegistration | null> {
   if (!tokenStr || !tokenStr.includes(".")) return null;
   try {
     const [payloadB64, sigHex] = tokenStr.split(".");
@@ -102,7 +111,155 @@ async function verifyPendingToken(tokenStr?: string | null): Promise<PendingRegi
   }
 }
 
+export async function createResetToken(data: PendingPasswordReset): Promise<string> {
+  const payload = JSON.stringify(data);
+  const secret = process.env.ADMIN_SECRET || "sponsorajobs_secure_auth_secret_key_2026";
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", cryptoKey, encoder.encode(payload));
+  const sigHex = Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  const payloadB64 = Buffer.from(payload).toString("base64url");
+  return `${payloadB64}.${sigHex}`;
+}
+
+export async function verifyResetToken(tokenStr?: string | null): Promise<PendingPasswordReset | null> {
+  if (!tokenStr || !tokenStr.includes(".")) return null;
+  try {
+    const [payloadB64, sigHex] = tokenStr.split(".");
+    if (!payloadB64 || !sigHex) return null;
+    const payload = Buffer.from(payloadB64, "base64url").toString("utf-8");
+    const secret = process.env.ADMIN_SECRET || "sponsorajobs_secure_auth_secret_key_2026";
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(secret);
+    const cryptoKey = await crypto.subtle.importKey(
+      "raw",
+      keyData,
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["verify"]
+    );
+    const sigBytes = new Uint8Array(sigHex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)));
+    const isValid = await crypto.subtle.verify("HMAC", cryptoKey, sigBytes, encoder.encode(payload));
+    if (!isValid) return null;
+    return JSON.parse(payload) as PendingPasswordReset;
+  } catch {
+    return null;
+  }
+}
+
 export class UserRepository {
+  /**
+   * Helper to sync a user record to Supabase Cloud Postgres database
+   */
+  private async syncUserToSupabase(user: UserAccount): Promise<boolean> {
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey =
+      process.env.SUPABASE_KEY ||
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.SUPABASE_ANON_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) return false;
+
+    try {
+      const res = await fetch(`${supabaseUrl}/rest/v1/candidate_users`, {
+        method: "POST",
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+          "Content-Type": "application/json",
+          Prefer: "resolution=merge-duplicates,return=minimal",
+        },
+        body: JSON.stringify({
+          id: user.id,
+          email: user.email.toLowerCase(),
+          name: user.name,
+          password_hash: user.passwordHash,
+          profession: user.profession,
+          promo_code: user.promoCodeUsed,
+          is_email_verified: user.isEmailVerified,
+          is_trial: user.isTrial,
+          is_active: user.isActive,
+          created_at: user.createdAt,
+          last_login_at: user.lastLoginAt,
+        }),
+      });
+
+      if (res.ok || res.status === 201) {
+        console.log(`[UserRepository:Supabase] User ${user.email} synced to Supabase.`);
+        return true;
+      } else {
+        // Fallback: check if table name is users
+        const errText = await res.text();
+        console.warn("[UserRepository:Supabase] Supabase sync returned status:", res.status, errText);
+      }
+    } catch (err) {
+      console.warn("[UserRepository:Supabase] Network error syncing user:", err);
+    }
+    return false;
+  }
+
+  /**
+   * Helper to fetch user from Supabase Cloud Postgres
+   */
+  private async findUserInSupabase(email: string): Promise<UserAccount | null> {
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey =
+      process.env.SUPABASE_KEY ||
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.SUPABASE_ANON_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) return null;
+
+    try {
+      const cleanEmail = encodeURIComponent(email.toLowerCase().trim());
+      const res = await fetch(`${supabaseUrl}/rest/v1/candidate_users?email=eq.${cleanEmail}&limit=1`, {
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+      });
+
+      if (res.ok) {
+        const rows = await res.json();
+        if (Array.isArray(rows) && rows.length > 0) {
+          const row = rows[0];
+          const user: UserAccount = {
+            id: row.id || `usr_${Date.now()}`,
+            name: row.name || "Candidate",
+            email: row.email,
+            passwordHash: row.password_hash || row.passwordHash || "",
+            profession: row.profession || "",
+            promoCodeUsed: row.promo_code || row.promoCodeUsed || "",
+            isTrial: Boolean(row.is_trial),
+            isActive: row.is_active ?? true,
+            isEmailVerified: Boolean(row.is_email_verified),
+            createdAt: row.created_at || new Date().toISOString(),
+            lastLoginAt: row.last_login_at || new Date().toISOString(),
+          };
+          // Cache in memory
+          if (!inMemoryUsers.some((u) => u.email.toLowerCase() === user.email.toLowerCase())) {
+            inMemoryUsers.unshift(user);
+          }
+          return user;
+        }
+      }
+    } catch (err) {
+      console.warn("[UserRepository:Supabase] Error reading from Supabase:", err);
+    }
+    return null;
+  }
+
   /**
    * Validate if the provided promo/referral code is valid
    */
@@ -118,12 +275,16 @@ export class UserRepository {
   }
 
   /**
-   * Find a user by email
+   * Find a user by email (Checks memory first, falls back to Supabase)
    */
   async findByEmail(email: string): Promise<UserAccount | null> {
     const cleanEmail = email.trim().toLowerCase();
-    const user = inMemoryUsers.find((u) => u.email.toLowerCase() === cleanEmail);
-    return user || null;
+    const localUser = inMemoryUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+    if (localUser) return localUser;
+
+    // Fallback to Supabase Cloud DB
+    const cloudUser = await this.findUserInSupabase(cleanEmail);
+    return cloudUser;
   }
 
   /**
@@ -191,11 +352,11 @@ export class UserRepository {
   }
 
   /**
-   * Verify the 6-digit OTP and activate the user account (works across serverless lambda instances)
+   * Verify the 6-digit OTP and activate the user account (syncs to Supabase Cloud)
    */
   async verifyAndCreateUser(email: string, otpCode: string, pendingToken?: string | null): Promise<UserAccount> {
     const cleanEmail = email.trim().toLowerCase();
-    
+
     // 1. Try resolving from stateless signed token first (serverless-resilient)
     let pending = await verifyPendingToken(pendingToken);
 
@@ -233,11 +394,14 @@ export class UserRepository {
     inMemoryUsers.unshift(newUser);
     inMemoryPendingRegistrations.delete(cleanEmail);
 
+    // Sync to Supabase Cloud Database asynchronously
+    this.syncUserToSupabase(newUser).catch(() => {});
+
     return newUser;
   }
 
   /**
-   * Direct registration (fallback / programmatic test helper)
+   * Direct registration helper
    */
   async createUser(data: {
     name: string;
@@ -269,7 +433,86 @@ export class UserRepository {
     };
 
     inMemoryUsers.unshift(newUser);
+    this.syncUserToSupabase(newUser).catch(() => {});
     return newUser;
+  }
+
+  /**
+   * Create a Password Reset Request & 6-digit OTP code
+   */
+  async createPasswordResetRequest(email: string): Promise<{
+    resetCode: string;
+    resetToken: string;
+    user: UserAccount;
+  }> {
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await this.findByEmail(cleanEmail);
+    if (!user) {
+      throw new Error("No account found with this email address.");
+    }
+
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+
+    const resetData: PendingPasswordReset = {
+      email: cleanEmail,
+      resetCode,
+      expiresAt,
+    };
+
+    inMemoryPendingResets.set(cleanEmail, resetData);
+    user.resetCode = resetCode;
+    user.resetCodeExpires = expiresAt;
+
+    const resetToken = await createResetToken(resetData);
+
+    return { resetCode, resetToken, user };
+  }
+
+  /**
+   * Verify Reset OTP and update user password
+   */
+  async verifyAndResetPassword(
+    email: string,
+    resetCode: string,
+    newPassword: string,
+    resetToken?: string | null
+  ): Promise<UserAccount> {
+    const cleanEmail = email.trim().toLowerCase();
+    let resetData = await verifyResetToken(resetToken);
+
+    if (!resetData) {
+      resetData = inMemoryPendingResets.get(cleanEmail) || null;
+    }
+
+    const user = await this.findByEmail(cleanEmail);
+    if (!user) {
+      throw new Error("User account not found.");
+    }
+
+    const expectedCode = resetData?.resetCode || user.resetCode;
+    const expiresAt = resetData?.expiresAt || user.resetCodeExpires;
+
+    if (!expectedCode || expectedCode !== resetCode.trim()) {
+      throw new Error("Invalid 6-digit password reset code.");
+    }
+
+    if (expiresAt && new Date(expiresAt) < new Date()) {
+      throw new Error("Password reset code has expired. Please request a new one.");
+    }
+
+    const newHashedPassword = await hashPassword(newPassword);
+    user.passwordHash = newHashedPassword;
+    user.resetCode = undefined;
+    user.resetCodeExpires = undefined;
+    user.lastLoginAt = new Date().toISOString();
+
+    inMemoryPendingResets.delete(cleanEmail);
+
+    // Sync updated password hash to Supabase
+    this.syncUserToSupabase(user).catch(() => {});
+
+    return user;
   }
 
   /**
@@ -315,30 +558,23 @@ export class UserRepository {
     user.isEmailVerified = true;
     user.verificationCode = undefined;
     user.verificationCodeExpires = undefined;
+
+    this.syncUserToSupabase(user).catch(() => {});
     return true;
   }
 
   /**
-   * Manually mark user email verified
-   */
-  async markVerified(email: string): Promise<boolean> {
-    const user = await this.findByEmail(email);
-    if (!user) return false;
-    user.isEmailVerified = true;
-    return true;
-  }
-
-  /**
-   * Authenticate user with email and password
+   * Authenticate user with email and password (Memory + Supabase)
    */
   async authenticate(email: string, password: string): Promise<UserAccount | null> {
     const cleanEmail = email.trim().toLowerCase();
-    const user = inMemoryUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+    const user = await this.findByEmail(cleanEmail);
     if (!user) return null;
     const hashedInput = await hashPassword(password);
     if (user.passwordHash !== hashedInput) return null;
 
     user.lastLoginAt = new Date().toISOString();
+    this.syncUserToSupabase(user).catch(() => {});
     return user;
   }
 
