@@ -228,4 +228,87 @@ export class EmailService {
       provider: "simulated",
     };
   }
+
+  /**
+   * Send a 6-digit Candidate Email Verification OTP Code
+   */
+  async sendVerificationCodeEmail(toEmail: string, code: string, name?: string): Promise<EmailDispatchResult> {
+    const messageId = `otp_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    const apiKey = process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY;
+
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Your Email - SponsorAJobs</title>
+</head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#f8fafc;margin:0;padding:24px 12px;color:#1e293b;">
+  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:540px;margin:0 auto;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.06);border:1px solid #e2e8f0;">
+    <tr>
+      <td style="background:linear-gradient(135deg,#0369a1 0%,#0284c7 50%,#0ea5e9 100%);padding:28px;text-align:center;color:#ffffff;">
+        <h1 style="margin:0;font-size:22px;font-weight:800;">Verify Your Email Address</h1>
+        <p style="margin:6px 0 0 0;font-size:13px;color:#e0f2fe;">SponsorAJobs Candidate Verification</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:28px;text-align:center;">
+        <p style="font-size:14px;color:#475569;margin-bottom:20px;text-align:left;">
+          Hello ${name || "Candidate"},<br><br>
+          Please use the following 6-digit verification code to confirm your email address and unlock your full Candidate Dashboard & Application Tracker:
+        </p>
+
+        <div style="background:#f1f5f9;border:2px dashed #0284c7;border-radius:12px;padding:18px;margin:24px 0;display:inline-block;">
+          <span style="font-size:32px;font-weight:900;letter-spacing:6px;color:#0369a1;font-family:monospace;">
+            ${code}
+          </span>
+        </div>
+
+        <p style="font-size:12px;color:#94a3b8;margin-top:16px;">
+          This code will expire in 15 minutes. If you did not request this verification, you can safely disregard this email.
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `;
+
+    if (apiKey) {
+      try {
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            from: process.env.EMAIL_FROM || "SponsorAJobs Verification <auth@sponsorajobs.com>",
+            to: [toEmail],
+            subject: `Your SponsorAJobs Verification Code is ${code}`,
+            html,
+          }),
+        });
+
+        if (res.ok) {
+          const data = (await res.json()) as { id?: string };
+          return {
+            success: true,
+            messageId: data.id || messageId,
+            provider: "resend",
+          };
+        }
+      } catch (err) {
+        console.error("[EmailService:Verify] Error dispatching verification code:", err);
+      }
+    }
+
+    console.log(`[EmailService:Verify] Verification code for ${toEmail}: ${code}`);
+    return {
+      success: true,
+      messageId,
+      provider: "simulated",
+    };
+  }
 }

@@ -12,6 +12,9 @@ export interface UserAccount {
   promoCodeUsed: string;
   isTrial: boolean;
   isActive: boolean;
+  isEmailVerified: boolean;
+  verificationCode?: string;
+  verificationCodeExpires?: string;
   createdAt: string;
   lastLoginAt: string;
 }
@@ -96,12 +99,70 @@ export class UserRepository {
       promoCodeUsed: data.promoCode.trim().toLowerCase(),
       isTrial: false,
       isActive: true,
+      isEmailVerified: false,
       createdAt: new Date().toISOString(),
       lastLoginAt: new Date().toISOString(),
     };
 
     inMemoryUsers.unshift(newUser);
     return newUser;
+  }
+
+  /**
+   * Find a user by ID
+   */
+  async findById(id: string): Promise<UserAccount | null> {
+    const user = inMemoryUsers.find((u) => u.id === id);
+    return user || null;
+  }
+
+  /**
+   * Generate a 6-digit OTP verification code for a user
+   */
+  async generateVerificationCode(email: string): Promise<string> {
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await this.findByEmail(cleanEmail);
+    if (!user) {
+      throw new Error("User account not found.");
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    user.verificationCode = code;
+    // Valid for 15 minutes
+    user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    return code;
+  }
+
+  /**
+   * Verify email using 6-digit OTP code
+   */
+  async verifyEmailCode(email: string, code: string): Promise<boolean> {
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await this.findByEmail(cleanEmail);
+    if (!user) return false;
+
+    if (!user.verificationCode || user.verificationCode !== code.trim()) {
+      return false;
+    }
+
+    if (user.verificationCodeExpires && new Date(user.verificationCodeExpires) < new Date()) {
+      return false; // expired
+    }
+
+    user.isEmailVerified = true;
+    user.verificationCode = undefined;
+    user.verificationCodeExpires = undefined;
+    return true;
+  }
+
+  /**
+   * Manually mark user email verified
+   */
+  async markVerified(email: string): Promise<boolean> {
+    const user = await this.findByEmail(email);
+    if (!user) return false;
+    user.isEmailVerified = true;
+    return true;
   }
 
   /**

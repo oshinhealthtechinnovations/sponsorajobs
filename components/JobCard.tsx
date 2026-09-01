@@ -61,6 +61,26 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
   const handleApplyClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Asynchronously log application to user tracker
+    try {
+      fetch("/api/user/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jobId: job.id,
+          jobTitle: job.title,
+          jobSlug: job.slug,
+          companyName: job.company.name,
+          companyLogo: job.company.logoUrl,
+          location: job.location.formatted || job.location.country,
+          salary: salary || null,
+          applyUrl: job.applyUrl,
+          status: "APPLIED",
+        }),
+      }).catch(() => {});
+    } catch {}
+
     window.open(job.applyUrl, "_blank", "noopener,noreferrer");
   };
 

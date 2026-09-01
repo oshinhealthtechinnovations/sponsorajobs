@@ -20,11 +20,12 @@ import { JobAlertModal } from "./JobAlertModal";
 
 // Primary navigation — Includes explicit Home + Jobs-First items
 const NAV_LINKS = [
-  { href: "/",          label: "Home",           icon: Home },
-  { href: "/jobs",      label: "Find Jobs",      icon: Search },
-  { href: "/companies", label: "Companies",       icon: Briefcase },
-  { href: "/countries", label: "Countries",       icon: Globe },
-  { href: "/blog",      label: "Career Guides",   icon: Compass },
+  { href: "/",          label: "Home",             icon: Home },
+  { href: "/jobs",      label: "Find Jobs",        icon: Search },
+  { href: "/dashboard", label: "My Applications",  icon: Briefcase },
+  { href: "/companies", label: "Companies",         icon: Briefcase },
+  { href: "/countries", label: "Countries",         icon: Globe },
+  { href: "/blog",      label: "Career Guides",     icon: Compass },
 ];
 
 export const Navbar: React.FC = () => {

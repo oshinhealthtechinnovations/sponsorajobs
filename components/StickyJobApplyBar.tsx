@@ -67,6 +67,22 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
   };
 
   const handleApply = () => {
+    try {
+      fetch("/api/user/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jobId,
+          jobTitle,
+          companyName,
+          location: locationFormatted,
+          salary: salaryFormatted !== "Competitive / Not disclosed" ? salaryFormatted : null,
+          applyUrl,
+          status: "APPLIED",
+        }),
+      }).catch(() => {});
+    } catch {}
+
     window.open(applyUrl, "_blank", "noopener,noreferrer");
   };
 
