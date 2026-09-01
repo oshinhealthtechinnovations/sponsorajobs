@@ -30,7 +30,6 @@ const NAV_LINKS = [
   { href: "/dashboard", label: "My Applications",  icon: Briefcase },
   { href: "/companies", label: "Companies",         icon: Briefcase },
   { href: "/countries", label: "Countries",         icon: Globe },
-  { href: "/blog",      label: "Career Guides",     icon: Compass },
 ];
 
 export const Navbar: React.FC = () => {
