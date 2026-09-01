@@ -81,7 +81,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: "A fresh 6-digit verification code has been dispatched to your email.",
-        otpPreview: dispatch.provider === "simulated" ? freshCode : undefined,
       });
     }
 
@@ -141,7 +140,6 @@ export async function POST(request: NextRequest) {
       },
       message: `A 6-digit verification code has been sent to ${email}.`,
       provider: dispatch.provider,
-      otpPreview: dispatch.provider === "simulated" ? generatedCode : undefined,
     });
   } catch (err: any) {
     return NextResponse.json(

@@ -38,7 +38,6 @@ export function AuthGateModal() {
   // Registration OTP State
   const [registerStep, setRegisterStep] = useState<"form" | "otp">("form");
   const [registerOtp, setRegisterOtp] = useState("");
-  const [previewOtp, setPreviewOtp] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
 
   // Status & Feedback
@@ -61,7 +60,6 @@ export function AuthGateModal() {
       setCelebrationData(null);
       setRegisterStep("form");
       setRegisterOtp("");
-      setPreviewOtp(null);
       if (e.detail?.redirectUrl) {
         setPendingUrl(e.detail.redirectUrl);
       }
@@ -107,9 +105,6 @@ export function AuthGateModal() {
       if (res.ok && data.success) {
         setRegisterStep("otp");
         setResendCooldown(60);
-        if (data.otpPreview) {
-          setPreviewOtp(data.otpPreview);
-        }
         setSuccessMsg(`📧 6-digit verification code sent to ${email}!`);
       } else {
         setErrorMsg(data.error || "Registration failed. Please check your information.");
@@ -187,9 +182,6 @@ export function AuthGateModal() {
       if (res.ok && data.success) {
         setSuccessMsg(`🚀 Fresh 6-digit verification code sent to ${email}!`);
         setResendCooldown(60);
-        if (data.otpPreview) {
-          setPreviewOtp(data.otpPreview);
-        }
       } else {
         setErrorMsg(data.error || "Failed to resend code.");
       }
@@ -578,21 +570,6 @@ export function AuthGateModal() {
                     onChange={(e) => setRegisterOtp(e.target.value.replace(/[^0-9]/g, ""))}
                     className="w-48 text-center tracking-[10px] text-3xl font-black py-3 rounded-2xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-brand-500 mx-auto block shadow-inner"
                   />
-
-                  {previewOtp && (
-                    <div className="p-2.5 rounded-xl bg-brand-500/10 border border-brand-500/30 text-xs text-brand-300 flex items-center justify-between gap-2 max-w-xs mx-auto animate-fade-in">
-                      <span>🔑 OTP: <strong className="font-mono text-white text-sm tracking-widest">{previewOtp}</strong></span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setRegisterOtp(previewOtp);
-                        }}
-                        className="px-2.5 py-1 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-bold text-[11px] cursor-pointer shadow-xs"
-                      >
-                        Auto-Fill
-                      </button>
-                    </div>
-                  )}
                 </div>
 
                 <div className="flex items-center justify-center gap-4 text-xs">
