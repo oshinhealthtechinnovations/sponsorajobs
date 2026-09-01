@@ -32,13 +32,20 @@ export default function SavedJobsPage() {
           return;
         }
 
-        // Fetch all jobs to match saved IDs
-        const res = await fetch("/api/jobs?limit=100");
+        // Fetch exact saved jobs by IDs
+        const res = await fetch(`/api/jobs?ids=${encodeURIComponent(ids.join(","))}`);
         const data = await res.json();
-        const allJobs: PublicJobDTO[] = data.jobs || [];
+        const matched: PublicJobDTO[] = data.jobs || [];
 
-        const matched = allJobs.filter((j) => ids.includes(j.id));
-        setSavedJobs(matched);
+        // If direct IDs returned results, set them; else fallback to full search
+        if (matched.length > 0) {
+          setSavedJobs(matched);
+        } else {
+          const fallbackRes = await fetch("/api/jobs?limit=50");
+          const fallbackData = await fallbackRes.json();
+          const fallbackJobs: PublicJobDTO[] = fallbackData.jobs || [];
+          setSavedJobs(fallbackJobs.filter((j) => ids.includes(j.id) || ids.includes(j.slug)));
+        }
       } catch (err) {
         console.error("Failed to load saved jobs:", err);
       } finally {

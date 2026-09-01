@@ -24,6 +24,21 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
 
+  // Direct ID lookup support for Saved Jobs
+  const rawIds = searchParams.get("ids");
+  if (rawIds) {
+    const idList = rawIds.split(",").map((s) => s.trim()).filter(Boolean);
+    const jobRepo = new JobRepository();
+    const jobs = await jobRepo.findByIds(idList);
+    return NextResponse.json({
+      jobs,
+      total: jobs.length,
+      page: 1,
+      limit: jobs.length,
+      totalPages: 1,
+    });
+  }
+
   const rawQ = searchParams.get("q") || undefined;
   const q = rawQ ? sanitizeSearchQuery(rawQ) : undefined;
   const country = searchParams.get("country") || undefined;

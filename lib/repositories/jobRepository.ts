@@ -569,6 +569,27 @@ export class JobRepository {
     return res.jobs;
   }
 
+  async findByIds(ids: string[]): Promise<PublicJobDTO[]> {
+    if (!ids || ids.length === 0) return [];
+    const results: PublicJobDTO[] = [];
+    const seen = new Set<string>();
+
+    for (const id of ids) {
+      if (!id || seen.has(id)) continue;
+      let job = await this.getById(id);
+      if (!job) {
+        const slugResult = await this.getBySlug(id);
+        if (slugResult) job = slugResult.job;
+      }
+      if (job && !seen.has(job.id)) {
+        seen.add(job.id);
+        seen.add(id);
+        results.push(job);
+      }
+    }
+    return results;
+  }
+
   async getTotalActiveJobCount(): Promise<number> {
     const row = await this.db
       .prepare("SELECT COUNT(*) as total FROM jobs WHERE status = 'active'")
