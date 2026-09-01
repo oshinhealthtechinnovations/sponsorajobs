@@ -226,151 +226,70 @@ export default function AdminAlertsPage() {
         </div>
       </div>
 
-      {/* ── Telegram Real-Time Activity & Operational Timeline Hub ── */}
+      {/* ── Supabase Live Real-Time Cloud Database Hub ── */}
       <div className="p-5 sm:p-6 rounded-3xl bg-slate-950 border border-slate-800 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20 text-xs font-bold uppercase tracking-wider mb-2">
-              <Send className="w-3.5 h-3.5" />
-              <span>Telegram Real-Time Alerts & Timeline</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold uppercase tracking-wider mb-2">
+              <Database className="w-3.5 h-3.5" />
+              <span>Supabase Cloud Database &bull; Connected</span>
             </div>
-            <h2 className="text-xl font-bold text-white tracking-tight">Telegram Bot Real-Time Notification Center</h2>
+            <h2 className="text-xl font-bold text-white tracking-tight">Supabase Real-Time Subscriber Sync Hub</h2>
             <p className="text-xs text-slate-400 mt-1">
-              Receive instant alerts for every new user registration (`sumit_raj_linkedin`), free trial request, subscriber join, and automated cron timeline execution.
+              Synchronizing with table <code className="text-emerald-300 font-mono">job_alerts</code> in project <strong className="text-slate-200">oshinhealthtechinnovations's Project</strong>.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
             <button
-              onClick={async () => {
-                try {
-                  const res = await fetch("/api/admin/telegram", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "test" }),
-                  });
-                  const data = await res.json();
-                  alert(data.message || data.error);
-                } catch (e: any) {
-                  alert("Error: " + e.message);
-                }
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-sky-400 hover:text-sky-300 font-bold text-xs border border-sky-500/30 transition-all cursor-pointer"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>Send Test Telegram Alert</span>
-            </button>
-
-            <button
-              onClick={async () => {
-                try {
-                  const res = await fetch("/api/admin/telegram", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "broadcast_jobs" }),
-                  });
-                  const data = await res.json();
-                  alert(data.message || data.error);
-                } catch (e: any) {
-                  alert("Error: " + e.message);
-                }
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-bold text-xs border border-amber-500/30 transition-all cursor-pointer"
-            >
-              <span>🌟</span>
-              <span>Broadcast Daily Jobs Drop</span>
-            </button>
-
-            <button
-              onClick={async () => {
-                try {
-                  const res = await fetch("/api/admin/telegram", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "timeline" }),
-                  });
-                  const data = await res.json();
-                  alert(data.message || data.error);
-                } catch (e: any) {
-                  alert("Error: " + e.message);
-                }
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-brand-600 hover:from-sky-500 hover:to-brand-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+              onClick={() => fetchSubscribers()}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-emerald-400 hover:text-emerald-300 font-bold text-xs border border-emerald-500/30 transition-all cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Dispatch Timeline Report (Completed vs Pending)</span>
+              <span>Sync from Supabase</span>
             </button>
+
+            <a
+              href="https://supabase.com/dashboard/projects"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Open Supabase Dashboard</span>
+            </a>
           </div>
         </div>
 
-        {/* Telegram Automated Events Matrix */}
+        {/* Supabase Active Connection Matrix */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
           <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs space-y-1">
-            <span className="font-bold text-amber-300 flex items-center gap-1.5">
-              <span>🎟️</span>
-              <span>Candidate Registrations</span>
-            </span>
-            <p className="text-[11px] text-slate-400">
-              Instantly notifies with Name, Profession, Email, and verified invite promo code.
-            </p>
-          </div>
-
-          <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs space-y-1">
             <span className="font-bold text-emerald-300 flex items-center gap-1.5">
-              <span>🎁</span>
-              <span>Free Trial Leads</span>
+              <span>⚡</span>
+              <span>Live REST API</span>
             </span>
             <p className="text-[11px] text-slate-400">
-              Alerts you in real time with candidate details to approve or message on LinkedIn.
+              Direct HTTPS REST integration active with zero connection latency.
             </p>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs space-y-1">
             <span className="font-bold text-sky-300 flex items-center gap-1.5">
-              <span>🤖</span>
-              <span>Daily Cron Timeline</span>
+              <span>📑</span>
+              <span>Table Schema</span>
             </span>
             <p className="text-[11px] text-slate-400">
-              Sends daily status at 02:00 UTC (Ingestion), 08:00 UTC (Alerts), & Bi-weekly SEO blogs.
+              Auto-maps <code className="text-sky-300 font-mono">id, email, keyword, country_code, created_at</code>.
             </p>
           </div>
-        </div>
 
-        {/* Telegram Setup Quick Instructions */}
-        <div className="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/80 text-xs text-slate-400 space-y-1.5">
-          <p className="font-semibold text-slate-300">
-            💡 How to connect your Telegram Bot (Takes 1 minute):
-          </p>
-          <p>
-            1. Open Telegram, search for <strong>@BotFather</strong>, send <code>/newbot</code>, and copy your <strong>HTTP API Token</strong>.<br/>
-            2. Send a message to <strong>@userinfobot</strong> to get your numerical <strong>Chat ID</strong>.<br/>
-            3. Add <code>TELEGRAM_BOT_TOKEN</code> and <code>TELEGRAM_CHAT_ID</code> to your <strong>Vercel Project Environment Variables</strong>.
-          </p>
-        </div>
-      </div>
-
-      {/* ── Free Cloud Database Setup Instructions Card ── */}
-      <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
-        <div className="flex items-center gap-2.5 text-sm font-bold text-white">
-          <Database className="w-4 h-4 text-sky-400" />
-          <span>Free Database Storage Integration</span>
-        </div>
-        <p className="text-xs text-slate-400 leading-relaxed">
-          Your app supports 100% free serverless databases out of the box with zero credit card required:
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-          <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-1.5">
-            <span className="font-bold text-slate-200">Option 1: Upstash Redis (Recommended - 10,000 req/day Free)</span>
-            <p className="text-slate-400">
-              1. Create a free database at <a href="https://upstash.com" target="_blank" className="text-brand-400 underline">upstash.com</a>.<br/>
-              2. Add <code className="text-sky-300">UPSTASH_REDIS_REST_URL</code> and <code className="text-sky-300">UPSTASH_REDIS_REST_TOKEN</code> to your Vercel Environment Variables.
-            </p>
-          </div>
-          <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-1.5">
-            <span className="font-bold text-slate-200">Option 2: Supabase (Free Postgres DB)</span>
-            <p className="text-slate-400">
-              1. Create a free project at <a href="https://supabase.com" target="_blank" className="text-brand-400 underline">supabase.com</a>.<br/>
-              2. Add <code className="text-emerald-300">SUPABASE_URL</code> and <code className="text-emerald-300">SUPABASE_KEY</code> to your Vercel Environment Variables.
+          <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs space-y-1">
+            <span className="font-bold text-purple-300 flex items-center gap-1.5">
+              <span>🛡️</span>
+              <span>Zero Data Loss</span>
+            </span>
+            <p className="text-[11px] text-slate-400">
+              Dual-persists to Cloud Supabase + Local Memory for instant retrieval.
             </p>
           </div>
         </div>
