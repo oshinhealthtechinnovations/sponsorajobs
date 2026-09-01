@@ -78,10 +78,10 @@ const EMPLOYEES: Employee[] = [
       "Monitoring programmatic sitemaps and direct crawler indexing queues",
     ],
     directTools: [
-      { name: "7-Day SEO Command Center", href: "/employers", iconName: "Sparkles" },
-      { name: "AI SEO Advisor (Sumit Raj AI)", href: "/employers?tab=advisor", iconName: "MessageSquare" },
-      { name: "IndexNow Fast Crawler Pinger", href: "/employers?tab=indexnow", iconName: "Zap" },
-      { name: "Global SEO & Structured Data Audit", href: "/admin/seo", iconName: "Globe" },
+      { name: "SEO & Structured Data Audit", href: "/admin/seo", iconName: "Globe" },
+      { name: "Live Job Management & Posting", href: "/admin/jobs", iconName: "Briefcase" },
+      { name: "Realtime Ingestion & Crawler Runs", href: "/admin/runs", iconName: "Clock" },
+      { name: "Source Adapters & Feeds", href: "/admin/sources", iconName: "Radio" },
     ],
   },
   {
@@ -161,11 +161,11 @@ export default function AdminEmployeesPage() {
         </div>
 
         <Link
-          href="/employers"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold transition-all shadow-lg shadow-amber-500/20 cursor-pointer shrink-0 self-start sm:self-auto"
+          href="/admin/seo"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 text-xs font-bold transition-all shadow-lg shadow-emerald-500/20 cursor-pointer shrink-0 self-start sm:self-auto"
         >
-          <Sparkles className="w-4 h-4" />
-          <span>Launch 7-Day SEO Hub</span>
+          <Globe className="w-4 h-4" />
+          <span>SEO & Indexing Command</span>
         </Link>
       </div>
 

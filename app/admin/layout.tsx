@@ -103,19 +103,6 @@ export default function AdminLayout({
             </Link>
 
             <Link
-              href="/employers"
-              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-amber-300 bg-amber-950/40 border border-amber-800/60 hover:bg-amber-900/60 hover:text-amber-200 transition-colors my-2"
-            >
-              <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-[10px] shrink-0 border border-amber-500/30">
-                SR
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-amber-300">Employer & SEO Hub</span>
-                <span className="text-[9px] text-amber-400/90 font-medium">Chief SEO: Sumit Raj</span>
-              </div>
-            </Link>
-
-            <Link
               href="/admin/runs"
               className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
             >
