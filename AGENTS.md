@@ -9,7 +9,9 @@ Whenever any changes, fixes, or additions are made to the codebase:
 ## Email & Domain Configuration (Permanent Memory)
 - **Domain:** `sponsorajobs.com`
 - **DNS Provider:** DirectAdmin Hosting (`benz.herosite.pro`)
-- **Transactional Email Service:** Resend (`api.resend.com`)
-- **Sender Address:** `SponsorAJobs <auth@sponsorajobs.com>` / `alerts@sponsorajobs.com`
+- **Transactional Email Service:** Resend (`api.resend.com`) & Gmail SMTP Relay (`smtp.gmail.com:465`)
+- **Sender Address:** `SponsorAJobs <auth@sponsorajobs.com>` / `oshinhealthtechinnovations@gmail.com`
 - **Authentication:** Stateless HMAC-SHA256 `pendingToken` for seamless serverless candidate OTP verification.
+- **AI Campaign API:** OpenRouter configured (`OPENROUTER_API_KEY`).
 - **Telegram:** Telegram integrations are completely disabled across the platform.
+

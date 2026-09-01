@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer";
 import { PublicJobDTO } from "../types/job";
 
 export interface SendWelcomeAlertEmailParams {
@@ -27,6 +28,47 @@ export class EmailService {
     if (process.env.RESEND_API_KEY) return process.env.RESEND_API_KEY;
     if (process.env.EMAIL_API_KEY) return process.env.EMAIL_API_KEY;
     return Buffer.from("cmVfSjRTV1Y5akZfRkJyQmJaTERyenlVd0RmOVhIaktkZEU1", "base64").toString("utf-8");
+  }
+
+  /**
+   * Helper to dispatch email via direct SMTP Relay (Gmail SMTP)
+   */
+  private async sendMailViaSmtp(toEmail: string, subject: string, html: string): Promise<EmailDispatchResult | null> {
+    const host = process.env.SMTP_HOST || "smtp.gmail.com";
+    const port = parseInt(process.env.SMTP_PORT || "465", 10);
+    const user = process.env.SMTP_USER || "oshinhealthtechinnovations@gmail.com";
+    const pass = process.env.SMTP_PASS || "kltldstgpmpvhdnm";
+
+    if (!user || !pass) return null;
+
+    try {
+      const transporter = nodemailer.createTransport({
+        host,
+        port,
+        secure: port === 465,
+        auth: {
+          user,
+          pass,
+        },
+      });
+
+      const info = await transporter.sendMail({
+        from: `"SponsorAJobs" <${user}>`,
+        to: toEmail,
+        subject,
+        html,
+      });
+
+      console.log(`[EmailService:SMTP] Successfully dispatched email to ${toEmail} (ID: ${info.messageId})`);
+      return {
+        success: true,
+        messageId: info.messageId || `smtp_${Date.now()}`,
+        provider: "smtp",
+      };
+    } catch (err) {
+      console.error("[EmailService:SMTP] Error dispatching email via SMTP:", err);
+      return null;
+    }
   }
 
   /**
@@ -182,8 +224,13 @@ export class EmailService {
       }
     }
 
-    // 2. Safe Fallback Provider (Dev / Test / Zero-Config mode)
-    // Logs the full email dispatch so nothing fails silently and users can verify the email
+    // 2. Direct SMTP Relay Fallback (Gmail SMTP)
+    const smtpResult = await this.sendMailViaSmtp(params.toEmail, "Your Visa Sponsorship Job Alerts Are Active 🚀", html);
+    if (smtpResult) {
+      return smtpResult;
+    }
+
+    // 3. Safe Fallback Provider (Dev / Test / Zero-Config mode)
     return {
       success: true,
       messageId,
@@ -227,6 +274,12 @@ export class EmailService {
       } catch (err) {
         console.error("[EmailService:Digest] Failed to dispatch via Resend:", err);
       }
+    }
+
+    // 2. Direct SMTP Relay Fallback
+    const smtpResult = await this.sendMailViaSmtp(params.toEmail, `New Visa Sponsorship Jobs Matching "${params.keyword || "Your Preferences"}" 🚀`, html);
+    if (smtpResult) {
+      return smtpResult;
     }
 
     console.log(`[EmailService:Digest] Digest sent to ${params.toEmail} with ${params.sampleJobs?.length || 0} matched jobs.`);
@@ -283,6 +336,7 @@ export class EmailService {
 </html>
     `;
 
+    // 1. Try Resend API first
     if (apiKey) {
       try {
         const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs <auth@sponsorajobs.com>";
@@ -312,10 +366,17 @@ export class EmailService {
           console.warn("[EmailService:Verify] Resend non-200 response:", errText);
         }
       } catch (err) {
-        console.error("[EmailService:Verify] Error dispatching verification code:", err);
+        console.error("[EmailService:Verify] Error dispatching verification code via Resend:", err);
       }
     }
 
+    // 2. Direct SMTP Relay Fallback (Gmail SMTP)
+    const smtpResult = await this.sendMailViaSmtp(toEmail, `Your SponsorAJobs Verification Code is ${code}`, html);
+    if (smtpResult) {
+      return smtpResult;
+    }
+
+    // 3. Fallback
     console.log(`[EmailService:Verify] Verification code for ${toEmail}: ${code}`);
     return {
       success: true,
