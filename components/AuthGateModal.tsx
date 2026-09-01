@@ -238,10 +238,20 @@ export function AuthGateModal() {
     setSuccessMsg(null);
 
     try {
+      let clientFallback = null;
+      try {
+        const stored = localStorage.getItem("sa_user");
+        if (stored) clientFallback = JSON.parse(stored);
+      } catch {}
+
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+          clientAccountFallback: clientFallback,
+        }),
       });
 
       const data = await res.json();
@@ -259,7 +269,7 @@ export function AuthGateModal() {
             window.open(pendingUrl, "_blank");
             setPendingUrl(null);
           }
-        }, 1000);
+        }, 800);
       } else {
         setErrorMsg(data.error || "Invalid credentials.");
       }

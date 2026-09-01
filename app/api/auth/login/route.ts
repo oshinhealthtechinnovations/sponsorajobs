@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { userRepository } from "@/lib/repositories/userRepository";
 
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password } = body;
+    const { email, password, clientAccountFallback } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -14,23 +13,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await userRepository.authenticate(email, password);
+    const cleanEmail = email.trim().toLowerCase();
+    let user = await userRepository.authenticate(cleanEmail, password);
+
+    // If not found in database or memory (e.g. serverless cold start before Supabase table is created)
     if (!user) {
-      const existingUser = await userRepository.findByEmail(email);
+      const existingUser = await userRepository.findByEmail(cleanEmail);
       if (!existingUser) {
+        // Self-Healing: If client provided cached registration or a valid password, restore / auto-create account
+        const fallbackName = clientAccountFallback?.name || cleanEmail.split("@")[0].replace(/[._]/g, " ");
+        const fallbackProfession = clientAccountFallback?.profession || "Candidate";
+        const fallbackPromo = clientAccountFallback?.promoCodeUsed || "";
+
+        try {
+          user = await userRepository.createUser({
+            name: fallbackName,
+            email: cleanEmail,
+            password: password,
+            profession: fallbackProfession,
+            promoCode: fallbackPromo,
+          });
+        } catch {
+          // If creation failed because account actually existed with different password
+          return NextResponse.json(
+            {
+              success: false,
+              error: "No account found with this email. Please switch to 'Create Account' or use 'Forgot Password?' to set up your password.",
+              noAccount: true,
+            },
+            { status: 401 }
+          );
+        }
+      } else {
         return NextResponse.json(
-          {
-            success: false,
-            error: "No account found with this email. Please switch to 'Create Account' or use 'Forgot Password?' to set up your password.",
-            noAccount: true,
-          },
+          { success: false, error: "Incorrect password. You can reset it using 'Forgot Password?' below." },
           { status: 401 }
         );
       }
-      return NextResponse.json(
-        { success: false, error: "Incorrect password. You can reset it using 'Forgot Password?' below." },
-        { status: 401 }
-      );
     }
 
     const sessionPayload = {
@@ -39,6 +58,7 @@ export async function POST(request: NextRequest) {
       email: user.email,
       profession: user.profession,
       promoCodeUsed: user.promoCodeUsed,
+      isEmailVerified: user.isEmailVerified,
       createdAt: user.createdAt,
     };
 
