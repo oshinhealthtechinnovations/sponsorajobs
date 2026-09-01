@@ -25,7 +25,7 @@ import {
 
 export function AuthGateModal() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"register" | "trial" | "login">("register");
+  const [activeTab, setActiveTab] = useState<"register" | "login">("register");
   const [pendingUrl, setPendingUrl] = useState<string | null>(null);
 
   // Form Fields
@@ -62,7 +62,7 @@ export function AuthGateModal() {
   } | null>(null);
 
   useEffect(() => {
-    const handleOpenAuth = (e: CustomEvent<{ redirectUrl?: string; defaultTab?: "register" | "trial" | "login" }>) => {
+    const handleOpenAuth = (e: CustomEvent<{ redirectUrl?: string; defaultTab?: "register" | "login" }>) => {
       setErrorMsg(null);
       setSuccessMsg(null);
       setCelebrationData(null);
@@ -70,6 +70,7 @@ export function AuthGateModal() {
       setRegisterOtp("");
       setPendingToken(null);
       setPreviewOtp(null);
+      setForgotStep("closed");
       if (e.detail?.redirectUrl) {
         setPendingUrl(e.detail.redirectUrl);
       }
@@ -354,33 +355,6 @@ export function AuthGateModal() {
     }
   };
 
-  const handleTrialRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMsg(null);
-    setSuccessMsg(null);
-
-    try {
-      const res = await fetch("/api/auth/trial-request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, profession, email }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        setSuccessMsg("✅ Your Free Trial Request has been submitted! Our team will activate your access shortly.");
-      } else {
-        setErrorMsg(data.error || "Failed to submit trial request.");
-      }
-    } catch (err: any) {
-      setErrorMsg(err.message || "Network error.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const proceedWithApplication = () => {
     setIsOpen(false);
     if (pendingUrl) {
@@ -485,8 +459,10 @@ export function AuthGateModal() {
                   ? registerStep === "otp"
                     ? "Verify Your Email Address"
                     : "Create Candidate Account"
-                  : activeTab === "trial"
-                  ? "Request Free Trial Access"
+                  : forgotStep === "email"
+                  ? "Reset Your Password"
+                  : forgotStep === "otp"
+                  ? "Create New Password"
                   : "Sign In to Your Account"}
               </h2>
               <p className="text-xs text-slate-300 leading-relaxed">
@@ -494,8 +470,10 @@ export function AuthGateModal() {
                   ? registerStep === "otp"
                     ? `Enter the 6-digit code sent to ${email} to activate your account.`
                     : "Unlock direct job application links, application tracking, and verified employer sponsorship."
-                  : activeTab === "trial"
-                  ? "Submit your details for complimentary trial access to sponsor directories and application links."
+                  : forgotStep === "email"
+                  ? "Enter your account email to receive a 6-digit verification code."
+                  : forgotStep === "otp"
+                  ? `Enter the 6-digit code sent to ${email} and choose a new password.`
                   : "Access your saved jobs, personalized alerts, and verified sponsor listings."}
               </p>
             </div>
@@ -521,22 +499,8 @@ export function AuthGateModal() {
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveTab("trial");
-                    setErrorMsg(null);
-                    setSuccessMsg(null);
-                  }}
-                  className={`flex-1 py-2 px-3 rounded-xl transition-all text-center cursor-pointer ${
-                    activeTab === "trial"
-                      ? "bg-amber-600 text-white shadow-xs"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  Request Trial
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
                     setActiveTab("login");
+                    setForgotStep("closed");
                     setErrorMsg(null);
                     setSuccessMsg(null);
                   }}
@@ -757,65 +721,7 @@ export function AuthGateModal() {
               </div>
             )}
 
-            {/* ── TAB 2: REQUEST FREE TRIAL ACCESS ── */}
-            {activeTab === "trial" && (
-              <div className="space-y-4">
-                <form onSubmit={handleTrialRequest} className="space-y-3.5">
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Full Name <span className="text-rose-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g. Alex Johnson"
-                      className="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-brand-500"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Professional Discipline / Title <span className="text-rose-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={profession}
-                      onChange={(e) => setProfession(e.target.value)}
-                      placeholder="e.g. Data Scientist / Civil Engineer"
-                      className="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-brand-500"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Email Address <span className="text-rose-400">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your.email@example.com"
-                      className="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-brand-500"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  >
-                    <Send className="w-4 h-4" />
-                    <span>{loading ? "Submitting Request..." : "Request 7-Day Free Trial Access"}</span>
-                  </button>
-                </form>
-              </div>
-            )}
-
-            {/* ── TAB 3: SIGN IN OR FORGOT PASSWORD ── */}
+            {/* ── TAB 2: SIGN IN OR FORGOT PASSWORD ── */}
             {activeTab === "login" && forgotStep === "closed" && (
               <form onSubmit={handleLogin} className="space-y-3.5">
                 <div className="space-y-1">

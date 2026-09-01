@@ -84,7 +84,7 @@ export const Navbar: React.FC = () => {
     }
   };
 
-  const openAuth = (defaultTab: "register" | "trial" | "login" = "login") => {
+  const openAuth = (defaultTab: "register" | "login" = "login") => {
     window.dispatchEvent(new CustomEvent("open-auth-gate", { detail: { defaultTab } }));
   };
 
