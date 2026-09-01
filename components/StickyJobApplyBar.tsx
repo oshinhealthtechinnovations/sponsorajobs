@@ -84,6 +84,20 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
     } catch {}
 
     window.open(applyUrl, "_blank", "noopener,noreferrer");
+
+    // Trigger cross-verification prompt
+    window.dispatchEvent(
+      new CustomEvent("verify-job-application", {
+        detail: {
+          jobId,
+          jobTitle,
+          companyName,
+          location: locationFormatted,
+          salary: salaryFormatted !== "Competitive / Not disclosed" ? salaryFormatted : null,
+          applyUrl,
+        },
+      })
+    );
   };
 
   if (!isVisible) return null;

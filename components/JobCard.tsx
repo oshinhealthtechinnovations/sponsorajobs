@@ -109,7 +109,22 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
           }).catch(() => {});
         } catch {}
 
+        // Open career portal in new tab
         window.open(job.applyUrl, "_blank", "noopener,noreferrer");
+
+        // Trigger cross-verification prompt
+        window.dispatchEvent(
+          new CustomEvent("verify-job-application", {
+            detail: {
+              jobId: job.id,
+              jobTitle: job.title,
+              companyName: job.company.name,
+              location: job.location.formatted || job.location.country,
+              salary: salary || null,
+              applyUrl: job.applyUrl,
+            },
+          })
+        );
       },
       job.applyUrl
     );

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { SubscriberPopup } from "@/components/SubscriberPopup";
 import { AuthGateModal } from "@/components/AuthGateModal";
+import { AppliedVerificationModal } from "@/components/AppliedVerificationModal";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://sponsorajobs.com";
 
@@ -148,6 +149,7 @@ export default function RootLayout({
         {children}
         <SubscriberPopup />
         <AuthGateModal />
+        <AppliedVerificationModal />
       </body>
     </html>
   );

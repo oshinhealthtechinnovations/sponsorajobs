@@ -113,8 +113,36 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
 
   const handleApplyClick = (e: React.MouseEvent) => {
     e.preventDefault();
+
+    // Asynchronously log to application tracker
+    try {
+      fetch("/api/user/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jobId,
+          jobTitle,
+          companyName,
+          applyUrl,
+          status: "APPLIED",
+        }),
+      }).catch(() => {});
+    } catch {}
+
     // Direct free 1-click apply to official employer site
     window.open(applyUrl, "_blank", "noopener,noreferrer");
+
+    // Trigger cross-verification prompt
+    window.dispatchEvent(
+      new CustomEvent("verify-job-application", {
+        detail: {
+          jobId,
+          jobTitle,
+          companyName,
+          applyUrl,
+        },
+      })
+    );
   };
 
   return (
