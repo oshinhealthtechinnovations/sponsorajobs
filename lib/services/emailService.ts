@@ -693,6 +693,14 @@ export class EmailService {
       recentLogins: number;
       topSearchedTerms: string[];
     };
+    activeCandidateLogs?: {
+      name: string;
+      email: string;
+      profession?: string;
+      action: string;
+      time: string;
+      target?: string;
+    }[];
     suggestions: string[];
   }): Promise<EmailDispatchResult> {
     const messageId = `hourly_report_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
@@ -786,16 +794,41 @@ export class EmailService {
       </td>
     </tr>
 
-    <!-- Candidate & Visitor Activity -->
+    <!-- Candidate & Visitor Activity with Exact User Action Logs -->
     <tr>
       <td style="padding:24px 28px;background:#0a192f;border-bottom:1px solid rgba(255,255,255,0.06);">
         <h3 style="margin:0 0 16px 0;font-size:14px;font-weight:800;color:#38bdf8;text-transform:uppercase;letter-spacing:0.5px;">
-          🎯 3. Frontend Candidate & Visitor Actions
+          🎯 3. Active Candidate Accounts & Real-Time Actions Performed
         </h3>
+
+        ${
+          params.activeCandidateLogs && params.activeCandidateLogs.length > 0
+            ? `
+        <div style="margin-bottom:16px;">
+          ${params.activeCandidateLogs
+            .map(
+              (u) => `
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:12px;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <strong style="color:#ffffff;font-size:13px;">${u.name}</strong>
+              <span style="color:#94a3b8;font-size:11px;">${u.time}</span>
+            </div>
+            <div style="color:#38bdf8;font-size:11px;margin-top:2px;">📧 ${u.email} &middot; 💼 <em>${u.profession || "Candidate"}</em></div>
+            <div style="color:#10b981;font-size:12px;margin-top:4px;font-weight:600;">⚡ Action: ${u.action}</div>
+            ${u.target ? `<div style="color:#cbd5e1;font-size:11px;margin-top:2px;">🎯 Target: ${u.target}</div>` : ""}
+          </div>
+          `
+            )
+            .join("")}
+        </div>
+        `
+            : ""
+        }
+
         <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:#cbd5e1;">
-          <li><strong>Active Registered Candidates:</strong> ${params.userActivitySummary.totalActiveCandidates} users registered & verified via OTP</li>
-          <li><strong>Recent Applications / Apply Clicks:</strong> ${params.userActivitySummary.recentApplications} submissions logged in tracker</li>
-          <li><strong>Recent Candidate Logins / Sessions:</strong> ${params.userActivitySummary.recentLogins} active sessions verified</li>
+          <li><strong>Total Registered Candidates:</strong> ${params.userActivitySummary.totalActiveCandidates} users registered & verified via OTP</li>
+          <li><strong>Applications Logged:</strong> ${params.userActivitySummary.recentApplications} submissions recorded in tracker</li>
+          <li><strong>Candidate Logins / Active Sessions:</strong> ${params.userActivitySummary.recentLogins} active sessions verified</li>
           <li><strong>Trending Visa Search Topics:</strong> ${params.userActivitySummary.topSearchedTerms.join(", ")}</li>
         </ul>
       </td>
