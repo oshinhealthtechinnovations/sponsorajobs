@@ -39,6 +39,7 @@ export function AuthGateModal() {
   const [registerStep, setRegisterStep] = useState<"form" | "otp">("form");
   const [registerOtp, setRegisterOtp] = useState("");
   const [pendingToken, setPendingToken] = useState<string | null>(null);
+  const [previewOtp, setPreviewOtp] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
 
   // Status & Feedback
@@ -62,6 +63,7 @@ export function AuthGateModal() {
       setRegisterStep("form");
       setRegisterOtp("");
       setPendingToken(null);
+      setPreviewOtp(null);
       if (e.detail?.redirectUrl) {
         setPendingUrl(e.detail.redirectUrl);
       }
@@ -109,6 +111,11 @@ export function AuthGateModal() {
         setResendCooldown(60);
         if (data.pendingToken) {
           setPendingToken(data.pendingToken);
+        }
+        if (data.otpPreview) {
+          setPreviewOtp(data.otpPreview);
+        } else {
+          setPreviewOtp(null);
         }
         setSuccessMsg(`📧 6-digit verification code sent to ${email}!`);
       } else {
@@ -191,6 +198,11 @@ export function AuthGateModal() {
         setResendCooldown(60);
         if (data.pendingToken) {
           setPendingToken(data.pendingToken);
+        }
+        if (data.otpPreview) {
+          setPreviewOtp(data.otpPreview);
+        } else {
+          setPreviewOtp(null);
         }
       } else {
         setErrorMsg(data.error || "Failed to resend code.");
@@ -583,6 +595,29 @@ export function AuthGateModal() {
                   <p className="text-[11px] text-slate-400 pt-1">
                     💡 If not in your primary inbox, please check your <strong className="text-slate-300">Spam</strong> or <strong className="text-slate-300">Promotions</strong> tab.
                   </p>
+
+                  {previewOtp && (
+                    <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 flex items-center justify-between gap-3 max-w-sm mx-auto animate-fade-in text-left mt-2">
+                      <div className="space-y-0.5">
+                        <div className="font-bold text-white flex items-center gap-1.5">
+                          <span className="text-amber-400">🔑 Instant Code:</span>
+                          <span className="font-mono text-amber-300 text-sm tracking-widest font-black">{previewOtp}</span>
+                        </div>
+                        <div className="text-[10px] text-slate-400">
+                          Resend test sandbox mode active. Click to auto-fill code.
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRegisterOtp(previewOtp);
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs cursor-pointer shadow-md shrink-0"
+                      >
+                        Auto-Fill
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-center gap-4 text-xs">
