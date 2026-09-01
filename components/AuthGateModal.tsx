@@ -38,6 +38,7 @@ export function AuthGateModal() {
   // Registration OTP State
   const [registerStep, setRegisterStep] = useState<"form" | "otp">("form");
   const [registerOtp, setRegisterOtp] = useState("");
+  const [pendingToken, setPendingToken] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
 
   // Status & Feedback
@@ -60,6 +61,7 @@ export function AuthGateModal() {
       setCelebrationData(null);
       setRegisterStep("form");
       setRegisterOtp("");
+      setPendingToken(null);
       if (e.detail?.redirectUrl) {
         setPendingUrl(e.detail.redirectUrl);
       }
@@ -105,6 +107,9 @@ export function AuthGateModal() {
       if (res.ok && data.success) {
         setRegisterStep("otp");
         setResendCooldown(60);
+        if (data.pendingToken) {
+          setPendingToken(data.pendingToken);
+        }
         setSuccessMsg(`📧 6-digit verification code sent to ${email}!`);
       } else {
         setErrorMsg(data.error || "Registration failed. Please check your information.");
@@ -136,6 +141,7 @@ export function AuthGateModal() {
           email,
           otpCode: registerOtp,
           action: "verify_otp",
+          pendingToken,
         }),
       });
 
@@ -175,6 +181,7 @@ export function AuthGateModal() {
         body: JSON.stringify({
           email,
           action: "resend_otp",
+          pendingToken,
         }),
       });
 
@@ -182,6 +189,9 @@ export function AuthGateModal() {
       if (res.ok && data.success) {
         setSuccessMsg(`🚀 Fresh 6-digit verification code sent to ${email}!`);
         setResendCooldown(60);
+        if (data.pendingToken) {
+          setPendingToken(data.pendingToken);
+        }
       } else {
         setErrorMsg(data.error || "Failed to resend code.");
       }

@@ -57,6 +57,51 @@ async function hashPassword(password: string): Promise<string> {
     .join("");
 }
 
+async function createPendingToken(data: PendingRegistration): Promise<string> {
+  const payload = JSON.stringify(data);
+  const secret = process.env.ADMIN_SECRET || "sponsorajobs_secure_auth_secret_key_2026";
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", cryptoKey, encoder.encode(payload));
+  const sigHex = Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  const payloadB64 = Buffer.from(payload).toString("base64url");
+  return `${payloadB64}.${sigHex}`;
+}
+
+async function verifyPendingToken(tokenStr?: string | null): Promise<PendingRegistration | null> {
+  if (!tokenStr || !tokenStr.includes(".")) return null;
+  try {
+    const [payloadB64, sigHex] = tokenStr.split(".");
+    if (!payloadB64 || !sigHex) return null;
+    const payload = Buffer.from(payloadB64, "base64url").toString("utf-8");
+    const secret = process.env.ADMIN_SECRET || "sponsorajobs_secure_auth_secret_key_2026";
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(secret);
+    const cryptoKey = await crypto.subtle.importKey(
+      "raw",
+      keyData,
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["verify"]
+    );
+    const sigBytes = new Uint8Array(sigHex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)));
+    const isValid = await crypto.subtle.verify("HMAC", cryptoKey, sigBytes, encoder.encode(payload));
+    if (!isValid) return null;
+    return JSON.parse(payload) as PendingRegistration;
+  } catch {
+    return null;
+  }
+}
+
 export class UserRepository {
   /**
    * Validate if the provided promo/referral code is valid
@@ -82,7 +127,7 @@ export class UserRepository {
   }
 
   /**
-   * Stage a pending registration and generate a 6-digit OTP code
+   * Stage a pending registration and generate a 6-digit OTP code (stateless + in-memory)
    */
   async createPendingRegistration(data: {
     name: string;
@@ -90,7 +135,7 @@ export class UserRepository {
     password: string;
     profession: string;
     promoCode?: string;
-  }): Promise<{ otpCode: string; email: string }> {
+  }): Promise<{ otpCode: string; email: string; pendingToken: string }> {
     const cleanEmail = data.email.trim().toLowerCase();
     const existing = await this.findByEmail(cleanEmail);
     if (existing) {
@@ -101,7 +146,7 @@ export class UserRepository {
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
-    inMemoryPendingRegistrations.set(cleanEmail, {
+    const pendingData: PendingRegistration = {
       name: data.name.trim(),
       email: cleanEmail,
       passwordHash: hashedPassword,
@@ -109,35 +154,57 @@ export class UserRepository {
       promoCode: data.promoCode ? data.promoCode.trim().toLowerCase() : "",
       otpCode,
       expiresAt,
-    });
+    };
 
-    return { otpCode, email: cleanEmail };
+    inMemoryPendingRegistrations.set(cleanEmail, pendingData);
+    const pendingToken = await createPendingToken(pendingData);
+
+    return { otpCode, email: cleanEmail, pendingToken };
   }
 
   /**
    * Resend a fresh 6-digit OTP code for a pending registration
    */
-  async resendRegistrationOtp(email: string): Promise<string> {
+  async resendRegistrationOtp(
+    email: string,
+    existingToken?: string | null
+  ): Promise<{ otpCode: string; pendingToken: string }> {
     const cleanEmail = email.trim().toLowerCase();
-    const pending = inMemoryPendingRegistrations.get(cleanEmail);
+    let pending = await verifyPendingToken(existingToken);
+
     if (!pending) {
+      pending = inMemoryPendingRegistrations.get(cleanEmail) || null;
+    }
+
+    if (!pending || pending.email.toLowerCase() !== cleanEmail) {
       throw new Error("No pending registration found for this email. Please restart registration.");
     }
 
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     pending.otpCode = otpCode;
     pending.expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-    return otpCode;
+
+    inMemoryPendingRegistrations.set(cleanEmail, pending);
+    const pendingToken = await createPendingToken(pending);
+
+    return { otpCode, pendingToken };
   }
 
   /**
-   * Verify the 6-digit OTP and activate the user account
+   * Verify the 6-digit OTP and activate the user account (works across serverless lambda instances)
    */
-  async verifyAndCreateUser(email: string, otpCode: string): Promise<UserAccount> {
+  async verifyAndCreateUser(email: string, otpCode: string, pendingToken?: string | null): Promise<UserAccount> {
     const cleanEmail = email.trim().toLowerCase();
-    const pending = inMemoryPendingRegistrations.get(cleanEmail);
+    
+    // 1. Try resolving from stateless signed token first (serverless-resilient)
+    let pending = await verifyPendingToken(pendingToken);
 
+    // 2. Fallback to in-memory store
     if (!pending) {
+      pending = inMemoryPendingRegistrations.get(cleanEmail) || null;
+    }
+
+    if (!pending || pending.email.toLowerCase() !== cleanEmail) {
       throw new Error("No pending registration found or session expired. Please register again.");
     }
 

@@ -33,12 +33,12 @@ describe("Candidate Email Verification & Application Tracker", () => {
       ).rejects.toThrow("Invalid 6-digit verification code.");
 
       // 3. Resend OTP
-      const freshOtp = await userRepository.resendRegistrationOtp(regEmail);
+      const { otpCode: freshOtp, pendingToken } = await userRepository.resendRegistrationOtp(regEmail);
       expect(freshOtp).toBeDefined();
       expect(freshOtp.length).toBe(6);
 
       // 4. Verify with fresh OTP
-      const user = await userRepository.verifyAndCreateUser(regEmail, freshOtp);
+      const user = await userRepository.verifyAndCreateUser(regEmail, freshOtp, pendingToken);
       expect(user).toBeDefined();
       expect(user.isEmailVerified).toBe(true);
       expect(user.name).toBe("OTP Candidate");

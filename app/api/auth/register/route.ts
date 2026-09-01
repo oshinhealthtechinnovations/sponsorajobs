@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { action, email, password, name, profession, promoCode, otpCode } = body;
+    const { action, email, password, name, profession, promoCode, otpCode, pendingToken } = body;
 
     // ─────────────────────────────────────────────────────────────
     // STEP 2: VERIFY OTP CODE & ACTIVATE ACCOUNT
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const user = await userRepository.verifyAndCreateUser(email, otpCode.trim());
+      const user = await userRepository.verifyAndCreateUser(email, otpCode.trim(), pendingToken);
 
       const sessionPayload = {
         id: user.id,
@@ -74,13 +74,17 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Email is required to resend code." }, { status: 400 });
       }
 
-      const freshCode = await userRepository.resendRegistrationOtp(email);
+      const { otpCode: freshCode, pendingToken: freshToken } = await userRepository.resendRegistrationOtp(
+        email,
+        pendingToken
+      );
       const emailService = new EmailService();
       const dispatch = await emailService.sendVerificationCodeEmail(email, freshCode);
 
       return NextResponse.json({
         success: true,
         message: "A fresh 6-digit verification code has been dispatched to your email.",
+        pendingToken: freshToken,
       });
     }
 
@@ -116,7 +120,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create pending registration and send 6-digit OTP code
-    const { otpCode: generatedCode } = await userRepository.createPendingRegistration({
+    const { otpCode: generatedCode, pendingToken: newPendingToken } = await userRepository.createPendingRegistration({
       name,
       email,
       password,
@@ -131,6 +135,7 @@ export async function POST(request: NextRequest) {
       success: true,
       step: "otp_required",
       email: email.trim().toLowerCase(),
+      pendingToken: newPendingToken,
       user: {
         id: "pending",
         name: name.trim(),
