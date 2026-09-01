@@ -9,6 +9,8 @@ import { JobRepository } from "@/lib/repositories/jobRepository";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
 
+export const revalidate = 1800;
+
 interface CategoryCountryJobsPageProps {
   params: {
     country: string;

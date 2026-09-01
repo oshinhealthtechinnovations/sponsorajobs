@@ -10,6 +10,8 @@ import { getCountryBySlug, INITIAL_COUNTRIES } from "@/config/countries";
 import Link from "next/link";
 import { Globe, ArrowRight, ShieldCheck, Search } from "lucide-react";
 
+export const revalidate = 1800;
+
 interface CountryJobsPageProps {
   params: {
     country: string;

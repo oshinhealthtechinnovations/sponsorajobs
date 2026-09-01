@@ -8,6 +8,8 @@ import { JobRepository } from "@/lib/repositories/jobRepository";
 import Link from "next/link";
 import { Building2, Globe, ExternalLink, ArrowLeft, ShieldCheck } from "lucide-react";
 
+export const revalidate = 3600;
+
 interface CompanyProfilePageProps {
   params: {
     slug: string;
