@@ -94,11 +94,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // 5. Active Job Postings
+  // 5. Verified Employer & Company Hubs
+  try {
+    const db = getDatabase();
+    const companies = await db.prepare(
+      "SELECT slug, updated_at FROM companies WHERE slug IS NOT NULL LIMIT 500"
+    ).all<{ slug: string; updated_at: string }>();
+
+    for (const company of companies.results) {
+      if (company.slug) {
+        entries.push({
+          url: `${baseUrl}/company/${company.slug}`,
+          lastModified: new Date(company.updated_at || now),
+          changeFrequency: "weekly",
+          priority: 0.75,
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Error generating sitemap companies:", err);
+  }
+
+  // 6. Active Job Postings (Up to 5,000 active listings)
   try {
     const db = getDatabase();
     const jobs = await db.prepare(
-      "SELECT id, title, city, country_code, updated_at FROM jobs WHERE status = 'active' AND (is_published IS NULL OR is_published = 1) AND (verification_status IS NULL OR verification_status != 'EXPIRED') LIMIT 500"
+      "SELECT id, title, city, country_code, updated_at FROM jobs WHERE status = 'active' AND (is_published IS NULL OR is_published = 1) AND (verification_status IS NULL OR verification_status != 'EXPIRED') LIMIT 5000"
     ).all<{ id: string; title: string; city: string; country_code: string; updated_at: string }>();
 
     for (const job of jobs.results) {
@@ -112,15 +133,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       entries.push({
         url: `${baseUrl}/job/${slug}`,
         lastModified: new Date(job.updated_at || now),
-        changeFrequency: "weekly",
-        priority: 0.7,
+        changeFrequency: "daily",
+        priority: 0.8,
       });
     }
   } catch (err) {
     console.error("Error generating sitemap jobs:", err);
   }
 
-  // 6. Dynamic SEO Blog Posts (Priority 0.85)
+  // 7. Dynamic SEO Blog Posts (Priority 0.85)
   try {
     const blogSlugs = await blogRepository.getAllPublishedSlugs();
     for (const post of blogSlugs) {
