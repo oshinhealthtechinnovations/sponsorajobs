@@ -11,7 +11,7 @@ const FEATURED_SPONSORS = [
   { id: "comp_kier_group", name: "Kier Group", tag: "UK Infrastructure & Civil (240+)" },
   { id: "comp_balfour_beatty", name: "Balfour Beatty", tag: "UK Infrastructure & Engineering (64+)" },
   { id: "comp_mace_group", name: "Mace", tag: "UK Construction & Consultancy (50+)" },
-  { id: "comp_wsp", name: "WSP", tag: "Global Engineering (92+)" },
+  { id: "comp_wsp", name: "WSP", tag: "Global Engineering & Infrastructure (870+)" },
   { id: "comp_jacobs", name: "Jacobs", tag: "Global Engineering" },
   { id: "comp_monzo_bank", name: "Monzo Bank", tag: "Fintech" },
   { id: "comp_stripe", name: "Stripe", tag: "Payments" },

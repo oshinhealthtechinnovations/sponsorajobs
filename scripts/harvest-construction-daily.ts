@@ -8,6 +8,7 @@
  * - Smart Listing Technique (rich SEO markdown, benchmark salaries, clean categorization)
  * - Negative Sponsorship Stripping (removes rejection statements for positive presentation)
  * - Canonical hash deduplication
+ * - Multi-source: Costain Group + WSP UK
  * - One-shot execution (--once) or 24-hour daemon scheduler (--daemon)
  * 
  * Usage:
@@ -17,7 +18,6 @@
 
 import fs from "fs";
 import path from "path";
-import crypto from "crypto";
 
 const dataPath = path.resolve(process.cwd(), "lib/db/realJobsData.json");
 
@@ -37,7 +37,6 @@ async function harvestCostain(): Promise<HarvesterStats> {
     const rawData = fs.readFileSync(dataPath, "utf-8");
     const data = JSON.parse(rawData);
 
-    // Ensure company exists
     const compIdx = data.companies.findIndex((c: any) => c.id === "comp_costain_group");
     if (compIdx === -1) {
       data.companies.push({
@@ -84,7 +83,6 @@ async function harvestCostain(): Promise<HarvesterStats> {
 
       const existingIdx = data.jobs.findIndex((j: any) => j.id === jobId || j.source_job_id === `costain_${job.Id}`);
       if (existingIdx === -1) {
-        // Build smart record
         const smartJob = {
           id: jobId,
           source_id: "costain_group_ats",
@@ -145,7 +143,101 @@ async function harvestCostain(): Promise<HarvesterStats> {
   return stats;
 }
 
-// ─── 2. MASTER RUNNER ────────────────────────────────────────────────────────
+// ─── 2. WSP UK ORACLE CLOUD HARVESTER ─────────────────────────────────────────
+async function harvestWsp(): Promise<HarvesterStats> {
+  const stats: HarvesterStats = { sourceName: "WSP UK", fetched: 0, added: 0, updated: 0 };
+  console.log("🏗️  [Harvester] Connecting to WSP UK Oracle Cloud ATS...");
+
+  try {
+    const rawData = fs.readFileSync(dataPath, "utf-8");
+    const data = JSON.parse(rawData);
+
+    const allRequisitions: any[] = [];
+    let offset = 0;
+    const limit = 25;
+
+    while (true) {
+      const url = `https://emit.fa.ca3.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?finder=findReqs;siteNumber=CX_2001,location=United%20Kingdom,offset=${offset},limit=${limit}&expand=all`;
+      const res = await fetch(url, { headers: { Accept: "application/json", "User-Agent": "Mozilla/5.0" } });
+      if (!res.ok) break;
+      const resJson = await res.json();
+      const list = resJson.items?.[0]?.requisitionList || [];
+      if (list.length === 0) break;
+
+      allRequisitions.push(...list);
+      offset += list.length;
+      if (list.length < limit) break;
+    }
+
+    stats.fetched = allRequisitions.length;
+
+    for (const job of allRequisitions) {
+      const directApplyUrl = `https://emit.fa.ca3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_2001/job/${job.Id}`;
+      const jobId = `job_wsp_${job.Id}_${job.Title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`.slice(0, 80);
+
+      const existingIdx = data.jobs.findIndex((j: any) => j.id === jobId || j.source_job_id === `wsp_${job.Id}`);
+      if (existingIdx === -1) {
+        const smartJob = {
+          id: jobId,
+          source_id: "wsp_oracle_ats",
+          source_job_id: `wsp_${job.Id}`,
+          canonical_hash: `wsp_uk_hash_${job.Id}`,
+          title: `${job.Title} (WSP)`,
+          slug: `${job.Title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-wsp--${job.Id}`,
+          company_id: "comp_wsp",
+          company_name: "WSP",
+          company_website: "https://www.wsp.com",
+          company_logo_url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/WSP_logo.svg/320px-WSP_logo.svg.png",
+          description: `## Role Overview\n• **Position**: ${job.Title}\n• **Employer**: WSP\n• **Location**: ${job.PrimaryLocation || "United Kingdom"}\n\n## Scope\n${job.ShortDescriptionStr || "Major infrastructure, engineering, and environmental consultancy."}`,
+          description_clean: `${job.Title} - WSP - ${job.ShortDescriptionStr || ""}`,
+          location: job.PrimaryLocation || "London, United Kingdom",
+          city: (job.PrimaryLocation || "").split(",")[0] || "London",
+          region: "United Kingdom",
+          country_code: "GB",
+          remote_type: (job.WorkplaceType || "").toLowerCase().includes("site") ? "ONSITE" : "HYBRID",
+          employment_type: "FULL_TIME",
+          category_id: "cat_eng_civil",
+          category_slug: "civil-engineering",
+          category_name: "Civil Engineering",
+          salary_min: 44000,
+          salary_max: 64000,
+          salary_currency: "GBP",
+          job_url: directApplyUrl,
+          apply_url: directApplyUrl,
+          source_url: directApplyUrl,
+          publishedAt: job.PostedDate ? `${job.PostedDate}T00:00:00Z` : new Date().toISOString(),
+          first_seen_at: new Date().toISOString(),
+          last_seen_at: new Date().toISOString(),
+          sponsorship_score: 95,
+          sponsorship_label: "Likely",
+          sponsorship_positive_evidence: JSON.stringify([
+            "WSP UK Limited is an A-rated Licensed Sponsor registered on the UK Home Office Register of Licensed Sponsors",
+            "Direct verified WSP Global Oracle Cloud ATS application URL"
+          ]),
+          sponsorship_negative_evidence: JSON.stringify([]),
+          visa_keywords: JSON.stringify(["WSP Licensed Sponsor", "Skilled Worker Route", "UK Infrastructure", "Tier 1 Consultancy"]),
+          quality_score: 99,
+          status: "active",
+          is_featured: 0,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        data.jobs.unshift(smartJob);
+        stats.added++;
+      } else {
+        stats.updated++;
+      }
+    }
+
+    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2), "utf-8");
+  } catch (err: any) {
+    console.error("❌ [Harvester] WSP fetch error:", err.message);
+  }
+
+  return stats;
+}
+
+// ─── 3. MASTER RUNNER ────────────────────────────────────────────────────────
 async function runDailyHarvestCycle() {
   console.log("=========================================================================");
   console.log("🚀 [SponsorAJobs] Autonomous Daily Construction & Infrastructure Harvester");
@@ -154,10 +246,12 @@ async function runDailyHarvestCycle() {
 
   const start = Date.now();
   const costainStats = await harvestCostain();
+  const wspStats = await harvestWsp();
 
   const totalDuration = ((Date.now() - start) / 1000).toFixed(2);
   console.log("\n📊 DAILY HARVEST COMPLETED:");
   console.log(`• Source: Costain Group -> Fetched: ${costainStats.fetched}, Added: ${costainStats.added}, Existing: ${costainStats.updated}`);
+  console.log(`• Source: WSP UK        -> Fetched: ${wspStats.fetched}, Added: ${wspStats.added}, Existing: ${wspStats.updated}`);
   console.log(`• Total Elapsed Time: ${totalDuration}s`);
   console.log("=========================================================================\n");
 }
