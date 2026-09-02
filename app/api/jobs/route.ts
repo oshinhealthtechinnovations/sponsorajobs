@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
   const q = rawQ ? sanitizeSearchQuery(rawQ) : undefined;
   const country = searchParams.get("country") || undefined;
   const category = searchParams.get("category") || undefined;
+  const company = searchParams.get("company") || searchParams.get("companyId") || searchParams.get("company_id") || undefined;
   const city = searchParams.get("city") || undefined;
   const remoteType = searchParams.get("remoteType") || undefined;
   const employmentType = searchParams.get("employmentType") || undefined;
@@ -59,6 +60,7 @@ export async function GET(request: NextRequest) {
     q,
     country,
     category,
+    company,
     city,
     remoteType,
     employmentType,
@@ -87,6 +89,7 @@ export async function GET(request: NextRequest) {
         q: q || null,
         country: country || null,
         category: category || null,
+        company: company || null,
         city: city || null,
         remoteType: remoteType || null,
         employmentType: employmentType || null,

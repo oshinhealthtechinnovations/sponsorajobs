@@ -239,21 +239,49 @@ function createEdgeMemoryClient(): DatabaseClient {
             }
 
             // Company filter (only apply when a dedicated company condition is in the query, not generic keyword search)
-            if (q.includes("lower(c.normalized_name) like ?") || (q.includes("c.normalized_name") && !q.includes("lower(j.title) like ?"))) {
+            if (q.includes("lower(c.normalized_name) like ?") || (q.includes("c.normalized_name") && !q.includes("lower(j.title) like ?")) || q.includes("j.company_id")) {
               const compParam = boundValues.find(
                 (v) => typeof v === "string" && (
                   v.startsWith("%comp_") || 
                   v.startsWith("comp_") || 
-                  inMemoryCompanies.some((c) => c.name.toLowerCase() === String(v).replace(/%/g, "").toLowerCase() || c.id === String(v).replace(/%/g, ""))
+                  inMemoryCompanies.some((c) => {
+                    const cleanV = String(v).replace(/%/g, "").toLowerCase().trim();
+                    if (!cleanV) return false;
+                    const cName = (c.name || "").toLowerCase().trim();
+                    const cNorm = (c.normalized_name || "").toLowerCase().trim();
+                    const cId = (c.id || "").toLowerCase().trim();
+                    return (
+                      cName === cleanV ||
+                      cNorm === cleanV ||
+                      cName.replace(/-/g, " ") === cleanV.replace(/-/g, " ") ||
+                      cId === cleanV ||
+                      (cleanV.length >= 3 && (cName.includes(cleanV) || cNorm.includes(cleanV) || cId.includes(cleanV)))
+                    );
+                  })
                 )
               );
               if (compParam) {
                 const term = String(compParam).replace(/%/g, "").toLowerCase().replace(/\s*\(.*\)/, "").trim();
-                res = res.filter((j) => (j.company_id || "").toLowerCase().includes(term) || (j.company_name || "").toLowerCase().includes(term));
+                const termSpaced = term.replace(/-/g, " ");
+                const termHyphen = term.replace(/\s+/g, "-");
+                const termStripped = term.replace(/[^a-z0-9]/g, "");
+                res = res.filter((j) => {
+                  const jCompId = (j.company_id || "").toLowerCase();
+                  const jCompName = (j.company_name || "").toLowerCase();
+                  return (
+                    jCompId.includes(term) ||
+                    jCompId.includes(termHyphen) ||
+                    jCompId.includes(termStripped) ||
+                    jCompName.includes(term) ||
+                    jCompName.includes(termSpaced) ||
+                    jCompName.replace(/[^a-z0-9]/g, "").includes(termStripped)
+                  );
+                });
               }
             }
 
-            if (kwParams.length > 0) {
+            // Keyword filter (only apply if the query includes specific title/description keyword conditions)
+            if (kwParams.length > 0 && (q.includes("lower(j.title) like ?") || q.includes("lower(j.description) like ?"))) {
               const rawTerms = kwParams.map((kw) => String(kw).slice(1, -1).toLowerCase()).filter(Boolean);
               const terms = Array.from(new Set(rawTerms));
               const phrase = terms.join(" ");
