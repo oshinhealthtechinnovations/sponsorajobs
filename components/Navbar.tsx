@@ -27,7 +27,6 @@ const PRIMARY_NAV_LINKS = [
   { href: "/jobs", label: "Find Jobs" },
   { href: "/companies", label: "Companies" },
   { href: "/countries", label: "Countries" },
-  { href: "/pricing", label: "Pricing" },
 ];
 
 // Rich tools dropdown menu
