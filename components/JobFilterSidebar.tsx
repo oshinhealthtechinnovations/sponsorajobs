@@ -7,10 +7,12 @@ import { INITIAL_CATEGORIES } from "@/config/categories";
 import { Filter, RotateCcw, Calendar, Banknote, MapPin, Briefcase, Building2 } from "lucide-react";
 
 const FEATURED_SPONSORS = [
+  { id: "comp_costain_group", name: "Costain Group", tag: "UK Smart Infrastructure & Water (157+)" },
+  { id: "comp_kier_group", name: "Kier Group", tag: "UK Infrastructure & Civil (240+)" },
   { id: "comp_balfour_beatty", name: "Balfour Beatty", tag: "UK Infrastructure & Engineering (64+)" },
+  { id: "comp_mace_group", name: "Mace", tag: "UK Construction & Consultancy (50+)" },
   { id: "comp_wsp", name: "WSP", tag: "Global Engineering (92+)" },
   { id: "comp_jacobs", name: "Jacobs", tag: "Global Engineering" },
-  { id: "comp_mace_group", name: "Mace", tag: "UK Sponsor" },
   { id: "comp_monzo_bank", name: "Monzo Bank", tag: "Fintech" },
   { id: "comp_stripe", name: "Stripe", tag: "Payments" },
   { id: "comp_figma", name: "Figma", tag: "Design Tech" },
