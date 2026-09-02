@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit",
     "pages:build": "next build",
     "seo:run": "npx tsx scripts/run-seo-automation.ts --once",
-    "seo:daemon": "npx tsx scripts/run-seo-automation.ts --daemon"
+    "seo:daemon": "npx tsx scripts/run-seo-automation.ts --daemon",
+    "admin:supervise": "npx tsx scripts/run-backend-supervisor.ts"
   },
   "dependencies": {
     "@types/nodemailer": "^8.0.1",

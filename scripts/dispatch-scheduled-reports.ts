@@ -5,6 +5,7 @@ import { JobRepository } from "../lib/repositories/jobRepository";
 import { CompanyRepository } from "../lib/repositories/companyRepository";
 import { EmailService } from "../lib/services/emailService";
 import { routeHealthMonitor } from "../lib/services/routeHealthMonitor";
+import { backendAdminSupervisor } from "../lib/services/backendAdminSupervisor";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
@@ -206,8 +207,8 @@ async function run() {
       ],
     };
 
-    const result = await emailService.sendHourlyOperationalReportEmail(hourlyData);
-    console.log(`[ScheduledReports] Hourly Report result:`, result);
+    const supervisorResult = await backendAdminSupervisor.dispatchHourlyExecutiveUpdate(targetRecipient);
+    console.log(`[ScheduledReports] Backend Admin Supervisor Hourly Update Result:`, supervisorResult.success ? "SUCCESS" : "FAILED", supervisorResult.dispatchResult);
   }
 
   if (mode === "--daily" || mode === "--all") {
