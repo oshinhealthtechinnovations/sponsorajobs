@@ -554,12 +554,20 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               <p className="text-xs text-slate-300 leading-relaxed">
                 Scan your resume against this job posting to see keyword matches and ATS compatibility score.
               </p>
-              <Link
-                href={`/tools/ats-checker?jobId=${job.id}`}
-                className="block w-full py-2.5 px-4 rounded-xl bg-[#18D6E5] hover:bg-[#15c0ce] text-[#071421] font-black text-xs text-center transition-colors shadow-xs"
-              >
-                Scan My Resume Free
-              </Link>
+              <div className="flex flex-col gap-2 pt-1">
+                <Link
+                  href={`/tools/ats-checker?jobId=${job.id}`}
+                  className="block w-full py-2.5 px-4 rounded-xl bg-[#18D6E5] hover:bg-[#15c0ce] text-[#071421] font-black text-xs text-center transition-colors shadow-xs"
+                >
+                  Scan Resume for ATS Free
+                </Link>
+                <Link
+                  href={`/tools/cv-cover-letter`}
+                  className="block w-full py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs text-center transition-colors border border-slate-700"
+                >
+                  ✍️ Generate Visa Cover Letter
+                </Link>
+              </div>
             </div>
           </div>
         </div>

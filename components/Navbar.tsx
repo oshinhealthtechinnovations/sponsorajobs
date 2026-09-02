@@ -21,6 +21,7 @@ import {
   Sparkles,
   ArrowRightLeft,
   Award,
+  FileText,
 } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
 import { AuthGateModal } from "./AuthGateModal";
@@ -29,6 +30,7 @@ import { AuthGateModal } from "./AuthGateModal";
 const NAV_LINKS = [
   { href: "/",                          label: "Home",              icon: Home },
   { href: "/jobs",                      label: "Find Jobs",         icon: Search },
+  { href: "/tools/cv-cover-letter",      label: "CV & Cover Letter", icon: FileText },
   { href: "/tools/salary-converter",     label: "Salary Calculator", icon: ArrowRightLeft },
   { href: "/tools/visa-points-calculator", label: "Visa Points",    icon: Award },
   { href: "/companies",                 label: "Companies",          icon: Briefcase },
