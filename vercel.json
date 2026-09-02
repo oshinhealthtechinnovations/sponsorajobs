@@ -5,16 +5,8 @@
       "schedule": "0 2 * * *"
     },
     {
-      "path": "/api/cron/daily-jobs-report",
-      "schedule": "0 2 * * *"
-    },
-    {
       "path": "/api/cron/alerts",
       "schedule": "0 8 * * *"
-    },
-    {
-      "path": "/api/cron/blog",
-      "schedule": "0 6 * * 1,4"
     }
   ]
 }
