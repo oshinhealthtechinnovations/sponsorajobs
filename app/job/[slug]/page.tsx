@@ -17,6 +17,8 @@ import Link from "next/link";
 import { StickyJobApplyBar } from "@/components/StickyJobApplyBar";
 import { JobApplyButton } from "@/components/JobApplyButton";
 import { JobDetailSidebarActions } from "@/components/JobDetailSidebarActions";
+import { SalaryCurrencyConverter } from "@/components/SalaryCurrencyConverter";
+import { CountryRelocationCard } from "@/components/CountryRelocationCard";
 import {
   MapPin,
   Building2,
@@ -531,6 +533,15 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 </div>
               </div>
             </div>
+
+            {/* Live Global Salary Currency Converter (Free ECB API) */}
+            <SalaryCurrencyConverter
+              salaryAmount={job.salary?.max || job.salary?.min || (job.location.country === "US" ? 85000 : job.location.country === "AU" ? 95000 : 52000)}
+              baseCurrency={job.salary?.currency || (job.location.country === "US" ? "USD" : job.location.country === "AU" ? "AUD" : job.location.country === "CA" ? "CAD" : job.location.country === "NZ" ? "NZD" : "GBP")}
+            />
+
+            {/* Country Relocation & Immigration Intelligence Card (Free RestCountries API) */}
+            <CountryRelocationCard countryCode={job.location.country} />
 
             {/* Free ATS Checker Promo Card in Sidebar */}
             <div className="p-6 rounded-3xl bg-gradient-to-br from-slate-900 to-[#071421] text-white space-y-3 border border-slate-800 shadow-md">

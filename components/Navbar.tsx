@@ -19,17 +19,20 @@ import {
   LogOut,
   ShieldCheck,
   Sparkles,
+  ArrowRightLeft,
+  Award,
 } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
 import { AuthGateModal } from "./AuthGateModal";
 
 // Primary navigation — Clean Candidate Frontend
 const NAV_LINKS = [
-  { href: "/",          label: "Home",             icon: Home },
-  { href: "/jobs",      label: "Find Jobs",        icon: Search },
-  { href: "/dashboard", label: "My Applications",  icon: Briefcase },
-  { href: "/companies", label: "Companies",         icon: Briefcase },
-  { href: "/countries", label: "Countries",         icon: Globe },
+  { href: "/",                          label: "Home",              icon: Home },
+  { href: "/jobs",                      label: "Find Jobs",         icon: Search },
+  { href: "/tools/salary-converter",     label: "Salary Calculator", icon: ArrowRightLeft },
+  { href: "/tools/visa-points-calculator", label: "Visa Points",    icon: Award },
+  { href: "/companies",                 label: "Companies",          icon: Briefcase },
+  { href: "/countries",                 label: "Countries",          icon: Globe },
 ];
 
 export const Navbar: React.FC = () => {
