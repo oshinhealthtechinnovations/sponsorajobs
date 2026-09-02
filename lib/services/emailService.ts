@@ -807,15 +807,20 @@ export class EmailService {
         <div style="margin-bottom:16px;">
           ${params.activeCandidateLogs
             .map(
-              (u) => `
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:12px;margin-bottom:8px;">
+              (u: any) => `
+          <div style="background:rgba(255,255,255,0.04);border:1px solid ${u.status === 'INTERVIEWING' ? 'rgba(245,158,11,0.4)' : 'rgba(56,189,248,0.25)'};border-radius:14px;padding:14px;margin-bottom:10px;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
-              <strong style="color:#ffffff;font-size:13px;">${u.name}</strong>
-              <span style="color:#94a3b8;font-size:11px;">${u.time}</span>
+              <strong style="color:#ffffff;font-size:14px;">${u.name}</strong>
+              <div style="text-align:right;">
+                <span style="background:${u.status === 'INTERVIEWING' ? 'rgba(245,158,11,0.25)' : 'rgba(16,185,129,0.2)'};color:${u.status === 'INTERVIEWING' ? '#fbbf24' : '#10b981'};padding:2px 8px;border-radius:6px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;">${u.status || (u.action.includes('Applied') ? 'APPLIED' : 'ACTIVE')}</span>
+                <div style="color:#94a3b8;font-size:11px;margin-top:2px;">${u.time}</div>
+              </div>
             </div>
-            <div style="color:#38bdf8;font-size:11px;margin-top:2px;">📧 ${u.email} &middot; 💼 <em>${u.profession || "Candidate"}</em></div>
-            <div style="color:#10b981;font-size:12px;margin-top:4px;font-weight:600;">⚡ Action: ${u.action}</div>
-            ${u.target ? `<div style="color:#cbd5e1;font-size:11px;margin-top:2px;">🎯 Target: ${u.target}</div>` : ""}
+            <div style="color:#38bdf8;font-size:12px;margin-top:2px;">📧 <a href="mailto:${u.email}" style="color:#38bdf8;text-decoration:none;">${u.email}</a> &middot; 💼 <em style="color:#cbd5e1;">${u.profession || "Candidate"}</em></div>
+            <div style="color:#10b981;font-size:13px;margin-top:6px;font-weight:700;">⚡ Action: ${u.action}</div>
+            ${u.company ? `<div style="color:#f8fafc;font-size:12px;margin-top:4px;">🏢 <strong>Employer:</strong> <span style="color:#38bdf8;">${u.company}</span> &middot; 📌 <strong>Role:</strong> <span style="color:#e2e8f0;">${u.jobTitle || 'Verified Position'}</span></div>` : ""}
+            ${u.target && !u.company ? `<div style="color:#cbd5e1;font-size:12px;margin-top:4px;">🎯 <strong>Details:</strong> ${u.target}</div>` : ""}
+            ${u.applyUrl ? `<div style="margin-top:6px;font-size:11px;"><a href="${u.applyUrl}" style="color:#19CBE0;text-decoration:none;font-weight:700;">🔗 View Requisition / Application Link &rarr;</a></div>` : ""}
           </div>
           `
             )
@@ -826,9 +831,9 @@ export class EmailService {
         }
 
         <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:#cbd5e1;">
-          <li><strong>Total Registered Candidates:</strong> ${params.userActivitySummary.totalActiveCandidates} users registered & verified via OTP</li>
-          <li><strong>Applications Logged:</strong> ${params.userActivitySummary.recentApplications} submissions recorded in tracker</li>
-          <li><strong>Candidate Logins / Active Sessions:</strong> ${params.userActivitySummary.recentLogins} active sessions verified</li>
+          <li><strong>Total Registered Candidates:</strong> ${params.userActivitySummary.totalActiveCandidates} live users recorded in database</li>
+          <li><strong>Applications Logged:</strong> ${params.userActivitySummary.recentApplications} active job submissions tracked in Supabase</li>
+          <li><strong>Candidate Logins / Active Sessions:</strong> ${params.userActivitySummary.recentLogins} authenticated candidate sessions</li>
           <li><strong>Trending Visa Search Topics:</strong> ${params.userActivitySummary.topSearchedTerms.join(", ")}</li>
         </ul>
       </td>

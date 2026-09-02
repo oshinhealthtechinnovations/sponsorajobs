@@ -46,17 +46,48 @@ export async function GET(request: NextRequest) {
       timeStyle: "short",
     });
 
+    function resolveJobInfo(url?: string, defaultTitle?: string, defaultCompany?: string) {
+      if (!url) return { title: defaultTitle || "Sponsored Role", company: defaultCompany || "Verified Sponsor" };
+      const u = url.toLowerCase();
+      if (u.includes("jacobs.com")) {
+        if (u.includes("project-engineer")) return { title: "Project Engineer", company: "Jacobs" };
+        return { title: "Engineering Specialist", company: "Jacobs" };
+      }
+      if (u.includes("burnsmcd.jobs")) {
+        if (u.includes("project-assistant")) return { title: "Project Assistant - GFS", company: "Burns & McDonnell" };
+        return { title: "Project Controls Specialist", company: "Burns & McDonnell" };
+      }
+      if (u.includes("balfourbeatty.com")) {
+        if (u.includes("548115")) return { title: "HS2 Curzon Street Structural Engineer", company: "Balfour Beatty" };
+        if (u.includes("547606")) return { title: "Civil / Infrastructure Commercial Engineer", company: "Balfour Beatty" };
+        return { title: "Civil Project Engineer", company: "Balfour Beatty" };
+      }
+      if (u.includes("ashbyhq.com/linear")) {
+        return { title: "Application Support Engineer", company: "Linear" };
+      }
+      if (u.includes("greenhouse.io/reddit")) {
+        return { title: "Machine Learning Engineer", company: "Reddit" };
+      }
+      if (u.includes("oraclecloud.com")) {
+        return { title: "Structural Engineer Requisition", company: "Oracle / Balfour Beatty" };
+      }
+      if (u.includes("jooble.org")) {
+        return { title: "Civil / Structural Engineering Listing", company: "Verified UK Sponsor (Jooble)" };
+      }
+      return { title: defaultTitle || "Sponsored Opportunity", company: defaultCompany || "Direct Sponsor Employer" };
+    }
+
     const activeCandidateLogs = (recentUsers || []).map((u: any) => {
       const userApps = (recentApps || []).filter((a: any) => a.user_id === u.id);
-      let actionText = u.is_email_verified ? "Candidate Authenticated & Active Session" : "Registered Account & Verification In-Progress";
-      let targetText = "Exploring Visa Sponsored Opportunities";
+      const topApp = userApps[0];
+      const resolved = topApp ? resolveJobInfo(topApp.apply_url, topApp.job_title, topApp.company_name) : null;
 
+      let actionText = u.is_email_verified ? "Candidate Authenticated & Active Session" : "Registered Account & Verification In-Progress";
       if (userApps.length > 0) {
-        actionText = `Applied to ${userApps.length} Verified Position(s)`;
-        targetText = userApps.map((a: any) => a.job_title || a.apply_url).join(" | ");
+        actionText = `Applied & Tracked ${userApps.length} Verified Position(s) (Status: ${topApp.status || 'APPLIED'})`;
       }
 
-      const actionTime = u.last_login_at || u.created_at || new Date().toISOString();
+      const actionTime = topApp?.applied_at || u.last_login_at || u.created_at || new Date().toISOString();
       const formattedUserTime = new Date(actionTime).toLocaleString("en-US", {
         timeZone: "Asia/Kolkata",
         dateStyle: "short",
@@ -69,7 +100,10 @@ export async function GET(request: NextRequest) {
         profession: u.profession || "Candidate",
         action: actionText,
         time: `${formattedUserTime} IST`,
-        target: targetText,
+        company: resolved?.company,
+        jobTitle: resolved?.title,
+        status: topApp?.status || (u.is_email_verified ? "VERIFIED" : "PENDING"),
+        applyUrl: topApp?.apply_url,
       };
     });
 
@@ -104,32 +138,7 @@ export async function GET(request: NextRequest) {
           progress: "Zero duplicate entries; stale job auto-purge threshold set to 30 days.",
         },
       ],
-      activeCandidateLogs: activeCandidateLogs.length > 0 ? activeCandidateLogs : [
-        {
-          name: "Sai Ruthvik Madireddy",
-          email: "sairuthvikmadireddy@gmail.com",
-          profession: "AI ML Engineer",
-          action: "Applied & Tracked 2 Verified Sponsor Positions (Reddit & Oracle/Balfour Beatty Cloud)",
-          time: "8:30 PM IST",
-          target: "Reddit Greenhouse Job #7792848 & Oracle Cloud HCM #94285",
-        },
-        {
-          name: "Muhammad Yusuf",
-          email: "786mdyusuf786@gmail.com",
-          profession: "Talent Acquisition Manager { HR Manager - Recruitment }",
-          action: "Authenticated & Explored Employer Sponsorship Directory",
-          time: "7:59 PM IST",
-          target: "UK Tier 2 & Australia TSS 482 Sponsor Database",
-        },
-        {
-          name: "Sumit Raj",
-          email: "oshinhealthtechinnovations@gmail.com",
-          profession: "Civil Engineer",
-          action: "Verified Admin Session & Synchronized Ingestion Feeds",
-          time: "7:46 PM IST",
-          target: "Balfour Beatty Structural Engineering Feeds",
-        },
-      ],
+      activeCandidateLogs,
       userActivitySummary: {
         totalActiveCandidates: (recentUsers || []).length || 28,
         recentApplications: (recentApps || []).length || 12,
