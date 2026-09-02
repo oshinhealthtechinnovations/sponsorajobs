@@ -40,6 +40,7 @@ export class CompanyRepository {
       return (
         cSlug === cleanSlug ||
         cSlug === slug.toLowerCase() ||
+        cSlug.replace(/-/g, "") === strippedSlug ||
         cNameSlug === cleanSlug ||
         cNameSlug.replace(/-/g, "") === strippedSlug ||
         cNormSlug === cleanSlug ||
