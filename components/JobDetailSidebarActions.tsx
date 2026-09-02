@@ -27,7 +27,7 @@ export function JobDetailSidebarActions({
 }: JobDetailSidebarActionsProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const { isLoggedIn, isPro, user } = useSession();
+  const { isLoggedIn, user } = useSession();
 
   useEffect(() => {
     try {
@@ -65,22 +65,6 @@ export function JobDetailSidebarActions({
 
   const handleApply = (e: React.MouseEvent) => {
     e.preventDefault();
-
-    if (!isPro) {
-      window.dispatchEvent(
-        new CustomEvent("open-pro-gate", {
-          detail: {
-            jobId,
-            jobTitle,
-            companyName,
-            location: locationFormatted,
-            salary: salaryFormatted,
-            applyUrl,
-          },
-        })
-      );
-      return;
-    }
 
     // 1. Immediately save to local application tracker
     saveLocalApplication(
@@ -137,10 +121,9 @@ export function JobDetailSidebarActions({
       <button
         type="button"
         onClick={handleApply}
-        title={!isLoggedIn ? "Create a free account to apply" : "Apply on Official Website"}
+        title="Apply on Official Website"
         className="w-full h-14 rounded-2xl bg-[#071421] hover:bg-slate-800 text-white font-black text-sm flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg transition-all cursor-pointer group"
       >
-        {!isLoggedIn && <Lock className="w-4 h-4 text-amber-400" />}
         <span>Apply on Official Website</span>
         <ExternalLink className="w-4 h-4 text-[#18D6E5] group-hover:translate-x-0.5 transition-transform" />
       </button>

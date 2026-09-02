@@ -322,20 +322,7 @@ export function AuthGateModal() {
         setTimeout(() => {
           setIsOpen(false);
           if (pendingUrl) {
-            if (data.user?.subscriptionTier === "PRO") {
-              window.open(pendingUrl, "_blank");
-            } else {
-              window.dispatchEvent(
-                new CustomEvent("open-pro-gate", {
-                  detail: {
-                    jobId: pendingJobData?.jobId || "general",
-                    jobTitle: pendingJobData?.jobTitle || "Verified Visa Opportunity",
-                    companyName: pendingJobData?.companyName || "Licensed Sponsor",
-                    applyUrl: pendingUrl,
-                  },
-                })
-              );
-            }
+            window.open(pendingUrl, "_blank", "noopener,noreferrer");
             setPendingUrl(null);
           }
         }, 800);
@@ -450,21 +437,8 @@ export function AuthGateModal() {
     setPendingUrl(null);
     setCelebrationData(null);
 
-    // If user is already PRO, open directly; otherwise open Candidate Pro Gate
-    const currentUser = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("sa_user") || "null") : null;
-    if (currentUser?.subscriptionTier === "PRO" && targetUrl) {
-      window.open(targetUrl, "_blank");
-    } else {
-      window.dispatchEvent(
-        new CustomEvent("open-pro-gate", {
-          detail: {
-            jobId: pendingJobData?.jobId || "general",
-            jobTitle: pendingJobData?.jobTitle || "Verified Visa Opportunity",
-            companyName: pendingJobData?.companyName || "Licensed Sponsor",
-            applyUrl: targetUrl || "/jobs",
-          },
-        })
-      );
+    if (targetUrl) {
+      window.open(targetUrl, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -512,10 +486,10 @@ export function AuthGateModal() {
                 <span>Congratulations!</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-display">
-                Email Verified! Activate Candidate Pro
+                Email Verified! Account Active
               </h2>
               <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-                Your email is verified. To unlock direct official ATS application links, statutory £38,700 minimum salary compliance, and AI cover letters, activate your 1-Year Candidate Pro Pass for ₹299 INR.
+                Your email is verified. You now have full free access to direct official ATS application links, salary compliance insights, and personalized job alerts.
               </p>
             </div>
 
@@ -542,8 +516,8 @@ export function AuthGateModal() {
                 onClick={proceedWithApplication}
                 className="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-brand-500 via-[#19CBE0] to-teal-400 hover:from-brand-400 hover:to-teal-300 text-slate-950 font-black text-sm shadow-xl shadow-brand-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer group"
               >
-                <Lock className="w-4 h-4 text-slate-950" />
-                <span>{pendingUrl ? "Unlock Direct Application (₹299 INR)" : "Unlock Candidate Pro (₹299 INR)"}</span>
+                <Sparkles className="w-4 h-4 text-slate-950" />
+                <span>{pendingUrl ? "Continue to Application" : "Start Exploring Jobs"}</span>
                 <ArrowRight className="w-4 h-4 text-slate-950 transition-transform group-hover:translate-x-1" />
               </button>
             </div>

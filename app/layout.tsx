@@ -3,7 +3,6 @@ import "./globals.css";
 import { SubscriberPopup } from "@/components/SubscriberPopup";
 import { AuthGateModal } from "@/components/AuthGateModal";
 import { AppliedVerificationModal } from "@/components/AppliedVerificationModal";
-import { CandidateProGateModal } from "@/components/CandidateProGateModal";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://sponsorajobs.com";
 
@@ -151,7 +150,6 @@ export default function RootLayout({
         <SubscriberPopup />
         <AuthGateModal />
         <AppliedVerificationModal />
-        <CandidateProGateModal />
       </body>
     </html>
   );

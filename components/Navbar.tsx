@@ -215,8 +215,8 @@ export const Navbar: React.FC = () => {
                 >
                   <div className="px-3 py-2 text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1.5 flex items-center justify-between">
                     <span>Candidate Intelligence Tools</span>
-                    <span className="text-[9px] text-brand-600 font-extrabold bg-brand-50 px-2 py-0.5 rounded-full border border-brand-200">
-                      Pro Access
+                    <span className="text-[9px] text-emerald-600 font-extrabold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      Free Access
                     </span>
                   </div>
                   <div className="space-y-1">

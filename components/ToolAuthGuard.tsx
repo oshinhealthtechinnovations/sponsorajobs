@@ -21,9 +21,9 @@ interface ToolAuthGuardProps {
 
 export const ToolAuthGuard: React.FC<ToolAuthGuardProps> = ({
   toolName,
-  toolDescription = "This candidate intelligence tool requires an active Candidate Pro account to unlock full visa sponsorship matching, keyword gap analysis, and legal cover letter generation.",
+  toolDescription = "This candidate intelligence tool provides full visa sponsorship matching, keyword gap analysis, and legal cover letter generation.",
   featurePills = [
-    "Candidate Pro All-Access",
+    "Candidate All-Access",
     "Instant Verification",
     "Auto-Saved Career Progress",
     "Verified Visa Opportunities",

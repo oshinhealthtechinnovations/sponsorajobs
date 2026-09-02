@@ -57,7 +57,7 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
-  const { isLoggedIn, isPro, user } = useSession();
+  const { isLoggedIn, user } = useSession();
 
   const isDirect = isDirectJobUrl(applyUrl);
 
@@ -103,20 +103,6 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
 
   const handleApplyClick = (e: React.MouseEvent) => {
     e.preventDefault();
-
-    if (!isPro) {
-      window.dispatchEvent(
-        new CustomEvent("open-pro-gate", {
-          detail: {
-            jobId,
-            jobTitle,
-            companyName,
-            applyUrl,
-          },
-        })
-      );
-      return;
-    }
 
     // Immediately save to local application tracker
     saveLocalApplication(
