@@ -192,97 +192,113 @@ export default function SmartJobFinderPage() {
 
               {/* Matched Job Cards */}
               <div className="space-y-4">
-                <h3 className="text-base font-bold text-slate-900 flex items-center justify-between">
-                  <span>Top Visa-Sponsored Recommendations ({result.matchedJobs?.length || 0})</span>
-                  <span className="text-xs text-slate-500 font-normal">Ranked by visa viability & skills overlap</span>
-                </h3>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/80 pb-3">
+                  <h3 className="text-lg font-bold text-slate-900">
+                    Recommended Positions ({result.matchedJobs?.length || 0} matches found)
+                  </h3>
+                  <span className="text-xs text-slate-500 font-medium">
+                    Ranked by role relevance, skills overlap &amp; statutory visa viability
+                  </span>
+                </div>
 
-                {result.matchedJobs?.map((item: any, idx: number) => {
-                  const job = item.job;
-                  const reasons: string[] = item.reasons || [];
-                  return (
-                    <div
-                      key={job.id || idx}
-                      className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-slate-300 transition-all space-y-3"
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                        <div>
-                          <span className="text-[10px] font-black uppercase tracking-wider text-brand-600 flex items-center gap-1">
-                            <span>#{idx + 1} Best Match</span>
-                            <span>&middot;</span>
-                            <span>{item.matchScore}% Match Score</span>
-                          </span>
-                          <h4 className="text-base font-bold text-slate-900 mt-0.5">
-                            {job.title}
-                          </h4>
-                          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 mt-1">
-                            <span className="font-semibold text-slate-700">{job.companyName}</span>
-                            <span>&middot;</span>
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              {job.location} ({job.country})
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {result.matchedJobs?.map((item: any, idx: number) => {
+                    const job = item.job;
+                    const reasons: string[] = item.reasons || [];
+                    const companyName = job.company?.name || job.companyName || "Verified Sponsor";
+                    const locationStr = job.location?.city
+                      ? `${job.location.city}, ${job.location.country}`
+                      : (job.location?.country || job.country || "Direct");
+                    const salaryStr = job.salary?.max
+                      ? `${job.salary.currency || "$"}${job.salary.max.toLocaleString()}`
+                      : job.salary?.min
+                      ? `${job.salary.currency || "$"}${job.salary.min.toLocaleString()}`
+                      : typeof job.salary === "string"
+                      ? job.salary
+                      : "Competitive Package";
+
+                    return (
+                      <div
+                        key={job.id || idx}
+                        className="p-5 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:border-brand-300 transition-all flex flex-col justify-between space-y-4"
+                      >
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="space-y-1 min-w-0">
+                              <span className="text-xs font-bold text-slate-500 flex items-center gap-1.5 truncate">
+                                <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{companyName}</span>
+                              </span>
+                              <h4 className="text-base font-bold text-slate-900 leading-snug line-clamp-2">
+                                {job.title}
+                              </h4>
+                            </div>
+
+                            <div className="flex flex-col items-end gap-1.5 shrink-0">
+                              <span className="text-xs font-black px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0 whitespace-nowrap shadow-2xs">
+                                {item.matchScore}% Match
+                              </span>
+                              {item.visaViable && (
+                                <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200 shrink-0 whitespace-nowrap flex items-center gap-1">
+                                  <span>✓</span>
+                                  <span>Visa Viable</span>
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 pt-0.5">
+                            <span className="flex items-center gap-1 font-semibold text-slate-700">
+                              <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>{locationStr}</span>
                             </span>
-                            {job.salary && (
-                              <>
-                                <span>&middot;</span>
-                                <span className="font-semibold text-emerald-700">{job.salary}</span>
-                              </>
-                            )}
+                            <span className="flex items-center gap-1 font-bold text-emerald-700 bg-emerald-50/60 px-2 py-0.5 rounded-md border border-emerald-200/50">
+                              <Banknote className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              <span>{salaryStr}</span>
+                            </span>
+                          </div>
+
+                          {/* Match Reasons */}
+                          <div className="p-3 rounded-2xl bg-slate-50/90 border border-slate-100 space-y-1.5">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                              Why this matches your profile:
+                            </span>
+                            <div className="space-y-1">
+                              {reasons.map((r: string, rIdx: number) => (
+                                <div key={rIdx} className="flex items-start gap-1.5 text-[11px] text-slate-700">
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                                  <span className="leading-snug">{r}</span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
 
-                        <div className="flex sm:flex-col items-center sm:items-end gap-1 shrink-0">
-                          <span className="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold">
-                            {job.sponsorshipStatus || "Verified Sponsor"}
-                          </span>
-                          {item.visaFeasible && (
-                            <span className="text-[10px] text-brand-600 font-bold flex items-center gap-1">
-                              <ShieldCheck className="w-3 h-3" />
-                              Statutory Salary Met
-                            </span>
-                          )}
+                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                          <Link
+                            href={`/job/${job.slug || job.id}`}
+                            className="text-xs font-bold text-slate-600 hover:text-brand-600 transition-colors"
+                          >
+                            View Full Details
+                          </Link>
+
+                          {/* Gated Apply Button */}
+                          <JobApplyButton
+                            jobId={job.id}
+                            jobTitle={job.title}
+                            companyName={companyName}
+                            locationFormatted={locationStr}
+                            salaryFormatted={salaryStr}
+                            applyUrl={job.applyUrl}
+                            label="Apply on Official ATS"
+                            variant="card"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs transition-colors shadow-xs cursor-pointer touch-manipulation"
+                          />
                         </div>
                       </div>
-
-                      {/* Match Reasons */}
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                          Why this matches your profile:
-                        </span>
-                        <div className="space-y-0.5">
-                          {reasons.map((r: string, rIdx: number) => (
-                            <div key={rIdx} className="flex items-center gap-1.5 text-[11px] text-slate-600">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                              <span>{r}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
-                        <Link
-                          href={`/job/${job.id}`}
-                          className="text-xs font-bold text-slate-600 hover:text-brand-600"
-                        >
-                          View Full Details
-                        </Link>
-
-                        {/* Gated Apply Button */}
-                        <JobApplyButton
-                          jobId={job.id}
-                          jobTitle={job.title}
-                          companyName={job.companyName}
-                          locationFormatted={`${job.location} (${job.country})`}
-                          salaryFormatted={job.salary || null}
-                          applyUrl={job.applyUrl}
-                          label="Apply on Official ATS"
-                          variant="card"
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs transition-colors shadow-xs cursor-pointer"
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}

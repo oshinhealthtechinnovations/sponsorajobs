@@ -69,6 +69,29 @@ describe("Job Suggestion, Autocomplete & Semantic Search Suite", () => {
       expect(data.data.matchedJobs.length).toBeGreaterThan(0);
       expect(data.data.matchedJobs.length).toBeLessThanOrEqual(4);
     });
+
+    it("should never recommend physicians or duplicates for Data Analyst Python/SQL search", async () => {
+      const prompt = "Data Analyst with SQL and Python seeking US H-1B sponsorship opportunities";
+      const result = await JobSuggestionEngine.smartMatch(prompt);
+
+      expect(result.detectedIntent.targetRole).toContain("Data Analyst");
+      expect(result.detectedIntent.skills).toContain("Python");
+      expect(result.detectedIntent.skills).toContain("SQL");
+      expect(result.detectedIntent.targetCountry).toBe("US");
+
+      // Verify no healthcare jobs are returned
+      for (const item of result.matchedJobs) {
+        const title = item.job.title.toLowerCase();
+        expect(title).not.toContain("physician");
+        expect(title).not.toContain("doctor");
+        expect(title).not.toContain("hospital-employed");
+      }
+
+      // Verify deduplication
+      const titles = result.matchedJobs.map((m) => `${m.job.company.name}::${m.job.title}`);
+      const uniqueTitles = new Set(titles);
+      expect(uniqueTitles.size).toBe(titles.length);
+    });
   });
 
   describe("3. Alternative Roles & Career Pathways Engine", () => {

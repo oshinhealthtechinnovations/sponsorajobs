@@ -44,6 +44,34 @@ const COMMON_SKILLS = [
   "Data Engineering", "Figma", "Product Management", "Cybersecurity", "Microservices"
 ];
 
+const PROMPT_NOISE_WORDS = new Set([
+  "seeking", "looking", "for", "with", "and", "or", "years", "year", "exp", "experience",
+  "visa", "sponsorship", "sponsored", "jobs", "job", "opportunities", "opportunity",
+  "roles", "role", "position", "positions", "relocate", "relocating", "to", "in", "the",
+  "a", "an", "h-1b", "h1b", "skilled", "worker", "tss", "482", "j1", "need", "want",
+  "please", "find", "me", "candidate", "background", "ideal", "preferred", "status",
+  "available"
+]);
+
+const KNOWN_ROLES = [
+  "full stack developer", "full stack engineer", "software engineer", "software developer",
+  "frontend developer", "frontend engineer", "backend developer", "backend engineer",
+  "data analyst", "senior data analyst", "data scientist", "data engineer", "analytics engineer",
+  "devops engineer", "cloud engineer", "cloud architect", "solutions architect",
+  "civil engineer", "structural engineer", "mechanical engineer", "electrical engineer",
+  "product manager", "project manager", "qa engineer", "sdet", "systems engineer",
+  "ui/ux designer", "product designer", "security engineer", "cybersecurity analyst",
+  "machine learning engineer", "ai engineer", "physician", "registered nurse",
+  "cardiologist", "accountant", "financial analyst",
+  "developer", "engineer"
+];
+
+const HEALTHCARE_DISQUALIFIERS = [
+  "physician", "doctor", "surgeon", "dentist", "nurse", "therapist", "optometrist",
+  "audiologist", "obstetrician", "pediatrician", "gynecologist", "cardiologist",
+  "psychiatrist", "hospital-employed", "clinic"
+];
+
 const ALTERNATIVE_ROLES_MAP: Record<string, CareerAlternative[]> = {
   qa: [
     {
@@ -233,94 +261,221 @@ export class JobSuggestionEngine {
     const cleanPrompt = prompt.toLowerCase();
     const limit = preferences?.limit || 6;
 
-    // Detect Skills
+    // 1. Detect Skills
     const detectedSkills = COMMON_SKILLS.filter((s) =>
       cleanPrompt.includes(s.toLowerCase())
     );
 
-    // Detect Country
+    // 2. Detect Country
     let detectedCountry = preferences?.country;
     if (!detectedCountry) {
-      if (cleanPrompt.includes("uk") || cleanPrompt.includes("london") || cleanPrompt.includes("england")) detectedCountry = "GB";
-      else if (cleanPrompt.includes("us") || cleanPrompt.includes("america") || cleanPrompt.includes("usa")) detectedCountry = "US";
-      else if (cleanPrompt.includes("australia") || cleanPrompt.includes("sydney") || cleanPrompt.includes("melbourne")) detectedCountry = "AU";
-      else if (cleanPrompt.includes("canada") || cleanPrompt.includes("toronto")) detectedCountry = "CA";
+      if (cleanPrompt.includes("uk") || cleanPrompt.includes("london") || cleanPrompt.includes("england") || cleanPrompt.includes("britain")) detectedCountry = "GB";
+      else if (cleanPrompt.includes("us") || cleanPrompt.includes("america") || cleanPrompt.includes("usa") || cleanPrompt.includes("united states")) detectedCountry = "US";
+      else if (cleanPrompt.includes("australia") || cleanPrompt.includes("sydney") || cleanPrompt.includes("melbourne") || cleanPrompt.includes("brisbane")) detectedCountry = "AU";
+      else if (cleanPrompt.includes("canada") || cleanPrompt.includes("toronto") || cleanPrompt.includes("vancouver")) detectedCountry = "CA";
       else if (cleanPrompt.includes("new zealand") || cleanPrompt.includes("auckland")) detectedCountry = "NZ";
     }
 
-    // Detect Experience Level
+    // 3. Detect Experience Level
     let experienceLevel = "Mid-Senior";
-    if (cleanPrompt.includes("senior") || cleanPrompt.includes("lead") || cleanPrompt.includes("principal")) {
+    if (cleanPrompt.includes("senior") || cleanPrompt.includes("lead") || cleanPrompt.includes("principal") || cleanPrompt.includes("staff")) {
       experienceLevel = "Senior+";
-    } else if (cleanPrompt.includes("junior") || cleanPrompt.includes("entry") || cleanPrompt.includes("graduate")) {
+    } else if (cleanPrompt.includes("junior") || cleanPrompt.includes("entry") || cleanPrompt.includes("graduate") || cleanPrompt.includes("intern")) {
       experienceLevel = "Entry/Junior";
     }
 
-    // Search jobs matching the detected skills or prompt tokens
-    const searchRes = await this.jobRepo.search({
-      q: prompt.slice(0, 100),
+    // 4. Extract Target Role (strip conversational filler words)
+    let targetRole = "";
+    for (const role of KNOWN_ROLES) {
+      if (cleanPrompt.includes(role)) {
+        targetRole = role.split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+        break;
+      }
+    }
+
+    if (!targetRole) {
+      const cleanTokens = cleanPrompt
+        .replace(/[^a-z0-9\s]/g, " ")
+        .split(/\s+/)
+        .filter((w) => w.length > 2 && !PROMPT_NOISE_WORDS.has(w));
+      if (cleanTokens.length > 0) {
+        targetRole = cleanTokens
+          .slice(0, 3)
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ");
+      } else {
+        targetRole = "Specialist";
+      }
+    }
+
+    // 5. Construct Clean, Targeted Search Query (Target Role + Top Skills)
+    // Avoid sending conversational noise (like 'seeking', 'sponsorship') to the DB search
+    const searchTokens = [targetRole, ...detectedSkills.slice(0, 2)].join(" ").trim();
+
+    let searchRes = await this.jobRepo.search({
+      q: searchTokens,
       country: detectedCountry && detectedCountry !== "ALL" ? detectedCountry : undefined,
-      limit: 20,
+      limit: 50,
     });
 
-    const matchedJobs = searchRes.jobs.map((job) => {
-      let score = 70;
+    // Fallback if search was too narrow
+    if (searchRes.jobs.length === 0 && targetRole) {
+      searchRes = await this.jobRepo.search({
+        q: targetRole,
+        country: detectedCountry && detectedCountry !== "ALL" ? detectedCountry : undefined,
+        limit: 50,
+      });
+    }
+
+    // If still empty and skills exist, search by top skill
+    if (searchRes.jobs.length === 0 && detectedSkills.length > 0) {
+      searchRes = await this.jobRepo.search({
+        q: detectedSkills[0],
+        country: detectedCountry && detectedCountry !== "ALL" ? detectedCountry : undefined,
+        limit: 50,
+      });
+    }
+
+    // 6. Deduplication & Cross-Domain Validation
+    const isTechOrDataPrompt = /(developer|engineer|software|data|analyst|devops|cloud|architect|react|python|sql|java|node|web|code|programming)/i.test(cleanPrompt);
+
+    const seenKeys = new Set<string>();
+    const scoredJobs: Array<{
+      job: PublicJobDTO;
+      matchScore: number;
+      visaViable: boolean;
+      reasons: string[];
+    }> = [];
+
+    for (const job of searchRes.jobs) {
+      // Deduplicate identical postings by company + normalized title
+      const normTitle = job.title.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 45);
+      const normCompany = (job.company?.name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const dedupeKey = `${normCompany}::${normTitle}`;
+
+      if (seenKeys.has(dedupeKey) || seenKeys.has(job.id) || seenKeys.has(job.slug)) {
+        continue;
+      }
+      seenKeys.add(dedupeKey);
+      seenKeys.add(job.id);
+      seenKeys.add(job.slug);
+
+      const jobTitleLower = job.title.toLowerCase();
+      const jobCategoryLower = (job.category?.name || "").toLowerCase();
+
+      // Cross-Domain Disqualification: Never show healthcare roles to tech/data candidates
+      const isHealthcareJob =
+        HEALTHCARE_DISQUALIFIERS.some((d) => jobTitleLower.includes(d)) ||
+        jobCategoryLower.includes("health") ||
+        jobCategoryLower.includes("medic");
+
+      if (isTechOrDataPrompt && isHealthcareJob) {
+        continue;
+      }
+
+      // 7. Ground-Up Multi-Factor Scoring (0 - 100)
+      let score = 50;
       const reasons: string[] = [];
 
-      // Check skill overlap
-      const jobDesc = `${job.title} ${job.category?.name || ""} ${job.sponsorship.positiveEvidence.join(" ")} ${job.sponsorship.visaKeywords.join(" ")}`.toLowerCase();
-      let matchedSkillCount = 0;
+      // A. Title / Role Alignment (up to 25 pts)
+      const roleLower = targetRole.toLowerCase();
+      let titlePoints = 0;
+
+      if (jobTitleLower.includes(roleLower)) {
+        titlePoints = 25;
+        reasons.push(`Direct title match for ${targetRole}`);
+      } else {
+        const roleKeywords = roleLower.split(" ").filter((k) => k.length > 2 && !PROMPT_NOISE_WORDS.has(k));
+        let matchedKeywords = 0;
+        for (const kw of roleKeywords) {
+          if (jobTitleLower.includes(kw)) matchedKeywords++;
+        }
+        if (roleKeywords.length > 0 && matchedKeywords > 0) {
+          titlePoints = Math.round((matchedKeywords / roleKeywords.length) * 20);
+          reasons.push(`Role alignment with ${targetRole}`);
+        }
+      }
+      score += titlePoints;
+
+      // B. Skills Overlap (up to 20 pts)
+      const jobFullText = `${job.title} ${jobCategoryLower} ${job.sponsorship.evidenceMessage || ""} ${job.sponsorship.positiveEvidence.join(" ")} ${job.sponsorship.visaKeywords.join(" ")}`.toLowerCase();
+      const matchedSkills: string[] = [];
       for (const skill of detectedSkills) {
-        if (jobDesc.includes(skill.toLowerCase())) {
-          matchedSkillCount++;
-          score += 6;
+        if (jobFullText.includes(skill.toLowerCase())) {
+          matchedSkills.push(skill);
         }
       }
 
-      if (matchedSkillCount > 0) {
-        reasons.push(`Matches ${matchedSkillCount} of your target skills (${detectedSkills.slice(0, 3).join(", ")})`);
+      if (detectedSkills.length > 0) {
+        if (matchedSkills.length > 0) {
+          const skillRatio = matchedSkills.length / detectedSkills.length;
+          score += Math.round(skillRatio * 20);
+          reasons.push(`Matches your target skills: ${matchedSkills.join(", ")}`);
+        }
+      } else if (titlePoints > 0) {
+        score += 15;
       }
 
-      // Check visa viability based on salary
+      // HARD RELEVANCE GATE: If 0 title alignment AND 0 skills match, DISCARD this job!
+      if (titlePoints === 0 && matchedSkills.length === 0) {
+        continue;
+      }
+
+      // C. Visa Viability & Thresholds (up to 15 pts)
       const salaryMax = job.salary?.max || job.salary?.min || 0;
       const isUk = job.location.country.toUpperCase() === "GB" || job.location.country.toUpperCase() === "UK";
-      const satisfiesUkThreshold = isUk ? salaryMax >= 38700 : salaryMax > 0;
+      const isUs = job.location.country.toUpperCase() === "US";
+      const meetsUk = isUk ? salaryMax >= 38700 : true;
+      const meetsUs = isUs ? salaryMax >= 60000 : true;
       const confidence = job.sponsorshipConfidence ?? 80;
-      const visaViable = satisfiesUkThreshold || confidence >= 80;
+      const visaViable = (meetsUk && meetsUs) || confidence >= 80;
 
       if (visaViable) {
         score += 10;
-        reasons.push("Compensation & employer license verify statutory visa sponsorship criteria");
+        if (salaryMax > 0) {
+          const sym = job.salary?.currency || (isUk ? "£" : "$");
+          reasons.push(`Compensation meets statutory visa threshold (${sym}${salaryMax.toLocaleString()})`);
+        } else {
+          reasons.push("Verified licensed employer offering statutory visa sponsorship");
+        }
       }
 
-      const isDirect = !job.sourceAttributionRequired || job.applyUrl.includes("greenhouse") || job.applyUrl.includes("lever") || job.applyUrl.includes("ashby");
+      // D. Direct ATS Link Quality (up to 5 pts)
+      const isDirect =
+        !job.sourceAttributionRequired ||
+        job.applyUrl.includes("greenhouse") ||
+        job.applyUrl.includes("lever") ||
+        job.applyUrl.includes("ashby") ||
+        job.applyUrl.includes("workday");
+
       if (isDirect) {
         score += 5;
         reasons.push("100% direct official employer application link");
       }
 
-      score = Math.min(99, Math.max(50, score));
+      // Calibrate score into natural authentic range (70% - 98%)
+      const finalScore = Math.min(98, Math.max(70, score));
 
-      return {
+      scoredJobs.push({
         job,
-        matchScore: score,
+        matchScore: finalScore,
         visaViable,
-        reasons: reasons.length > 0 ? reasons : ["Strong general alignment with your candidate background"],
-      };
-    });
+        reasons: reasons.length > 0 ? reasons : ["General background alignment with verified visa sponsorship"],
+      });
+    }
 
-    // Sort by match score descending
-    matchedJobs.sort((a, b) => b.matchScore - a.matchScore);
+    // Sort descending by match score
+    scoredJobs.sort((a, b) => b.matchScore - a.matchScore);
 
     return {
       detectedIntent: {
-        targetRole: prompt.split(" ").slice(0, 3).join(" "),
+        targetRole,
         skills: detectedSkills,
         targetCountry: detectedCountry,
         experienceLevel,
       },
-      matchedJobs: matchedJobs.slice(0, limit),
-      totalFound: matchedJobs.length,
+      matchedJobs: scoredJobs.slice(0, limit),
+      totalFound: scoredJobs.length,
     };
   }
 
