@@ -1,3 +1,17 @@
 {
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/cron/harvest-construction",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/daily-jobs-report",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/seo-automation",
+      "schedule": "0 3 * * *"
+    }
+  ]
 }
