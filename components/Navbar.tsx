@@ -209,14 +209,17 @@ export const Navbar: React.FC = () => {
               </button>
 
               {toolsDropdownOpen && (
-                <div className="absolute left-0 mt-2 w-80 rounded-2xl bg-white border border-slate-200/90 shadow-xl p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1 flex items-center justify-between">
+                <div
+                  className="absolute left-0 mt-2 w-[350px] min-w-[320px] max-w-none rounded-2xl bg-white border border-slate-200/90 shadow-2xl p-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
+                  style={{ width: "350px", maxWidth: "90vw" }}
+                >
+                  <div className="px-3 py-2 text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1.5 flex items-center justify-between">
                     <span>Candidate Intelligence Tools</span>
-                    <span className="text-[9px] text-emerald-600 font-extrabold bg-emerald-50 px-1.5 py-0.5 rounded-full">
+                    <span className="text-[9px] text-emerald-600 font-extrabold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                       100% Free
                     </span>
                   </div>
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
                     {TOOLS_NAV_ITEMS.map((item) => {
                       const Icon = item.icon;
                       const isItemActive = pathname === item.href;
@@ -224,7 +227,7 @@ export const Navbar: React.FC = () => {
                         <Link
                           key={item.href}
                           href={item.href}
-                          className={`flex items-start gap-3 p-2 rounded-xl transition-colors group ${
+                          className={`flex items-start gap-3 p-2.5 rounded-xl transition-colors group ${
                             isItemActive ? "bg-brand-50/70" : "hover:bg-slate-50"
                           }`}
                         >
@@ -233,7 +236,7 @@ export const Navbar: React.FC = () => {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-slate-900 group-hover:text-brand-600 transition-colors">
+                              <span className="text-xs font-bold text-slate-900 group-hover:text-brand-600 transition-colors whitespace-nowrap">
                                 {item.label}
                               </span>
                               {item.badge && (

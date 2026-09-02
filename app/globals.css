@@ -46,7 +46,7 @@ body {
   touch-action: pan-y;
 }
 
-#__next, main, div {
+#__next, main {
   max-width: 100%;
 }
 
