@@ -39,10 +39,12 @@ const FOOTER_LINKS = {
     label: "SponsorAJobs",
     links: [
       { href: "/about", label: "About" },
+      { href: "/pricing", label: "Pricing & Plans" },
       { href: "/trust", label: "How It Works" },
       { href: "/contact", label: "Contact" },
       { href: "/privacy", label: "Privacy" },
       { href: "/terms", label: "Terms" },
+      { href: "/refund-policy", label: "Refund Policy" },
     ],
   },
 };

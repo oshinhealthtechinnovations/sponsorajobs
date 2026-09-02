@@ -57,7 +57,7 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
-  const { isLoggedIn, user } = useSession();
+  const { isLoggedIn, isPro, user } = useSession();
 
   const isDirect = isDirectJobUrl(applyUrl);
 
@@ -104,10 +104,15 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
   const handleApplyClick = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    if (!isLoggedIn) {
+    if (!isPro) {
       window.dispatchEvent(
-        new CustomEvent("open-auth-gate", {
-          detail: { defaultTab: "register", redirectUrl: applyUrl },
+        new CustomEvent("open-pro-gate", {
+          detail: {
+            jobId,
+            jobTitle,
+            companyName,
+            applyUrl,
+          },
         })
       );
       return;

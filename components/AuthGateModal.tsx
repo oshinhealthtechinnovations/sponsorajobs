@@ -322,7 +322,20 @@ export function AuthGateModal() {
         setTimeout(() => {
           setIsOpen(false);
           if (pendingUrl) {
-            window.open(pendingUrl, "_blank");
+            if (data.user?.subscriptionTier === "PRO") {
+              window.open(pendingUrl, "_blank");
+            } else {
+              window.dispatchEvent(
+                new CustomEvent("open-pro-gate", {
+                  detail: {
+                    jobId: pendingJobData?.jobId || "general",
+                    jobTitle: pendingJobData?.jobTitle || "Verified Visa Opportunity",
+                    companyName: pendingJobData?.companyName || "Licensed Sponsor",
+                    applyUrl: pendingUrl,
+                  },
+                })
+              );
+            }
             setPendingUrl(null);
           }
         }, 800);
@@ -433,11 +446,26 @@ export function AuthGateModal() {
 
   const proceedWithApplication = () => {
     setIsOpen(false);
-    if (pendingUrl) {
-      window.open(pendingUrl, "_blank");
-      setPendingUrl(null);
-    }
+    const targetUrl = pendingUrl;
+    setPendingUrl(null);
     setCelebrationData(null);
+
+    // If user is already PRO, open directly; otherwise open Candidate Pro Gate
+    const currentUser = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("sa_user") || "null") : null;
+    if (currentUser?.subscriptionTier === "PRO" && targetUrl) {
+      window.open(targetUrl, "_blank");
+    } else {
+      window.dispatchEvent(
+        new CustomEvent("open-pro-gate", {
+          detail: {
+            jobId: pendingJobData?.jobId || "general",
+            jobTitle: pendingJobData?.jobTitle || "Verified Visa Opportunity",
+            companyName: pendingJobData?.companyName || "Licensed Sponsor",
+            applyUrl: targetUrl || "/jobs",
+          },
+        })
+      );
+    }
   };
 
   if (!isOpen) return null;
@@ -484,10 +512,10 @@ export function AuthGateModal() {
                 <span>Congratulations!</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-display">
-                Email Verified & Candidate Account Active!
+                Email Verified! Activate Candidate Pro
               </h2>
               <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-                Your email address has been verified. You now have full access to direct employer application links, candidate tracker, and salary insights.
+                Your email is verified. To unlock direct official ATS application links, statutory £38,700 minimum salary compliance, and AI cover letters, activate your 1-Year Candidate Pro Pass for ₹299 INR.
               </p>
             </div>
 
@@ -512,10 +540,11 @@ export function AuthGateModal() {
               <button
                 type="button"
                 onClick={proceedWithApplication}
-                className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-brand-600 hover:from-emerald-500 hover:to-brand-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer group"
+                className="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-brand-500 via-[#19CBE0] to-teal-400 hover:from-brand-400 hover:to-teal-300 text-slate-950 font-black text-sm shadow-xl shadow-brand-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer group"
               >
-                <span>{pendingUrl ? "Proceed to Job Application" : "Go to Candidate Dashboard & Jobs"}</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                <Lock className="w-4 h-4 text-slate-950" />
+                <span>{pendingUrl ? "Unlock Direct Application (₹299 INR)" : "Unlock Candidate Pro (₹299 INR)"}</span>
+                <ArrowRight className="w-4 h-4 text-slate-950 transition-transform group-hover:translate-x-1" />
               </button>
             </div>
           </div>

@@ -27,7 +27,7 @@ export function JobDetailSidebarActions({
 }: JobDetailSidebarActionsProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const { isLoggedIn, user } = useSession();
+  const { isLoggedIn, isPro, user } = useSession();
 
   useEffect(() => {
     try {
@@ -66,10 +66,17 @@ export function JobDetailSidebarActions({
   const handleApply = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    if (!isLoggedIn) {
+    if (!isPro) {
       window.dispatchEvent(
-        new CustomEvent("open-auth-gate", {
-          detail: { defaultTab: "register", redirectUrl: applyUrl },
+        new CustomEvent("open-pro-gate", {
+          detail: {
+            jobId,
+            jobTitle,
+            companyName,
+            location: locationFormatted,
+            salary: salaryFormatted,
+            applyUrl,
+          },
         })
       );
       return;

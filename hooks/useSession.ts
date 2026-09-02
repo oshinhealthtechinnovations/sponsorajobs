@@ -8,11 +8,17 @@ export interface SessionUser {
   email: string;
   profession?: string;
   isEmailVerified?: boolean;
+  subscriptionTier?: "FREE" | "PRO";
+  subscriptionStatus?: string;
+  amountPaid?: number;
+  currencyPaid?: string;
+  proExpiresAt?: string;
 }
 
 export interface UseSessionResult {
   user: SessionUser | null;
   isLoggedIn: boolean;
+  isPro: boolean;
   isLoading: boolean;
 }
 
@@ -98,5 +104,6 @@ export function useSession(): UseSessionResult {
     };
   }, []);
 
-  return { user, isLoggedIn: !!user, isLoading };
+  const isPro = user?.subscriptionTier === "PRO";
+  return { user, isLoggedIn: !!user, isPro, isLoading };
 }

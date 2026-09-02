@@ -21,10 +21,10 @@ interface ToolAuthGuardProps {
 
 export const ToolAuthGuard: React.FC<ToolAuthGuardProps> = ({
   toolName,
-  toolDescription = "This candidate intelligence tool is 100% free, but requires a verified candidate account to prevent abuse and automatically save your progress.",
+  toolDescription = "This candidate intelligence tool requires an active Candidate Pro account to unlock full visa sponsorship matching, keyword gap analysis, and legal cover letter generation.",
   featurePills = [
-    "100% Free Forever",
-    "Instant 6-Digit Email OTP",
+    "Candidate Pro All-Access",
+    "Instant Verification",
     "Auto-Saved Career Progress",
     "Verified Visa Opportunities",
   ],

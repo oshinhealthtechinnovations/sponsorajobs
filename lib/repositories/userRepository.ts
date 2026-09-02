@@ -17,6 +17,13 @@ export interface UserAccount {
   verificationCodeExpires?: string;
   resetCode?: string;
   resetCodeExpires?: string;
+  subscriptionTier?: "FREE" | "PRO";
+  subscriptionStatus?: "ACTIVE" | "INACTIVE" | "TRIALING";
+  stripeCustomerId?: string;
+  stripeSessionId?: string;
+  amountPaid?: number;
+  currencyPaid?: string;
+  proExpiresAt?: string;
   createdAt: string;
   lastLoginAt: string;
 }
@@ -636,6 +643,63 @@ export class UserRepository {
    */
   async getAllTrialRequests(): Promise<TrialAccessRequest[]> {
     return inMemoryTrialRequests;
+  }
+
+  /**
+   * Upgrade user to Candidate Pro with payment details
+   */
+  async upgradeUserToPro(
+    emailOrId: string,
+    details: {
+      amountPaid: number;
+      currency?: string;
+      stripeSessionId?: string;
+      stripeCustomerId?: string;
+    }
+  ): Promise<UserAccount | null> {
+    const cleanLookup = emailOrId.trim().toLowerCase();
+    let user = await this.findByEmail(cleanLookup);
+    if (!user) {
+      user = inMemoryUsers.find((u) => u.id === emailOrId || u.email.toLowerCase() === cleanLookup) || null;
+    }
+
+    const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+
+    if (user) {
+      user.subscriptionTier = "PRO";
+      user.subscriptionStatus = "ACTIVE";
+      user.amountPaid = details.amountPaid;
+      user.currencyPaid = details.currency || "GBP";
+      user.stripeSessionId = details.stripeSessionId;
+      user.stripeCustomerId = details.stripeCustomerId;
+      user.proExpiresAt = expiresAt;
+      return user;
+    }
+
+    // If user record doesn't exist yet, create an instant verified PRO candidate account
+    const newUser: UserAccount = {
+      id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      name: "Pro Candidate",
+      email: cleanLookup,
+      passwordHash: "",
+      profession: "Sponsored Professional",
+      promoCodeUsed: "PAID_PRO_299",
+      isTrial: false,
+      isActive: true,
+      isEmailVerified: true,
+      subscriptionTier: "PRO",
+      subscriptionStatus: "ACTIVE",
+      amountPaid: details.amountPaid,
+      currencyPaid: details.currency || "GBP",
+      stripeSessionId: details.stripeSessionId,
+      stripeCustomerId: details.stripeCustomerId,
+      proExpiresAt: expiresAt,
+      createdAt: new Date().toISOString(),
+      lastLoginAt: new Date().toISOString(),
+    };
+
+    inMemoryUsers.unshift(newUser);
+    return newUser;
   }
 
   /**
