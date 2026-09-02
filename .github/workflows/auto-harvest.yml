@@ -46,11 +46,15 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '8569757426' }}
         run: npx tsx scripts/harvest-real-jobs.ts
 
+      - name: Run Autonomous Construction Harvester (Tier 1 UK Contractors)
+        continue-on-error: true
+        run: npx tsx scripts/harvest-construction-daily.ts --once
+
       - name: Commit and push updated job dataset
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           # Check if realJobsData.json was modified
           if [ -n "$(git status --porcelain lib/db/realJobsData.json)" ]; then
             git add lib/db/realJobsData.json
