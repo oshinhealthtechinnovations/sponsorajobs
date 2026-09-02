@@ -60,3 +60,15 @@ jobs:
           else
             echo "No new jobs detected in this cycle."
           fi
+
+      - name: Self-Trigger Autonomous SEO Engine & Search Indexing
+        env:
+          NEXT_PUBLIC_SITE_URL: "https://sponsorajobs.com"
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          INDEXNOW_API_KEY: ${{ secrets.INDEXNOW_API_KEY || 'sponsorajobs2026seo' }}
+        run: npx tsx scripts/run-seo-automation.ts --no-notify

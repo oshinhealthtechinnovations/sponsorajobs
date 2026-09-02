@@ -12,7 +12,9 @@
     "test:watch": "vitest",
     "db:seed": "npx tsx scripts/seed.ts",
     "typecheck": "tsc --noEmit",
-    "pages:build": "next build"
+    "pages:build": "next build",
+    "seo:run": "npx tsx scripts/run-seo-automation.ts --once",
+    "seo:daemon": "npx tsx scripts/run-seo-automation.ts --daemon"
   },
   "dependencies": {
     "@types/nodemailer": "^8.0.1",
