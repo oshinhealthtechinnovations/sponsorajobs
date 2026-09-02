@@ -38,30 +38,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  // 2. Country Landing Hubs (5 countries)
+  // 2. Country Landing Hubs — canonical slug only (avoid duplicate code/slug URLs)
   for (const c of INITIAL_COUNTRIES) {
     entries.push({
-      url: `${baseUrl}/jobs/${c.code.toLowerCase()}`,
+      url: `${baseUrl}/jobs/${c.slug}`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.9,
     });
     entries.push({
-      url: `${baseUrl}/jobs/${c.slug}`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.85,
-    });
-    entries.push({
-      url: `${baseUrl}/visa-sponsorship/${c.code.toLowerCase()}`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.8,
-    });
-    entries.push({
       url: `${baseUrl}/visa-sponsorship/${c.slug}`,
       lastModified: now,
-      changeFrequency: "daily",
+      changeFrequency: "weekly",
       priority: 0.8,
     });
   }
@@ -76,20 +64,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  // 4. Programmatic Country + Category Matrix Hubs (45 pages)
+  // 4. Programmatic Country + Category Matrix Hubs (45 pages) — slug only
   for (const c of INITIAL_COUNTRIES) {
     for (const cat of INITIAL_CATEGORIES) {
-      entries.push({
-        url: `${baseUrl}/jobs/${c.code.toLowerCase()}/${cat.slug}`,
-        lastModified: now,
-        changeFrequency: "daily",
-        priority: 0.8,
-      });
       entries.push({
         url: `${baseUrl}/jobs/${c.slug}/${cat.slug}`,
         lastModified: now,
         changeFrequency: "daily",
-        priority: 0.75,
+        priority: 0.8,
       });
     }
   }
@@ -98,7 +80,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const db = getDatabase();
     const companies = await db.prepare(
-      "SELECT slug, updated_at FROM companies WHERE slug IS NOT NULL LIMIT 500"
+      "SELECT slug, updated_at FROM companies WHERE slug IS NOT NULL LIMIT 1000"
     ).all<{ slug: string; updated_at: string }>();
 
     for (const company of companies.results) {
@@ -149,7 +131,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${baseUrl}/blog/${post.slug}`,
         lastModified: new Date(post.updatedAt || now),
         changeFrequency: "weekly",
-        priority: 0.85,
+        priority: 0.7, // Blog lower priority than job pages (was 0.85)
       });
     }
   } catch (err) {

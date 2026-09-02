@@ -1,10 +1,28 @@
 import React from "react";
+import { Metadata } from "next";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { INITIAL_CATEGORIES } from "@/config/categories";
 import { CategoryRepository } from "@/lib/repositories/categoryRepository";
 import Link from "next/link";
 import { Briefcase, ArrowRight } from "lucide-react";
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://sponsorajobs.com";
+
+export const metadata: Metadata = {
+  title: "Job Categories with Visa Sponsorship | SponsorAJobs",
+  description:
+    "Browse all job sectors actively sponsoring international candidates — Engineering, IT, Healthcare, Finance, Construction, Logistics, Hospitality, Education, and Administration.",
+  alternates: { canonical: `${BASE_URL}/categories` },
+  openGraph: {
+    title: "Job Categories with Visa Sponsorship | SponsorAJobs",
+    description:
+      "Explore 9 major job sectors offering employer visa sponsorship across UK, USA, Australia, Canada, and New Zealand.",
+    url: `${BASE_URL}/categories`,
+    siteName: "SponsorAJobs",
+    type: "website",
+  },
+};
 
 export default async function CategoriesDirectoryPage() {
   const catRepo = new CategoryRepository();

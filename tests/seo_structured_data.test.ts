@@ -79,14 +79,17 @@ describe("Phase 8: Programmatic SEO & Structured Data Tests (Sections 41-49, 139
 
   // 3. Robots.txt Directives Test (Section 47)
   describe("robots.ts Directives", () => {
-    it("should allow root and disallow admin/api paths while referencing sitemap", () => {
+    it("should allow indexed paths and disallow admin/api paths while referencing sitemap", () => {
       const res = robots();
       expect(res.sitemap).toBe("https://sponsorajobs.com/sitemap.xml");
 
       const rules: any = res.rules;
       const rule = Array.isArray(rules) ? rules[0] : rules;
 
-      expect(rule.allow).toBe("/");
+      // allow is now an array of canonical paths (allows paginated URLs, filters etc.)
+      const allowList = Array.isArray(rule.allow) ? rule.allow : [rule.allow];
+      expect(allowList).toContain("/");
+      expect(allowList).toContain("/jobs");
       expect(rule.disallow).toContain("/admin/");
       expect(rule.disallow).toContain("/api/");
     });
@@ -105,16 +108,16 @@ describe("Phase 8: Programmatic SEO & Structured Data Tests (Sections 41-49, 139
       expect(urls).toContain("https://sponsorajobs.com/jobs");
       expect(urls).toContain("https://sponsorajobs.com/visa-sponsorship");
 
-      // 5 Countries
-      expect(urls).toContain("https://sponsorajobs.com/jobs/gb");
-      expect(urls).toContain("https://sponsorajobs.com/jobs/us");
-      expect(urls).toContain("https://sponsorajobs.com/jobs/au");
-      expect(urls).toContain("https://sponsorajobs.com/jobs/ca");
-      expect(urls).toContain("https://sponsorajobs.com/jobs/nz");
+      // 5 Countries — canonical slug URLs only (no duplicate code/slug entries)
+      expect(urls).toContain("https://sponsorajobs.com/jobs/uk");      // GB canonical slug
+      expect(urls).toContain("https://sponsorajobs.com/jobs/usa");     // US canonical slug
+      expect(urls).toContain("https://sponsorajobs.com/jobs/australia"); // AU canonical slug
+      expect(urls).toContain("https://sponsorajobs.com/jobs/canada");  // CA canonical slug
+      expect(urls).toContain("https://sponsorajobs.com/jobs/new-zealand"); // NZ canonical slug
 
-      // Programmatic matrix hubs
-      expect(urls).toContain("https://sponsorajobs.com/jobs/gb/engineering");
-      expect(urls).toContain("https://sponsorajobs.com/jobs/us/information-technology");
+      // Programmatic matrix hubs — slug-based
+      expect(urls).toContain("https://sponsorajobs.com/jobs/uk/engineering");
+      expect(urls).toContain("https://sponsorajobs.com/jobs/usa/information-technology");
     });
   });
 

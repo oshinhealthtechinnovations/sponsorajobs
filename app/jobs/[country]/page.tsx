@@ -1,4 +1,5 @@
 import React from "react";
+import { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -7,10 +8,47 @@ import { CountryRepository } from "@/lib/repositories/countryRepository";
 import { JobRepository } from "@/lib/repositories/jobRepository";
 import { INITIAL_CATEGORIES, getCategoryBySlug } from "@/config/categories";
 import { getCountryBySlug, INITIAL_COUNTRIES } from "@/config/countries";
+import { constructMetadata } from "@/lib/seo/metadata";
+import { generateBreadcrumbSchema } from "@/lib/seo/schema";
 import Link from "next/link";
 import { Globe, ArrowRight, ShieldCheck, Search } from "lucide-react";
 
 export const revalidate = 1800;
+
+// Pre-render all 5 country hubs at build time for instant TTFB
+export async function generateStaticParams() {
+  return INITIAL_COUNTRIES.map((c) => ({ country: c.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: CountryJobsPageProps): Promise<Metadata> {
+  const countryConfig = getCountryBySlug(params.country);
+  if (!countryConfig) return {};
+
+  const countryRepo = new CountryRepository();
+  const country = await countryRepo.getBySlug(params.country);
+  if (!country) return {};
+
+  const jobRepo = new JobRepository();
+  const result = await jobRepo.search({
+    country: country.code.toLowerCase(),
+    limit: 1,
+  });
+  const jobCount = result.total;
+
+  const title = countryConfig.seoTitle.replace(" | SponsorAJobs", "");
+  const description =
+    countryConfig.seoDescription ||
+    `Find ${jobCount}+ verified visa sponsorship jobs in ${countryConfig.name}. Employer-sponsored positions updated daily for skilled worker visas.`;
+
+  return constructMetadata({
+    title,
+    description,
+    path: `/jobs/${countryConfig.slug}`,
+    jobCount,
+  });
+}
 
 interface CountryJobsPageProps {
   params: {
@@ -42,9 +80,41 @@ export default async function CountryJobsPage({ params }: CountryJobsPageProps) 
 
   const countryConfig = getCountryBySlug(params.country);
   const popularCities = countryConfig?.popularCities || [];
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://sponsorajobs.com";
+
+  // BreadcrumbList JSON-LD for Google sitelink breadcrumbs
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: baseUrl },
+    { name: "Jobs", url: `${baseUrl}/jobs` },
+    { name: country.name, url: `${baseUrl}/jobs/${country.slug}` },
+  ]);
+
+  // ItemList JSON-LD so Google can see job titles directly on hub page
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `Visa Sponsorship Jobs in ${country.name}`,
+    description: countryConfig?.seoDescription || `Verified visa sponsorship jobs in ${country.name}`,
+    url: `${baseUrl}/jobs/${country.slug}`,
+    numberOfItems: searchResult.total,
+    itemListElement: searchResult.jobs.slice(0, 10).map((job, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: `${baseUrl}/job/${job.id}`,
+      name: job.title,
+    })),
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
       <Navbar />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">

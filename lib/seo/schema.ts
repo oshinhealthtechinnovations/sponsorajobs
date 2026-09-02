@@ -31,10 +31,12 @@ export function generateJobPostingSchema(job: JobSchemaInput): Record<string, an
     ? new Date(job.published_at).toISOString()
     : new Date().toISOString();
 
-  // Expiration date (30 days from publish date by default if not set)
-  const validThroughDate = new Date(
-    new Date(publishedDate).getTime() + 30 * 24 * 60 * 60 * 1000
-  ).toISOString();
+  // Fix #2: Use actual expires_at when available; fall back to 60 days from publish
+  const validThroughDate = job.expires_at
+    ? new Date(job.expires_at).toISOString()
+    : new Date(
+        new Date(publishedDate).getTime() + 60 * 24 * 60 * 60 * 1000
+      ).toISOString();
 
   const isRemote = job.remote_type === "REMOTE";
 
@@ -67,7 +69,8 @@ export function generateJobPostingSchema(job: JobSchemaInput): Record<string, an
       },
     },
     directApply: true,
-    url: `${BASE_URL}/job/${job.id || ""}`,
+    // Fix #3: canonical URL must use full semantic slug, not bare job.id
+    url: job.id ? `${BASE_URL}/job/${job.id}` : BASE_URL,
   };
 
   // Remote & Telecommute specs
