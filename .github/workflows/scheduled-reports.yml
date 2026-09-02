@@ -1,0 +1,61 @@
+name: Automated Hourly & Morning Executive Reports
+
+on:
+  schedule:
+    # Hourly runner on the hour (e.g., 01:00, 02:00, 03:00 UTC...)
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    inputs:
+      report_type:
+        description: 'Type of report to dispatch'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - hourly
+          - daily
+
+jobs:
+  dispatch-reports:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine dispatch mode and execute report
+        env:
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          # If manual dispatch, use user selected input
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            MODE="--${{ github.event.inputs.report_type }}"
+          else
+            # Check current hour UTC (02:00 UTC = 07:30 AM IST is morning daily report window)
+            CURRENT_HOUR=$(date -u +'%H')
+            if [ "$CURRENT_HOUR" = "02" ]; then
+              MODE="--all"
+            else
+              MODE="--hourly"
+            fi
+          fi
+          
+          echo "Executing report dispatch with mode: $MODE"
+          npx tsx scripts/dispatch-scheduled-reports.ts $MODE
