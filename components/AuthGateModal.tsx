@@ -443,7 +443,7 @@ export function AuthGateModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto">
       <div className="relative w-full max-w-lg rounded-3xl bg-slate-950 border border-slate-800 shadow-2xl p-6 sm:p-8 space-y-6 text-white overflow-hidden my-auto">
         {/* Ambient background glows */}
         <div className="absolute -top-24 -right-24 w-52 h-52 bg-brand-500/20 rounded-full blur-3xl pointer-events-none" />

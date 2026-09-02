@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { ToolAuthGuard } from "@/components/ToolAuthGuard";
 import { JobCard } from "@/components/JobCard";
 import {
   FullATSIntelligenceResult,
@@ -221,8 +222,19 @@ export default function ATSCheckerPage() {
           </p>
         </div>
 
-        {/* Input Card */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm mb-10 space-y-6">
+        {/* Auth Gated Tool Workspace */}
+        <ToolAuthGuard
+          toolName="ATS Resume Compatibility & Visa Scorer"
+          toolDescription="Deterministic document parsing, UK SOC 2020 occupation code mapping, and sponsorship readiness evaluated against 650+ verified employer visa licenses."
+          featurePills={[
+            "Deterministic Document Parsing (PDF / DOCX)",
+            "UK SOC 2020 & Global Occupation Mapping",
+            "Visa Sponsorship Compatibility Scoring",
+            "Missing Keyword & Gap Recommendations",
+          ]}
+        >
+          {/* Input Card */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm mb-10 space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
             <div className="flex items-center gap-2">
               <button
@@ -737,6 +749,7 @@ export default function ATSCheckerPage() {
             </div>
           </div>
         )}
+        </ToolAuthGuard>
       </main>
 
       <Footer />

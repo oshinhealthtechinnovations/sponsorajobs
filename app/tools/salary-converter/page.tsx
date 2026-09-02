@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { ToolAuthGuard } from "@/components/ToolAuthGuard";
 import { SUPPORTED_CURRENCIES } from "@/lib/services/currencyService";
 import {
   ArrowRightLeft,
@@ -81,8 +82,19 @@ export default function SalaryConverterPage() {
           </p>
         </div>
 
-        {/* Converter Card */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6">
+        {/* Auth Gated Tool Workspace */}
+        <ToolAuthGuard
+          toolName="International Job Salary Converter"
+          toolDescription="Compare visa sponsorship compensation across the UK (£), USA ($), Australia (A$), Canada (C$), and convert directly into your home currency using official ECB data."
+          featurePills={[
+            "Official European Central Bank (ECB) Rates",
+            "Statutory Visa Threshold Indicators",
+            "Take-Home Gross to Net Benchmarking",
+            "Real-Time Conversion Across 20+ Currencies",
+          ]}
+        >
+          {/* Converter Card */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
             {/* Amount & From */}
             <div className="md:col-span-2 space-y-2">
@@ -197,6 +209,7 @@ export default function SalaryConverterPage() {
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
+        </ToolAuthGuard>
       </main>
 
       <Footer />

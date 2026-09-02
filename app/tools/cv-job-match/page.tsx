@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
+import { ToolAuthGuard } from "@/components/ToolAuthGuard";
 import {
   Upload,
   FileText,
@@ -397,6 +398,18 @@ export default function CVJobMatchPage() {
             </div>
           </div>
         )}
+
+        {/* Auth Gated Tool Workspace */}
+        <ToolAuthGuard
+          toolName="CV & Resume Job Matcher"
+          toolDescription="Upload your CV to automatically filter and rank 650+ verified sponsor jobs by technical skills, experience alignment, SOC 2020 occupation codes, and visa sponsorship status."
+          featurePills={[
+            "Direct PDF & DOCX Resume Parsing",
+            "Multi-Attribute Sponsorship Scorer",
+            "Missing Skill Gap Analysis",
+            "Auto-Saved Candidate Shortlists",
+          ]}
+        >
 
         {/* ── Scanning / Processing Animation HUD ── */}
         {isProcessing && (
@@ -1014,6 +1027,7 @@ export default function CVJobMatchPage() {
             </div>
           </div>
         )}
+        </ToolAuthGuard>
       </main>
     </div>
   );

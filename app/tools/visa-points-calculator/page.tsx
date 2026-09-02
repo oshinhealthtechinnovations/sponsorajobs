@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { ToolAuthGuard } from "@/components/ToolAuthGuard";
 import { VisaPointsCalculator } from "@/lib/services/visaPointsCalculator";
 import {
   CheckCircle2,
@@ -69,33 +70,46 @@ export default function VisaPointsCalculatorPage() {
           <p className="text-sm text-slate-600 leading-relaxed">
             Check whether you meet the official points threshold to secure a visa sponsorship job in the UK (70 points) or Australia (65 points).
           </p>
-
-          {/* Mode Switcher */}
-          <div className="inline-flex p-1 rounded-2xl bg-white border border-slate-200 shadow-xs">
-            <button
-              type="button"
-              onClick={() => setMode("UK")}
-              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
-                mode === "UK"
-                  ? "bg-brand-600 text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              🇬🇧 UK Skilled Worker (70 pts)
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("AU")}
-              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
-                mode === "AU"
-                  ? "bg-brand-600 text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              🇦🇺 Australia Subclass 482 / PR (65 pts)
-            </button>
-          </div>
         </div>
+
+        {/* Auth Gated Tool Workspace */}
+        <ToolAuthGuard
+          toolName="Visa Points & Eligibility Calculator"
+          toolDescription="Check whether you meet the official points threshold to secure a visa sponsorship job in the UK (70 points) or Australia (65 points)."
+          featurePills={[
+            "UK Home Office 70-Point Scoring Matrix",
+            "Australia GSM 65-Point Benchmark Engine",
+            "Tradeable Salary & New Entrant Rules",
+            "Instant Pass / Shortfall Diagnostics",
+          ]}
+        >
+          <div className="text-center mb-8">
+            {/* Mode Switcher */}
+            <div className="inline-flex p-1 rounded-2xl bg-white border border-slate-200 shadow-xs">
+              <button
+                type="button"
+                onClick={() => setMode("UK")}
+                className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
+                  mode === "UK"
+                    ? "bg-brand-600 text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                🇬🇧 UK Skilled Worker (70 pts)
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("AU")}
+                className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
+                  mode === "AU"
+                    ? "bg-brand-600 text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                🇦🇺 Australia Subclass 482 / PR (65 pts)
+              </button>
+            </div>
+          </div>
 
         {/* ── UK Calculator ── */}
         {mode === "UK" && (
@@ -413,6 +427,7 @@ export default function VisaPointsCalculatorPage() {
             </div>
           </div>
         )}
+        </ToolAuthGuard>
       </main>
 
       <Footer />

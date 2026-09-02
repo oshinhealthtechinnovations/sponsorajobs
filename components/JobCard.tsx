@@ -230,16 +230,16 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
               type="button"
               aria-label={isLoggedIn ? (isSaved ? "Remove from saved" : "Save job") : "Sign in to save job"}
               title={!isLoggedIn ? "Create a free account to save jobs" : undefined}
-              className={`p-1.5 rounded-lg transition-all cursor-pointer shrink-0 relative ${
+              className={`p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl transition-all cursor-pointer shrink-0 relative touch-manipulation ${
                 isSaved
                   ? "bg-rose-50 text-rose-500 border border-rose-200"
-                  : "text-slate-300 hover:text-slate-600 hover:bg-slate-50"
+                  : "text-slate-300 hover:text-slate-600 hover:bg-slate-50 border border-transparent"
               }`}
             >
-              <Bookmark className={`w-3.5 h-3.5 ${isSaved ? "fill-rose-400" : ""}`} />
+              <Bookmark className={`w-4 h-4 ${isSaved ? "fill-rose-400 text-rose-500" : ""}`} />
               {!isLoggedIn && (
-                <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-amber-400 flex items-center justify-center">
-                  <Lock className="w-1.5 h-1.5 text-white" />
+                <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-400 flex items-center justify-center shadow-xs">
+                  <Lock className="w-2 h-2 text-slate-950 font-bold" />
                 </span>
               )}
             </button>
@@ -301,7 +301,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
             <div className="flex items-center gap-2 shrink-0">
               <Link
                 href={`/job/${job.slug}`}
-                className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
+                className="min-h-[40px] px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center justify-center touch-manipulation"
               >
                 View Details
               </Link>
@@ -310,7 +310,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
                 type="button"
                 onClick={handleApplyClick}
                 title={!isLoggedIn ? "Create a free account to apply" : "Apply now"}
-                className="px-3.5 py-2 rounded-xl bg-[#071421] hover:bg-slate-800 text-white text-xs font-bold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer relative"
+                className="min-h-[40px] px-4 py-2 rounded-xl bg-[#071421] hover:bg-slate-800 text-white text-xs font-bold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer relative touch-manipulation"
               >
                 {!isLoggedIn && <Lock className="w-3 h-3 text-amber-400" />}
                 <span>Apply</span>

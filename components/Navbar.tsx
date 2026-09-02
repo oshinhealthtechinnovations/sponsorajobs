@@ -21,7 +21,6 @@ import {
   Wrench,
 } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
-import { AuthGateModal } from "./AuthGateModal";
 
 // Primary clean navigation links
 const PRIMARY_NAV_LINKS = [
@@ -445,7 +444,6 @@ export const Navbar: React.FC = () => {
 
       {/* Global Modals */}
       <JobAlertModal isOpen={alertModalOpen} onClose={() => setAlertModalOpen(false)} />
-      <AuthGateModal />
     </>
   );
 };

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { ToolAuthGuard } from "@/components/ToolAuthGuard";
 import {
   FileText,
   Sparkles,
@@ -135,50 +136,63 @@ export default function CvCoverLetterPage() {
           <p className="text-sm text-slate-600 leading-relaxed">
             Craft high-converting visa sponsorship applications, optimize passive CV bullet points into quantified achievements, and discover official immigration occupation codes.
           </p>
-
-          {/* Navigation Tabs */}
-          <div className="inline-flex p-1 rounded-2xl bg-white border border-slate-200 shadow-xs">
-            <button
-              type="button"
-              onClick={() => setActiveTab("cover-letter")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === "cover-letter"
-                  ? "bg-brand-600 text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              📄 Visa Cover Letter Generator
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab("bullet-optimizer");
-                if (bulletResults.length === 0) handleOptimizeBullets();
-              }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === "bullet-optimizer"
-                  ? "bg-brand-600 text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              ⚡ CV Bullet Optimizer
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab("occupations");
-                if (occResults.length === 0) handleSearchOccupations();
-              }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === "occupations"
-                  ? "bg-brand-600 text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              🌐 Immigration SOC Codes
-            </button>
-          </div>
         </div>
+
+        {/* Auth Gated Tool Workspace */}
+        <ToolAuthGuard
+          toolName="CV & Visa Cover Letter Intelligence Suite"
+          toolDescription="Craft high-converting visa sponsorship pitch letters, optimize passive CV bullet points into quantified achievements, and discover official immigration occupation codes."
+          featurePills={[
+            "AI Visa Sponsorship Pitch Generator",
+            "Action Verb & Bullet Point Impact Scorer",
+            "UK SOC 2020 & Canada NOC Code Mapping",
+            "Australia ANZSCO Shortage Search",
+          ]}
+        >
+          <div className="text-center mb-8">
+            {/* Navigation Tabs */}
+            <div className="inline-flex p-1 rounded-2xl bg-white border border-slate-200 shadow-xs">
+              <button
+                type="button"
+                onClick={() => setActiveTab("cover-letter")}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  activeTab === "cover-letter"
+                    ? "bg-brand-600 text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                📄 Visa Cover Letter Generator
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab("bullet-optimizer");
+                  if (bulletResults.length === 0) handleOptimizeBullets();
+                }}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  activeTab === "bullet-optimizer"
+                    ? "bg-brand-600 text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                ⚡ CV Bullet Optimizer
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab("occupations");
+                  if (occResults.length === 0) handleSearchOccupations();
+                }}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  activeTab === "occupations"
+                    ? "bg-brand-600 text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                🌐 Immigration SOC Codes
+              </button>
+            </div>
+          </div>
 
         {/* ── TAB 1: Cover Letter Generator ── */}
         {activeTab === "cover-letter" && (
@@ -480,6 +494,7 @@ export default function CvCoverLetterPage() {
             </div>
           </div>
         )}
+        </ToolAuthGuard>
       </main>
 
       <Footer />
