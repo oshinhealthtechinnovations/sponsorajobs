@@ -134,25 +134,42 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
       return;
     }
 
-    const q = query.toLowerCase().trim();
-    const matches = PRESET_SUGGESTIONS.filter(
-      (s) =>
-        s.label.toLowerCase().includes(q) ||
-        (s.sublabel && s.sublabel.toLowerCase().includes(q)) ||
-        (s.paramValue && s.paramValue.toLowerCase().includes(q))
-    );
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/tools/job-suggestions?q=${encodeURIComponent(query.trim())}&country=${country}`
+        );
+        const data = await res.json();
+        if (data.success && Array.isArray(data.suggestions) && data.suggestions.length > 0) {
+          setFilteredSuggestions(data.suggestions);
+          return;
+        }
+      } catch {
+        // Fallback to local preset suggestions
+      }
 
-    const customRole: SearchSuggestion = {
-      type: "role",
-      label: query.trim(),
-      sublabel: `Search all opportunities matching "${query.trim()}"`,
-      query: query.trim(),
-      paramKey: "q",
-      paramValue: query.trim(),
-    };
+      const q = query.toLowerCase().trim();
+      const matches = PRESET_SUGGESTIONS.filter(
+        (s) =>
+          s.label.toLowerCase().includes(q) ||
+          (s.sublabel && s.sublabel.toLowerCase().includes(q)) ||
+          (s.paramValue && s.paramValue.toLowerCase().includes(q))
+      );
 
-    setFilteredSuggestions([customRole, ...matches.filter((m) => m.label.toLowerCase() !== q)]);
-  }, [query]);
+      const customRole: SearchSuggestion = {
+        type: "role",
+        label: query.trim(),
+        sublabel: `Search all opportunities matching "${query.trim()}"`,
+        query: query.trim(),
+        paramKey: "q",
+        paramValue: query.trim(),
+      };
+
+      setFilteredSuggestions([customRole, ...matches.filter((m) => m.label.toLowerCase() !== q)]);
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [query, country]);
 
   // Click outside listener
   useEffect(() => {

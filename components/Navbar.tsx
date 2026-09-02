@@ -30,6 +30,7 @@ import { AuthGateModal } from "./AuthGateModal";
 const NAV_LINKS = [
   { href: "/",                          label: "Home",              icon: Home },
   { href: "/jobs",                      label: "Find Jobs",         icon: Search },
+  { href: "/tools/smart-job-finder",     label: "AI Job Match",      icon: Sparkles },
   { href: "/tools/cv-cover-letter",      label: "CV & Cover Letter", icon: FileText },
   { href: "/tools/salary-converter",     label: "Salary Calculator", icon: ArrowRightLeft },
   { href: "/tools/visa-points-calculator", label: "Visa Points",    icon: Award },
