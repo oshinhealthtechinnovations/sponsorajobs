@@ -41,14 +41,14 @@ export class CompanyRepository {
         cSlug === cleanSlug ||
         cSlug === slug.toLowerCase() ||
         cSlug.replace(/-/g, "") === strippedSlug ||
-        (cleanSlug.length >= 4 && cSlug.startsWith(cleanSlug + "-")) ||
+        (cleanSlug.length >= 3 && cSlug.startsWith(cleanSlug + "-")) ||
         cNameSlug === cleanSlug ||
         cNameSlug.replace(/-/g, "") === strippedSlug ||
-        (cleanSlug.length >= 4 && cNameSlug.startsWith(cleanSlug + "-")) ||
+        (cleanSlug.length >= 3 && cNameSlug.startsWith(cleanSlug + "-")) ||
         cNormSlug === cleanSlug ||
         cNormSlug.replace(/-/g, "") === strippedSlug ||
         cIdSlug === cleanSlug ||
-        (cleanSlug.length >= 4 && cIdSlug.startsWith(cleanSlug + "-")) ||
+        (cleanSlug.length >= 3 && cIdSlug.startsWith(cleanSlug + "-")) ||
         rawId === slug.toLowerCase() ||
         (c.normalized_name && c.normalized_name.toLowerCase() === slug.toLowerCase().replace(/-/g, " ")) ||
         (c.name && c.name.toLowerCase() === slug.toLowerCase().replace(/-/g, " "))

@@ -12,6 +12,8 @@ const FEATURED_SPONSORS = [
   { id: "comp_laing_orourke", name: "Laing O'Rourke", tag: "UK Major Infrastructure & Civil (256+)" },
   { id: "comp_morgan_sindall", name: "Morgan Sindall", tag: "UK Infrastructure & Construction (165+)" },
   { id: "comp_skanska_uk", name: "Skanska UK", tag: "UK Civil & Infrastructure (100+)" },
+  { id: "comp_bam_uk", name: "BAM UK", tag: "UK Civil & Marine Engineering (168+)" },
+  { id: "comp_galliford_try", name: "Galliford Try", tag: "UK Infrastructure & Water (252+)" },
   { id: "comp_balfour_beatty", name: "Balfour Beatty", tag: "UK Infrastructure & Engineering (64+)" },
   { id: "comp_mace_group", name: "Mace", tag: "UK Construction & Consultancy (50+)" },
   { id: "comp_wsp", name: "WSP", tag: "Global Engineering & Infrastructure (870+)" },
