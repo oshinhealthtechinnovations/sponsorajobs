@@ -76,12 +76,72 @@ export const INITIAL_COUNTRIES: CountryConfig[] = [
 export const COUNTRY_CODE_MAP = new Map(INITIAL_COUNTRIES.map((c) => [c.code, c]));
 export const COUNTRY_SLUG_MAP = new Map(INITIAL_COUNTRIES.map((c) => [c.slug, c]));
 
+export const COUNTRY_ALIASES: Record<string, string> = {
+  us: "usa",
+  usa: "usa",
+  "united-states": "usa",
+  "united-states-of-america": "usa",
+  america: "usa",
+  gb: "uk",
+  uk: "uk",
+  "united-kingdom": "uk",
+  "great-britain": "uk",
+  britain: "uk",
+  england: "uk",
+  au: "australia",
+  aus: "australia",
+  australia: "australia",
+  ca: "canada",
+  can: "canada",
+  canada: "canada",
+  nz: "new-zealand",
+  "new-zealand": "new-zealand",
+  newzealand: "new-zealand",
+  de: "germany",
+  germany: "germany",
+  deutschland: "germany",
+  ie: "ireland",
+  ireland: "ireland",
+  fr: "france",
+  france: "france",
+  sg: "singapore",
+  singapore: "singapore",
+  in: "india",
+  india: "india",
+  ae: "uae",
+  uae: "uae",
+};
+
 export function getCountryByCode(code: string): CountryConfig | undefined {
-  return COUNTRY_CODE_MAP.get(code.toUpperCase() as any);
+  if (!code) return undefined;
+  const upper = code.trim().toUpperCase();
+  const direct = COUNTRY_CODE_MAP.get(upper as any);
+  if (direct) return direct;
+
+  const canonical = COUNTRY_ALIASES[code.trim().toLowerCase()];
+  if (canonical) {
+    return COUNTRY_SLUG_MAP.get(canonical);
+  }
+  return undefined;
 }
 
 export function getCountryBySlug(slug: string): CountryConfig | undefined {
-  return COUNTRY_SLUG_MAP.get(slug.toLowerCase());
+  if (!slug) return undefined;
+  const clean = slug.toLowerCase().trim();
+  const canonicalSlug = COUNTRY_ALIASES[clean] || clean;
+
+  // 1. Match canonical slug
+  const direct = COUNTRY_SLUG_MAP.get(canonicalSlug) || COUNTRY_SLUG_MAP.get(clean);
+  if (direct) return direct;
+
+  // 2. Match by code (e.g. US -> United States)
+  const byCode = COUNTRY_CODE_MAP.get(clean.toUpperCase() as any);
+  if (byCode) return byCode;
+
+  // 3. Match by name
+  return INITIAL_COUNTRIES.find(
+    (c) => c.name.toLowerCase() === clean || c.name.toLowerCase().replace(/\s+/g, "-") === clean
+  );
 }
 
 const GLOBAL_COUNTRY_NAMES: Record<string, string> = {

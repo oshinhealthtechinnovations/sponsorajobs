@@ -1,6 +1,6 @@
 import { getDatabase, DatabaseClient } from "../db/client";
 import { CountryRecord } from "../types/database";
-import { INITIAL_COUNTRIES } from "@/config/countries";
+import { INITIAL_COUNTRIES, getCountryBySlug, getCountryByCode } from "@/config/countries";
 
 export class CountryRepository {
   private db: DatabaseClient;
@@ -34,25 +34,28 @@ export class CountryRepository {
   }
 
   async getByCode(code: string): Promise<CountryRecord | null> {
-    const upper = code.toUpperCase();
+    if (!code) return null;
+    const upper = code.trim().toUpperCase();
+    const config = getCountryByCode(code) || getCountryBySlug(code);
+    const targetCode = config ? config.code : upper;
+
     const row = await this.db
-      .prepare("SELECT * FROM countries WHERE UPPER(code) = ? AND active = 1")
-      .bind(upper)
+      .prepare("SELECT * FROM countries WHERE (UPPER(code) = ? OR UPPER(code) = ?) AND active = 1")
+      .bind(upper, targetCode)
       .first<CountryRecord>();
     
     if (!row) {
-      const fallback = INITIAL_COUNTRIES.find((c) => c.code === upper);
-      if (!fallback) return null;
+      if (!config) return null;
       return {
-        id: `c_${fallback.code.toLowerCase()}`,
-        code: fallback.code,
-        name: fallback.name,
-        slug: fallback.slug,
-        flag: fallback.flag,
-        currency: fallback.currency,
+        id: `c_${config.code.toLowerCase()}`,
+        code: config.code,
+        name: config.name,
+        slug: config.slug,
+        flag: config.flag,
+        currency: config.currency,
         active: 1,
-        seo_title: fallback.seoTitle,
-        seo_description: fallback.seoDescription,
+        seo_title: config.seoTitle,
+        seo_description: config.seoDescription,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -61,25 +64,29 @@ export class CountryRepository {
   }
 
   async getBySlug(slug: string): Promise<CountryRecord | null> {
-    const lower = slug.toLowerCase();
+    if (!slug) return null;
+    const lower = slug.trim().toLowerCase();
+    const config = getCountryBySlug(lower) || getCountryByCode(lower);
+    const targetSlug = config ? config.slug : lower;
+    const targetCode = config ? config.code : lower.toUpperCase();
+
     const row = await this.db
-      .prepare("SELECT * FROM countries WHERE LOWER(slug) = ? AND active = 1")
-      .bind(lower)
+      .prepare("SELECT * FROM countries WHERE (LOWER(slug) = ? OR LOWER(slug) = ? OR UPPER(code) = ?) AND active = 1")
+      .bind(lower, targetSlug, targetCode)
       .first<CountryRecord>();
     
     if (!row) {
-      const fallback = INITIAL_COUNTRIES.find((c) => c.slug === lower);
-      if (!fallback) return null;
+      if (!config) return null;
       return {
-        id: `c_${fallback.code.toLowerCase()}`,
-        code: fallback.code,
-        name: fallback.name,
-        slug: fallback.slug,
-        flag: fallback.flag,
-        currency: fallback.currency,
+        id: `c_${config.code.toLowerCase()}`,
+        code: config.code,
+        name: config.name,
+        slug: config.slug,
+        flag: config.flag,
+        currency: config.currency,
         active: 1,
-        seo_title: fallback.seoTitle,
-        seo_description: fallback.seoDescription,
+        seo_title: config.seoTitle,
+        seo_description: config.seoDescription,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };

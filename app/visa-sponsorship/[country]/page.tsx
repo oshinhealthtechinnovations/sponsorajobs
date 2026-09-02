@@ -92,7 +92,8 @@ const COUNTRY_VISA_DATA: Record<
 
 export default function CountryVisaGuidePage({ params }: CountryVisaGuidePageProps) {
   const country = getCountryBySlug(params.country);
-  const visaData = COUNTRY_VISA_DATA[params.country.toLowerCase()];
+  const canonicalSlug = country?.slug || params.country.toLowerCase();
+  const visaData = COUNTRY_VISA_DATA[canonicalSlug] || (country ? COUNTRY_VISA_DATA[country.slug] : undefined);
 
   if (!country || !visaData) {
     notFound();
