@@ -44,33 +44,26 @@ export class ConstructionHarvesterService {
       console.error("[ConstructionHarvester] Error reading realJobsData.json:", e.message);
     }
 
-    // 1. Costain Group
-    const costainRes = await this.harvestCostain(currentData, options?.dryRun);
-    contractorStats.push(costainRes);
+    // Run all 7 contractors IN PARALLEL — drops worst-case 42s to ~6s (single timeout window)
+    const [
+      costainRes,
+      wspRes,
+      laingRes,
+      msRes,
+      skanskaRes,
+      bamRes,
+      gtRes,
+    ] = await Promise.all([
+      this.harvestCostain(currentData, options?.dryRun),   // 1. Costain Group
+      this.harvestWsp(currentData, options?.dryRun),        // 2. WSP UK
+      this.harvestLaing(currentData, options?.dryRun),      // 3. Laing O'Rourke
+      this.harvestMorganSindall(currentData, options?.dryRun), // 4. Morgan Sindall
+      this.harvestSkanska(currentData, options?.dryRun),    // 5. Skanska UK
+      this.harvestBam(currentData, options?.dryRun),        // 6. BAM UK
+      this.harvestGalliford(currentData, options?.dryRun),  // 7. Galliford Try
+    ]);
 
-    // 2. WSP UK
-    const wspRes = await this.harvestWsp(currentData, options?.dryRun);
-    contractorStats.push(wspRes);
-
-    // 3. Laing O'Rourke
-    const laingRes = await this.harvestLaing(currentData, options?.dryRun);
-    contractorStats.push(laingRes);
-
-    // 4. Morgan Sindall
-    const msRes = await this.harvestMorganSindall(currentData, options?.dryRun);
-    contractorStats.push(msRes);
-
-    // 5. Skanska UK
-    const skanskaRes = await this.harvestSkanska(currentData, options?.dryRun);
-    contractorStats.push(skanskaRes);
-
-    // 6. BAM UK
-    const bamRes = await this.harvestBam(currentData, options?.dryRun);
-    contractorStats.push(bamRes);
-
-    // 7. Galliford Try
-    const gtRes = await this.harvestGalliford(currentData, options?.dryRun);
-    contractorStats.push(gtRes);
+    contractorStats.push(costainRes, wspRes, laingRes, msRes, skanskaRes, bamRes, gtRes);
 
     // Save back to disk if not dry run
     if (!options?.dryRun && fs.existsSync(this.dataPath)) {
@@ -100,6 +93,7 @@ export class ConstructionHarvesterService {
 
     return result;
   }
+
 
   private async harvestCostain(data: any, dryRun?: boolean): Promise<HarvesterSourceStats> {
     const sStart = Date.now();

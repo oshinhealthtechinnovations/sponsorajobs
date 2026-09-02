@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { constructionHarvesterService } from "@/lib/services/constructionHarvesterService";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60; // Allow up to 60s — parallel harvest of 7 contractors takes ~6-12s
 
 /**
  * Autonomous Construction Harvester Trigger Endpoint
