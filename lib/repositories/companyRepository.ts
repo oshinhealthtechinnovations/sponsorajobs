@@ -25,19 +25,25 @@ export class CompanyRepository {
   async getBySlug(slug: string): Promise<CompanyRecord | null> {
     if (!slug) return null;
     const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const strippedSlug = cleanSlug.replace(/-/g, "");
 
     // 1. Check all loaded companies with slug normalization
     const companies = await this.getAll();
     const found = companies.find((c) => {
       if (!c) return false;
+      const cSlug = ((c as any).slug || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
       const cNameSlug = (c.name || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
       const cNormSlug = (c.normalized_name || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
       const cIdSlug = (c.id || "").toLowerCase().replace(/^comp_/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
       const rawId = (c.id || "").toLowerCase();
 
       return (
+        cSlug === cleanSlug ||
+        cSlug === slug.toLowerCase() ||
         cNameSlug === cleanSlug ||
+        cNameSlug.replace(/-/g, "") === strippedSlug ||
         cNormSlug === cleanSlug ||
+        cNormSlug.replace(/-/g, "") === strippedSlug ||
         cIdSlug === cleanSlug ||
         rawId === slug.toLowerCase() ||
         (c.normalized_name && c.normalized_name.toLowerCase() === slug.toLowerCase().replace(/-/g, " ")) ||
@@ -50,8 +56,8 @@ export class CompanyRepository {
     // 2. Direct DB fallback query
     const norm = slug.toLowerCase().replace(/-/g, " ");
     return this.db
-      .prepare("SELECT * FROM companies WHERE LOWER(normalized_name) = ? OR LOWER(name) = ? OR LOWER(id) = ?")
-      .bind(norm, norm, slug.toLowerCase())
+      .prepare("SELECT * FROM companies WHERE LOWER(slug) = ? OR LOWER(normalized_name) = ? OR LOWER(name) = ? OR LOWER(id) = ?")
+      .bind(cleanSlug, norm, norm, slug.toLowerCase())
       .first<CompanyRecord>();
   }
 }
