@@ -9,6 +9,7 @@ import { Filter, RotateCcw, Calendar, Banknote, MapPin, Briefcase, Building2 } f
 const FEATURED_SPONSORS = [
   { id: "comp_costain_group", name: "Costain Group", tag: "UK Smart Infrastructure & Water (157+)" },
   { id: "comp_kier_group", name: "Kier Group", tag: "UK Infrastructure & Civil (240+)" },
+  { id: "comp_laing_orourke", name: "Laing O'Rourke", tag: "UK Major Infrastructure & Civil (256+)" },
   { id: "comp_balfour_beatty", name: "Balfour Beatty", tag: "UK Infrastructure & Engineering (64+)" },
   { id: "comp_mace_group", name: "Mace", tag: "UK Construction & Consultancy (50+)" },
   { id: "comp_wsp", name: "WSP", tag: "Global Engineering & Infrastructure (870+)" },
