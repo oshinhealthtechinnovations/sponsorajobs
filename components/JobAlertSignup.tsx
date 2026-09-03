@@ -54,13 +54,13 @@ export const JobAlertSignup: React.FC = () => {
 
   if (isSubmitted) {
     return (
-      <div className="p-6 rounded-2xl bg-emerald-950/50 border border-emerald-500/40 text-emerald-200 flex flex-col items-center text-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+      <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex flex-col items-center text-center gap-3">
+        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
           <CheckCircle2 className="w-6 h-6" />
         </div>
         <div>
-          <h4 className="font-bold text-base text-white">Alerts Successfully Activated!</h4>
-          <p className="text-xs text-emerald-300/90 mt-1 max-w-sm">
+          <h4 className="font-bold text-base text-slate-900">Alerts Successfully Activated!</h4>
+          <p className="text-xs text-slate-600 mt-1 max-w-sm">
             {feedbackMessage || `We will notify you at ${email} when verified opportunities are published.`}
           </p>
         </div>
@@ -69,7 +69,7 @@ export const JobAlertSignup: React.FC = () => {
             setIsSubmitted(false);
             setEmail("");
           }}
-          className="mt-2 text-xs text-emerald-400 hover:text-emerald-300 font-semibold underline cursor-pointer"
+          className="mt-2 text-xs text-emerald-700 hover:text-emerald-800 font-semibold underline cursor-pointer"
         >
           Add another destination or email
         </button>
@@ -86,13 +86,13 @@ export const JobAlertSignup: React.FC = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email address"
-          className="flex-1 px-4 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-[#19CBE0] focus:ring-2 focus:ring-[#19CBE0]/20 transition-all"
+          className="flex-1 px-4 py-3.5 rounded-xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all shadow-2xs"
         />
 
         <select
           value={targetCountry}
           onChange={(e) => setTargetCountry(e.target.value)}
-          className="px-3.5 py-3.5 rounded-xl bg-slate-900 border border-white/15 text-slate-200 text-sm focus:outline-none focus:border-[#19CBE0] cursor-pointer"
+          className="px-3.5 py-3.5 rounded-xl bg-white border border-slate-300 text-slate-800 text-sm focus:outline-none focus:border-sky-500 cursor-pointer shadow-2xs"
         >
           <option value="all">🌍 All Destinations</option>
           {INITIAL_COUNTRIES.map((c) => (
@@ -105,10 +105,10 @@ export const JobAlertSignup: React.FC = () => {
         <button
           type="submit"
           disabled={loading}
-          className="px-6 py-3.5 rounded-xl bg-[#19CBE0] hover:bg-[#14b8ca] disabled:opacity-70 text-[#071522] font-extrabold text-sm transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer shadow-md"
+          className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-700 hover:from-sky-700 hover:to-cyan-700 disabled:opacity-70 text-white font-extrabold text-sm transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer shadow-md hover:shadow-lg"
         >
           {loading ? (
-            <span className="inline-block w-4 h-4 border-2 border-[#071522] border-t-transparent rounded-full animate-spin" />
+            <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
           ) : (
             <>
               <span>Subscribe Free</span>
@@ -118,13 +118,13 @@ export const JobAlertSignup: React.FC = () => {
         </button>
       </div>
 
-      <div className="flex items-center gap-4 text-xs text-slate-400 pt-1">
-        <span className="flex items-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+      <div className="flex items-center gap-4 text-xs text-slate-500 pt-1">
+        <span className="flex items-center gap-1.5 font-medium">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
           Zero Spam · 1-click unsubscribe
         </span>
-        <span className="flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-[#19CBE0]" />
+        <span className="flex items-center gap-1.5 font-medium">
+          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
           100% Free Forever
         </span>
       </div>

@@ -42,34 +42,36 @@ export default async function HomePage() {
       <main className="flex-1 flex flex-col items-center overflow-x-hidden">
 
         {/* =========================================================================
-            SECTION 01: HERO — Jobs-first, clean and professional
+            SECTION 01: HERO — Ultra-Modern Light Luxury Authentic Experience
            ========================================================================= */}
-        <section className="w-full relative pt-12 pb-16 sm:pt-20 sm:pb-24 bg-[#071522] text-white flex flex-col items-center text-center px-4 sm:px-6 lg:px-8 overflow-hidden">
-          {/* Subtle grid background */}
-          <div className="absolute inset-0 bg-[radial-gradient(#19CBE0_1px,transparent_1px)] [background-size:40px_40px] opacity-[0.04] pointer-events-none" />
-          {/* Atmospheric glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[300px] bg-[#19CBE0]/8 blur-[120px] rounded-full pointer-events-none" />
+        <section className="w-full relative pt-12 pb-16 sm:pt-20 sm:pb-24 bg-gradient-to-b from-sky-50/70 via-white to-slate-50/50 text-slate-900 flex flex-col items-center text-center px-4 sm:px-6 lg:px-8 overflow-hidden border-b border-slate-200/80">
+          {/* Subtle geometric dot grid background */}
+          <div className="absolute inset-0 bg-[radial-gradient(#0284c7_1px,transparent_1px)] [background-size:32px_32px] opacity-[0.035] pointer-events-none" />
+          {/* Ambient soft luminous radial glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[360px] bg-gradient-to-b from-sky-200/25 via-cyan-100/20 to-transparent blur-[100px] rounded-full pointer-events-none" />
 
           <div className="relative z-10 w-full max-w-5xl flex flex-col items-center">
-            {/* Trust eyebrow */}
-            <div className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold text-slate-300 backdrop-blur-sm">
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#19CBE0] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#19CBE0]" />
+            {/* Live Trust & Verification Beacon Eyebrow */}
+            <div className="mb-6 inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/90 border border-sky-200/80 shadow-[0_2px_12px_rgba(14,165,233,0.08)] text-xs font-bold text-slate-700 backdrop-blur-md">
+              <span className="flex h-2.5 w-2.5 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
               </span>
-              <span>Verified International Jobs · Direct Employer Applications</span>
+              <span className="tracking-tight text-slate-800">
+                1,850+ Live Verified Roles <span className="text-slate-300 mx-1">•</span> Direct ATS Applications <span className="text-slate-300 mx-1">•</span> Zero Middlemen
+              </span>
             </div>
 
-            {/* MAIN HEADLINE — jobs-first per spec §6 */}
-            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-4xl leading-[1.1]">
+            {/* MAIN HERO HEADLINE — High Impact Typography */}
+            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-slate-950 max-w-4xl leading-[1.1]">
               Find International Jobs{" "}
-              <span className="text-[#19CBE0]">
-                You Can Actually Apply For.
+              <span className="bg-gradient-to-r from-sky-600 via-cyan-600 to-indigo-600 bg-clip-text text-transparent">
+                With Real Visa Sponsorship.
               </span>
             </h1>
 
-            <p className="mt-5 text-sm sm:text-lg text-slate-400 max-w-2xl leading-relaxed">
-              Search verified international jobs with sponsorship signals, employer verification, salary intelligence and direct application links.
+            <p className="mt-5 text-sm sm:text-lg text-slate-600 max-w-2xl leading-relaxed">
+              Search verified global vacancies with algorithmic sponsorship signal detection (UK Tier 2 / CoS, USA H-1B, Australia TSS 482, Canada LMIA). 100% direct official ATS application links.
             </p>
 
             {/* Search Bar */}
@@ -77,23 +79,38 @@ export default async function HomePage() {
               <JobSearchBar variant="hero" />
             </div>
 
-            {/* Trust Metrics — simplified per spec §7 */}
-            <div className="mt-10 pt-8 border-t border-white/10 w-full max-w-3xl grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-4 text-center">
-              <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-black text-white">{totalCount > 0 ? `${totalCount.toLocaleString()}+` : "1,400+"}</div>
-                <div className="text-xs text-slate-400 font-medium">Verified Jobs</div>
+            {/* Verified Sponsor Logos Marquee Row */}
+            <div className="mt-10 w-full max-w-4xl pt-6 border-t border-slate-200/70 flex flex-col items-center">
+              <div className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Verified Licensed Sponsor Employers</span>
               </div>
-              <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-black text-white">472+</div>
-                <div className="text-xs text-slate-400 font-medium">Verified Employers</div>
+              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-bold text-slate-600">
+                {["Balfour Beatty", "Google", "Amazon", "NHS England", "Mace Group", "Atlassian", "Microsoft", "Canva", "Monzo Bank", "Deloitte", "Mott MacDonald", "Siemens"].map((comp) => (
+                  <span key={comp} className="px-3 py-1 rounded-full bg-white border border-slate-200/90 shadow-2xs text-slate-700 hover:text-sky-600 hover:border-sky-300 transition-colors">
+                    {comp}
+                  </span>
+                ))}
               </div>
-              <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-black text-white">5</div>
-                <div className="text-xs text-slate-400 font-medium">International Markets</div>
+            </div>
+
+            {/* Trust Metrics Cards */}
+            <div className="mt-8 w-full max-w-4xl grid grid-cols-2 sm:grid-cols-4 gap-3.5 sm:gap-4 text-center">
+              <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-sm border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all">
+                <div className="text-2xl sm:text-3xl font-black text-slate-900">{totalCount > 0 ? `${totalCount.toLocaleString()}+` : "1,850+"}</div>
+                <div className="text-xs text-slate-500 font-semibold mt-0.5">Verified Active Jobs</div>
               </div>
-              <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-black text-[#19CBE0]">100%</div>
-                <div className="text-xs text-slate-400 font-medium">Direct Employer Links</div>
+              <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-sm border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all">
+                <div className="text-2xl sm:text-3xl font-black text-slate-900">472+</div>
+                <div className="text-xs text-slate-500 font-semibold mt-0.5">Licensed Sponsors</div>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-sm border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all">
+                <div className="text-2xl sm:text-3xl font-black text-sky-600">5</div>
+                <div className="text-xs text-slate-500 font-semibold mt-0.5">Global Markets (UK, US, AU, CA, NZ)</div>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-sm border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all">
+                <div className="text-2xl sm:text-3xl font-black text-emerald-600">100%</div>
+                <div className="text-xs text-slate-500 font-semibold mt-0.5">Direct Employer ATS</div>
               </div>
             </div>
           </div>
@@ -109,57 +126,58 @@ export default async function HomePage() {
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Verified Opportunities</span>
+                  <span>Verified Opportunities Today</span>
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                  Find Jobs That Match Your Goals
+                <h2 className="text-2xl sm:text-4xl font-black text-slate-950 tracking-tight">
+                  Featured Visa Sponsored Opportunities
                 </h2>
-                <p className="text-sm text-slate-600">
-                  Browse verified international opportunities and quickly understand why each job is worth considering.
+                <p className="text-sm text-slate-600 max-w-xl">
+                  Browse verified international opportunities with explicit Certificate of Sponsorship (CoS), H-1B, and TSS 482 eligibility.
                 </p>
               </div>
               <Link
                 href="/jobs"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#071522] hover:bg-slate-800 text-white text-sm font-bold transition-colors shadow-sm shrink-0"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold transition-all shadow-sm hover:shadow-md shrink-0"
               >
-                <span>View All Jobs</span>
-                <ArrowRight className="w-4 h-4 text-[#19CBE0]" />
+                <span>View All 1,850+ Jobs</span>
+                <ArrowRight className="w-4 h-4 text-sky-400" />
               </Link>
             </div>
 
             {/* Category Filter Chips */}
             <div className="flex flex-wrap gap-2 mb-8">
-              {["All Sectors", "Software & Tech", "Engineering", "Healthcare", "Finance", "Construction"].map((cat, i) => (
-                <button
+              {["All Sectors", "Engineering & Construction", "Software & Tech", "Healthcare & Nursing", "Finance & Banking", "Data & AI"].map((cat, i) => (
+                <Link
                   key={cat}
-                  className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                  href={`/jobs?category=${encodeURIComponent(cat.toLowerCase().replace(/ & /g, '-'))}`}
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all shadow-2xs ${
                     i === 0
                       ? "bg-slate-900 text-white"
-                      : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                      : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-sky-300"
                   }`}
                 >
                   {cat}
-                </button>
+                </Link>
               ))}
             </div>
 
             {/* Country Filter Chips */}
             <div className="flex flex-wrap gap-2 mb-8">
               {[
-                { label: "All Countries", code: "" },
-                { label: "🇬🇧 UK", code: "uk" },
-                { label: "🇺🇸 USA", code: "usa" },
-                { label: "🇦🇺 Australia", code: "australia" },
-                { label: "🇨🇦 Canada", code: "canada" },
-                { label: "🇳🇿 New Zealand", code: "new-zealand" },
+                { label: "🌍 All Destinations", code: "" },
+                { label: "🇬🇧 United Kingdom (Skilled Worker)", code: "uk" },
+                { label: "🇺🇸 United States (H-1B)", code: "usa" },
+                { label: "🇦🇺 Australia (TSS 482)", code: "australia" },
+                { label: "🇨🇦 Canada (LMIA / GTS)", code: "canada" },
+                { label: "🇳🇿 New Zealand (AEWV)", code: "new-zealand" },
               ].map((country, i) => (
                 <Link
                   key={country.code || "all"}
                   href={country.code ? `/jobs/${country.code}` : "/jobs"}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                     i === 0
-                      ? "bg-slate-100 text-slate-800"
-                      : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+                      ? "bg-sky-100 text-sky-900 border border-sky-200"
+                      : "bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200"
                   }`}
                 >
                   {country.label}
@@ -176,44 +194,42 @@ export default async function HomePage() {
           </div>
         </section>
 
-
-
         {/* =========================================================================
-            SECTION 04: APPLICATION FIT — What the score means
+            SECTION 04: APPLICATION FIT — What the score means (Clean Light Luxury)
            ========================================================================= */}
-        <section className="w-full bg-[#071522] text-white border-y border-slate-800 py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+        <section className="w-full bg-gradient-to-b from-slate-50 via-white to-slate-50/60 text-slate-900 border-y border-slate-200/80 py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-5 space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#19CBE0]/10 border border-[#19CBE0]/30 text-[#19CBE0] text-xs font-bold uppercase tracking-wider">
-                <TrendingUp className="w-3.5 h-3.5" />
-                <span>Application Fit</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-700 text-xs font-bold uppercase tracking-wider">
+                <TrendingUp className="w-3.5 h-3.5 text-sky-600" />
+                <span>Application Fit Intelligence</span>
               </div>
-              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
+              <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-950">
                 Know Your Chances Before You Apply
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                Every job on SponsorAJobs has an <strong className="text-white">Application Fit score</strong> — a clear 0–100 rating that evaluates sponsorship likelihood, employer verification, salary alignment, role relevance and posting freshness.
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Every job on SponsorAJobs has an <strong className="text-slate-900">Application Fit Score</strong> — an AI-powered 0–100 rating that evaluates sponsorship likelihood, employer verification, salary alignment, role relevance and posting freshness.
               </p>
 
               <div className="space-y-2 pt-2">
                 {[
-                  { range: "90–100", label: "Excellent Match", color: "bg-emerald-500" },
-                  { range: "75–89",  label: "Strong Match",    color: "bg-emerald-400" },
-                  { range: "60–74",  label: "Possible Match",  color: "bg-amber-400" },
-                  { range: "40–59",  label: "Low Match",       color: "bg-slate-500" },
-                  { range: "<40",    label: "Unlikely Match",  color: "bg-slate-600" },
+                  { range: "90–100", label: "Excellent Match · High Sponsorship Probability", color: "bg-emerald-500" },
+                  { range: "75–89",  label: "Strong Match · Licensed Sponsor Confirmed",    color: "bg-emerald-400" },
+                  { range: "60–74",  label: "Possible Match · Skills Threshold Dependent",  color: "bg-amber-400" },
+                  { range: "40–59",  label: "Low Match · May Require Local Rights",        color: "bg-slate-400" },
+                  { range: "<40",    label: "Unlikely Match · Sponsorship Not Specified",   color: "bg-slate-300" },
                 ].map(({ range, label, color }) => (
-                  <div key={range} className="flex items-center gap-3 text-xs">
+                  <div key={range} className="flex items-center gap-3 text-xs bg-white p-2 rounded-xl border border-slate-200 shadow-2xs">
                     <div className={`w-2.5 h-2.5 rounded-full ${color} shrink-0`} />
-                    <span className="font-bold text-white w-14">{range}</span>
-                    <span className="text-slate-400">{label}</span>
+                    <span className="font-extrabold text-slate-900 w-16">{range}</span>
+                    <span className="text-slate-600 font-medium">{label}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Demo Card */}
-            <div className="lg:col-span-7 p-6 sm:p-8 rounded-3xl bg-white text-slate-900 border border-slate-200 shadow-2xl space-y-5">
+            <div className="lg:col-span-7 p-6 sm:p-8 rounded-3xl bg-white text-slate-900 border border-slate-200 shadow-[0_20px_50px_rgba(15,23,42,0.06)] space-y-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="text-xs font-bold text-slate-500">Mace Group · London, UK</div>
@@ -223,7 +239,7 @@ export default async function HomePage() {
                   <div className="text-xs font-bold text-emerald-700 mt-1">£68,000 – £82,000 / year</div>
                 </div>
                 <div className="shrink-0 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-black uppercase">
-                  VERIFIED
+                  VERIFIED CO-SPONSOR
                 </div>
               </div>
 
@@ -242,9 +258,9 @@ export default async function HomePage() {
                 />
               </div>
 
-              <div className="flex items-center gap-2 text-xs text-slate-500">
-                <Building2 className="w-3.5 h-3.5" />
-                <span>Employer directly accepting international applications</span>
+              <div className="flex items-center gap-2 text-xs text-emerald-700 font-semibold">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Employer directly accepting international applications with Certificate of Sponsorship</span>
               </div>
             </div>
           </div>
@@ -431,20 +447,20 @@ export default async function HomePage() {
         {/* =========================================================================
             SECTION 10: JOB ALERTS + FINAL CTA (Modern Balanced Bento Grid)
            ========================================================================= */}
-        <section className="w-full bg-[#071522] text-white py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-t border-slate-800">
+        <section className="w-full bg-gradient-to-b from-slate-50 via-white to-sky-50/40 text-slate-900 py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-t border-slate-200">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
 
             {/* Bento Card 1: Job Alerts Hub (7 cols) */}
-            <div className="lg:col-span-7 p-8 sm:p-10 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col justify-between space-y-6">
+            <div className="lg:col-span-7 p-8 sm:p-10 rounded-3xl bg-white border border-slate-200/90 shadow-[0_15px_40px_rgba(15,23,42,0.05)] flex flex-col justify-between space-y-6">
               <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F5B942]/10 border border-[#F5B942]/30 text-[#F5B942] text-xs font-bold uppercase tracking-wider">
-                  <Bell className="w-3.5 h-3.5" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold uppercase tracking-wider">
+                  <Bell className="w-3.5 h-3.5 text-amber-600" />
                   <span>Instant Job Alerts</span>
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                <h2 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
                   Never Miss a Verified Opportunity
                 </h2>
-                <p className="text-sm text-slate-400 leading-relaxed max-w-xl">
+                <p className="text-sm text-slate-600 leading-relaxed max-w-xl">
                   Receive curated notifications when newly verified international vacancies matching your target destination and profession are published.
                 </p>
               </div>
@@ -456,17 +472,17 @@ export default async function HomePage() {
             </div>
 
             {/* Bento Card 2: Quick Search & CV Hub (5 cols) */}
-            <div className="lg:col-span-5 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-white/10 via-white/5 to-transparent border border-white/10 backdrop-blur-md flex flex-col justify-between space-y-6">
+            <div className="lg:col-span-5 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-slate-900 via-[#071522] to-sky-950 text-white border border-slate-800 shadow-xl flex flex-col justify-between space-y-6">
               <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#19CBE0]/10 border border-[#19CBE0]/30 text-[#19CBE0] text-xs font-bold uppercase tracking-wider">
-                  <Sparkles className="w-3.5 h-3.5" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/20 border border-sky-400/30 text-sky-300 text-xs font-bold uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5 text-sky-400" />
                   <span>Direct Application Platform</span>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
                   Stop Guessing.{" "}
-                  <span className="text-[#19CBE0]">Start Applying.</span>
+                  <span className="text-sky-400">Start Applying.</span>
                 </h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
+                <p className="text-sm text-slate-300 leading-relaxed">
                   Search hundreds of active vacancies with sponsorship signals and apply directly to the original employer.
                 </p>
               </div>
@@ -474,10 +490,10 @@ export default async function HomePage() {
               <div className="space-y-3 pt-2">
                 <Link
                   href="/jobs"
-                  className="w-full py-4 px-6 rounded-2xl bg-[#19CBE0] hover:bg-[#14b8ca] text-[#071522] font-extrabold text-sm transition-all duration-200 shadow-lg flex items-center justify-center gap-2 group cursor-pointer"
+                  className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-slate-950 font-black text-sm transition-all duration-200 shadow-lg flex items-center justify-center gap-2 group cursor-pointer"
                 >
                   <span>Search International Jobs</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 text-slate-950 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   href="/tools/ats-checker"

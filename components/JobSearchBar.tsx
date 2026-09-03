@@ -224,11 +224,11 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
         {/* Luminous Solid White Floating Search Bar */}
         <form
           onSubmit={handleSearch}
-          className="bg-white text-slate-900 p-2 sm:p-2.5 rounded-2xl md:rounded-full shadow-[0_25px_70px_rgba(0,0,0,0.45)] border border-slate-200/90 ring-4 ring-white/10 flex flex-col md:flex-row items-stretch md:items-center gap-1.5 md:gap-0 relative z-20"
+          className="bg-white text-slate-900 p-2 sm:p-2.5 rounded-2xl md:rounded-full shadow-[0_20px_50px_rgba(15,23,42,0.08)] hover:shadow-[0_25px_60px_rgba(14,165,233,0.12)] border border-slate-200/90 ring-4 ring-sky-500/5 transition-all duration-300 flex flex-col md:flex-row items-stretch md:items-center gap-1.5 md:gap-0 relative z-20"
         >
           {/* Field 1: Keyword */}
           <div className="flex-1 relative flex items-center px-4 py-3 md:py-2.5 rounded-xl md:rounded-full hover:bg-slate-50 transition-colors">
-            <Search className="w-5 h-5 text-slate-700 shrink-0 mr-3" />
+            <Search className="w-5 h-5 text-sky-600 shrink-0 mr-3" />
             <div className="flex-1 min-w-0 text-left">
               <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                 Role or Keyword
@@ -241,7 +241,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
                   setIsOpen(true);
                 }}
                 onFocus={() => setIsOpen(true)}
-                placeholder="Software Engineer, Civil Engineer..."
+                placeholder="Software Engineer, Civil Engineer, Nurse..."
                 className="w-full bg-transparent text-slate-900 font-bold text-sm placeholder:text-slate-400 placeholder:font-normal focus:outline-none truncate"
               />
             </div>
@@ -260,7 +260,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
 
           {/* Field 2: Destination */}
           <div className="relative flex items-center px-4 py-3 md:py-2.5 rounded-xl md:rounded-full hover:bg-slate-50 transition-colors md:w-[220px] shrink-0">
-            <MapPin className="w-5 h-5 text-[#087F8C] shrink-0 mr-3" />
+            <MapPin className="w-5 h-5 text-emerald-600 shrink-0 mr-3" />
             <div className="flex-1 min-w-0 text-left">
               <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                 Destination
@@ -278,7 +278,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
                   <option value="CA" className="bg-white text-slate-900 py-1">🇨🇦 Canada</option>
                   <option value="NZ" className="bg-white text-slate-900 py-1">🇳🇿 New Zealand</option>
                 </select>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-500 absolute right-0 pointer-events-none" />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-0 pointer-events-none" />
               </div>
             </div>
           </div>
@@ -303,7 +303,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
                   <option value="mid" className="bg-white text-slate-900 py-1">Mid (3–5y)</option>
                   <option value="senior" className="bg-white text-slate-900 py-1">Senior (5+y)</option>
                 </select>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-500 absolute right-0 pointer-events-none" />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-0 pointer-events-none" />
               </div>
             </div>
           </div>
@@ -311,17 +311,17 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
           {/* Primary Action Button */}
           <button
             type="submit"
-            className="mt-1 md:mt-0 px-8 py-3.5 md:py-3.5 rounded-xl md:rounded-full bg-[#071522] hover:bg-slate-900 text-white font-extrabold text-sm tracking-tight transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] cursor-pointer group shrink-0"
+            className="mt-1 md:mt-0 px-8 py-3.5 md:py-3.5 rounded-xl md:rounded-full bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-700 hover:from-sky-700 hover:to-cyan-700 text-white font-extrabold text-sm tracking-tight transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer group shrink-0"
           >
             <span>Search Jobs</span>
-            <ArrowRight className="w-4 h-4 text-[#19CBE0] group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
           </button>
         </form>
 
         {/* High-Contrast Popular Search Tags */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs">
-          <span className="flex items-center gap-1.5 font-bold text-slate-300 mr-1">
-            <Sparkles className="w-3.5 h-3.5 text-[#19CBE0]" />
+          <span className="flex items-center gap-1.5 font-bold text-slate-500 mr-1">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             <span>Popular:</span>
           </span>
           {POPULAR_TAGS.map((tag) => (
@@ -329,7 +329,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
               key={tag.label}
               type="button"
               onClick={() => handleTagClick(tag)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium border border-white/20 hover:border-[#19CBE0]/70 transition-all cursor-pointer backdrop-blur-md shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-semibold border border-slate-200/90 hover:border-sky-400 hover:text-sky-700 transition-all cursor-pointer shadow-2xs hover:shadow-xs"
             >
               {tag.icon}
               {tag.flagKey && MiniFlags[tag.flagKey]}
