@@ -398,32 +398,34 @@ export default async function HomePage() {
             </div>
 
             {/* Bento Card 2: Quick Search & CV Hub (5 cols) */}
-            <div className="lg:col-span-5 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-slate-900 via-[#071522] to-sky-950 text-white border border-slate-800 shadow-xl flex flex-col justify-between space-y-6">
+            <div className="lg:col-span-5 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-sky-50/80 via-white to-cyan-50/50 text-slate-900 border border-sky-200/90 shadow-[0_15px_40px_rgba(15,23,42,0.05)] flex flex-col justify-between space-y-6">
               <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/20 border border-sky-400/30 text-sky-300 text-xs font-bold uppercase tracking-wider">
-                  <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-100 border border-sky-200 text-sky-800 text-xs font-bold uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5 text-sky-600" />
                   <span>Direct Application Platform</span>
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                <h3 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight leading-snug">
                   Stop Guessing.{" "}
-                  <span className="text-sky-400">Start Applying.</span>
+                  <span className="bg-gradient-to-r from-sky-600 to-cyan-600 bg-clip-text text-transparent">
+                    Start Applying.
+                  </span>
                 </h3>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  Search hundreds of active vacancies with sponsorship signals and apply directly to the original employer.
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  Search hundreds of active vacancies with verified sponsorship signals and apply directly to the official ATS.
                 </p>
               </div>
 
               <div className="space-y-3 pt-2">
                 <Link
                   href="/jobs"
-                  className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-slate-950 font-black text-sm transition-all duration-200 shadow-lg flex items-center justify-center gap-2 group cursor-pointer"
+                  className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-700 hover:from-sky-700 hover:to-cyan-700 text-white font-black text-sm transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 group cursor-pointer"
                 >
                   <span>Search International Jobs</span>
-                  <ArrowRight className="w-4 h-4 text-slate-950 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   href="/tools/ats-checker"
-                  className="w-full py-3.5 px-6 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2"
+                  className="w-full py-3.5 px-6 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-2xs"
                 >
                   <span>Scan Resume Against Live Jobs (ATS Free)</span>
                 </Link>
