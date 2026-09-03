@@ -381,6 +381,20 @@ function createEdgeMemoryClient(): DatabaseClient {
 
               scored.sort((a, b) => b.score - a.score);
               res = scored.map((s) => s.job);
+            } else {
+              // Default sorting when no search query keywords provided
+              const qLower = q.toLowerCase();
+              if (qLower.includes("order by j.sponsorship_score desc")) {
+                res.sort((a, b) => (Number(b.sponsorship_score) || 0) - (Number(a.sponsorship_score) || 0) || new Date(b.published_at || b.first_seen_at || 0).getTime() - new Date(a.published_at || a.first_seen_at || 0).getTime());
+              } else if (qLower.includes("order by j.salary_max desc")) {
+                res.sort((a, b) => (Number(b.salary_max) || 0) - (Number(a.salary_max) || 0));
+              } else {
+                res.sort((a, b) => {
+                  const timeA = new Date(a.published_at || a.first_seen_at || a.created_at || 0).getTime();
+                  const timeB = new Date(b.published_at || b.first_seen_at || b.created_at || 0).getTime();
+                  return timeB - timeA;
+                });
+              }
             }
 
             // Return count aggregation if requested
