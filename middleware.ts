@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { MAINTENANCE_CONFIG } from "@/config/maintenance";
 
 const ADMIN_COOKIE_NAME = "sa_admin_session";
 
@@ -33,7 +34,33 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
-  // 2. Admin Web Portal Protection Gatekeeper
+  // 2. Maintenance Mode Gatekeeper
+  const isMaintenanceActive =
+    process.env.MAINTENANCE_MODE === "true" ||
+    process.env.NEXT_PUBLIC_MAINTENANCE_MODE === "true" ||
+    MAINTENANCE_CONFIG.enabled;
+
+  if (isMaintenanceActive && !pathname.startsWith("/maintenance")) {
+    const isWhitelisted = MAINTENANCE_CONFIG.allowedPathPrefixes.some((prefix) =>
+      pathname.startsWith(prefix)
+    );
+
+    const sessionCookie = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const authHeader = request.headers.get("authorization");
+    const isStaff = isAuthorizedSession(sessionCookie, authHeader);
+    const hasAdminBypass = request.nextUrl.searchParams.get("preview") === "admin";
+
+    if (!isWhitelisted && !isStaff && !hasAdminBypass) {
+      const maintenanceUrl = new URL("/maintenance", request.url);
+      const maintenanceResponse = NextResponse.rewrite(maintenanceUrl);
+      maintenanceResponse.headers.set("Retry-After", "3600");
+      maintenanceResponse.headers.set("X-Robots-Tag", "noindex, nofollow");
+      maintenanceResponse.headers.set("X-Maintenance-Mode", "active");
+      return maintenanceResponse;
+    }
+  }
+
+  // 3. Admin Web Portal Protection Gatekeeper
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     const sessionCookie = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
     const authHeader = request.headers.get("authorization");
