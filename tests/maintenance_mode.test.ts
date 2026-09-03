@@ -4,8 +4,8 @@ import fs from "fs";
 import path from "path";
 
 describe("System Maintenance Mode & Payment Gateway Preparation", () => {
-  it("should have maintenance configuration properly defined and activated", () => {
-    expect(MAINTENANCE_CONFIG.enabled).toBe(true);
+  it("should have maintenance configuration properly defined and deactivated for live deployment", () => {
+    expect(MAINTENANCE_CONFIG.enabled).toBe(false);
     expect(MAINTENANCE_CONFIG.heading).toContain("Payment Systems");
     expect(MAINTENANCE_CONFIG.badge).toBeTruthy();
     expect(MAINTENANCE_CONFIG.supportEmail).toBe("support@sponsorajobs.com");

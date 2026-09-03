@@ -5,7 +5,7 @@
  */
 export const MAINTENANCE_CONFIG = {
   // Set to true to activate maintenance mode across public routes
-  enabled: true,
+  enabled: false,
 
   // UI Information
   badge: "Payment Gateway Upgrade Active",
