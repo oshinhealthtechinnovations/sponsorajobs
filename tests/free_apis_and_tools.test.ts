@@ -21,7 +21,7 @@ describe("Free APIs & Platform Enrichment Tools", () => {
       expect(result.convertedAmount).toBeGreaterThan(60000);
       expect(result.monthlyAmount).toBe(Math.round(result.convertedAmount / 12));
       expect(result.formatted).toContain("$");
-    });
+    }, 15000);
 
     it("should handle identical from and to currencies gracefully", async () => {
       const result = await CurrencyService.convertSalary(50000, "USD", "USD");

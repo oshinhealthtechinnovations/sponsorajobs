@@ -62,9 +62,9 @@ export default async function HomePage() {
 
             {/* MAIN HERO HEADLINE — High Impact Typography */}
             <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-slate-950 max-w-4xl leading-[1.1]">
-              Find International Jobs{" "}
+              Find Jobs{" "}
               <span className="bg-gradient-to-r from-sky-600 via-cyan-600 to-indigo-600 bg-clip-text text-transparent">
-                With Real Visa Sponsorship.
+                With Visa Sponsorship.
               </span>
             </h1>
 
