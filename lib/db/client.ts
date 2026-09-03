@@ -306,7 +306,8 @@ function createEdgeMemoryClient(): DatabaseClient {
                       (s === "finance" && (jCatId.startsWith("cat_fin") || jCatSlug.includes("finance") || jCatName.includes("finance") || jTitle.includes("analyst") || jTitle.includes("accountant") || jTitle.includes("credit") || jTitle.includes("risk"))) ||
                       (s === "logistics" && (jCatId.startsWith("cat_logistics") || jCatSlug.includes("logistics") || jCatName.includes("logistics") || jTitle.includes("supply chain") || jTitle.includes("warehouse") || jTitle.includes("logistics") || jTitle.includes("transport"))) ||
                       (s === "hospitality" && (jCatId.startsWith("cat_hosp") || jCatSlug.includes("hospitality") || jCatName.includes("hospitality") || jTitle.includes("chef") || jTitle.includes("hotel") || jTitle.includes("restaurant"))) ||
-                      (s === "education" && (jCatId.startsWith("cat_edu") || jCatSlug.includes("education") || jCatName.includes("education") || jTitle.includes("teacher") || jTitle.includes("lecturer") || jTitle.includes("tutor")))
+                      (s === "education" && (jCatId.startsWith("cat_edu") || jCatSlug.includes("education") || jCatName.includes("education") || jTitle.includes("teacher") || jTitle.includes("lecturer") || jTitle.includes("tutor"))) ||
+                      (s === "administration" && (jCatId.startsWith("cat_admin") || jCatSlug.includes("admin") || jCatName.includes("admin") || jTitle.includes("admin") || jTitle.includes("operations") || jTitle.includes("coordinator") || jTitle.includes("assistant") || jTitle.includes("officer") || jTitle.includes("partner") || jTitle.includes("specialist") || jTitle.includes("reception")))
                     );
                   });
                 });
