@@ -502,7 +502,7 @@ async function harvestSkanska(): Promise<HarvesterStats> {
         }
       }
 
-      if (stats.fetched >= 100) break;
+      if (articles.length < 6) break;
     }
 
     fs.writeFileSync(dataPath, JSON.stringify(data, null, 2), "utf-8");

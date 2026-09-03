@@ -163,9 +163,9 @@ async function ingestSkanska() {
     data.companies.push(SKANSKA_COMPANY);
   }
 
-  // 2. Crawl all pages
+  // 2. Crawl all pages until exhaustively scraped
   const allParsedJobs = [];
-  for (let offset = 0; offset <= 150; offset += 6) {
+  for (let offset = 0; offset <= 600; offset += 6) {
     const url = `https://skanska.avature.net/careers/SearchJobs/?jobOffset=${offset}`;
     const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
     if (!res.ok) break;
@@ -202,11 +202,11 @@ async function ingestSkanska() {
       });
     }
 
-    console.log(`Offset ${offset}: found ${articles.length} jobs (Total: ${allParsedJobs.length})`);
-    if (allParsedJobs.length >= 100) break;
+    console.log(`Offset ${offset}: found ${articles.length} jobs (Total collected: ${allParsedJobs.length})`);
+    if (articles.length < 6) break;
   }
 
-  console.log(`✅ Extracted ${allParsedJobs.length} live Skanska UK requisitions!`);
+  console.log(`✅ Extracted ${allParsedJobs.length} live Skanska UK requisitions across all portal pages!`);
 
   let addedCount = 0;
   let updatedCount = 0;
