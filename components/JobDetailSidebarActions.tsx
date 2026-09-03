@@ -27,7 +27,7 @@ export function JobDetailSidebarActions({
 }: JobDetailSidebarActionsProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const { isLoggedIn, user } = useSession();
+  const { isLoggedIn, user, isPro } = useSession();
 
   useEffect(() => {
     try {
@@ -75,6 +75,17 @@ export function JobDetailSidebarActions({
 
   const handleApply = () => {
     requireAuth(() => {
+      if (!isPro) {
+        window.dispatchEvent(
+          new CustomEvent("open-pro-gate", {
+            detail: {
+              featureName: `Direct Application Link for "${jobTitle}"`,
+            },
+          })
+        );
+        return;
+      }
+
       // 1. Save to local application tracker immediately
       saveLocalApplication(
         {
@@ -131,11 +142,15 @@ export function JobDetailSidebarActions({
       <button
         type="button"
         onClick={handleApply}
-        title="Start Application"
-        className="w-full h-14 rounded-2xl bg-gradient-to-r from-[#071421] to-[#0e273f] hover:from-[#0d2235] hover:to-[#173859] text-white font-black text-sm flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg transition-all active:scale-[0.99] cursor-pointer group touch-manipulation"
+        title={!isPro ? "Upgrade to VIP to access direct apply links" : "Start application"}
+        className={`w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer group touch-manipulation ${
+          !isPro
+            ? "bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 shadow-amber-500/25"
+            : "bg-gradient-to-r from-[#071421] to-[#0e273f] hover:from-[#0d2235] hover:to-[#173859] text-white"
+        }`}
       >
-        <span>Start Application</span>
-        <ArrowRight className="w-4 h-4 text-[#18D6E5] group-hover:translate-x-1 transition-transform shrink-0" />
+        <span>{!isPro ? "Apply (Unlock VIP)" : "Start Application"}</span>
+        <ArrowRight className={`w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0 ${!isPro ? "text-slate-950" : "text-[#18D6E5]"}`} />
       </button>
 
       <div className="text-center text-[11px] text-slate-500 font-medium">

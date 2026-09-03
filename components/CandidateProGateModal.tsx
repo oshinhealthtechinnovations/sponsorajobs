@@ -24,6 +24,7 @@ import {
   CheckCircle2,
   Zap,
   Lock,
+  Crown,
 } from "lucide-react";
 import { RazorpayCheckoutButton } from "@/components/RazorpayCheckoutButton";
 import Link from "next/link";
@@ -37,18 +38,18 @@ const PLANS = [
 ];
 
 const FEATURES = [
-  { icon: FileText, label: "CV Upload & AI Analysis" },
-  { icon: Brain,    label: "CV → Job Match Score" },
-  { icon: BarChart3, label: "Application Fit Score" },
-  { icon: Shield,   label: "Eligibility Analysis" },
-  { icon: Globe,    label: "Sponsorship Intelligence" },
-  { icon: Sparkles, label: "Advanced Career Analysis" },
+  { icon: Crown,    label: "Direct Employer Apply Links (7,800+ Jobs)" },
+  { icon: FileText, label: "Full Unblurred Job Descriptions & Requirements" },
+  { icon: Brain,    label: "AI CV → Job ATS Match Scorer" },
+  { icon: BarChart3, label: "Custom Visa Sponsorship Cover Letters" },
+  { icon: Shield,   label: "Salary Package & Eligibility Analysis" },
+  { icon: Sparkles, label: "Daily Priority Job Alerts" },
 ];
 
 export function CandidateProGateModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [featureName, setFeatureName] = useState<string | null>(null);
-  const [selectedPlan, setSelectedPlan] = useState("SA_YEAR_999");
+  const [selectedPlan, setSelectedPlan] = useState("SA_3MONTH_499");
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -66,7 +67,11 @@ export function CandidateProGateModal() {
     };
 
     window.addEventListener("open-pro-gate", handleOpen);
-    return () => window.removeEventListener("open-pro-gate", handleOpen);
+    window.addEventListener("open-vip-paywall", handleOpen);
+    return () => {
+      window.removeEventListener("open-pro-gate", handleOpen);
+      window.removeEventListener("open-vip-paywall", handleOpen);
+    };
   }, []);
 
   if (!isOpen) return null;

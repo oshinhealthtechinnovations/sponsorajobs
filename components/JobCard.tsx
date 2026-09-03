@@ -29,7 +29,7 @@ interface JobCardProps {
 export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
   const [isSaved, setIsSaved] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
-  const { isLoggedIn, user } = useSession();
+  const { isLoggedIn, user, isPro } = useSession();
 
   const intelligence = calculateJobIntelligence(job);
   const { worthScore, confidence } = intelligence;
@@ -43,12 +43,87 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
     }
   }, [job.id]);
 
-  /** Open auth gate if not logged in; otherwise run the callback */
-  const requireAuth = (
-    e: React.MouseEvent,
-    callback: () => void,
-    redirectUrl?: string
-  ) => {
+  /** Open auth gate or PRO gate */
+  const handleApplyClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // 1. If not logged in, request quick login/OTP
+    if (!isLoggedIn) {
+      window.dispatchEvent(
+        new CustomEvent("open-auth-gate", {
+          detail: {
+            defaultTab: "register",
+            redirectUrl: `/job/${job.slug}`,
+          },
+        })
+      );
+      return;
+    }
+
+    // 2. If logged in but not PRO, trigger VIP Pro Paywall
+    if (!isPro) {
+      window.dispatchEvent(
+        new CustomEvent("open-pro-gate", {
+          detail: {
+            featureName: `Direct Apply Link for "${job.title}"`,
+          },
+        })
+      );
+      return;
+    }
+
+    // 3. If PRO, proceed with official application
+    saveLocalApplication(
+      {
+        jobId: job.id,
+        jobTitle: job.title,
+        jobSlug: job.slug,
+        companyName: job.company?.name || "Verified Employer",
+        companyLogo: job.company?.logoUrl || null,
+        location: job.location.formatted || job.location.country,
+        salary: salary || null,
+        applyUrl: job.applyUrl,
+        status: "APPLIED",
+      },
+      user?.id
+    );
+
+    try {
+      fetch("/api/user/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jobId: job.id,
+          jobTitle: job.title,
+          jobSlug: job.slug,
+          companyName: job.company?.name || "Verified Employer",
+          companyLogo: job.company?.logoUrl || null,
+          location: job.location.formatted || job.location.country,
+          salary: salary || null,
+          applyUrl: job.applyUrl,
+          status: "APPLIED",
+        }),
+      }).catch(() => {});
+    } catch {}
+
+    window.open(job.applyUrl, "_blank", "noopener,noreferrer");
+
+    window.dispatchEvent(
+      new CustomEvent("verify-job-application", {
+        detail: {
+          jobId: job.id,
+          jobTitle: job.title,
+          companyName: job.company?.name || "Verified Employer",
+          location: job.location.formatted || job.location.country,
+          salary: salary || null,
+          applyUrl: job.applyUrl,
+        },
+      })
+    );
+  };
+
+  const toggleSave = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isLoggedIn) {
@@ -56,95 +131,30 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
         new CustomEvent("open-auth-gate", {
           detail: {
             defaultTab: "register",
-            redirectUrl,
+            redirectUrl: `/job/${job.slug}`,
           },
         })
       );
       return;
     }
-    callback();
-  };
 
-  const toggleSave = (e: React.MouseEvent) => {
-    requireAuth(e, () => {
-      try {
-        const saved: string[] = JSON.parse(
-          localStorage.getItem("sa_saved_jobs") || "[]"
-        );
-        let updated: string[];
-        if (saved.includes(job.id)) {
-          updated = saved.filter((id) => id !== job.id);
-          setIsSaved(false);
-        } else {
-          updated = [...saved, job.id];
-          setIsSaved(true);
-        }
-        localStorage.setItem("sa_saved_jobs", JSON.stringify(updated));
-        window.dispatchEvent(new Event("storage"));
-      } catch {
-        setIsSaved(!isSaved);
+    try {
+      const saved: string[] = JSON.parse(
+        localStorage.getItem("sa_saved_jobs") || "[]"
+      );
+      let updated: string[];
+      if (saved.includes(job.id)) {
+        updated = saved.filter((id) => id !== job.id);
+        setIsSaved(false);
+      } else {
+        updated = [...saved, job.id];
+        setIsSaved(true);
       }
-    });
-  };
-
-  const handleApplyClick = (e: React.MouseEvent) => {
-    requireAuth(
-      e,
-      () => {
-        // Save to local tracker immediately
-        saveLocalApplication(
-          {
-            jobId: job.id,
-            jobTitle: job.title,
-            jobSlug: job.slug,
-            companyName: job.company?.name || "Verified Employer",
-            companyLogo: job.company?.logoUrl || null,
-            location: job.location.formatted || job.location.country,
-            salary: salary || null,
-            applyUrl: job.applyUrl,
-            status: "APPLIED",
-          },
-          user?.id
-        );
-
-        // Asynchronously log application to user tracker
-        try {
-          fetch("/api/user/applications", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              jobId: job.id,
-              jobTitle: job.title,
-              jobSlug: job.slug,
-              companyName: job.company?.name || "Verified Employer",
-              companyLogo: job.company?.logoUrl || null,
-              location: job.location.formatted || job.location.country,
-              salary: salary || null,
-              applyUrl: job.applyUrl,
-              status: "APPLIED",
-            }),
-          }).catch(() => {});
-        } catch {}
-
-        // Open career portal in new tab
-        window.open(job.applyUrl, "_blank", "noopener,noreferrer");
-
-        // Trigger cross-verification prompt
-        window.dispatchEvent(
-          new CustomEvent("verify-job-application", {
-            detail: {
-              jobId: job.id,
-              jobTitle: job.title,
-              companyName: job.company?.name || "Verified Employer",
-              location: job.location.formatted || job.location.country,
-              salary: salary || null,
-              applyUrl: job.applyUrl,
-            },
-          })
-        );
-      },
-      job.applyUrl
-    );
+      localStorage.setItem("sa_saved_jobs", JSON.stringify(updated));
+      window.dispatchEvent(new Event("storage"));
+    } catch {
+      setIsSaved(!isSaved);
+    }
   };
 
   // Format salary
@@ -170,16 +180,6 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
     return `Posted ${Math.floor(diffDays / 30)} months ago`;
   };
 
-  // Application Fit label per spec §10
-  const getFitLabel = (score: number) => {
-    if (score >= 90) return { label: "Excellent Match", color: "text-emerald-700 bg-emerald-50 border-emerald-200" };
-    if (score >= 75) return { label: "Strong Match", color: "text-emerald-700 bg-emerald-50 border-emerald-200" };
-    if (score >= 60) return { label: "Possible Match", color: "text-amber-700 bg-amber-50 border-amber-200" };
-    if (score >= 40) return { label: "Low Match", color: "text-slate-600 bg-slate-50 border-slate-200" };
-    return { label: "Unlikely Match", color: "text-slate-500 bg-slate-50 border-slate-200" };
-  };
-
-  const fitInfo = getFitLabel(worthScore);
   const salary = formatSalary();
   const hasNegative = job.sponsorship.label === "Explicitly Not Offered";
   const hasSponsorship =
@@ -189,16 +189,15 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
 
   return (
     <>
-      <div className="rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all duration-200 flex flex-col group relative overflow-hidden">
-        {/* Top accent line on hover */}
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#19CBE0] opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-t-2xl" />
+      <div className="rounded-2xl bg-white border border-slate-200 hover:border-amber-300 hover:shadow-md transition-all duration-200 flex flex-col group relative overflow-hidden">
+        {/* Top accent line */}
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-t-2xl" />
 
         <div className="p-5 flex flex-col flex-1 gap-3">
-
           {/* Header: Company logo, name, location + Save */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
                 {(job.company?.name || "Employer").slice(0, 2).toUpperCase()}
               </div>
               <div className="min-w-0">
@@ -228,7 +227,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
               </div>
             </div>
 
-            {/* Save button — gated behind auth */}
+            {/* Save button */}
             <button
               onClick={toggleSave}
               type="button"
@@ -251,7 +250,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
 
           {/* Job Title */}
           <Link href={`/job/${job.slug}`} className="block">
-            <h3 className="text-base font-bold text-slate-900 group-hover:text-[#071522] leading-snug line-clamp-2 transition-colors">
+            <h3 className="text-base font-bold text-slate-900 group-hover:text-brand-900 leading-snug line-clamp-2 transition-colors">
               {job.title}
             </h3>
           </Link>
@@ -295,6 +294,21 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
             )}
           </div>
 
+          {/* Blurred Teaser Preview for Non-Pro Users (matching ukvisasponsorships.co.uk) */}
+          {!isPro && (
+            <div className="relative mt-1 p-2.5 rounded-xl bg-slate-50 border border-slate-200/70 overflow-hidden">
+              <div className="text-xs text-slate-500 line-clamp-2 blur-[4px] select-none pointer-events-none">
+                This licensed sponsor role requires expertise in candidate project execution, technical leadership, regulatory compliance, and cross-functional team delivery with direct visa certificate support.
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center bg-slate-900/5 backdrop-blur-[1px]">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/90 text-slate-950 font-black text-[10px] shadow-xs tracking-wide">
+                  <Lock className="w-3 h-3" />
+                  <span>FULL DESCRIPTION WITH PREMIUM</span>
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Footer: Date + CTAs */}
           <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
             <div className="flex items-center gap-1 text-xs text-slate-400">
@@ -305,25 +319,31 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
             <div className="flex items-center gap-2 shrink-0">
               <Link
                 href={`/job/${job.slug}`}
-                className="min-h-[40px] px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center justify-center touch-manipulation"
+                className="min-h-[38px] px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center justify-center touch-manipulation"
               >
                 View Details
               </Link>
-              {/* Apply button — gated behind auth */}
+
+              {/* Apply button — gated behind Pro */}
               <button
                 type="button"
                 onClick={handleApplyClick}
-                title={!isLoggedIn ? "Create a free account to apply" : "Start application"}
-                className="min-h-[40px] px-3.5 sm:px-4 py-2 rounded-xl bg-[#071421] hover:bg-slate-800 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs hover:shadow-md active:scale-[0.98] cursor-pointer relative touch-manipulation group"
+                title={!isPro ? "Upgrade to VIP to access direct apply links" : "Start application"}
+                className={`min-h-[38px] px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs hover:shadow-md active:scale-[0.98] cursor-pointer relative touch-manipulation group ${
+                  !isPro
+                    ? "bg-amber-500 hover:bg-amber-400 text-slate-950 font-black"
+                    : "bg-[#071421] hover:bg-slate-800 text-white"
+                }`}
               >
-                {!isLoggedIn && <Lock className="w-3 h-3 text-amber-400" />}
-                <span>Start Application</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#18D6E5] group-hover:translate-x-0.5 transition-transform shrink-0" />
+                {!isPro && <Lock className="w-3 h-3 text-slate-950" />}
+                <span>{!isPro ? "Apply (VIP)" : "Start Application"}</span>
+                <ArrowRight className={`w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform shrink-0 ${!isPro ? "text-slate-950" : "text-[#18D6E5]"}`} />
               </button>
             </div>
           </div>
         </div>
       </div>
+
 
       <JobShareModal
         isOpen={shareModalOpen}

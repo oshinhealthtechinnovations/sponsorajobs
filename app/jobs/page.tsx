@@ -8,6 +8,8 @@ import { JobRepository } from "@/lib/repositories/jobRepository";
 import { INITIAL_CATEGORIES } from "@/config/categories";
 import { normalizeSearchQuery } from "@/lib/utils/searchNormalizer";
 import { JobSearchBar } from "@/components/JobSearchBar";
+import { VIPVerifiedSponsorsHeader } from "@/components/VIPVerifiedSponsorsHeader";
+import { StickyBottomProBanner } from "@/components/StickyBottomProBanner";
 import Link from "next/link";
 import { Search, ChevronLeft, ChevronRight, X, Sparkles, SlidersHorizontal } from "lucide-react";
 import { MobileFilterDrawer } from "@/components/MobileFilterDrawer";
@@ -169,6 +171,9 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
 
           {/* Job Results */}
           <div className="lg:col-span-3">
+            {/* VIP Verified Sponsors Preview Section (matching ukvisasponsorships.co.uk) */}
+            <VIPVerifiedSponsorsHeader topJobs={jobs} />
+
             {jobs.length > 0 ? (
               <>
                 {/* Results count on mobile */}
@@ -286,7 +291,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
           </div>
         </div>
       </main>
-
+      <StickyBottomProBanner />
       <Footer />
     </div>
   );

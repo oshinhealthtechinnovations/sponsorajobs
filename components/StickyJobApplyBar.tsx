@@ -28,7 +28,7 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
   const [isVisible, setIsVisible] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const { isLoggedIn, user } = useSession();
+  const { isLoggedIn, user, isPro } = useSession();
 
   // Show floating bar after scrolling past the main hero CTA
   useEffect(() => {
@@ -91,6 +91,17 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
           detail: {
             defaultTab: "register",
             redirectUrl: window.location.pathname,
+          },
+        })
+      );
+      return;
+    }
+
+    if (!isPro) {
+      window.dispatchEvent(
+        new CustomEvent("open-pro-gate", {
+          detail: {
+            featureName: `Direct Application Portal for "${jobTitle}"`,
           },
         })
       );
