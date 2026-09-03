@@ -4,7 +4,6 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { JobCard } from "@/components/JobCard";
 import { JobSearchBar } from "@/components/JobSearchBar";
-import { ApplicationWorthinessGauge } from "@/components/ApplicationWorthinessGauge";
 import { SponsorshipRadarMap } from "@/components/SponsorshipRadarMap";
 import { CareerRoutesNavigator } from "@/components/CareerRoutesNavigator";
 import { ApplicationReadinessCalculator } from "@/components/ApplicationReadinessCalculator";
@@ -20,7 +19,6 @@ import {
   Search,
   Globe2,
   Building2,
-  TrendingUp,
   Clock,
   Briefcase,
   Bell,
@@ -190,78 +188,6 @@ export default async function HomePage() {
               {latestJobs.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* =========================================================================
-            SECTION 04: APPLICATION FIT — What the score means (Clean Light Luxury)
-           ========================================================================= */}
-        <section className="w-full bg-gradient-to-b from-slate-50 via-white to-slate-50/60 text-slate-900 border-y border-slate-200/80 py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            <div className="lg:col-span-5 space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-700 text-xs font-bold uppercase tracking-wider">
-                <TrendingUp className="w-3.5 h-3.5 text-sky-600" />
-                <span>Application Fit Intelligence</span>
-              </div>
-              <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-950">
-                Know Your Chances Before You Apply
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Every job on SponsorAJobs has an <strong className="text-slate-900">Application Fit Score</strong> — an AI-powered 0–100 rating that evaluates sponsorship likelihood, employer verification, salary alignment, role relevance and posting freshness.
-              </p>
-
-              <div className="space-y-2 pt-2">
-                {[
-                  { range: "90–100", label: "Excellent Match · High Sponsorship Probability", color: "bg-emerald-500" },
-                  { range: "75–89",  label: "Strong Match · Licensed Sponsor Confirmed",    color: "bg-emerald-400" },
-                  { range: "60–74",  label: "Possible Match · Skills Threshold Dependent",  color: "bg-amber-400" },
-                  { range: "40–59",  label: "Low Match · May Require Local Rights",        color: "bg-slate-400" },
-                  { range: "<40",    label: "Unlikely Match · Sponsorship Not Specified",   color: "bg-slate-300" },
-                ].map(({ range, label, color }) => (
-                  <div key={range} className="flex items-center gap-3 text-xs bg-white p-2 rounded-xl border border-slate-200 shadow-2xs">
-                    <div className={`w-2.5 h-2.5 rounded-full ${color} shrink-0`} />
-                    <span className="font-extrabold text-slate-900 w-16">{range}</span>
-                    <span className="text-slate-600 font-medium">{label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Demo Card */}
-            <div className="lg:col-span-7 p-6 sm:p-8 rounded-3xl bg-white text-slate-900 border border-slate-200 shadow-[0_20px_50px_rgba(15,23,42,0.06)] space-y-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-xs font-bold text-slate-500">Mace Group · London, UK</div>
-                  <h3 className="text-lg font-extrabold text-slate-900 mt-0.5 leading-snug">
-                    Senior Structural & Infrastructure Engineer
-                  </h3>
-                  <div className="text-xs font-bold text-emerald-700 mt-1">£68,000 – £82,000 / year</div>
-                </div>
-                <div className="shrink-0 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-black uppercase">
-                  VERIFIED CO-SPONSOR
-                </div>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                <ApplicationWorthinessGauge
-                  score={92}
-                  size="md"
-                  showBreakdown={true}
-                  breakdown={{
-                    sponsorshipLikelihood: 95,
-                    employerVerification: 100,
-                    roleMatch: 91,
-                    salaryCompatibility: 88,
-                    freshness: 97,
-                  }}
-                />
-              </div>
-
-              <div className="flex items-center gap-2 text-xs text-emerald-700 font-semibold">
-                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Employer directly accepting international applications with Certificate of Sponsorship</span>
-              </div>
             </div>
           </div>
         </section>
