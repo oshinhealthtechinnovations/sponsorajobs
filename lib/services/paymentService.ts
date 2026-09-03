@@ -79,10 +79,16 @@ export class PaymentService {
   private static stripeSecretKey = process.env.STRIPE_SECRET_KEY || "";
   private static stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
 
-  // Razorpay Credentials
-  private static razorpayKeyId = process.env.RAZORPAY_KEY_ID || "";
-  private static razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || "";
-  private static razorpayWebhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
+  // Razorpay Credentials (dynamic getters with fallback to test credentials)
+  private static get razorpayKeyId(): string {
+    return process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_TXVZbe8aySgPaY";
+  }
+  private static get razorpayKeySecret(): string {
+    return process.env.RAZORPAY_KEY_SECRET || "MveQ7NSFEWVHADuE2n6VqiWh";
+  }
+  private static get razorpayWebhookSecret(): string {
+    return process.env.RAZORPAY_WEBHOOK_SECRET || "";
+  }
 
   /**
    * Generates a checkout session/order via selected gateway (Razorpay for India, Stripe for International)
@@ -168,6 +174,7 @@ export class PaymentService {
         mode: "sandbox_simulated",
         amount,
         currency: "INR",
+        keyId: this.razorpayKeyId,
       };
     }
 

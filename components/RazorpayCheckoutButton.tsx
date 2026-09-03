@@ -90,7 +90,7 @@ export function RazorpayCheckoutButton({
       }
 
       const { orderId, amount: serverAmount, currency, keyId } = orderData.data;
-      const razorpayKey = keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+      const razorpayKey = keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_TXVZbe8aySgPaY";
 
       if (!razorpayKey) {
         throw new Error("Payment configuration error. Please contact support.");

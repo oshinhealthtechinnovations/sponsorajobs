@@ -30,7 +30,10 @@ function RazorpayCheckoutContent() {
   useEffect(() => {
     const orderId = searchParams.get("order_id");
     const amount = Number(searchParams.get("amount") || "0");
-    const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+    const razorpayKey =
+      searchParams.get("key_id") ||
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+      "rzp_test_TXVZbe8aySgPaY";
 
     if (!orderId || !razorpayKey) {
       setStatus("error");
