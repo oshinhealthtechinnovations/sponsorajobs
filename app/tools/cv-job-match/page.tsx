@@ -915,7 +915,7 @@ export default function CVJobMatchPage() {
                             companyName={rec.job.company.name}
                             locationFormatted={rec.job.location.formatted || rec.job.location.country}
                             applyUrl={rec.job.applyUrl || (rec.job as any).jobUrl || "#"}
-                            label="Apply Directly"
+                            label="Start Application"
                             variant="card"
                             className="flex-1 sm:flex-none h-9 px-4 text-xs font-bold rounded-xl"
                           />

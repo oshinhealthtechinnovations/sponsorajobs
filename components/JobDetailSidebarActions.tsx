@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ExternalLink, Bookmark, Share2, Lock } from "lucide-react";
+import { ArrowRight, Bookmark, Share2, Lock } from "lucide-react";
 import { useSession } from "@/hooks/useSession";
 import { saveLocalApplication } from "@/lib/utils/clientApplicationTracker";
 import { JobShareModal } from "./JobShareModal";
@@ -36,56 +36,48 @@ export function JobDetailSidebarActions({
     } catch {}
   }, [jobId]);
 
-  const toggleSave = () => {
+  const requireAuth = (callback: () => void) => {
     if (!isLoggedIn) {
       window.dispatchEvent(
         new CustomEvent("open-auth-gate", {
-          detail: { defaultTab: "register", redirectUrl: applyUrl },
+          detail: {
+            defaultTab: "register",
+            redirectUrl: window.location.pathname,
+          },
         })
       );
       return;
     }
-
-    try {
-      const saved: string[] = JSON.parse(localStorage.getItem("sa_saved_jobs") || "[]");
-      let updated: string[];
-      if (saved.includes(jobId)) {
-        updated = saved.filter((id) => id !== jobId);
-        setIsSaved(false);
-      } else {
-        updated = [...saved, jobId];
-        setIsSaved(true);
-      }
-      localStorage.setItem("sa_saved_jobs", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-    } catch {
-      setIsSaved(!isSaved);
-    }
+    callback();
   };
 
-  const handleApply = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const toggleSave = () => {
+    requireAuth(() => {
+      try {
+        const saved: string[] = JSON.parse(
+          localStorage.getItem("sa_saved_jobs") || "[]"
+        );
+        let updated: string[];
+        if (saved.includes(jobId)) {
+          updated = saved.filter((id) => id !== jobId);
+          setIsSaved(false);
+        } else {
+          updated = [...saved, jobId];
+          setIsSaved(true);
+        }
+        localStorage.setItem("sa_saved_jobs", JSON.stringify(updated));
+        window.dispatchEvent(new Event("storage"));
+      } catch {
+        setIsSaved(!isSaved);
+      }
+    });
+  };
 
-    // 1. Immediately save to local application tracker
-    saveLocalApplication(
-      {
-        jobId,
-        jobTitle,
-        companyName,
-        location: locationFormatted,
-        salary: salaryFormatted,
-        applyUrl,
-        status: "APPLIED",
-      },
-      user?.id
-    );
-
-    // 2. Asynchronously log application to user tracker backend
-    try {
-      fetch("/api/user/applications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+  const handleApply = () => {
+    requireAuth(() => {
+      // 1. Save to local application tracker immediately
+      saveLocalApplication(
+        {
           jobId,
           jobTitle,
           companyName,
@@ -93,26 +85,44 @@ export function JobDetailSidebarActions({
           salary: salaryFormatted,
           applyUrl,
           status: "APPLIED",
-        }),
-      }).catch(() => {});
-    } catch {}
-
-    // 3. Open official career portal in new tab
-    window.open(applyUrl, "_blank", "noopener,noreferrer");
-
-    // 4. Trigger cross-verification prompt
-    window.dispatchEvent(
-      new CustomEvent("verify-job-application", {
-        detail: {
-          jobId,
-          jobTitle,
-          companyName,
-          location: locationFormatted,
-          salary: salaryFormatted,
-          applyUrl,
         },
-      })
-    );
+        user?.id
+      );
+
+      // 2. Asynchronously sync application record to backend
+      try {
+        fetch("/api/user/applications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jobId,
+            jobTitle,
+            companyName,
+            location: locationFormatted,
+            salary: salaryFormatted,
+            applyUrl,
+            status: "APPLIED",
+          }),
+        }).catch(() => {});
+      } catch {}
+
+      // 3. Open career application in new tab
+      window.open(applyUrl, "_blank", "noopener,noreferrer");
+
+      // 4. Trigger Cross-Verification prompt
+      window.dispatchEvent(
+        new CustomEvent("verify-job-application", {
+          detail: {
+            jobId,
+            jobTitle,
+            companyName,
+            location: locationFormatted,
+            salary: salaryFormatted,
+            applyUrl,
+          },
+        })
+      );
+    });
   };
 
   return (
@@ -121,16 +131,16 @@ export function JobDetailSidebarActions({
       <button
         type="button"
         onClick={handleApply}
-        title="Apply on Official Website"
-        className="w-full h-14 rounded-2xl bg-[#071421] hover:bg-slate-800 text-white font-black text-sm flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg transition-all cursor-pointer group"
+        title="Start Application"
+        className="w-full h-14 rounded-2xl bg-gradient-to-r from-[#071421] to-[#0e273f] hover:from-[#0d2235] hover:to-[#173859] text-white font-black text-sm flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg transition-all active:scale-[0.99] cursor-pointer group touch-manipulation"
       >
-        <span>Apply on Official Website</span>
-        <ExternalLink className="w-4 h-4 text-[#18D6E5] group-hover:translate-x-0.5 transition-transform" />
+        <span>Start Application</span>
+        <ArrowRight className="w-4 h-4 text-[#18D6E5] group-hover:translate-x-1 transition-transform shrink-0" />
       </button>
 
       <div className="text-center text-[11px] text-slate-500 font-medium">
-        <span className="font-bold text-slate-700">100% Direct Application</span>
-        {" · "}Redirects directly to the employer's official career portal.
+        <span className="font-bold text-slate-700">Verified Direct Application</span>
+        {" · "}Official Visa Sponsorship Candidate Channel
       </div>
 
       {/* Secondary Actions */}

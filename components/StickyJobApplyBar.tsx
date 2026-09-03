@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ExternalLink, Bookmark, Share2, Sparkles, Building2, CheckCircle2, Lock } from "lucide-react";
+import { ArrowRight, Bookmark, Share2, Sparkles, Building2, CheckCircle2, Lock } from "lucide-react";
 import { JobShareModal } from "./JobShareModal";
 import { useSession } from "@/hooks/useSession";
 import { saveLocalApplication } from "@/lib/utils/clientApplicationTracker";
@@ -30,10 +30,10 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
   const [shareOpen, setShareOpen] = useState(false);
   const { isLoggedIn, user } = useSession();
 
+  // Show floating bar after scrolling past the main hero CTA
   useEffect(() => {
     const handleScroll = () => {
-      // Show when scrolled down past 280px (past the hero card)
-      if (window.scrollY > 280) {
+      if (window.scrollY > 400) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
@@ -41,22 +41,27 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
+  // Sync saved status from localStorage
+  useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("sa_saved_jobs") || "[]");
       setIsSaved(saved.includes(jobId));
     } catch {
       // safe fallback
     }
-
-    return () => window.removeEventListener("scroll", handleScroll);
   }, [jobId]);
 
   const toggleSave = () => {
     if (!isLoggedIn) {
       window.dispatchEvent(
         new CustomEvent("open-auth-gate", {
-          detail: { defaultTab: "register", redirectUrl: applyUrl },
+          detail: {
+            defaultTab: "register",
+            redirectUrl: window.location.pathname,
+          },
         })
       );
       return;
@@ -83,26 +88,30 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
     if (!isLoggedIn) {
       window.dispatchEvent(
         new CustomEvent("open-auth-gate", {
-          detail: { defaultTab: "register", redirectUrl: applyUrl },
+          detail: {
+            defaultTab: "register",
+            redirectUrl: window.location.pathname,
+          },
         })
       );
       return;
     }
 
-    // Immediately save to local application tracker
+    // 1. Save to local application tracker immediately
     saveLocalApplication(
       {
         jobId,
         jobTitle,
         companyName,
         location: locationFormatted,
-        salary: salaryFormatted !== "Competitive / Not disclosed" ? salaryFormatted : null,
+        salary: salaryFormatted,
         applyUrl,
         status: "APPLIED",
       },
       user?.id
     );
 
+    // 2. Asynchronously sync to backend / Supabase
     try {
       fetch("/api/user/applications", {
         method: "POST",
@@ -112,16 +121,17 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
           jobTitle,
           companyName,
           location: locationFormatted,
-          salary: salaryFormatted !== "Competitive / Not disclosed" ? salaryFormatted : null,
+          salary: salaryFormatted,
           applyUrl,
           status: "APPLIED",
         }),
       }).catch(() => {});
     } catch {}
 
+    // 3. Open career application in new tab
     window.open(applyUrl, "_blank", "noopener,noreferrer");
 
-    // Trigger cross-verification prompt
+    // 4. Trigger Cross-Verification Modal with 12s countdown
     window.dispatchEvent(
       new CustomEvent("verify-job-application", {
         detail: {
@@ -129,7 +139,7 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
           jobTitle,
           companyName,
           location: locationFormatted,
-          salary: salaryFormatted !== "Competitive / Not disclosed" ? salaryFormatted : null,
+          salary: salaryFormatted,
           applyUrl,
         },
       })
@@ -141,11 +151,11 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
   return (
     <>
       {/* Desktop & Mobile Floating Conversion Bar */}
-      <div className="fixed bottom-4 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:max-w-4xl z-50 animate-fade-in">
-        <div className="p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-slate-950/95 backdrop-blur-xl border border-slate-800 shadow-2xl shadow-black/40 text-white flex items-center justify-between gap-3 sm:gap-6">
+      <div className="fixed bottom-3 sm:bottom-4 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:max-w-4xl z-50 animate-fade-in">
+        <div className="p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-slate-950/95 backdrop-blur-xl border border-slate-800 shadow-2xl shadow-black/40 text-white flex items-center justify-between gap-2.5 sm:gap-6">
           {/* Company & Role Details */}
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-600 to-indigo-600 border border-white/10 flex items-center justify-center font-black text-sm text-white shrink-0 shadow-md">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-brand-600 to-indigo-600 border border-white/10 flex items-center justify-center font-black text-xs sm:text-sm text-white shrink-0 shadow-md">
               {companyName.slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0">
@@ -170,11 +180,11 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               onClick={toggleSave}
               title={isSaved ? "Saved" : "Save this job"}
-              className={`p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer ${
+              className={`p-2 sm:p-3 rounded-xl border transition-all cursor-pointer ${
                 isSaved
                   ? "bg-rose-500/20 border-rose-500/40 text-rose-400"
                   : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800"
@@ -186,17 +196,18 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
             <button
               onClick={() => setShareOpen(true)}
               title="Share job"
-              className="p-2.5 sm:p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white transition-all cursor-pointer hidden sm:flex items-center justify-center"
+              className="p-2 sm:p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white transition-all cursor-pointer hidden sm:flex items-center justify-center"
             >
               <Share2 className="w-4 h-4 text-brand-400" />
             </button>
 
             <button
               onClick={handleApply}
-              className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 active:scale-[0.98] text-white font-bold text-xs sm:text-sm shadow-lg shadow-brand-600/30 transition-all cursor-pointer"
+              title="Start Application"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 active:scale-[0.98] text-white font-black text-xs sm:text-sm shadow-lg shadow-brand-600/30 transition-all cursor-pointer group touch-manipulation"
             >
-              <span>Apply Directly</span>
-              <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>Start Application</span>
+              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#18D6E5] group-hover:translate-x-1 transition-transform shrink-0" />
             </button>
           </div>
         </div>

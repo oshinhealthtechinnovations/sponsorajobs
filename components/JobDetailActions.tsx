@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Bookmark, Share2, Bell, Check, ExternalLink, Lock, Sparkles, CheckCircle2, Flag } from "lucide-react";
+import { ArrowRight, Bookmark, Share2, Bell, Check, ExternalLink, Lock, Sparkles, CheckCircle2, Flag } from "lucide-react";
 import { JobAlertModal } from "./JobAlertModal";
 import { JobShareModal } from "./JobShareModal";
 import { ReportIssueModal } from "./ReportIssueModal";
@@ -174,10 +174,10 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
           <button
             type="button"
             onClick={handleApplyClick}
-            className="flex-1 inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold text-xs shadow-md shadow-brand-600/25 transition-all text-center cursor-pointer touch-manipulation"
+            className="flex-1 inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 active:scale-[0.98] text-white font-black text-xs shadow-md shadow-brand-600/25 transition-all text-center cursor-pointer touch-manipulation group"
           >
-            <span>{isDirect ? "Apply for This Job" : "View Employer Site"}</span>
-            <ExternalLink className="w-3.5 h-3.5" />
+            <span>Start Application</span>
+            <ArrowRight className="w-3.5 h-3.5 text-[#18D6E5] group-hover:translate-x-0.5 transition-transform shrink-0" />
           </button>
         </div>
       ) : (
@@ -186,16 +186,16 @@ export const JobDetailActions: React.FC<JobDetailActionsProps> = ({
           <button
             type="button"
             onClick={handleApplyClick}
-            className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold text-sm shadow-lg shadow-brand-600/25 transition-all text-center cursor-pointer group touch-manipulation"
+            className="w-full inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 active:scale-[0.98] text-white font-black text-sm shadow-lg shadow-brand-600/25 transition-all text-center cursor-pointer group touch-manipulation"
           >
-            <span>{isDirect ? "Apply for This Job" : "View on Employer Site"}</span>
-            <ExternalLink className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <span>Start Application</span>
+            <ArrowRight className="w-4 h-4 text-[#18D6E5] group-hover:translate-x-1 transition-transform shrink-0" />
           </button>
 
           {/* Link quality & access notice */}
-          <p className="text-[11px] text-center text-emerald-700 font-medium flex items-center justify-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Verified Official Employer Application</span>
+          <p className="text-[11px] text-center text-slate-600 font-medium flex items-center justify-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span>Verified Direct Application · Sponsorship Pathway</span>
           </p>
 
           {/* === Secondary Action Row === */}

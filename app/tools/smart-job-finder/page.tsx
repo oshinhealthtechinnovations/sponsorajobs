@@ -290,7 +290,7 @@ export default function SmartJobFinderPage() {
                             locationFormatted={locationStr}
                             salaryFormatted={salaryStr}
                             applyUrl={job.applyUrl}
-                            label="Apply on Official ATS"
+                            label="Start Application"
                             variant="card"
                             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs transition-colors shadow-xs cursor-pointer touch-manipulation"
                           />

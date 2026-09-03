@@ -465,11 +465,11 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             {/* Sticky Action Box */}
             <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-5">
               <div className="space-y-1">
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                <span className="text-[10px] font-black uppercase tracking-wider text-brand-600">
                   Ready to apply?
                 </span>
                 <h4 className="text-base font-black text-slate-900 font-display">
-                  Direct Employer Application
+                  Start Your Application
                 </h4>
               </div>
 
