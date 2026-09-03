@@ -19,7 +19,8 @@
     "harvest:construction": "npx tsx scripts/harvest-construction-daily.ts --once",
     "harvest:construction:daemon": "npx tsx scripts/harvest-construction-daily.ts --daemon",
     "harvest:global": "npx tsx scripts/harvest-multi-country-daily.ts --once",
-    "harvest:global:daemon": "npx tsx scripts/harvest-multi-country-daily.ts --daemon"
+    "harvest:global:daemon": "npx tsx scripts/harvest-multi-country-daily.ts --daemon",
+    "harvest:australia": "npx tsx scripts/harvest-australian-career-pages.ts"
   },
   "dependencies": {
     "@types/nodemailer": "^8.0.1",
