@@ -314,8 +314,11 @@ export class PaymentService {
         );
 
         if (isValid) {
-          // Fetch order or payment details from Razorpay to get email
+          // Fetch order or payment details from Razorpay to get email and plan info
           let email = "";
+          let amountInRupees = 999;
+          let planCode = "";
+          let planLabel = "";
           try {
             const authHeader = `Basic ${Buffer.from(`${this.razorpayKeyId}:${this.razorpayKeySecret}`).toString("base64")}`;
             const payRes = await fetch(`https://api.razorpay.com/v1/payments/${details.paymentId}`, {
@@ -324,16 +327,31 @@ export class PaymentService {
             if (payRes.ok) {
               const payData = await payRes.json();
               email = payData.email || payData.notes?.email || "";
+              if (payData.amount) {
+                amountInRupees = Math.round(payData.amount / 100);
+              }
+              planCode = payData.notes?.planCode || "";
+              planLabel = payData.notes?.planLabel || "";
             }
           } catch (err) {
             console.error("[PaymentService] Error fetching Razorpay payment details:", err);
           }
 
+          if (!planCode) {
+            planCode = amountInRupees === 199 ? "SA_MONTH_199" : amountInRupees === 499 ? "SA_3MONTH_499" : amountInRupees === 799 ? "SA_6MONTH_799" : "SA_YEAR_999";
+          }
+          const matchedPlan = SUBSCRIPTION_PLANS[planCode];
+          const durationDays = matchedPlan?.durationDays || (amountInRupees === 199 ? 30 : amountInRupees === 499 ? 90 : amountInRupees === 799 ? 180 : 365);
+          const finalPlanLabel = planLabel || matchedPlan?.label || `${durationDays} Days VIP`;
+
           const upgradedUser = email
             ? await userRepository.upgradeUserToPro(email, {
-                amountPaid: CANDIDATE_PRO_PRICE,
+                amountPaid: amountInRupees,
                 currency: "INR",
                 stripeCustomerId: details.paymentId,
+                planCode,
+                planLabel: finalPlanLabel,
+                durationDays,
               })
             : null;
 
@@ -342,7 +360,7 @@ export class PaymentService {
             session: {
               id: identifier,
               userEmail: email,
-              amount: CANDIDATE_PRO_PRICE,
+              amount: amountInRupees,
               currency: "INR",
               gateway: "razorpay",
             },

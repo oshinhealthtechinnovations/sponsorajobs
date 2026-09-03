@@ -39,7 +39,6 @@ export async function POST(request: NextRequest) {
 
     const user = await userRepository.findByEmail(email);
 
-    // Update active user session cookie with verified status
     const sessionPayload = {
       id: user?.id,
       name: user?.name,
@@ -47,6 +46,14 @@ export async function POST(request: NextRequest) {
       profession: user?.profession,
       promoCodeUsed: user?.promoCodeUsed,
       isEmailVerified: true,
+      subscriptionTier: user?.subscriptionTier || (user?.isTrial ? "PRO" : "FREE"),
+      subscriptionStatus: user?.subscriptionStatus || "ACTIVE",
+      subscriptionStartedAt: user?.subscriptionStartedAt || user?.createdAt,
+      proExpiresAt: user?.proExpiresAt,
+      planCode: user?.planCode,
+      planLabel: user?.planLabel,
+      amountPaid: user?.amountPaid,
+      currencyPaid: user?.currencyPaid,
       createdAt: user?.createdAt,
     };
 

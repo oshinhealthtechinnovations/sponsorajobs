@@ -61,9 +61,12 @@ async function verifyAndRespond(identifier: string, details?: {
       isEmailVerified: true,
       subscriptionTier: result.user.subscriptionTier || "PRO",
       subscriptionStatus: result.user.subscriptionStatus || "ACTIVE",
-      amountPaid: result.user.amountPaid || 299,
-      currencyPaid: result.user.currencyPaid || "INR",
+      subscriptionStartedAt: result.user.subscriptionStartedAt || result.user.createdAt || new Date().toISOString(),
       proExpiresAt: result.user.proExpiresAt,
+      planCode: result.user.planCode || "SA_YEAR_999",
+      planLabel: result.user.planLabel || "12 Months (1 Year VIP)",
+      amountPaid: result.user.amountPaid || 999,
+      currencyPaid: result.user.currencyPaid || "INR",
       createdAt: result.user.createdAt,
     };
 

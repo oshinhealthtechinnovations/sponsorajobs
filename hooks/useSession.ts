@@ -10,9 +10,13 @@ export interface SessionUser {
   isEmailVerified?: boolean;
   subscriptionTier?: "FREE" | "PRO";
   subscriptionStatus?: string;
+  subscriptionStartedAt?: string;
+  proExpiresAt?: string;
+  planCode?: string;
+  planLabel?: string;
   amountPaid?: number;
   currencyPaid?: string;
-  proExpiresAt?: string;
+  createdAt?: string;
 }
 
 export interface UseSessionResult {

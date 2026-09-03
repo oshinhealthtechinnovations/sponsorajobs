@@ -18,12 +18,15 @@ export interface UserAccount {
   resetCode?: string;
   resetCodeExpires?: string;
   subscriptionTier?: "FREE" | "PRO";
-  subscriptionStatus?: "ACTIVE" | "INACTIVE" | "TRIALING";
+  subscriptionStatus?: "ACTIVE" | "INACTIVE" | "TRIALING" | "EXPIRED";
+  subscriptionStartedAt?: string;
+  proExpiresAt?: string;
+  planCode?: string;
+  planLabel?: string;
   stripeCustomerId?: string;
   stripeSessionId?: string;
   amountPaid?: number;
   currencyPaid?: string;
-  proExpiresAt?: string;
   createdAt: string;
   lastLoginAt: string;
 }
@@ -196,6 +199,14 @@ export class UserRepository {
           is_email_verified: user.isEmailVerified,
           is_trial: user.isTrial,
           is_active: user.isActive,
+          subscription_tier: user.subscriptionTier,
+          subscription_status: user.subscriptionStatus,
+          subscription_started_at: user.subscriptionStartedAt,
+          pro_expires_at: user.proExpiresAt,
+          plan_code: user.planCode,
+          plan_label: user.planLabel,
+          amount_paid: user.amountPaid,
+          currency_paid: user.currencyPaid,
           created_at: user.createdAt,
           last_login_at: user.lastLoginAt,
         }),
@@ -251,6 +262,14 @@ export class UserRepository {
             isTrial: Boolean(row.is_trial),
             isActive: row.is_active ?? true,
             isEmailVerified: Boolean(row.is_email_verified),
+            subscriptionTier: row.subscription_tier || row.subscriptionTier || (row.is_trial ? "PRO" : "FREE"),
+            subscriptionStatus: row.subscription_status || row.subscriptionStatus || "ACTIVE",
+            subscriptionStartedAt: row.subscription_started_at || row.subscriptionStartedAt || row.created_at,
+            proExpiresAt: row.pro_expires_at || row.proExpiresAt || (row.is_trial ? new Date(Date.now() + 30 * 86400000).toISOString() : undefined),
+            planCode: row.plan_code || row.planCode,
+            planLabel: row.plan_label || row.planLabel,
+            amountPaid: row.amount_paid || row.amountPaid,
+            currencyPaid: row.currency_paid || row.currencyPaid,
             createdAt: row.created_at || new Date().toISOString(),
             lastLoginAt: row.last_login_at || new Date().toISOString(),
           };
@@ -655,6 +674,9 @@ export class UserRepository {
       currency?: string;
       stripeSessionId?: string;
       stripeCustomerId?: string;
+      planCode?: string;
+      planLabel?: string;
+      durationDays?: number;
     }
   ): Promise<UserAccount | null> {
     const cleanLookup = emailOrId.trim().toLowerCase();
@@ -663,16 +685,24 @@ export class UserRepository {
       user = inMemoryUsers.find((u) => u.id === emailOrId || u.email.toLowerCase() === cleanLookup) || null;
     }
 
-    const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+    const durationDays = details.durationDays || (details.amountPaid === 199 ? 30 : details.amountPaid === 499 ? 90 : details.amountPaid === 799 ? 180 : 365);
+    const startedAt = new Date().toISOString();
+    const expiresAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString();
+    const planLabel = details.planLabel || (durationDays === 30 ? "1 Month VIP" : durationDays === 90 ? "3 Months VIP" : durationDays === 180 ? "6 Months VIP" : "12 Months (1 Year VIP)");
+    const planCode = details.planCode || (durationDays === 30 ? "SA_MONTH_199" : durationDays === 90 ? "SA_3MONTH_499" : durationDays === 180 ? "SA_6MONTH_799" : "SA_YEAR_999");
 
     if (user) {
       user.subscriptionTier = "PRO";
       user.subscriptionStatus = "ACTIVE";
+      user.subscriptionStartedAt = user.subscriptionStartedAt || startedAt;
+      user.proExpiresAt = expiresAt;
+      user.planCode = planCode;
+      user.planLabel = planLabel;
       user.amountPaid = details.amountPaid;
-      user.currencyPaid = details.currency || "GBP";
+      user.currencyPaid = details.currency || "INR";
       user.stripeSessionId = details.stripeSessionId;
       user.stripeCustomerId = details.stripeCustomerId;
-      user.proExpiresAt = expiresAt;
+      this.syncUserToSupabase(user).catch(() => {});
       return user;
     }
 
@@ -683,22 +713,26 @@ export class UserRepository {
       email: cleanLookup,
       passwordHash: "",
       profession: "Sponsored Professional",
-      promoCodeUsed: "PAID_PRO_299",
+      promoCodeUsed: "PAID_PRO",
       isTrial: false,
       isActive: true,
       isEmailVerified: true,
       subscriptionTier: "PRO",
       subscriptionStatus: "ACTIVE",
+      subscriptionStartedAt: startedAt,
+      proExpiresAt: expiresAt,
+      planCode: planCode,
+      planLabel: planLabel,
       amountPaid: details.amountPaid,
-      currencyPaid: details.currency || "GBP",
+      currencyPaid: details.currency || "INR",
       stripeSessionId: details.stripeSessionId,
       stripeCustomerId: details.stripeCustomerId,
-      proExpiresAt: expiresAt,
-      createdAt: new Date().toISOString(),
-      lastLoginAt: new Date().toISOString(),
+      createdAt: startedAt,
+      lastLoginAt: startedAt,
     };
 
     inMemoryUsers.unshift(newUser);
+    this.syncUserToSupabase(newUser).catch(() => {});
     return newUser;
   }
 

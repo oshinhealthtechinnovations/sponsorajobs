@@ -41,6 +41,14 @@ export async function POST(request: NextRequest) {
       profession: user.profession,
       promoCodeUsed: user.promoCodeUsed,
       isEmailVerified: user.isEmailVerified,
+      subscriptionTier: user.subscriptionTier || (user.isTrial ? "PRO" : "FREE"),
+      subscriptionStatus: user.subscriptionStatus || "ACTIVE",
+      subscriptionStartedAt: user.subscriptionStartedAt || user.createdAt,
+      proExpiresAt: user.proExpiresAt,
+      planCode: user.planCode,
+      planLabel: user.planLabel,
+      amountPaid: user.amountPaid,
+      currencyPaid: user.currencyPaid,
       createdAt: user.createdAt,
     };
 

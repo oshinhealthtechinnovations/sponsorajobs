@@ -512,117 +512,153 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ── PRO MEMBERSHIP CARD ── */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#071522] via-[#0d2137] to-[#071522] border border-[#19CBE0]/30 shadow-xl mb-8 p-6 sm:p-8">
-          {/* Background glow */}
-          <div className="absolute top-0 right-0 w-80 h-full bg-[#19CBE0]/10 blur-3xl pointer-events-none rounded-full" />
-          <div className="absolute bottom-0 left-1/4 w-64 h-32 bg-violet-500/10 blur-2xl pointer-events-none rounded-full" />
+        {/* ── PLAN & VALIDITY DETAILS CARD ── */}
+        <div className="relative overflow-hidden rounded-3xl bg-white border border-slate-200 shadow-sm mb-8 p-6 sm:p-8 text-slate-900">
+          {/* Top accent border */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 via-[#19CBE0] to-emerald-500" />
 
-          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-6">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="flex-1 space-y-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#19CBE0]/15 border border-[#19CBE0]/40 text-[#19CBE0] text-xs font-bold">
-                  <Sparkles className="w-3.5 h-3.5" /> SponsorAJobs Premium
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 text-xs font-bold">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Plan & Subscription Details
                 </span>
-                {user?.subscriptionTier === "PRO" ? (
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold uppercase tracking-wider">
-                    ✓ Active Pro Membership
+                {user?.subscriptionTier === "PRO" || user?.isTrial ? (
+                  <span className="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    Active VIP Membership
                   </span>
                 ) : (
-                  <span className="px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-[10px] font-bold uppercase tracking-wider">
-                    From ₹2.7 / Day
+                  <span className="px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider">
+                    Free Candidate Tier
                   </span>
                 )}
               </div>
+
               <div>
-                <h2 className="text-xl sm:text-2xl font-extrabold text-white leading-tight">
-                  Unlock Full Visa Intelligence.<br />
-                  <span className="text-[#19CBE0]">Get Sponsored Faster.</span>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
+                  {user?.subscriptionTier === "PRO" || user?.isTrial ? (
+                    <>
+                      Membership: <span className="text-brand-600">{user.planLabel || "Candidate Pro (12 Months VIP Access)"}</span>
+                    </>
+                  ) : (
+                    <>
+                      Membership: <span className="text-slate-800">Free Basic Tier</span>
+                    </>
+                  )}
                 </h2>
-                <p className="text-sm text-slate-300 mt-2 max-w-lg">
-                  Premium candidates unlock AI CV scoring against 650+ verified sponsors, direct cover letter generation, and priority employer match shortlists.
+                <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-xl">
+                  {user?.subscriptionTier === "PRO" || user?.isTrial
+                    ? "Your visa intelligence pass is fully active with unlimited access to verified sponsors, AI CV scoring, and direct application links."
+                    : "You are currently on the Free Basic Tier with limited search and locked employer application links."}
                 </p>
               </div>
 
-              {/* Feature grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {[
-                  { icon: "🤖", label: "AI CV Rewrite & ATS Optimiser", desc: "Tailored to every job you apply for" },
-                  { icon: "📊", label: "Salary Negotiation Intelligence", desc: "Know your market worth by city & role" },
-                  { icon: "🎯", label: "Guaranteed Interview Shortlist", desc: "Curated roles matched to your profile" },
-                  { icon: "📩", label: "Unlimited Job Alerts", desc: "Instant notifications for new openings" },
-                  { icon: "🛂", label: "Visa Sponsorship Score", desc: "Probability rating per application" },
-                  { icon: "🧑‍💼", label: "Cover Letter AI Suite", desc: "Tailored visa sponsorship pitch" },
-                ].map((f) => (
-                  <div
-                    key={f.label}
-                    className="flex items-start gap-2.5 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/8 transition-colors"
-                  >
-                    <span className="text-base shrink-0 mt-0.5">{f.icon}</span>
-                    <div>
-                      <div className="text-xs font-bold text-white">{f.label}</div>
-                      <div className="text-[10px] text-slate-400 mt-0.5">{f.desc}</div>
-                    </div>
-                    <span className="ml-auto shrink-0">
-                      {user?.subscriptionTier === "PRO" ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                      ) : (
-                        <Lock className="w-3.5 h-3.5 text-slate-500" />
-                      )}
-                    </span>
+              {/* Validity & Date Details Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                {/* Start Date */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
+                    <Calendar className="w-4 h-4 text-brand-600" />
+                    <span>Plan Started On</span>
                   </div>
-                ))}
+                  <div className="text-base font-black text-slate-900 mt-1.5">
+                    {user?.subscriptionStartedAt
+                      ? new Date(user.subscriptionStartedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+                      : user?.createdAt
+                      ? new Date(user.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+                      : new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                  </div>
+                  <div className="text-[10px] text-slate-500 mt-0.5">Activated at purchase</div>
+                </div>
+
+                {/* Expiry / End Date */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
+                    <Clock className="w-4 h-4 text-amber-500" />
+                    <span>Plan Valid Until</span>
+                  </div>
+                  <div className="text-base font-black text-slate-900 mt-1.5">
+                    {user?.subscriptionTier === "PRO" || user?.isTrial ? (
+                      user?.proExpiresAt ? (
+                        new Date(user.proExpiresAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+                      ) : (
+                        new Date(Date.now() + 365 * 86400000).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+                      )
+                    ) : (
+                      "Basic Lifetime"
+                    )}
+                  </div>
+                  <div className="text-[10px] text-slate-500 mt-0.5">
+                    {user?.subscriptionTier === "PRO" || user?.isTrial ? "Auto-renew / Extension available" : "Upgrade anytime"}
+                  </div>
+                </div>
+
+                {/* Time Remaining / Status */}
+                <div className="p-4 rounded-2xl bg-cyan-50/60 border border-cyan-200">
+                  <div className="flex items-center gap-2 text-xs font-bold text-cyan-900">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    <span>Validity Status</span>
+                  </div>
+                  <div className="text-base font-black text-cyan-950 mt-1.5">
+                    {user?.subscriptionTier === "PRO" || user?.isTrial ? (
+                      (() => {
+                        const exp = user?.proExpiresAt ? new Date(user.proExpiresAt).getTime() : Date.now() + 365 * 86400000;
+                        const days = Math.max(0, Math.ceil((exp - Date.now()) / (1000 * 60 * 60 * 24)));
+                        return `${days} Days Left`;
+                      })()
+                    ) : (
+                      "Free Tier"
+                    )}
+                  </div>
+                  <div className="text-[10px] text-cyan-700 font-medium mt-0.5">
+                    {user?.subscriptionTier === "PRO" || user?.isTrial ? "All 650+ Sponsors Unlocked" : "Locked Apply Links"}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* CTA Box */}
-            <div className="flex flex-col items-center gap-3 shrink-0 text-center w-full lg:w-72 bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-md">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#19CBE0]/20 to-violet-500/20 border border-[#19CBE0]/30 flex items-center justify-center">
-                <Award className="w-7 h-7 text-[#19CBE0]" />
+            {/* Quick Action / Upgrade CTA Card */}
+            <div className="w-full lg:w-72 p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col items-center text-center shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mb-3">
+                <Award className="w-6 h-6" />
               </div>
 
-              {user?.subscriptionTier === "PRO" ? (
-                <div className="space-y-3 py-2 w-full">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>Premium Active</span>
+              {user?.subscriptionTier === "PRO" || user?.isTrial ? (
+                <div className="space-y-3 w-full">
+                  <div>
+                    <div className="text-xs font-black text-slate-900">VIP Pass Active</div>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Need to extend your subscription or change duration?
+                    </p>
                   </div>
-                  <p className="text-[11px] text-slate-300 leading-relaxed">
-                    You have full all-access to every intelligence tool and ATS scanner.
-                  </p>
                   <Link
-                    href="/tools/ats-checker"
-                    className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#19CBE0] to-emerald-400 text-slate-950 font-black text-xs shadow-lg flex items-center justify-center gap-2"
+                    href="/pricing"
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5"
                   >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Launch AI Tools</span>
+                    <span>Extend / Renew Plan</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               ) : (
-                <div className="w-full space-y-3">
-                  <div className="text-center">
-                    <div className="text-xs font-extrabold text-slate-300">Upgrade to Pro</div>
-                    <div className="text-2xl font-black text-white mt-0.5">
-                      ₹199 <span className="text-xs text-slate-400 font-normal">/ month</span>
+                <div className="space-y-3 w-full">
+                  <div>
+                    <div className="text-xs font-extrabold text-slate-600">Upgrade to Pro</div>
+                    <div className="text-2xl font-black text-slate-900 mt-0.5">
+                      ₹199 <span className="text-xs text-slate-500 font-normal">/ month</span>
                     </div>
-                    <div className="text-[10px] text-emerald-400 font-semibold mt-0.5">
+                    <div className="text-[10px] text-emerald-600 font-bold mt-0.5">
                       Or ₹999 for 1 Full Year (₹2.7/day)
                     </div>
                   </div>
-
                   <Link
                     href="/pricing"
-                    className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#19CBE0] to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 font-black text-xs shadow-lg shadow-[#19CBE0]/20 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-2.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-black text-xs shadow-sm transition-colors flex items-center justify-center gap-1.5"
                   >
                     <Zap className="w-3.5 h-3.5 fill-current" />
                     <span>View Plans & Upgrade</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
-
-                  <p className="text-[10px] text-slate-400 flex items-center justify-center gap-1">
-                    <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                    <span>UPI, Cards & NetBanking</span>
-                  </p>
                 </div>
               )}
             </div>
