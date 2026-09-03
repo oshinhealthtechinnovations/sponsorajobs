@@ -79,12 +79,12 @@ export class PaymentService {
   private static stripeSecretKey = process.env.STRIPE_SECRET_KEY || "";
   private static stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
 
-  // Razorpay Credentials (dynamic getters with fallback to test credentials)
+  // Razorpay Credentials (dynamic getters with fallback to live credentials)
   private static get razorpayKeyId(): string {
-    return process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_TXVZbe8aySgPaY";
+    return process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_live_TXYfdA2zXTEidN";
   }
   private static get razorpayKeySecret(): string {
-    return process.env.RAZORPAY_KEY_SECRET || "MveQ7NSFEWVHADuE2n6VqiWh";
+    return process.env.RAZORPAY_KEY_SECRET || "6QQuBWD5ZuEKTp8lFj0ISFn2";
   }
   private static get razorpayWebhookSecret(): string {
     return process.env.RAZORPAY_WEBHOOK_SECRET || "";

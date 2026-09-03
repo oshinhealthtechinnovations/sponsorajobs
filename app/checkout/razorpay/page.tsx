@@ -33,7 +33,7 @@ function RazorpayCheckoutContent() {
     const razorpayKey =
       searchParams.get("key_id") ||
       process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
-      "rzp_test_TXVZbe8aySgPaY";
+      "rzp_live_TXYfdA2zXTEidN";
 
     if (!orderId || !razorpayKey) {
       setStatus("error");
