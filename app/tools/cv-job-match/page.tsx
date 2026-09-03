@@ -403,6 +403,7 @@ export default function CVJobMatchPage() {
         <ToolAuthGuard
           toolName="CV & Resume Job Matcher"
           toolDescription="Upload your CV to automatically filter and rank 650+ verified sponsor jobs by technical skills, experience alignment, SOC 2020 occupation codes, and visa sponsorship status."
+          requiresPro={true}
           featurePills={[
             "Direct PDF & DOCX Resume Parsing",
             "Multi-Attribute Sponsorship Scorer",

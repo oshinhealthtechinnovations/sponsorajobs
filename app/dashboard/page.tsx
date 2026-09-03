@@ -27,6 +27,7 @@ import {
   Mail,
   RefreshCw,
   Lock,
+  Zap,
 } from "lucide-react";
 
 import { JobApplication, ApplicationStatus } from "@/lib/repositories/applicationRepository";
@@ -511,29 +512,35 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ── PRO MEMBERSHIP TEASER CARD ── */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#071522] via-[#0d2137] to-[#071522] border border-[#19CBE0]/20 shadow-xl mb-8 p-6 sm:p-8">
+        {/* ── PRO MEMBERSHIP CARD ── */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#071522] via-[#0d2137] to-[#071522] border border-[#19CBE0]/30 shadow-xl mb-8 p-6 sm:p-8">
           {/* Background glow */}
-          <div className="absolute top-0 right-0 w-80 h-full bg-[#19CBE0]/5 blur-3xl pointer-events-none rounded-full" />
-          <div className="absolute bottom-0 left-1/4 w-64 h-32 bg-violet-500/5 blur-2xl pointer-events-none rounded-full" />
+          <div className="absolute top-0 right-0 w-80 h-full bg-[#19CBE0]/10 blur-3xl pointer-events-none rounded-full" />
+          <div className="absolute bottom-0 left-1/4 w-64 h-32 bg-violet-500/10 blur-2xl pointer-events-none rounded-full" />
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-6">
             <div className="flex-1 space-y-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#19CBE0]/10 border border-[#19CBE0]/30 text-[#19CBE0] text-xs font-bold">
-                  <Sparkles className="w-3.5 h-3.5" /> SponsorAJobs Pro
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#19CBE0]/15 border border-[#19CBE0]/40 text-[#19CBE0] text-xs font-bold">
+                  <Sparkles className="w-3.5 h-3.5" /> SponsorAJobs Premium
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-[10px] font-bold uppercase tracking-wider">
-                  Coming Soon
-                </span>
+                {user?.subscriptionTier === "PRO" ? (
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold uppercase tracking-wider">
+                    ✓ Active Pro Membership
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-[10px] font-bold uppercase tracking-wider">
+                    From ₹2.7 / Day
+                  </span>
+                )}
               </div>
               <div>
                 <h2 className="text-xl sm:text-2xl font-extrabold text-white leading-tight">
-                  Unlock Your Full Potential.<br />
-                  <span className="text-[#19CBE0]">Get Hired Faster.</span>
+                  Unlock Full Visa Intelligence.<br />
+                  <span className="text-[#19CBE0]">Get Sponsored Faster.</span>
                 </h2>
-                <p className="text-sm text-slate-400 mt-2 max-w-lg">
-                  Pro members land interviews 3× faster. Join the waitlist to be first in line when we launch.
+                <p className="text-sm text-slate-300 mt-2 max-w-lg">
+                  Premium candidates unlock AI CV scoring against 650+ verified sponsors, direct cover letter generation, and priority employer match shortlists.
                 </p>
               </div>
 
@@ -545,7 +552,7 @@ export default function DashboardPage() {
                   { icon: "🎯", label: "Guaranteed Interview Shortlist", desc: "Curated roles matched to your profile" },
                   { icon: "📩", label: "Unlimited Job Alerts", desc: "Instant notifications for new openings" },
                   { icon: "🛂", label: "Visa Sponsorship Score", desc: "Probability rating per application" },
-                  { icon: "🧑‍💼", label: "1-on-1 Application Coaching", desc: "Expert review of your application" },
+                  { icon: "🧑‍💼", label: "Cover Letter AI Suite", desc: "Tailored visa sponsorship pitch" },
                 ].map((f) => (
                   <div
                     key={f.label}
@@ -557,73 +564,66 @@ export default function DashboardPage() {
                       <div className="text-[10px] text-slate-400 mt-0.5">{f.desc}</div>
                     </div>
                     <span className="ml-auto shrink-0">
-                      <Lock className="w-3.5 h-3.5 text-slate-500" />
+                      {user?.subscriptionTier === "PRO" ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      ) : (
+                        <Lock className="w-3.5 h-3.5 text-slate-500" />
+                      )}
                     </span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* CTA — Direct Email Submission */}
-            <div className="flex flex-col items-center gap-3 shrink-0 text-center w-full lg:w-72 bg-white/5 border border-white/10 rounded-3xl p-5 backdrop-blur-md">
+            {/* CTA Box */}
+            <div className="flex flex-col items-center gap-3 shrink-0 text-center w-full lg:w-72 bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-md">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#19CBE0]/20 to-violet-500/20 border border-[#19CBE0]/30 flex items-center justify-center">
                 <Award className="w-7 h-7 text-[#19CBE0]" />
               </div>
 
-              {waitlistSuccess ? (
-                <div className="space-y-2 py-2">
+              {user?.subscriptionTier === "PRO" ? (
+                <div className="space-y-3 py-2 w-full">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>You're on the Waitlist!</span>
+                    <span>Premium Active</span>
                   </div>
                   <p className="text-[11px] text-slate-300 leading-relaxed">
-                    {waitlistMsg || "We'll notify you as soon as Pro launches with early access perks."}
+                    You have full all-access to every intelligence tool and ATS scanner.
                   </p>
+                  <Link
+                    href="/tools/ats-checker"
+                    className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#19CBE0] to-emerald-400 text-slate-950 font-black text-xs shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Launch AI Tools</span>
+                  </Link>
                 </div>
               ) : (
-                <form onSubmit={handleJoinWaitlist} className="w-full space-y-2.5">
-                  <div className="space-y-1 text-left">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Join Early Access
-                    </label>
-                    <div className="relative">
-                      <Mail className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                      <input
-                        type="email"
-                        required
-                        value={waitlistEmail || user?.email || ""}
-                        onChange={(e) => setWaitlistEmail(e.target.value)}
-                        placeholder="your.email@example.com"
-                        className="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-900/90 border border-slate-700 focus:border-[#19CBE0] text-white text-xs placeholder:text-slate-500 focus:outline-none transition-colors"
-                      />
+                <div className="w-full space-y-3">
+                  <div className="text-center">
+                    <div className="text-xs font-extrabold text-slate-300">Upgrade to Pro</div>
+                    <div className="text-2xl font-black text-white mt-0.5">
+                      ₹199 <span className="text-xs text-slate-400 font-normal">/ month</span>
+                    </div>
+                    <div className="text-[10px] text-emerald-400 font-semibold mt-0.5">
+                      Or ₹999 for 1 Full Year (₹2.7/day)
                     </div>
                   </div>
 
-                  {waitlistError && (
-                    <p className="text-[10px] text-rose-400 font-medium text-left">
-                      {waitlistError}
-                    </p>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={waitlistLoading}
-                    className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#19CBE0] to-violet-500 hover:from-[#14b8d4] hover:to-violet-600 text-white font-extrabold text-xs shadow-lg shadow-[#19CBE0]/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  <Link
+                    href="/pricing"
+                    className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#19CBE0] to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 font-black text-xs shadow-lg shadow-[#19CBE0]/20 transition-all flex items-center justify-center gap-2"
                   >
-                    {waitlistLoading ? (
-                      <>
-                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                        <span>Saving...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>Join Waitlist</span>
-                      </>
-                    )}
-                  </button>
-                  <p className="text-[10px] text-slate-400">Free · 1-click early access</p>
-                </form>
+                    <Zap className="w-3.5 h-3.5 fill-current" />
+                    <span>View Plans & Upgrade</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+
+                  <p className="text-[10px] text-slate-400 flex items-center justify-center gap-1">
+                    <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                    <span>UPI, Cards & NetBanking</span>
+                  </p>
+                </div>
               )}
             </div>
           </div>

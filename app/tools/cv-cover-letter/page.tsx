@@ -142,6 +142,7 @@ export default function CvCoverLetterPage() {
         <ToolAuthGuard
           toolName="CV & Visa Cover Letter Intelligence Suite"
           toolDescription="Craft high-converting visa sponsorship pitch letters, optimize passive CV bullet points into quantified achievements, and discover official immigration occupation codes."
+          requiresPro={true}
           featurePills={[
             "AI Visa Sponsorship Pitch Generator",
             "Action Verb & Bullet Point Impact Scorer",

@@ -226,6 +226,7 @@ export default function ATSCheckerPage() {
         <ToolAuthGuard
           toolName="ATS Resume Compatibility & Visa Scorer"
           toolDescription="Deterministic document parsing, UK SOC 2020 occupation code mapping, and sponsorship readiness evaluated against 650+ verified employer visa licenses."
+          requiresPro={true}
           featurePills={[
             "Deterministic Document Parsing (PDF / DOCX)",
             "UK SOC 2020 & Global Occupation Mapping",
