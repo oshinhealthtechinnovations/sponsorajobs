@@ -14,8 +14,8 @@ const DEFAULT_GREENHOUSE_BOARDS = [
   { token: "wise", name: "Wise", countryCode: "GB", category: "finance" },
   { token: "affirm", name: "Affirm", countryCode: "US", category: "finance" },
   { token: "reddit", name: "Reddit", countryCode: "US", category: "information-technology" },
-  { token: "canva", name: "Canva", countryCode: "AU", category: "information-technology" },
   { token: "airbnb", name: "Airbnb", countryCode: "US", category: "information-technology" },
+  { token: "instacart", name: "Instacart", countryCode: "US", category: "information-technology" },
 ];
 
 export class GreenhouseAdapter implements JobSourceAdapter {

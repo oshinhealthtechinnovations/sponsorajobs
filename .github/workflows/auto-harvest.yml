@@ -50,6 +50,10 @@ jobs:
         continue-on-error: true
         run: npx tsx scripts/harvest-construction-daily.ts --once
 
+      - name: Run Autonomous Multi-Country Harvester (US, UK, AU, CA, NZ)
+        continue-on-error: true
+        run: npx tsx scripts/harvest-multi-country-daily.ts --once
+
       - name: Commit and push updated job dataset
         run: |
           git config --global user.name "github-actions[bot]"
