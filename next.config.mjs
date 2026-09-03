@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  compress: true, // Enable gzip & brotli compression to minimize bandwidth usage
   poweredByHeader: false, // Section 56: Remove X-Powered-By
   eslint: {
     ignoreDuringBuilds: true,
