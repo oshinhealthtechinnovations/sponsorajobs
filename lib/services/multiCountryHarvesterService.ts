@@ -58,7 +58,7 @@ export class MultiCountryHarvesterService {
     const jobicy = new JobicyAdapter({ enabled: true });
     const himalayas = new HimalayasAdapter({ enabled: true });
     const themuse = new TheMuseAdapter({ enabled: true });
-    const usajobs = new USAJobsAdapter({ enabled: true, email: "oshinhealthtechinnovations@gmail.com", apiKey: "tTjBDekl7VpbMyoaAJEDasI3+W44QV7DQ2ZO7lIpplY=" });
+    const usajobs = new USAJobsAdapter({ enabled: true, email: process.env.USAJOBS_EMAIL || "api@sponsorajobs.com", apiKey: "tTjBDekl7VpbMyoaAJEDasI3+W44QV7DQ2ZO7lIpplY=" });
 
     const [ghRes, leverRes, ashbyRes, arbeitRes, remotiveRes, remoteokRes, jobicyRes, himalayasRes, themuseRes, usajobsRes] = await Promise.all([
       greenhouse.fetchJobs({}).catch((e) => ({ jobs: [], errors: [e.message] })),

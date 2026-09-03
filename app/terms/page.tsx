@@ -77,14 +77,14 @@ export default function TermsPage() {
           <section className="space-y-3">
             <h2 className="text-base font-bold text-slate-900">6. Intellectual Property</h2>
             <p>
-              All trademarks, logos, and job descriptions displayed on SponsorAJobs remain the intellectual property of their respective owners. SponsorAJobs&apos; proprietary sponsorship scoring model, design system, and codebase are the intellectual property of Oshin Health Tech Innovations. Job descriptions are used under fair use for the purpose of informational aggregation and indexing.
+              All trademarks, logos, and job descriptions displayed on SponsorAJobs remain the intellectual property of their respective owners. SponsorAJobs&apos; proprietary sponsorship scoring model, design system, and codebase are the intellectual property of SponsorAJobs Inc. Job descriptions are used under fair use for the purpose of informational aggregation and indexing.
             </p>
           </section>
 
           <section className="space-y-3">
             <h2 className="text-base font-bold text-slate-900">7. Limitation of Liability</h2>
             <p>
-              SponsorAJobs is provided &ldquo;as is&rdquo; without warranties of any kind. To the fullest extent permitted by law, Oshin Health Tech Innovations shall not be liable for any direct, indirect, incidental, special, or consequential damages arising from use of the platform, including but not limited to reliance on job data, failed job applications, or immigration decisions.
+              SponsorAJobs is provided &ldquo;as is&rdquo; without warranties of any kind. To the fullest extent permitted by law, SponsorAJobs Inc. shall not be liable for any direct, indirect, incidental, special, or consequential damages arising from use of the platform, including but not limited to reliance on job data, failed job applications, or immigration decisions.
             </p>
           </section>
 
@@ -105,13 +105,18 @@ export default function TermsPage() {
           <section className="space-y-3">
             <h2 className="text-base font-bold text-slate-900">10. Governing Law</h2>
             <p>
-              These Terms are governed by and construed in accordance with the laws of England and Wales. Any disputes shall be subject to the exclusive jurisdiction of the courts of England and Wales.
+              These Terms are governed by and construed in accordance with the laws of Delaware, United States. Any disputes shall be subject to the exclusive jurisdiction of the state and federal courts located in Delaware, USA.
             </p>
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-base font-bold text-slate-900">11. Contact</h2>
-            <p>For questions about these Terms, contact us at: <strong>oshinhealthtechinnovations@gmail.com</strong></p>
+            <h2 className="text-base font-bold text-slate-900">11. Legal & Contact Information</h2>
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1.5 text-slate-700">
+              <p><strong>Entity:</strong> SponsorAJobs Inc.</p>
+              <p><strong>Registered Address:</strong> 500 Delaware Ave, Suite 100, Wilmington, DE 19801, United States</p>
+              <p><strong>Support Telephone:</strong> +1 (302) 467-3188</p>
+              <p><strong>Legal & Compliance Email:</strong> legal@sponsorajobs.com / support@sponsorajobs.com</p>
+            </div>
           </section>
 
         </div>

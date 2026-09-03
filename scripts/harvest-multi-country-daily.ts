@@ -455,7 +455,7 @@ export async function runMultiCountryDailyHarvest(): Promise<{
   const jobicy = new JobicyAdapter({ enabled: true });
   const himalayas = new HimalayasAdapter({ enabled: true });
   const themuse = new TheMuseAdapter({ enabled: true });
-  const usajobs = new USAJobsAdapter({ enabled: true, email: "oshinhealthtechinnovations@gmail.com", apiKey: "tTjBDekl7VpbMyoaAJEDasI3+W44QV7DQ2ZO7lIpplY=" });
+  const usajobs = new USAJobsAdapter({ enabled: true, email: process.env.USAJOBS_EMAIL || "api@sponsorajobs.com", apiKey: "tTjBDekl7VpbMyoaAJEDasI3+W44QV7DQ2ZO7lIpplY=" });
 
   console.log("🚀 [Harvester] Executing live multi-source extraction across global ATS feeds...");
 

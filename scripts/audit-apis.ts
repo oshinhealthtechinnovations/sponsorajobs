@@ -14,7 +14,7 @@ async function auditAllApis() {
     { name: "Greenhouse ATS", adapter: new GreenhouseAdapter({ enabled: true }) },
     { name: "Lever ATS", adapter: new LeverAdapter({ enabled: true }) },
     { name: "Ashby ATS", adapter: new AshbyAdapter({ enabled: true }) },
-    { name: "USAJobs Federal API", adapter: new USAJobsAdapter({ enabled: true, email: "oshinhealthtechinnovations@gmail.com", apiKey: "tTjBDekl7VpbMyoaAJEDasI3+W44QV7DQ2ZO7lIpplY=" }) },
+    { name: "USAJobs Federal API", adapter: new USAJobsAdapter({ enabled: true, email: process.env.USAJOBS_EMAIL || "api@sponsorajobs.com", apiKey: "tTjBDekl7VpbMyoaAJEDasI3+W44QV7DQ2ZO7lIpplY=" }) },
     { name: "Adzuna API", adapter: new AdzunaAdapter({ enabled: true, appId: "ba1d34a6", appKey: "478146c510d2762286ad442bd9414644" }) },
     { name: "Jooble API", adapter: new JoobleAdapter({ enabled: true, apiKey: "cfc868f0-452d-42fc-8b06-6df99d9bc074" }) },
     { name: "Arbeitnow API", adapter: new ArbeitnowAdapter({ enabled: true }) },

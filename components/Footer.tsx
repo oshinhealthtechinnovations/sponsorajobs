@@ -113,20 +113,26 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-14 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-slate-600 text-center sm:text-left">
-            &copy; {year} SponsorAJobs. All job listings link to original employer postings.
-            Not a visa advisory or immigration legal service.
-          </p>
+        <div className="mt-14 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-slate-500">
+          <div className="space-y-1 text-center md:text-left">
+            <p className="font-semibold text-slate-400">
+              SponsorAJobs Inc. • 500 Delaware Ave, Suite 100, Wilmington, DE 19801, USA • +1 (302) 467-3188
+            </p>
+            <p className="text-slate-600 text-[11px]">
+              &copy; {year} SponsorAJobs Inc. All job listings link to original employer postings. Not an immigration legal firm.
+            </p>
+          </div>
 
-          <div className="flex items-center gap-4 text-xs text-slate-600">
-            <Link href="/privacy" className="hover:text-slate-400 transition-colors">Privacy</Link>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500">
+            <a href="mailto:support@sponsorajobs.com" className="text-[#19CBE0] hover:underline">support@sponsorajobs.com</a>
             <span>·</span>
-            <Link href="/terms" className="hover:text-slate-400 transition-colors">Terms</Link>
+            <Link href="/privacy" className="hover:text-slate-300 transition-colors">Privacy</Link>
             <span>·</span>
-            <Link href="/disclaimer" className="hover:text-slate-400 transition-colors">Disclaimer</Link>
+            <Link href="/terms" className="hover:text-slate-300 transition-colors">Terms</Link>
             <span>·</span>
-            <Link href="/contact" className="hover:text-slate-400 transition-colors">Contact</Link>
+            <Link href="/disclaimer" className="hover:text-slate-300 transition-colors">Disclaimer</Link>
+            <span>·</span>
+            <Link href="/contact" className="hover:text-slate-300 transition-colors">Contact</Link>
           </div>
         </div>
       </div>

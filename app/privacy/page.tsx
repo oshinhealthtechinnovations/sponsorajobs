@@ -31,10 +31,15 @@ export default function PrivacyPage() {
           <section className="space-y-3">
             <h2 className="text-base font-bold text-slate-900">1. Who We Are</h2>
             <p>
-              SponsorAJobs (&ldquo;we&rdquo;, &ldquo;our&rdquo;, &ldquo;us&rdquo;) is an independent job search aggregator platform operated by Oshin Health Tech Innovations. We are based and operate globally. Our platform aggregates publicly available job listings from employer websites and applicant tracking systems (ATS) to help job seekers find roles that include visa sponsorship.
+              SponsorAJobs (&ldquo;we&rdquo;, &ldquo;our&rdquo;, &ldquo;us&rdquo;) is an independent job search aggregator platform operated by SponsorAJobs Inc. We are based in the United States and operate globally. Our platform aggregates publicly available job listings from employer websites and applicant tracking systems (ATS) to help job seekers find roles that include visa sponsorship.
             </p>
-            <p>Our website: <strong>https://www.sponsorajobs.com</strong></p>
-            <p>Contact: <strong>oshinhealthtechinnovations@gmail.com</strong></p>
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1 text-slate-700 mt-2">
+              <p><strong>Entity:</strong> SponsorAJobs Inc.</p>
+              <p><strong>Registered Address:</strong> 500 Delaware Ave, Suite 100, Wilmington, DE 19801, USA</p>
+              <p><strong>Support Telephone:</strong> +1 (302) 467-3188</p>
+              <p><strong>Privacy Contact:</strong> privacy@sponsorajobs.com / support@sponsorajobs.com</p>
+              <p><strong>Website:</strong> https://www.sponsorajobs.com</p>
+            </div>
           </section>
 
           <section className="space-y-3">
@@ -102,7 +107,7 @@ export default function PrivacyPage() {
               <li><strong>Withdraw consent</strong> at any time.</li>
               <li><strong>Lodge a complaint</strong> with your local data protection authority (e.g., the UK ICO).</li>
             </ul>
-            <p>To exercise any of these rights, email us at: <strong>oshinhealthtechinnovations@gmail.com</strong></p>
+            <p>To exercise any of these rights, email us at: <strong>privacy@sponsorajobs.com</strong> or <strong>support@sponsorajobs.com</strong></p>
           </section>
 
           <section className="space-y-3">

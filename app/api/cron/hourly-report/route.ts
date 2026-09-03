@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const targetRecipient = searchParams.get("email") || process.env.ADMIN_EMAIL || "oshinhealthtechinnovations@gmail.com";
+    const targetRecipient = searchParams.get("email") || process.env.ADMIN_EMAIL || "admin@sponsorajobs.com";
 
     console.log(`[HourlyReportAPI] Starting backend administrative supervisor inspection for: ${targetRecipient}`);
     const result = await backendAdminSupervisor.dispatchHourlyExecutiveUpdate(targetRecipient);

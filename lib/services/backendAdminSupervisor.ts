@@ -305,7 +305,7 @@ export class BackendAdminSupervisor {
    * Executes the full system inspection and dispatches the rich hourly executive update
    */
   async dispatchHourlyExecutiveUpdate(toEmail?: string): Promise<{ success: boolean; audit: FullBackendSystemAudit; dispatchResult?: any }> {
-    const targetRecipient = toEmail || process.env.ADMIN_EMAIL || "oshinhealthtechinnovations@gmail.com";
+    const targetRecipient = toEmail || process.env.ADMIN_EMAIL || "admin@sponsorajobs.com";
     console.log(`[BackendAdminSupervisor] Running hourly system audit and dispatching update to ${targetRecipient}...`);
 
     const audit = await this.performFullSystemInspection();

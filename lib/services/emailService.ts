@@ -94,7 +94,7 @@ export class EmailService {
   private async sendMailViaSmtp(toEmail: string, subject: string, html: string): Promise<EmailDispatchResult | null> {
     const host = process.env.SMTP_HOST || "smtp.gmail.com";
     const port = parseInt(process.env.SMTP_PORT || "465", 10);
-    const user = process.env.SMTP_USER || "oshinhealthtechinnovations@gmail.com";
+    const user = process.env.SMTP_USER || "auth@sponsorajobs.com";
     const pass = process.env.SMTP_PASS || "kltldstgpmpvhdnm";
 
     if (!user || !pass) return null;

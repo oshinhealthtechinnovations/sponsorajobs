@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       companyRepo.getAll().then((c) => c.length).catch(() => 472),
     ]);
 
-    const targetRecipient = process.env.ADMIN_EMAIL || "oshinhealthtechinnovations@gmail.com";
+    const targetRecipient = process.env.ADMIN_EMAIL || "admin@sponsorajobs.com";
     const now = new Date();
     const formattedDate = now.toLocaleDateString("en-US", {
       timeZone: "Asia/Kolkata",

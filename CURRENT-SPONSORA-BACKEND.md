@@ -2,7 +2,7 @@
 **Author:** AI Engineering Head of Sponsora Jobs  
 **Status:** COMPLETE AUDIT (Phase 1 & Phase 2)  
 **Date:** August 26, 2026  
-**Repository:** `oshinhealthtechinnovations/sponsorajobs`
+**Repository:** `sponsorajobs/sponsorajobs`
 
 ---
 

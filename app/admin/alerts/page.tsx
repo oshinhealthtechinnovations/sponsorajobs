@@ -236,7 +236,7 @@ export default function AdminAlertsPage() {
             </div>
             <h2 className="text-xl font-bold text-white tracking-tight">Supabase Real-Time Subscriber Sync Hub</h2>
             <p className="text-xs text-slate-400 mt-1">
-              Synchronizing with table <code className="text-emerald-300 font-mono">job_alerts</code> in project <strong className="text-slate-200">oshinhealthtechinnovations's Project</strong>.
+              Synchronizing with table <code className="text-emerald-300 font-mono">job_alerts</code> in <strong className="text-slate-200">SponsorAJobs Cloud Database</strong>.
             </p>
           </div>
 

@@ -46,7 +46,7 @@ async function run() {
     console.warn("Could not fetch users/apps from Supabase:", e);
   }
 
-  const targetRecipient = process.env.ADMIN_EMAIL || "oshinhealthtechinnovations@gmail.com";
+  const targetRecipient = process.env.ADMIN_EMAIL || "admin@sponsorajobs.com";
   const now = new Date();
   const formattedTimestamp = now.toLocaleString("en-US", {
     timeZone: "Asia/Kolkata",
@@ -180,7 +180,7 @@ async function run() {
         },
         {
           name: "Sumit Raj",
-          email: "oshinhealthtechinnovations@gmail.com",
+          email: "sumit@sponsorajobs.com",
           profession: "Civil Engineer",
           action: "Verified Admin Session & Synchronized Ingestion Feeds",
           time: "7:46 PM IST",

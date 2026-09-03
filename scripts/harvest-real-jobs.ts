@@ -31,7 +31,7 @@ async function harvestRealJobs() {
   const themuse = new TheMuseAdapter({ enabled: true });
   const jooble = new JoobleAdapter({ enabled: true, apiKey: "cfc868f0-452d-42fc-8b06-6df99d9bc074" });
   const adzuna = new AdzunaAdapter({ enabled: true, appId: "ba1d34a6", appKey: "478146c510d2762286ad442bd9414644" });
-  const usajobs = new USAJobsAdapter({ enabled: true, email: "oshinhealthtechinnovations@gmail.com", apiKey: "tTjBDekl7VpbMyoaAJEDasI3+W44QV7DQ2ZO7lIpplY=" });
+  const usajobs = new USAJobsAdapter({ enabled: true, email: process.env.USAJOBS_EMAIL || "api@sponsorajobs.com", apiKey: "tTjBDekl7VpbMyoaAJEDasI3+W44QV7DQ2ZO7lIpplY=" });
 
   const allRawJobs: any[] = [];
 

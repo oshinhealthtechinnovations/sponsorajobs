@@ -276,7 +276,7 @@ export class SeoAutomationEngine {
    * Dispatches an executive HTML SEO Automation Report
    */
   private async dispatchSeoReportEmail(cycle: SeoAutomationCycleResult) {
-    const toEmail = process.env.ADMIN_EMAIL || "oshinhealthtechinnovations@gmail.com";
+    const toEmail = process.env.ADMIN_EMAIL || "admin@sponsorajobs.com";
     const formattedTime = new Date(cycle.timestamp).toLocaleString("en-US", {
       timeZone: "Asia/Kolkata",
       dateStyle: "medium",
@@ -331,7 +331,7 @@ export class SeoAutomationEngine {
     const nodemailer = (await import("nodemailer")).default;
     const host = process.env.SMTP_HOST || "smtp.gmail.com";
     const port = parseInt(process.env.SMTP_PORT || "465", 10);
-    const user = process.env.SMTP_USER || "oshinhealthtechinnovations@gmail.com";
+    const user = process.env.SMTP_USER || "auth@sponsorajobs.com";
     const pass = process.env.SMTP_PASS || "kltldstgpmpvhdnm";
 
     if (user && pass) {

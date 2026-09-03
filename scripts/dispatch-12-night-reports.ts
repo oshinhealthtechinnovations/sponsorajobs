@@ -82,7 +82,7 @@ const hourlyConfigs: HourlyLogConfig[] = [
       },
       {
         name: "Sumit Raj",
-        email: "oshinhealthtechinnovations@gmail.com",
+        email: "sumit@sponsorajobs.com",
         profession: "Civil Engineer",
         action: "Verified Database Replica State & Automated Ingestion Cron Timers",
         time: "11:45 PM IST",
@@ -182,7 +182,7 @@ const hourlyConfigs: HourlyLogConfig[] = [
     candidateLogs: [
       {
         name: "Sumit Raj",
-        email: "oshinhealthtechinnovations@gmail.com",
+        email: "sumit@sponsorajobs.com",
         profession: "Civil Engineer & Admin",
         action: "Automated Backup & Ingestion Health Verification",
         time: "03:50 AM IST",
@@ -257,7 +257,7 @@ const hourlyConfigs: HourlyLogConfig[] = [
     candidateLogs: [
       {
         name: "Sumit Raj",
-        email: "oshinhealthtechinnovations@gmail.com",
+        email: "sumit@sponsorajobs.com",
         profession: "Chief SEO & Growth Strategist",
         action: "Morning SEO Health & Rich Snippets Inspection",
         time: "06:55 AM IST",
@@ -315,7 +315,7 @@ const hourlyConfigs: HourlyLogConfig[] = [
     candidateLogs: [
       {
         name: "Sumit Raj",
-        email: "oshinhealthtechinnovations@gmail.com",
+        email: "sumit@sponsorajobs.com",
         profession: "Civil Engineer",
         action: "Audited Admin Panel Employee Operations & Candidate Applications Hub",
         time: "08:45 AM IST",
@@ -364,7 +364,7 @@ const hourlyConfigs: HourlyLogConfig[] = [
 
 async function dispatchAll12Reports() {
   const emailService = new EmailService();
-  const targetRecipient = process.env.ADMIN_EMAIL || "oshinhealthtechinnovations@gmail.com";
+  const targetRecipient = process.env.ADMIN_EMAIL || "admin@sponsorajobs.com";
 
   console.log(`=======================================================`);
   console.log(`🚀 DISPATCHING ALL 12 HOURLY ACTIVITY REPORTS FROM LAST NIGHT`);
