@@ -181,44 +181,97 @@ export class UserRepository {
     if (!supabaseUrl || !supabaseKey) return false;
 
     try {
-      const res = await fetch(`${supabaseUrl}/rest/v1/candidate_users`, {
-        method: "POST",
+      const cleanEmail = user.email.toLowerCase().trim();
+      const isPro = user.subscriptionTier === "PRO" || Boolean(user.isTrial);
+
+      let promoCodeToStore = user.promoCodeUsed || "";
+      if (isPro) {
+        const subData = {
+          tier: "PRO",
+          status: user.subscriptionStatus || "ACTIVE",
+          planCode: user.planCode || "SA_MONTH_199",
+          planLabel: user.planLabel || "1 Month VIP (Candidate Pro)",
+          amount: user.amountPaid || 199,
+          currency: user.currencyPaid || "INR",
+          paymentId: user.stripeCustomerId || user.stripeSessionId || "rzp_pay_verified",
+          startedAt: user.subscriptionStartedAt || user.createdAt || new Date().toISOString(),
+          expiresAt: user.proExpiresAt || new Date(Date.now() + 30 * 86400000).toISOString(),
+        };
+        promoCodeToStore = `PRO_SUB:${JSON.stringify(subData)}`;
+      }
+
+      // Check if candidate already exists in Supabase
+      const checkRes = await fetch(`${supabaseUrl}/rest/v1/candidate_users?email=eq.${encodeURIComponent(cleanEmail)}&limit=1`, {
         headers: {
           apikey: supabaseKey,
           Authorization: `Bearer ${supabaseKey}`,
-          "Content-Type": "application/json",
-          Prefer: "resolution=merge-duplicates,return=minimal",
         },
-        body: JSON.stringify({
-          id: user.id,
-          email: user.email.toLowerCase(),
-          name: user.name,
-          password_hash: user.passwordHash,
-          profession: user.profession,
-          promo_code: user.promoCodeUsed,
-          is_email_verified: user.isEmailVerified,
-          is_trial: user.isTrial,
-          is_active: user.isActive,
-          subscription_tier: user.subscriptionTier,
-          subscription_status: user.subscriptionStatus,
-          subscription_started_at: user.subscriptionStartedAt,
-          pro_expires_at: user.proExpiresAt,
-          plan_code: user.planCode,
-          plan_label: user.planLabel,
-          amount_paid: user.amountPaid,
-          currency_paid: user.currencyPaid,
-          created_at: user.createdAt,
-          last_login_at: user.lastLoginAt,
-        }),
       });
 
-      if (res.ok || res.status === 201) {
-        console.log(`[UserRepository:Supabase] User ${user.email} synced to Supabase.`);
-        return true;
+      const existingRows = checkRes.ok ? await checkRes.json() : [];
+      const alreadyExists = Array.isArray(existingRows) && existingRows.length > 0;
+
+      if (alreadyExists) {
+        // Use PATCH to update existing record without violating unique email constraint
+        const patchPayload: Record<string, any> = {
+          name: user.name,
+          profession: user.profession || "Candidate",
+          promo_code: promoCodeToStore,
+          is_email_verified: true,
+          is_trial: isPro,
+          is_active: user.isActive ?? true,
+          last_login_at: user.lastLoginAt || new Date().toISOString(),
+        };
+        if (user.passwordHash) {
+          patchPayload.password_hash = user.passwordHash;
+        }
+
+        const patchRes = await fetch(`${supabaseUrl}/rest/v1/candidate_users?email=eq.${encodeURIComponent(cleanEmail)}`, {
+          method: "PATCH",
+          headers: {
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal",
+          },
+          body: JSON.stringify(patchPayload),
+        });
+
+        if (patchRes.ok || patchRes.status === 204) {
+          console.log(`[UserRepository:Supabase] User ${cleanEmail} successfully updated (PRO=${isPro}).`);
+          return true;
+        }
       } else {
-        // Fallback: check if table name is users
-        const errText = await res.text();
-        console.warn("[UserRepository:Supabase] Supabase sync returned status:", res.status, errText);
+        // Insert new candidate record
+        const insertPayload = {
+          id: user.id || `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+          email: cleanEmail,
+          name: user.name || "Candidate",
+          password_hash: user.passwordHash || "",
+          profession: user.profession || "Candidate",
+          promo_code: promoCodeToStore,
+          is_email_verified: true,
+          is_trial: isPro,
+          is_active: true,
+          created_at: user.createdAt || new Date().toISOString(),
+          last_login_at: user.lastLoginAt || new Date().toISOString(),
+        };
+
+        const postRes = await fetch(`${supabaseUrl}/rest/v1/candidate_users`, {
+          method: "POST",
+          headers: {
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal",
+          },
+          body: JSON.stringify(insertPayload),
+        });
+
+        if (postRes.ok || postRes.status === 201) {
+          console.log(`[UserRepository:Supabase] New user ${cleanEmail} successfully created (PRO=${isPro}).`);
+          return true;
+        }
       }
     } catch (err) {
       console.warn("[UserRepository:Supabase] Network error syncing user:", err);
@@ -252,29 +305,65 @@ export class UserRepository {
         const rows = await res.json();
         if (Array.isArray(rows) && rows.length > 0) {
           const row = rows[0];
+
+          // Parse Pro Subscription from metadata if present
+          let isPro = Boolean(row.is_trial);
+          let subStatus: "ACTIVE" | "INACTIVE" | "TRIALING" | "EXPIRED" = "ACTIVE";
+          let planCode = "SA_MONTH_199";
+          let planLabel = "1 Month VIP (Candidate Pro)";
+          let amountPaid = 199;
+          let currencyPaid = "INR";
+          let proExpiresAt = new Date(Date.now() + 30 * 86400000).toISOString();
+          let startedAt = row.created_at || new Date().toISOString();
+          let stripeCustomerId = undefined;
+
+          if (row.promo_code && typeof row.promo_code === "string" && row.promo_code.startsWith("PRO_SUB:")) {
+            try {
+              const subJson = JSON.parse(row.promo_code.replace("PRO_SUB:", ""));
+              if (subJson.tier === "PRO") {
+                isPro = true;
+                subStatus = subJson.status || "ACTIVE";
+                planCode = subJson.planCode || planCode;
+                planLabel = subJson.planLabel || planLabel;
+                amountPaid = subJson.amount ?? amountPaid;
+                currencyPaid = subJson.currency || currencyPaid;
+                proExpiresAt = subJson.expiresAt || proExpiresAt;
+                startedAt = subJson.startedAt || startedAt;
+                stripeCustomerId = subJson.paymentId || stripeCustomerId;
+              }
+            } catch {
+              // Ignore JSON parse errors
+            }
+          }
+
           const user: UserAccount = {
             id: row.id || `usr_${Date.now()}`,
             name: row.name || "Candidate",
             email: row.email,
             passwordHash: row.password_hash || row.passwordHash || "",
             profession: row.profession || "",
-            promoCodeUsed: row.promo_code || row.promoCodeUsed || "",
-            isTrial: Boolean(row.is_trial),
+            promoCodeUsed: row.promo_code || "",
+            isTrial: isPro,
             isActive: row.is_active ?? true,
             isEmailVerified: Boolean(row.is_email_verified),
-            subscriptionTier: row.subscription_tier || row.subscriptionTier || (row.is_trial ? "PRO" : "FREE"),
-            subscriptionStatus: row.subscription_status || row.subscriptionStatus || "ACTIVE",
-            subscriptionStartedAt: row.subscription_started_at || row.subscriptionStartedAt || row.created_at,
-            proExpiresAt: row.pro_expires_at || row.proExpiresAt || (row.is_trial ? new Date(Date.now() + 30 * 86400000).toISOString() : undefined),
-            planCode: row.plan_code || row.planCode,
-            planLabel: row.plan_label || row.planLabel,
-            amountPaid: row.amount_paid || row.amountPaid,
-            currencyPaid: row.currency_paid || row.currencyPaid,
+            subscriptionTier: isPro ? "PRO" : "FREE",
+            subscriptionStatus: isPro ? subStatus : "ACTIVE",
+            subscriptionStartedAt: startedAt,
+            proExpiresAt: isPro ? proExpiresAt : undefined,
+            planCode: isPro ? planCode : undefined,
+            planLabel: isPro ? planLabel : undefined,
+            amountPaid: isPro ? amountPaid : undefined,
+            currencyPaid: isPro ? currencyPaid : undefined,
+            stripeCustomerId: stripeCustomerId,
             createdAt: row.created_at || new Date().toISOString(),
             lastLoginAt: row.last_login_at || new Date().toISOString(),
           };
+
           // Cache in memory
-          if (!inMemoryUsers.some((u) => u.email.toLowerCase() === user.email.toLowerCase())) {
+          const existingIdx = inMemoryUsers.findIndex((u) => u.email.toLowerCase() === user.email.toLowerCase());
+          if (existingIdx >= 0) {
+            inMemoryUsers[existingIdx] = user;
+          } else {
             inMemoryUsers.unshift(user);
           }
           return user;
@@ -694,6 +783,8 @@ export class UserRepository {
     if (user) {
       user.subscriptionTier = "PRO";
       user.subscriptionStatus = "ACTIVE";
+      user.isTrial = true;
+      user.isEmailVerified = true;
       user.subscriptionStartedAt = user.subscriptionStartedAt || startedAt;
       user.proExpiresAt = expiresAt;
       user.planCode = planCode;
@@ -702,7 +793,7 @@ export class UserRepository {
       user.currencyPaid = details.currency || "INR";
       user.stripeSessionId = details.stripeSessionId;
       user.stripeCustomerId = details.stripeCustomerId;
-      this.syncUserToSupabase(user).catch(() => {});
+      await this.syncUserToSupabase(user);
       return user;
     }
 
@@ -714,7 +805,7 @@ export class UserRepository {
       passwordHash: "",
       profession: "Sponsored Professional",
       promoCodeUsed: "PAID_PRO",
-      isTrial: false,
+      isTrial: true,
       isActive: true,
       isEmailVerified: true,
       subscriptionTier: "PRO",
@@ -732,7 +823,7 @@ export class UserRepository {
     };
 
     inMemoryUsers.unshift(newUser);
-    this.syncUserToSupabase(newUser).catch(() => {});
+    await this.syncUserToSupabase(newUser);
     return newUser;
   }
 

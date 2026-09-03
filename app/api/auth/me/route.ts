@@ -27,7 +27,16 @@ export async function GET(request: NextRequest) {
           currencyPaid: dbUser.currencyPaid || cookieUser.currencyPaid,
           createdAt: dbUser.createdAt || cookieUser.createdAt,
         };
-        return NextResponse.json({ success: true, user: mergedUser });
+        const response = NextResponse.json({ success: true, user: mergedUser });
+        // Refresh session cookie with up-to-date subscription tier and pro expiry
+        response.cookies.set("sa_user_session", JSON.stringify(mergedUser), {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 365 * 24 * 60 * 60,
+          path: "/",
+        });
+        return response;
       }
     }
     return NextResponse.json({ success: true, user: cookieUser });
