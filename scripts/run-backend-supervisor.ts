@@ -7,7 +7,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 async function main() {
   const args = process.argv.slice(2);
   const shouldNotify = !args.includes("--no-notify");
-  const targetEmail = process.env.ADMIN_EMAIL || "admin@sponsorajobs.com";
+  const targetEmail = process.env.ADMIN_EMAIL || "oshinhealthtechinnovations@gmail.com";
 
   console.log("================================================================================");
   console.log("🛡️  SPONSORAJOB EXECUTIVE BACKEND SUPERVISOR — 6-PILLAR SYSTEM INSPECTION");

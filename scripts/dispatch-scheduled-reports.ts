@@ -46,7 +46,7 @@ async function run() {
     console.warn("Could not fetch users/apps from Supabase:", e);
   }
 
-  const targetRecipient = process.env.ADMIN_EMAIL || "admin@sponsorajobs.com";
+  const targetRecipient = process.env.ADMIN_EMAIL || "oshinhealthtechinnovations@gmail.com";
   const now = new Date();
   const formattedTimestamp = now.toLocaleString("en-US", {
     timeZone: "Asia/Kolkata",

@@ -123,7 +123,7 @@ async function harvestAndVerify() {
 
   const usajobs = new USAJobsAdapter({
     enabled: true,
-    email: process.env.USAJOBS_EMAIL || "api@sponsorajobs.com",
+    email: process.env.USAJOBS_EMAIL || "oshinhealthtechinnovations@gmail.com",
     apiKey: "tTjBDekl7VpbMyoaAJEDasI3+W44QV7DQ2ZO7lIpplY=",
   });
 

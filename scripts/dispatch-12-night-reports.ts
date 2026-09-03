@@ -364,7 +364,7 @@ const hourlyConfigs: HourlyLogConfig[] = [
 
 async function dispatchAll12Reports() {
   const emailService = new EmailService();
-  const targetRecipient = process.env.ADMIN_EMAIL || "admin@sponsorajobs.com";
+  const targetRecipient = process.env.ADMIN_EMAIL || "oshinhealthtechinnovations@gmail.com";
 
   console.log(`=======================================================`);
   console.log(`🚀 DISPATCHING ALL 12 HOURLY ACTIVITY REPORTS FROM LAST NIGHT`);
