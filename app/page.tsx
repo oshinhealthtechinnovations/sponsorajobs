@@ -6,7 +6,6 @@ import { JobCard } from "@/components/JobCard";
 import { JobSearchBar } from "@/components/JobSearchBar";
 import { SponsorshipRadarMap } from "@/components/SponsorshipRadarMap";
 import { CareerRoutesNavigator } from "@/components/CareerRoutesNavigator";
-import { ApplicationReadinessCalculator } from "@/components/ApplicationReadinessCalculator";
 import { VerificationTimeline } from "@/components/VerificationTimeline";
 import { JobAlertSignup } from "@/components/JobAlertSignup";
 import { CreateAccountCTA } from "@/components/CreateAccountCTA";
@@ -215,14 +214,6 @@ export default async function HomePage() {
           <VerificationTimeline />
         </section>
 
-        {/* =========================================================================
-            SECTION 08: ELIGIBILITY CHECKER
-           ========================================================================= */}
-        <section className="w-full bg-slate-50 border-y border-slate-200/80 px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-          <div className="max-w-7xl mx-auto">
-            <ApplicationReadinessCalculator />
-          </div>
-        </section>
 
         {/* =========================================================================
             SECTION 09: CAREER GUIDES
