@@ -316,9 +316,14 @@ function createEdgeMemoryClient(): DatabaseClient {
 
             // Keyword filter (only apply if the query includes specific title/description keyword conditions)
             if (kwParams.length > 0 && (q.includes("lower(j.title) like ?") || q.includes("lower(j.description) like ?"))) {
-              const rawTerms = kwParams.map((kw) => String(kw).slice(1, -1).toLowerCase()).filter(Boolean);
-              const terms = Array.from(new Set(rawTerms));
-              const phrase = terms.join(" ");
+              const cleanWords = kwParams
+                .map((kw) => String(kw).slice(1, -1).toLowerCase().trim())
+                .filter(Boolean);
+              
+              // Extract unique individual tokens (e.g. ['civil', 'engineer']) vs the raw search phrase
+              const singleWords = cleanWords.flatMap((w) => w.split(/\s+/)).filter((w) => w.length > 1);
+              const uniqueTokens = Array.from(new Set(singleWords));
+              const fullQueryPhrase = cleanWords.find((w) => w.includes(" ")) || uniqueTokens.join(" ");
 
               const scored: Array<{ job: any; score: number }> = [];
 
@@ -332,46 +337,47 @@ function createEdgeMemoryClient(): DatabaseClient {
                 let titleMatches = 0;
                 let descMatches = 0;
 
-                if (phrase && title === phrase) {
+                // Exact phrase match in title
+                if (fullQueryPhrase && title.includes(fullQueryPhrase)) {
                   score += 10000;
-                } else if (phrase && title.includes(phrase)) {
-                  score += 5000;
                 }
 
-                for (const t of terms) {
+                for (const t of uniqueTokens) {
                   if (title.includes(t)) {
-                    score += 1000;
+                    score += 2000;
                     titleMatches++;
                   }
                   if (desc.includes(t)) {
+                    score += 50;
                     descMatches++;
                   }
                   if (comp.includes(t)) {
-                    score += 250;
+                    score += 500;
                   }
                   if (cat.includes(t)) {
-                    score += 300;
+                    score += 400;
                   }
                 }
 
-                if (terms.length > 1 && titleMatches >= terms.length) {
-                  score += 3000;
+                // If all tokens match title (e.g. "civil" AND "engineer" in "Civil Design Engineer")
+                if (uniqueTokens.length > 1 && titleMatches >= uniqueTokens.length) {
+                  score += 6000;
                 }
 
-                if (phrase && desc.includes(phrase)) {
-                  score += 400;
+                if (fullQueryPhrase && desc.includes(fullQueryPhrase)) {
+                  score += 500;
                 }
 
-                score += descMatches * 15;
+                score += descMatches * 10;
                 score += (Number(j.sponsorship_score) || 50) * 0.2;
                 score += (Number(j.quality_score) || 50) * 0.1;
 
+                // Is relevant if title matches any token, or phrase matches in description/company, or multiple desc tokens match
                 let isRelevant = false;
-                if (terms.length <= 1) {
-                  isRelevant = titleMatches > 0 || (phrase && desc.includes(phrase)) || comp.includes(phrase) || cat.includes(phrase) || descMatches > 0;
+                if (uniqueTokens.length <= 1) {
+                  isRelevant = titleMatches > 0 || (fullQueryPhrase && desc.includes(fullQueryPhrase)) || comp.includes(fullQueryPhrase) || cat.includes(fullQueryPhrase) || descMatches > 0;
                 } else {
-                  const hasRoleOrTitleRelevance = titleMatches > 0 || (phrase && desc.includes(phrase)) || comp.includes(phrase);
-                  isRelevant = Boolean(hasRoleOrTitleRelevance || (descMatches === terms.length && score >= 100));
+                  isRelevant = titleMatches > 0 || (fullQueryPhrase && desc.includes(fullQueryPhrase)) || comp.includes(fullQueryPhrase) || (descMatches >= uniqueTokens.length);
                 }
 
                 if (isRelevant) {
