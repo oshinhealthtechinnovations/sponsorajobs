@@ -76,38 +76,87 @@ export default async function HomePage() {
               <JobSearchBar variant="hero" />
             </div>
 
-            {/* Verified Sponsor Logos Marquee Row */}
-            <div className="mt-10 w-full max-w-4xl pt-6 border-t border-slate-200/70 flex flex-col items-center">
+            {/* Verified Sponsor Logos Row */}
+            <div className="mt-8 w-full max-w-4xl pt-5 border-t border-slate-200/80 flex flex-col items-center">
               <div className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Verified Licensed Sponsor Employers</span>
               </div>
-              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-bold text-slate-600">
-                {["Balfour Beatty", "Google", "Amazon", "NHS England", "Mace Group", "Atlassian", "Microsoft", "Canva", "Monzo Bank", "Deloitte", "Mott MacDonald", "Siemens"].map((comp) => (
-                  <span key={comp} className="px-3 py-1 rounded-full bg-white border border-slate-200/90 shadow-2xs text-slate-700 hover:text-sky-600 hover:border-sky-300 transition-colors">
-                    {comp}
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+                {[
+                  { name: "Google", tag: "Tech" },
+                  { name: "Balfour Beatty", tag: "Engineering" },
+                  { name: "Amazon", tag: "Tech" },
+                  { name: "NHS England", tag: "Healthcare" },
+                  { name: "Mace Group", tag: "Construction" },
+                  { name: "Atlassian", tag: "Tech" },
+                  { name: "Microsoft", tag: "Tech" },
+                  { name: "Deloitte", tag: "Finance" },
+                  { name: "Monzo Bank", tag: "Fintech" },
+                  { name: "Siemens", tag: "Engineering" },
+                ].map((comp) => (
+                  <span
+                    key={comp.name}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border border-slate-200/90 shadow-2xs text-xs font-bold text-slate-700 hover:text-sky-600 hover:border-sky-300 hover:shadow-xs transition-all"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span>{comp.name}</span>
                   </span>
                 ))}
               </div>
             </div>
 
-            {/* Trust Metrics Cards */}
+            {/* Elevated Light Luxury Trust Metrics Cards */}
             <div className="mt-8 w-full max-w-4xl grid grid-cols-2 sm:grid-cols-4 gap-3.5 sm:gap-4 text-center">
-              <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-sm border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all">
-                <div className="text-2xl sm:text-3xl font-black text-slate-900">{totalCount > 0 ? `${totalCount.toLocaleString()}+` : "1,850+"}</div>
-                <div className="text-xs text-slate-500 font-semibold mt-0.5">Verified Active Jobs</div>
+              {/* Metric 1 */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_4px_20px_rgba(14,165,233,0.06)] hover:shadow-md transition-all flex flex-col items-center justify-between space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  </span>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Live Vacancies</span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-sky-600 to-cyan-600 bg-clip-text text-transparent">
+                  {totalCount > 0 ? `${totalCount.toLocaleString()}+` : "7,800+"}
+                </div>
+                <div className="text-xs text-slate-600 font-bold">Verified Active Roles</div>
               </div>
-              <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-sm border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all">
-                <div className="text-2xl sm:text-3xl font-black text-slate-900">472+</div>
-                <div className="text-xs text-slate-500 font-semibold mt-0.5">Licensed Sponsors</div>
+
+              {/* Metric 2 */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-md transition-all flex flex-col items-center justify-between space-y-1">
+                <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                  <Building2 className="w-3 h-3 text-indigo-600" />
+                  <span>Verified Sponsors</span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-black text-slate-900">
+                  472+
+                </div>
+                <div className="text-xs text-slate-600 font-bold">Licensed Employers</div>
               </div>
-              <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-sm border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all">
-                <div className="text-2xl sm:text-3xl font-black text-sky-600">5</div>
-                <div className="text-xs text-slate-500 font-semibold mt-0.5">Global Markets (UK, US, AU, CA, NZ)</div>
+
+              {/* Metric 3 */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-md transition-all flex flex-col items-center justify-between space-y-1">
+                <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                  <Globe2 className="w-3 h-3 text-sky-600" />
+                  <span>Destinations</span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-black text-slate-900">
+                  5 Hubs
+                </div>
+                <div className="text-xs text-slate-600 font-bold">UK · US · AU · CA · NZ</div>
               </div>
-              <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-sm border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all">
-                <div className="text-2xl sm:text-3xl font-black text-emerald-600">100%</div>
-                <div className="text-xs text-slate-500 font-semibold mt-0.5">Direct Employer ATS</div>
+
+              {/* Metric 4 */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_4px_20px_rgba(16,185,129,0.06)] hover:shadow-md transition-all flex flex-col items-center justify-between space-y-1">
+                <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                  <span>Zero Middlemen</span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-black text-emerald-600">
+                  100%
+                </div>
+                <div className="text-xs text-slate-600 font-bold">Direct Official ATS</div>
               </div>
             </div>
           </div>

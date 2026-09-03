@@ -91,12 +91,12 @@ const PRESET_SUGGESTIONS: SearchSuggestion[] = [
 ];
 
 const POPULAR_TAGS = [
-  { label: "Software Engineer", icon: <Code2 className="w-3.5 h-3.5 text-[#19CBE0]" />, type: "q", value: "Software Engineer" },
-  { label: "Civil Engineer", icon: <HardHat className="w-3.5 h-3.5 text-amber-400" />, type: "q", value: "Civil Engineer" },
-  { label: "Data Analyst", icon: <BarChart3 className="w-3.5 h-3.5 text-indigo-400" />, type: "q", value: "Data Analyst" },
-  { label: "UK Vacancies", flagKey: "gb", type: "country", value: "gb" },
-  { label: "Australia Roles", flagKey: "au", type: "country", value: "au" },
-  { label: "USA Jobs", flagKey: "us", type: "country", value: "us" },
+  { label: "Software Engineer", icon: <Code2 className="w-3.5 h-3.5 text-sky-600" />, type: "q", value: "Software Engineer" },
+  { label: "Civil Engineer", icon: <HardHat className="w-3.5 h-3.5 text-amber-600" />, type: "q", value: "Civil Engineer" },
+  { label: "Data & AI", icon: <BarChart3 className="w-3.5 h-3.5 text-indigo-600" />, type: "q", value: "Data Engineer" },
+  { label: "UK CoS Roles", flagKey: "gb", type: "country", value: "gb" },
+  { label: "Australia TSS 482", flagKey: "au", type: "country", value: "au" },
+  { label: "USA H-1B", flagKey: "us", type: "country", value: "us" },
 ];
 
 interface JobSearchBarProps {
@@ -320,7 +320,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
 
         {/* High-Contrast Popular Search Tags */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs">
-          <span className="flex items-center gap-1.5 font-bold text-slate-500 mr-1">
+          <span className="inline-flex items-center gap-1.5 font-bold text-slate-500 mr-1">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             <span>Popular:</span>
           </span>
@@ -329,7 +329,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
               key={tag.label}
               type="button"
               onClick={() => handleTagClick(tag)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-semibold border border-slate-200/90 hover:border-sky-400 hover:text-sky-700 transition-all cursor-pointer shadow-2xs hover:shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-sky-50 text-slate-700 font-semibold border border-slate-200/90 hover:border-sky-300 hover:text-sky-800 transition-all cursor-pointer shadow-2xs hover:shadow-xs"
             >
               {tag.icon}
               {tag.flagKey && MiniFlags[tag.flagKey]}
