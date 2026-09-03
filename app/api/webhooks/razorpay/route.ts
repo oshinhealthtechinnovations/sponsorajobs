@@ -6,7 +6,8 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.text();
     const signature = request.headers.get("x-razorpay-signature") || "";
 
-    const isValid = await PaymentService.verifyWebhookSignature(rawBody, signature);
+    // Use Razorpay-specific HMAC-SHA256(rawBody, webhookSecret) — NOT the Stripe timestamp format
+    const isValid = await PaymentService.verifyRazorpayWebhookSignature(rawBody, signature);
     if (!isValid) {
       return NextResponse.json({ error: "Invalid Razorpay webhook signature." }, { status: 400 });
     }

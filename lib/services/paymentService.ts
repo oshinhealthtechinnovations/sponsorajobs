@@ -15,6 +15,7 @@ export interface CheckoutSessionOptions {
   userName?: string;
   userId?: string;
   gateway?: PaymentGatewayProvider;
+  planCode?: string;    // e.g. "SA_YEAR_999" — resolved server-side; client amount is ignored
   returnUrl?: string;
   cancelUrl?: string;
   currency?: string;
@@ -57,6 +58,22 @@ if (process.env.NODE_ENV !== "production") {
 export const CANDIDATE_PRO_PRICE = 299;
 export const CANDIDATE_PRO_CURRENCY = (process.env.PAYMENT_CURRENCY || "INR").toUpperCase();
 
+// ─── Server-authoritative Subscription Plan Catalog ──────────────────────────
+// NEVER trust amounts from the browser. All pricing is resolved here, server-side.
+export interface SubscriptionPlan {
+  amount: number;       // INR (Rupees, NOT paise)
+  durationDays: number; // Subscription length in days
+  label: string;        // Display label
+  badge?: string;       // Optional badge (e.g., "Most Popular")
+}
+
+export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
+  SA_MONTH_199:   { amount: 199,  durationDays: 30,  label: "1 Month" },
+  SA_3MONTH_499:  { amount: 499,  durationDays: 90,  label: "3 Months", badge: "Best Value" },
+  SA_6MONTH_799:  { amount: 799,  durationDays: 180, label: "6 Months" },
+  SA_YEAR_999:    { amount: 999,  durationDays: 365, label: "12 Months", badge: "Most Popular" },
+};
+
 export class PaymentService {
   // Stripe Credentials
   private static stripeSecretKey = process.env.STRIPE_SECRET_KEY || "";
@@ -77,7 +94,9 @@ export class PaymentService {
     const baseUrl = originUrl || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const cleanEmail = options.userEmail.trim().toLowerCase();
     const currency = (options.currency || CANDIDATE_PRO_CURRENCY).toUpperCase();
-    const amount = CANDIDATE_PRO_PRICE;
+    // Resolve amount server-side from plan catalog; never trust client-supplied price
+    const plan = options.planCode ? SUBSCRIPTION_PLANS[options.planCode] : null;
+    const amount = plan ? plan.amount : CANDIDATE_PRO_PRICE;
     const gateway: PaymentGatewayProvider = options.gateway || "razorpay";
 
     // ─────────────────────────────────────────────────────────────
@@ -400,7 +419,37 @@ export class PaymentService {
   }
 
   /**
+   * Razorpay Webhook Signature Verification
+   * Format: HMAC-SHA256(rawBody, webhookSecret) → hex
+   * Header: x-razorpay-signature
+   * NOTE: This is completely different from Stripe (no timestamp component).
+   */
+  static async verifyRazorpayWebhookSignature(payload: string, signature: string): Promise<boolean> {
+    if (!this.razorpayWebhookSecret) return true; // dev bypass: no secret configured
+    if (!signature) return false;
+
+    try {
+      const encoder = new TextEncoder();
+      const key = await crypto.subtle.importKey(
+        "raw",
+        encoder.encode(this.razorpayWebhookSecret),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+      );
+      const signatureBytes = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
+      const hexSignature = Array.from(new Uint8Array(signatureBytes))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+      return hexSignature === signature;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Stripe Webhook Signature Verification (SubtleCrypto HMAC-SHA256)
+   * Format includes timestamp: `t=<ts>,v1=<sig>`
    */
   static async verifyWebhookSignature(payload: string, headerSignature: string): Promise<boolean> {
     if (!this.stripeWebhookSecret || !headerSignature) return true; // dev bypass

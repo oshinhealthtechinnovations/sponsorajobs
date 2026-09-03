@@ -1,12 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PaymentService, PaymentGatewayProvider } from "@/lib/services/paymentService";
+import { PaymentService, PaymentGatewayProvider, SUBSCRIPTION_PLANS } from "@/lib/services/paymentService";
 
 export async function POST(request: NextRequest) {
   try {
     const origin = request.headers.get("origin") || request.nextUrl.origin;
     const body = await request.json().catch(() => ({}));
 
-    // Derive user email from payload or active session cookie
+    // plan_code is the only trusted pricing signal — amount from client is IGNORED
+    const planCode: string | undefined = body.plan_code || body.planCode;
+
+    // Validate plan code if provided
+    if (planCode && !SUBSCRIPTION_PLANS[planCode]) {
+      return NextResponse.json(
+        { success: false, error: `Unknown plan code: ${planCode}` },
+        { status: 400 }
+      );
+    }
+
+    // Derive user identity from payload or active session cookie
     let email = body.email;
     let name = body.name || "Candidate";
     let userId = body.userId;
@@ -35,6 +46,7 @@ export async function POST(request: NextRequest) {
         userName: name,
         userId,
         gateway,
+        planCode,   // Server resolves price from planCode — client amount ignored
         currency: body.currency,
       },
       origin
