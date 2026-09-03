@@ -80,97 +80,72 @@ export function CandidateProGateModal() {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-      style={{ background: "rgba(7,21,34,0.9)", backdropFilter: "blur(12px)" }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm animate-fade-in"
       onClick={(e) => { if (e.target === e.currentTarget) setIsOpen(false); }}
     >
       <div
-        className="relative max-w-2xl w-full rounded-2xl overflow-hidden"
+        className="relative max-w-2xl w-full rounded-3xl overflow-hidden bg-white border border-slate-200 shadow-2xl my-auto"
         style={{
-          background: "linear-gradient(145deg, #0a1f35 0%, #071522 100%)",
-          border: "1px solid rgba(25,203,224,0.25)",
-          boxShadow: "0 40px 80px -20px rgba(0,0,0,0.8), 0 0 60px -20px rgba(25,203,224,0.15)",
           maxHeight: "90vh",
           overflowY: "auto",
         }}
       >
+        {/* Top Accent Bar */}
+        <div className="h-2.5 bg-gradient-to-r from-[#18D6E5] via-amber-400 to-emerald-500 w-full" />
+
         {/* Close */}
         <button
           onClick={() => setIsOpen(false)}
-          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-white transition-colors"
-          style={{ background: "rgba(255,255,255,0.06)" }}
+          className="absolute top-5 right-5 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
         >
           <X size={16} />
         </button>
 
         {/* Header */}
-        <div
-          className="px-8 pt-8 pb-6 text-center"
-          style={{
-            background: "linear-gradient(180deg, rgba(25,203,224,0.06) 0%, transparent 100%)",
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
-          }}
-        >
-          <div
-            className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold mb-4"
-            style={{
-              background: "rgba(25,203,224,0.12)",
-              border: "1px solid rgba(25,203,224,0.3)",
-              color: "#19CBE0",
-            }}
-          >
-            <Lock size={11} />
-            Premium Feature
+        <div className="px-8 pt-8 pb-6 text-center border-b border-slate-100 bg-gradient-to-b from-slate-50/80 to-white">
+          <div className="inline-flex items-center gap-2 rounded-full px-3.5 py-1 text-xs font-bold mb-3 bg-amber-50 border border-amber-200 text-amber-800 shadow-xs">
+            <Crown size={13} className="text-amber-600" />
+            VIP Candidate Pass
           </div>
-          <h2
-            className="text-2xl font-extrabold text-white mb-2"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-          >
-            {featureName ? `Unlock ${featureName}` : "Unlock SponsorAJobs Premium"}
+          <h2 className="text-2xl font-black text-slate-900 mb-1.5 tracking-tight">
+            {featureName ? `Unlock ${featureName}` : "Unlock SponsorAJobs VIP Access"}
           </h2>
-          <p className="text-slate-400 text-sm">
-            Get full access to all career intelligence tools with one simple plan.
+          <p className="text-slate-600 text-xs sm:text-sm max-w-md mx-auto">
+            Get instant access to 7,800+ licensed sponsor jobs, direct employer application portals, and AI career tools.
           </p>
         </div>
 
-        <div className="px-8 py-6">
-          {/* Features */}
-          <div className="grid grid-cols-2 gap-2 mb-6">
+        <div className="px-6 sm:px-8 py-6">
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-6 p-4 rounded-2xl bg-slate-50/90 border border-slate-200/80">
             {FEATURES.map((f) => (
-              <div key={f.label} className="flex items-center gap-2 text-xs text-slate-300">
-                <f.icon size={13} className="text-cyan-400 shrink-0" />
-                {f.label}
+              <div key={f.label} className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                <f.icon size={14} className="text-brand-600 shrink-0" />
+                <span>{f.label}</span>
               </div>
             ))}
           </div>
 
           {/* Plan selector */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
             {PLANS.map((p) => (
               <button
                 key={p.code}
                 onClick={() => setSelectedPlan(p.code)}
-                className="relative rounded-xl p-3 text-center transition-all duration-150"
-                style={{
-                  background: selectedPlan === p.code
-                    ? (p.highlight ? "rgba(25,203,224,0.2)" : "rgba(25,203,224,0.12)")
-                    : "rgba(255,255,255,0.04)",
-                  border: selectedPlan === p.code
-                    ? "1.5px solid rgba(25,203,224,0.5)"
-                    : "1px solid rgba(255,255,255,0.07)",
-                }}
+                className={`relative rounded-2xl p-3.5 text-center transition-all cursor-pointer border ${
+                  selectedPlan === p.code
+                    ? "bg-amber-50/80 border-amber-400 ring-2 ring-amber-400/20 shadow-sm"
+                    : "bg-white border-slate-200 hover:bg-slate-50 text-slate-600"
+                }`}
               >
                 {p.badge && (
-                  <span
-                    className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                    style={{ background: "#19CBE0", color: "#071522" }}
-                  >
+                  <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow-xs">
                     {p.badge}
                   </span>
                 )}
-                <p className="text-[11px] text-slate-400 mt-1">{p.label}</p>
-                <p className="text-base font-bold text-white">₹{p.amount}</p>
-                <p className="text-[10px] text-slate-500">{p.perDay}</p>
+                <p className="text-[11px] font-bold text-slate-600 mt-1">{p.label}</p>
+                <p className="text-lg font-black text-slate-950">₹{p.amount}</p>
+                <p className="text-[10px] text-slate-500 font-medium">{p.perDay}</p>
               </button>
             ))}
           </div>
@@ -178,7 +153,7 @@ export function CandidateProGateModal() {
           {/* CTA */}
           <RazorpayCheckoutButton
             planCode={plan.code}
-            planLabel={`SponsorAJobs Premium — ${plan.label}`}
+            planLabel={`SponsorAJobs VIP Pass — ${plan.label}`}
             amount={plan.amount}
             userEmail={user?.email}
             userName={user?.name}
@@ -188,24 +163,20 @@ export function CandidateProGateModal() {
               window.dispatchEvent(new Event("user-session-changed"));
               setTimeout(() => (window.location.href = "/dashboard"), 800);
             }}
-            className="text-[#071522] font-bold"
-            style={{
-              background: "linear-gradient(135deg, #19CBE0 0%, #19C98B 100%)",
-              boxShadow: "0 4px 20px -5px rgba(25,203,224,0.5)",
-            }}
+            className="w-full py-4 text-sm sm:text-base font-black shadow-lg shadow-amber-500/25 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 rounded-2xl flex items-center justify-center gap-2"
           >
-            <Zap size={16} />
-            Unlock Premium — ₹{plan.amount.toLocaleString("en-IN")} / {plan.label}
+            <Zap size={18} className="text-slate-950" />
+            <span>Unlock VIP Pass — ₹{plan.amount.toLocaleString("en-IN")} / {plan.label}</span>
           </RazorpayCheckoutButton>
 
-          <div className="flex items-center justify-center gap-4 mt-4">
-            <div className="flex items-center gap-1.5 text-slate-500 text-xs">
-              <CheckCircle2 size={11} className="text-slate-600" />
-              Secure Razorpay payment
+          <div className="flex items-center justify-center gap-5 mt-4 text-slate-500 text-xs font-medium">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 size={13} className="text-emerald-600" />
+              <span>Official Razorpay Payment</span>
             </div>
-            <div className="flex items-center gap-1.5 text-slate-500 text-xs">
-              <CheckCircle2 size={11} className="text-slate-600" />
-              UPI / Card / NetBanking
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 size={13} className="text-emerald-600" />
+              <span>UPI / Card / NetBanking</span>
             </div>
           </div>
 
@@ -213,9 +184,9 @@ export function CandidateProGateModal() {
             <Link
               href="/pricing"
               onClick={() => setIsOpen(false)}
-              className="text-xs text-slate-500 hover:text-cyan-400 transition-colors underline"
+              className="text-xs font-bold text-brand-600 hover:text-brand-700 transition-colors underline"
             >
-              See full plan comparison →
+              See full plan details & comparison →
             </Link>
           </p>
         </div>

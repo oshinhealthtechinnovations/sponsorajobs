@@ -445,11 +445,10 @@ export function AuthGateModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto">
-      <div className="relative w-full max-w-lg rounded-3xl bg-slate-950 border border-slate-800 shadow-2xl p-6 sm:p-8 space-y-6 text-white overflow-hidden my-auto">
-        {/* Ambient background glows */}
-        <div className="absolute -top-24 -right-24 w-52 h-52 bg-brand-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-52 h-52 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm animate-fade-in overflow-y-auto">
+      <div className="relative w-full max-w-lg rounded-3xl bg-white border border-slate-200 shadow-2xl p-6 sm:p-8 space-y-6 text-slate-900 overflow-hidden my-auto">
+        {/* Top Gradient Accent Bar */}
+        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-brand-600 via-sky-500 to-emerald-500 pointer-events-none" />
 
         {/* Close Button */}
         <button
@@ -458,7 +457,7 @@ export function AuthGateModal() {
             setPendingUrl(null);
             setCelebrationData(null);
           }}
-          className="absolute top-5 right-5 p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 transition-colors cursor-pointer z-10"
+          className="absolute top-5 right-5 p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer z-10"
         >
           <X className="w-4 h-4" />
         </button>
@@ -469,11 +468,11 @@ export function AuthGateModal() {
         {celebrationData ? (
           <div className="space-y-6 text-center py-2 animate-fade-in">
             {/* Top Celebration Trophy & Glow */}
-            <div className="relative mx-auto w-20 h-20 rounded-3xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 p-0.5 shadow-2xl shadow-amber-500/30 flex items-center justify-center animate-bounce-short">
-              <div className="w-full h-full bg-slate-950 rounded-[22px] flex items-center justify-center">
-                <Trophy className="w-10 h-10 text-amber-400 drop-shadow-md" />
+            <div className="relative mx-auto w-20 h-20 rounded-3xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 p-0.5 shadow-xl shadow-amber-500/25 flex items-center justify-center animate-bounce-short">
+              <div className="w-full h-full bg-white rounded-[22px] flex items-center justify-center">
+                <Trophy className="w-10 h-10 text-amber-500 drop-shadow-md" />
               </div>
-              <div className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 shadow-md">
+              <div className="absolute -top-1 -right-1 bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 shadow-md">
                 <Sparkles className="w-2.5 h-2.5" />
                 VERIFIED
               </div>
@@ -481,30 +480,30 @@ export function AuthGateModal() {
 
             {/* Congratulatory Header */}
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 text-xs font-bold uppercase tracking-wider">
-                <PartyPopper className="w-3.5 h-3.5 text-amber-400" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold uppercase tracking-wider">
+                <PartyPopper className="w-3.5 h-3.5 text-amber-600" />
                 <span>Congratulations!</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-display">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight font-display">
                 Email Verified! Account Active
               </h2>
-              <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+              <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
                 Your email is verified. You now have full free access to direct official ATS application links, salary compliance insights, and personalized job alerts.
               </p>
             </div>
 
             {/* Candidate Profile Pill */}
-            <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-left flex items-center justify-between gap-3 shadow-inner">
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-left flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-600 to-sky-500 text-white font-bold text-sm flex items-center justify-center shrink-0">
                   {celebrationData.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0">
-                  <h4 className="text-sm font-bold text-white truncate">{celebrationData.name}</h4>
-                  <p className="text-[11px] text-slate-400 truncate">{celebrationData.profession}</p>
+                  <h4 className="text-sm font-bold text-slate-900 truncate">{celebrationData.name}</h4>
+                  <p className="text-[11px] text-slate-500 truncate">{celebrationData.profession}</p>
                 </div>
               </div>
-              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold uppercase tracking-wider shrink-0">
+              <span className="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold uppercase tracking-wider shrink-0">
                 Verified Candidate
               </span>
             </div>
@@ -514,11 +513,11 @@ export function AuthGateModal() {
               <button
                 type="button"
                 onClick={proceedWithApplication}
-                className="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-brand-500 via-[#19CBE0] to-teal-400 hover:from-brand-400 hover:to-teal-300 text-slate-950 font-black text-sm shadow-xl shadow-brand-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer group"
+                className="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-brand-600 via-sky-600 to-emerald-600 hover:from-brand-700 hover:to-emerald-500 text-white font-black text-sm shadow-xl shadow-brand-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer group"
               >
-                <Sparkles className="w-4 h-4 text-slate-950" />
+                <Sparkles className="w-4 h-4 text-white" />
                 <span>{pendingUrl ? "Continue to Application" : "Start Exploring Jobs"}</span>
-                <ArrowRight className="w-4 h-4 text-slate-950 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="w-4 h-4 text-white transition-transform group-hover:translate-x-1" />
               </button>
             </div>
           </div>
@@ -528,12 +527,12 @@ export function AuthGateModal() {
           ═══════════════════════════════════════════════════════════════ */
           <>
             {/* Header */}
-            <div className="space-y-2 pr-6">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 text-xs font-bold uppercase tracking-wider">
-                <Lock className="w-3.5 h-3.5 text-amber-400" />
+            <div className="space-y-2 pr-6 pt-1">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200 text-xs font-bold uppercase tracking-wider">
+                <Lock className="w-3.5 h-3.5 text-amber-500" />
                 <span>Member Access Gateway</span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                 {activeTab === "register"
                   ? registerStep === "otp"
                     ? "Verify Your Email Address"
@@ -544,7 +543,7 @@ export function AuthGateModal() {
                   ? "Create New Password"
                   : "Sign In to Your Account"}
               </h2>
-              <p className="text-xs text-slate-300 leading-relaxed">
+              <p className="text-xs text-slate-600 leading-relaxed font-medium">
                 {activeTab === "register"
                   ? registerStep === "otp"
                     ? `Enter the 6-digit code sent to ${email} to activate your account.`
@@ -559,7 +558,7 @@ export function AuthGateModal() {
 
             {/* Navigation Tabs (Only when not in OTP step) */}
             {registerStep === "form" && (
-              <div className="flex items-center gap-1 p-1 rounded-2xl bg-slate-900 border border-slate-800 text-xs font-bold">
+              <div className="flex items-center gap-1 p-1 rounded-2xl bg-slate-100 border border-slate-200 text-xs font-bold">
                 <button
                   type="button"
                   onClick={() => {
@@ -569,8 +568,8 @@ export function AuthGateModal() {
                   }}
                   className={`flex-1 py-2 px-3 rounded-xl transition-all text-center cursor-pointer ${
                     activeTab === "register"
-                      ? "bg-brand-600 text-white shadow-xs"
-                      : "text-slate-400 hover:text-white"
+                      ? "bg-white text-brand-700 shadow-xs border border-slate-200"
+                      : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
                   Create Account
@@ -585,8 +584,8 @@ export function AuthGateModal() {
                   }}
                   className={`flex-1 py-2 px-3 rounded-xl transition-all text-center cursor-pointer ${
                     activeTab === "login"
-                      ? "bg-slate-800 text-white shadow-xs"
-                      : "text-slate-400 hover:text-white"
+                      ? "bg-white text-slate-900 shadow-xs border border-slate-200"
+                      : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
                   Sign In
@@ -596,17 +595,17 @@ export function AuthGateModal() {
 
             {/* Feedback Messages */}
             {errorMsg && (
-              <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-medium space-y-2">
+              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium space-y-2">
                 <p className="flex items-start gap-1.5">
-                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
                   <span>{errorMsg}</span>
                 </p>
               </div>
             )}
 
             {successMsg && (
-              <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-medium flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>{successMsg}</span>
               </div>
             )}
@@ -616,8 +615,8 @@ export function AuthGateModal() {
               <form onSubmit={handleRegister} className="space-y-3.5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Full Name <span className="text-rose-400">*</span>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-700">
+                      Full Name <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
                       <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -627,14 +626,14 @@ export function AuthGateModal() {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="e.g. Alex Johnson"
-                        className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-brand-500"
+                        className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-brand-500 focus:bg-white transition-colors"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Profession / Role <span className="text-rose-400">*</span>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-700">
+                      Profession / Role <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
                       <Briefcase className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -644,15 +643,15 @@ export function AuthGateModal() {
                         value={profession}
                         onChange={(e) => setProfession(e.target.value)}
                         placeholder="e.g. Software Engineer"
-                        className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-brand-500"
+                        className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-brand-500 focus:bg-white transition-colors"
                       />
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Email Address <span className="text-rose-400">*</span>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-700">
+                    Email Address <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
                     <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -662,14 +661,14 @@ export function AuthGateModal() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="your.email@example.com"
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-brand-500"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-brand-500 focus:bg-white transition-colors"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Password <span className="text-rose-400">*</span>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-700">
+                    Password <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
                     <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -679,19 +678,19 @@ export function AuthGateModal() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="At least 6 characters"
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-brand-500"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-brand-500 focus:bg-white transition-colors"
                     />
                   </div>
                 </div>
 
                 {/* Confirm Password */}
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
-                    <span>Confirm Password <span className="text-rose-400">*</span></span>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-700 flex items-center justify-between">
+                    <span>Confirm Password <span className="text-rose-500">*</span></span>
                     {confirmTouched && (
                       passwordsMatch
-                        ? <span className="text-emerald-400 text-[10px] font-semibold flex items-center gap-1"><Check className="w-3 h-3" /> Passwords match</span>
-                        : <span className="text-rose-400 text-[10px] font-semibold">✗ Do not match</span>
+                        ? <span className="text-emerald-600 text-[10px] font-bold flex items-center gap-1"><Check className="w-3 h-3" /> Passwords match</span>
+                        : <span className="text-rose-600 text-[10px] font-bold">✗ Do not match</span>
                     )}
                   </label>
                   <div className="relative">
@@ -702,12 +701,12 @@ export function AuthGateModal() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Re-enter your password"
-                      className={`w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border text-white text-xs focus:outline-none transition-colors ${
+                      className={`w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border text-slate-900 text-xs focus:outline-none transition-colors ${
                         !confirmTouched
-                          ? "border-slate-800 focus:border-brand-500"
+                          ? "border-slate-200 focus:border-brand-500 focus:bg-white"
                           : passwordsMatch
-                          ? "border-emerald-600 focus:border-emerald-500"
-                          : "border-rose-600 focus:border-rose-500"
+                          ? "border-emerald-500 focus:border-emerald-600 focus:bg-white"
+                          : "border-rose-400 focus:border-rose-500 focus:bg-white"
                       }`}
                     />
                   </div>
@@ -715,8 +714,8 @@ export function AuthGateModal() {
 
                 {/* Promo / Invite Code Field (Optional) */}
                 <div className="space-y-1 pt-1">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                    <Gift className="w-3.5 h-3.5 text-amber-400" />
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1">
+                    <Gift className="w-3.5 h-3.5 text-amber-500" />
                     <span>Promo / Referral Code (Optional)</span>
                   </label>
                   <input
@@ -724,14 +723,14 @@ export function AuthGateModal() {
                     value={promoCode}
                     onChange={(e) => setPromoCode(e.target.value)}
                     placeholder="Enter referral code if you have one (Optional)"
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 font-mono text-xs focus:outline-none focus:border-brand-500"
+                    className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono text-xs focus:outline-none focus:border-brand-500 focus:bg-white transition-colors"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 via-sky-600 to-emerald-500 hover:from-brand-500 hover:to-emerald-400 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-brand-600 via-sky-600 to-emerald-600 hover:from-brand-700 hover:to-emerald-500 text-white font-black text-xs shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <Mail className="w-4 h-4 text-white" />
                   <span>{loading ? "Sending 6-Digit OTP Code..." : "Create Account & Send Verification Code"}</span>
@@ -742,16 +741,16 @@ export function AuthGateModal() {
             {/* ── TAB 1: CREATE ACCOUNT (STEP 2: OTP VERIFICATION) ── */}
             {activeTab === "register" && registerStep === "otp" && (
               <div className="space-y-5 text-center py-2 animate-fade-in">
-                <div className="w-14 h-14 rounded-2xl bg-brand-500/10 text-brand-400 border border-brand-500/30 flex items-center justify-center mx-auto shadow-inner">
+                <div className="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 border border-brand-200 flex items-center justify-center mx-auto shadow-xs">
                   <Mail className="w-7 h-7" />
                 </div>
 
                 <div className="space-y-1">
-                  <h3 className="text-base font-extrabold text-white">
+                  <h3 className="text-base font-black text-slate-900">
                     Enter Verification Code
                   </h3>
-                  <p className="text-xs text-slate-300 max-w-sm mx-auto">
-                    We sent a 6-digit code to <strong className="text-white">{email}</strong>. Please enter it below to verify your email.
+                  <p className="text-xs text-slate-600 max-w-sm mx-auto font-medium">
+                    We sent a 6-digit code to <strong className="text-slate-900">{email}</strong>. Please enter it below to verify your email.
                   </p>
                 </div>
 
@@ -763,20 +762,20 @@ export function AuthGateModal() {
                     placeholder="123456"
                     value={registerOtp}
                     onChange={(e) => setRegisterOtp(e.target.value.replace(/[^0-9]/g, ""))}
-                    className="w-48 text-center tracking-[10px] text-3xl font-black py-3 rounded-2xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-brand-500 mx-auto block shadow-inner"
+                    className="w-48 text-center tracking-[10px] text-3xl font-black py-3 rounded-2xl bg-slate-50 border border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 mx-auto block shadow-inner"
                   />
-                  <p className="text-[11px] text-slate-400 pt-1">
-                    💡 If not in your primary inbox, please check your <strong className="text-slate-300">Spam</strong> or <strong className="text-slate-300">Promotions</strong> tab.
+                  <p className="text-[11px] text-slate-500 pt-1">
+                    💡 If not in your primary inbox, please check your <strong className="text-slate-700">Spam</strong> or <strong className="text-slate-700">Promotions</strong> tab.
                   </p>
 
                   {previewOtp && (
-                    <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 flex items-center justify-between gap-3 max-w-sm mx-auto animate-fade-in text-left mt-2">
+                    <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center justify-between gap-3 max-w-sm mx-auto animate-fade-in text-left mt-2">
                       <div className="space-y-0.5">
-                        <div className="font-bold text-white flex items-center gap-1.5">
-                          <span className="text-amber-400">🔑 Instant Code:</span>
-                          <span className="font-mono text-amber-300 text-sm tracking-widest font-black">{previewOtp}</span>
+                        <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                          <span className="text-amber-600">🔑 Instant Code:</span>
+                          <span className="font-mono text-amber-700 text-sm tracking-widest font-black">{previewOtp}</span>
                         </div>
-                        <div className="text-[10px] text-slate-400">
+                        <div className="text-[10px] text-slate-500">
                           Resend test sandbox mode active. Click to auto-fill code.
                         </div>
                       </div>
@@ -785,7 +784,7 @@ export function AuthGateModal() {
                         onClick={() => {
                           setRegisterOtp(previewOtp);
                         }}
-                        className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs cursor-pointer shadow-md shrink-0"
+                        className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs cursor-pointer shadow-xs shrink-0"
                       >
                         Auto-Fill
                       </button>
@@ -793,24 +792,24 @@ export function AuthGateModal() {
                   )}
                 </div>
 
-                <div className="flex items-center justify-center gap-4 text-xs">
+                <div className="flex items-center justify-center gap-4 text-xs font-semibold">
                   <button
                     type="button"
                     disabled={resendCooldown > 0 || loading}
                     onClick={handleResendOtp}
-                    className="text-brand-400 hover:text-brand-300 font-bold disabled:text-slate-500 cursor-pointer flex items-center gap-1"
+                    className="text-brand-600 hover:text-brand-700 disabled:text-slate-400 cursor-pointer flex items-center gap-1"
                   >
                     <RotateCcw className="w-3 h-3" />
                     <span>{resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend Code"}</span>
                   </button>
-                  <span className="text-slate-700">•</span>
+                  <span className="text-slate-300">•</span>
                   <button
                     type="button"
                     onClick={() => {
                       setRegisterStep("form");
                       setErrorMsg(null);
                     }}
-                    className="text-slate-400 hover:text-slate-200 font-medium cursor-pointer"
+                    className="text-slate-500 hover:text-slate-800 cursor-pointer"
                   >
                     Change email
                   </button>
@@ -820,7 +819,7 @@ export function AuthGateModal() {
                   type="button"
                   disabled={loading || registerOtp.length < 6}
                   onClick={() => handleVerifyRegistrationOtp()}
-                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-brand-600 hover:from-emerald-500 hover:to-brand-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-brand-600 hover:from-emerald-700 hover:to-brand-700 text-white font-black text-sm shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <ShieldCheck className="w-4 h-4" />
                   <span>{loading ? "Verifying..." : "Verify OTP & Activate Account"}</span>
@@ -833,7 +832,7 @@ export function AuthGateModal() {
             {activeTab === "login" && forgotStep === "closed" && (
               <form onSubmit={handleLogin} className="space-y-3.5">
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-700">
                     Email Address
                   </label>
                   <div className="relative">
@@ -844,13 +843,13 @@ export function AuthGateModal() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="your.email@example.com"
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-brand-500"
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-brand-500 focus:bg-white transition-colors"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-700">
                     Password
                   </label>
                   <div className="relative">
@@ -861,7 +860,7 @@ export function AuthGateModal() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Your password"
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-brand-500"
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-brand-500 focus:bg-white transition-colors"
                     />
                   </div>
                 </div>
@@ -875,7 +874,7 @@ export function AuthGateModal() {
                       setErrorMsg(null);
                       setSuccessMsg(null);
                     }}
-                    className="text-[11px] text-brand-400 hover:text-brand-300 font-semibold cursor-pointer underline"
+                    className="text-[11px] text-brand-600 hover:text-brand-700 font-bold cursor-pointer underline"
                   >
                     Forgot Password?
                   </button>
@@ -884,7 +883,7 @@ export function AuthGateModal() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 px-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-brand-600 via-sky-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-500 text-white font-black text-xs shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <span>{loading ? "Signing In..." : "Sign In to Account"}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -896,17 +895,17 @@ export function AuthGateModal() {
             {activeTab === "login" && forgotStep === "email" && (
               <form onSubmit={handleRequestPasswordReset} className="space-y-4 animate-fade-in">
                 <div className="text-center space-y-1 py-1">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto mb-2">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto mb-2">
                     <KeyRound className="w-6 h-6" />
                   </div>
-                  <h3 className="text-sm font-extrabold text-white">Reset Your Password</h3>
-                  <p className="text-xs text-slate-400">
+                  <h3 className="text-sm font-black text-slate-900">Reset Your Password</h3>
+                  <p className="text-xs text-slate-600 font-medium">
                     Enter your account email to receive a 6-digit verification code.
                   </p>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-700">
                     Account Email Address
                   </label>
                   <div className="relative">
@@ -918,7 +917,7 @@ export function AuthGateModal() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="your.email@example.com"
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-brand-500"
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-brand-500 focus:bg-white transition-colors"
                     />
                   </div>
                 </div>
@@ -926,7 +925,7 @@ export function AuthGateModal() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <Mail className="w-4 h-4" />
                   <span>{loading ? "Sending Reset Code..." : "Send 6-Digit Reset Code"}</span>
@@ -940,7 +939,7 @@ export function AuthGateModal() {
                       setErrorMsg(null);
                       setSuccessMsg(null);
                     }}
-                    className="text-xs text-slate-400 hover:text-slate-200 cursor-pointer font-medium"
+                    className="text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
                   >
                     &larr; Back to Sign In
                   </button>
@@ -952,17 +951,17 @@ export function AuthGateModal() {
             {activeTab === "login" && forgotStep === "otp" && (
               <form onSubmit={handleConfirmPasswordReset} className="space-y-3.5 animate-fade-in">
                 <div className="text-center space-y-1 py-1">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto mb-2">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto mb-2">
                     <ShieldCheck className="w-6 h-6" />
                   </div>
-                  <h3 className="text-sm font-extrabold text-white">Create New Password</h3>
-                  <p className="text-xs text-slate-400">
-                    Enter the 6-digit code sent to <strong className="text-white">{email}</strong>.
+                  <h3 className="text-sm font-black text-slate-900">Create New Password</h3>
+                  <p className="text-xs text-slate-600 font-medium">
+                    Enter the 6-digit code sent to <strong className="text-slate-900">{email}</strong>.
                   </p>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-700">
                     6-Digit Verification Code
                   </label>
                   <input
@@ -973,15 +972,15 @@ export function AuthGateModal() {
                     placeholder="123456"
                     value={resetOtp}
                     onChange={(e) => setResetOtp(e.target.value.replace(/[^0-9]/g, ""))}
-                    className="w-full text-center tracking-[8px] text-2xl font-black py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
+                    className="w-full text-center tracking-[8px] text-2xl font-black py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
                   />
-                  <p className="text-[10px] text-slate-500 text-center pt-0.5">
+                  <p className="text-[10px] text-slate-500 text-center pt-0.5 font-medium">
                     Check Spam / Promotions folder if not in primary inbox.
                   </p>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-700">
                     New Password (Min 6 chars)
                   </label>
                   <div className="relative">
@@ -992,7 +991,7 @@ export function AuthGateModal() {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Enter your new secure password"
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500"
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors"
                     />
                   </div>
                 </div>
@@ -1000,22 +999,22 @@ export function AuthGateModal() {
                 <button
                   type="submit"
                   disabled={loading || resetOtp.length < 6 || newPassword.length < 6}
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-500 text-white font-black text-xs shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <Check className="w-4 h-4" />
                   <span>{loading ? "Updating Password..." : "Save Password & Sign In"}</span>
                 </button>
 
-                <div className="flex items-center justify-center gap-4 text-xs pt-1">
+                <div className="flex items-center justify-center gap-4 text-xs pt-1 font-semibold">
                   <button
                     type="button"
                     onClick={handleRequestPasswordReset}
                     disabled={loading}
-                    className="text-brand-400 hover:text-brand-300 font-semibold cursor-pointer"
+                    className="text-brand-600 hover:text-brand-700 cursor-pointer"
                   >
                     Resend Code
                   </button>
-                  <span className="text-slate-700">•</span>
+                  <span className="text-slate-300">•</span>
                   <button
                     type="button"
                     onClick={() => {
@@ -1023,7 +1022,7 @@ export function AuthGateModal() {
                       setErrorMsg(null);
                       setSuccessMsg(null);
                     }}
-                    className="text-slate-400 hover:text-slate-200 cursor-pointer"
+                    className="text-slate-500 hover:text-slate-800 cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -1032,8 +1031,8 @@ export function AuthGateModal() {
             )}
 
             {/* Footer Trust Bar */}
-            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-center gap-3 text-[10px] text-slate-400">
-              <span className="flex items-center gap-1 text-emerald-400">
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-center gap-3 text-[10px] text-slate-500 font-medium">
+              <span className="flex items-center gap-1 text-emerald-600">
                 <ShieldCheck className="w-3.5 h-3.5" />
                 Verified Sponsor Community
               </span>

@@ -23,7 +23,7 @@ export function StickyBottomProBanner() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 p-2.5 sm:p-3 bg-gradient-to-r from-[#071421] via-slate-900 to-[#0A1A2F] text-white border-t border-amber-400/40 shadow-2xl backdrop-blur-md">
+    <div className="fixed bottom-0 left-0 right-0 z-40 p-2.5 sm:p-3 bg-white/95 text-slate-900 border-t border-amber-300/80 shadow-2xl backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-3 text-center sm:text-left">
           <div className="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black shadow-md shrink-0 hidden sm:flex">
@@ -31,14 +31,14 @@ export function StickyBottomProBanner() {
           </div>
           <div>
             <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-              <span className="text-xs sm:text-sm font-extrabold text-white">
+              <span className="text-xs sm:text-sm font-black text-slate-900">
                 You&apos;re viewing free preview.
               </span>
-              <span className="text-xs sm:text-sm font-extrabold text-amber-400">
-                Premium unlocks 7,800+ verified sponsor jobs + direct apply links.
+              <span className="text-xs sm:text-sm font-black text-amber-700">
+                VIP Pass unlocks 7,800+ verified sponsor jobs + direct apply links.
               </span>
             </div>
-            <p className="text-[11px] text-slate-300 hidden md:block">
+            <p className="text-[11px] text-slate-600 font-medium hidden md:block">
               Includes full job descriptions, direct employer career portals, salary ranges &amp; AI ATS matching.
             </p>
           </div>
@@ -51,7 +51,7 @@ export function StickyBottomProBanner() {
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs sm:text-sm transition-all shadow-md active:scale-[0.98] cursor-pointer shrink-0"
           >
             <Crown className="w-4 h-4" />
-            <span>Get 30-Day Pass — ₹199 / ₹499</span>
+            <span>Get VIP Pass — ₹199 / ₹499</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
@@ -59,7 +59,7 @@ export function StickyBottomProBanner() {
             type="button"
             onClick={() => setIsDismissed(true)}
             aria-label="Dismiss banner"
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>

@@ -200,22 +200,21 @@ export function AppliedVerificationModal() {
 
   return (
     <div className="fixed bottom-4 right-4 left-4 sm:left-auto sm:w-[420px] z-50 animate-slide-up">
-      <div className="relative overflow-hidden rounded-3xl bg-slate-950/95 backdrop-blur-xl border border-slate-700/80 shadow-2xl shadow-black/60 p-5 text-white">
-        {/* Glow accent */}
-        <div className="absolute top-0 right-0 w-36 h-36 bg-[#19CBE0]/15 blur-3xl pointer-events-none rounded-full" />
-        <div className="absolute bottom-0 left-0 w-36 h-36 bg-emerald-500/10 blur-3xl pointer-events-none rounded-full" />
+      <div className="relative overflow-hidden rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200 shadow-2xl shadow-slate-900/10 p-5 text-slate-900">
+        {/* Top Gradient Accent */}
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-[#19CBE0] to-brand-600 pointer-events-none" />
 
         {/* Header Bar */}
-        <div className="flex items-center justify-between gap-3 mb-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#19CBE0]/15 border border-[#19CBE0]/30 text-[#19CBE0] text-[11px] font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
+        <div className="flex items-center justify-between gap-3 mb-3 pt-0.5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 text-[11px] font-bold uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             <span>Application Tracker</span>
           </div>
 
           <button
             onClick={handleDismiss}
             aria-label="Dismiss"
-            className="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors cursor-pointer"
+            className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -225,26 +224,26 @@ export function AppliedVerificationModal() {
         {statusState === "pending" && (
           <div className="space-y-3.5">
             <div>
-              <h3 className="text-base font-extrabold text-white leading-snug">
-                Did you complete your application at <span className="text-[#19CBE0]">{jobData.companyName}</span>?
+              <h3 className="text-base font-black text-slate-900 leading-snug">
+                Did you complete your application at <span className="text-brand-600">{jobData.companyName}</span>?
               </h3>
-              <p className="text-xs text-slate-300 mt-1 truncate">
-                Role: <span className="font-semibold text-slate-100">{jobData.jobTitle}</span>
+              <p className="text-xs text-slate-600 mt-1 truncate font-medium">
+                Role: <span className="font-bold text-slate-800">{jobData.jobTitle}</span>
               </p>
             </div>
 
             {/* Live Progress Bar for Auto-Assumed Application */}
             <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium">
+              <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
                 <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-amber-400" />
-                  Auto-confirming as <strong className="text-emerald-400 font-bold">Applied</strong>:
+                  <Clock className="w-3.5 h-3.5 text-amber-500" />
+                  Auto-confirming as <strong className="text-emerald-600 font-bold">Applied</strong>:
                 </span>
-                <span className="font-mono font-bold text-amber-300">{countdown}s</span>
+                <span className="font-mono font-bold text-amber-600">{countdown}s</span>
               </div>
-              <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+              <div className="w-full h-2 rounded-full bg-slate-100 border border-slate-200 overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-amber-400 via-[#19CBE0] to-emerald-400 transition-all duration-1000 ease-linear rounded-full"
+                  className="h-full bg-gradient-to-r from-amber-400 via-[#19CBE0] to-emerald-500 transition-all duration-1000 ease-linear rounded-full"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -255,7 +254,7 @@ export function AppliedVerificationModal() {
               <button
                 type="button"
                 onClick={handleExplicitApplied}
-                className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-[#19CBE0] hover:from-emerald-500 hover:to-[#14b8ca] text-white font-extrabold text-xs shadow-md shadow-emerald-950/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Check className="w-4 h-4" />
                 <span>Yes, Applied</span>
@@ -264,14 +263,14 @@ export function AppliedVerificationModal() {
               <button
                 type="button"
                 onClick={handleNotYet}
-                className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Bookmark className="w-3.5 h-3.5 text-slate-400" />
+                <Bookmark className="w-3.5 h-3.5 text-slate-500" />
                 <span>Just Browsing</span>
               </button>
             </div>
 
-            <p className="text-[10px] text-slate-400 text-center">
+            <p className="text-[10px] text-slate-500 text-center font-medium">
               No action needed — auto-recorded in your Candidate Dashboard.
             </p>
           </div>
@@ -279,20 +278,20 @@ export function AppliedVerificationModal() {
 
         {statusState === "confirmed" && (
           <div className="space-y-3 py-2 text-center animate-fade-in">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto shadow-inner">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-100 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto shadow-xs">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-extrabold text-white">
+              <h4 className="text-sm font-black text-slate-900">
                 Application Recorded as Applied!
               </h4>
-              <p className="text-xs text-slate-300 mt-0.5">
+              <p className="text-xs text-slate-600 mt-0.5">
                 Track status and notes anytime in your dashboard.
               </p>
             </div>
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#19CBE0] hover:underline"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 hover:underline"
             >
               <span>View in Dashboard</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -302,20 +301,20 @@ export function AppliedVerificationModal() {
 
         {statusState === "saved" && (
           <div className="space-y-3 py-2 text-center animate-fade-in">
-            <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-400 flex items-center justify-center mx-auto shadow-inner">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto shadow-xs">
               <Bookmark className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-extrabold text-white">
+              <h4 className="text-sm font-black text-slate-900">
                 Saved to Your Wishlist Instead
               </h4>
-              <p className="text-xs text-slate-300 mt-0.5">
+              <p className="text-xs text-slate-600 mt-0.5">
                 You can revisit this job anytime from your Saved Jobs.
               </p>
             </div>
             <Link
               href="/saved-jobs"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#19CBE0] hover:underline"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 hover:underline"
             >
               <span>View Saved Jobs</span>
               <ArrowRight className="w-3.5 h-3.5" />
