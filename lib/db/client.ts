@@ -238,8 +238,8 @@ function createEdgeMemoryClient(): DatabaseClient {
               res = res.filter((j) => j.sponsorship_label === sponParam);
             }
 
-            // Company filter (only apply when a dedicated company condition is in the query, not generic keyword search)
-            if (q.includes("lower(c.normalized_name) like ?") || (q.includes("c.normalized_name") && !q.includes("lower(j.title) like ?")) || q.includes("j.company_id")) {
+            // Company filter (only apply when a dedicated company condition is in the WHERE clause, not table joins)
+            if (q.includes("lower(c.normalized_name) like ?") || q.includes("lower(c.name) like ?") || q.includes("lower(j.company_id) like ?")) {
               const compParam = boundValues.find(
                 (v) => typeof v === "string" && (
                   v.startsWith("%comp_") || 
@@ -276,6 +276,34 @@ function createEdgeMemoryClient(): DatabaseClient {
                     jCompName.includes(termSpaced) ||
                     jCompName.replace(/[^a-z0-9]/g, "").includes(termStripped)
                   );
+                });
+              }
+            }
+
+            // Category filter
+            if (q.includes("cat.slug in") || q.includes("cat.slug =") || q.includes("j.category_id =") || q.includes("j.category_id in")) {
+              const catSlugs = boundValues.filter(
+                (v) => typeof v === "string" && !v.startsWith("%") && !["GB", "US", "AU", "CA", "NZ", "ALL"].includes(v.toUpperCase()) && !v.startsWith("comp_")
+              ).map((v) => String(v).toLowerCase());
+
+              if (catSlugs.length > 0) {
+                res = res.filter((j) => {
+                  const jCatId = (j.category_id || "").toLowerCase();
+                  const jCatSlug = (j.category_slug || "").toLowerCase();
+                  const jCatName = (j.category_name || "").toLowerCase();
+                  const jTitle = (j.title || "").toLowerCase();
+
+                  return catSlugs.some((s) => {
+                    return (
+                      jCatSlug === s ||
+                      jCatId === s ||
+                      jCatName === s.replace(/-/g, " ") ||
+                      (s === "engineering" && (jCatId.startsWith("cat_eng") || jCatSlug.includes("engineering") || jCatName.includes("engineering") || jTitle.includes("engineer") || jTitle.includes("structural") || jTitle.includes("civil") || jTitle.includes("mechanical"))) ||
+                      (s === "information-technology" && (jCatId.startsWith("cat_tech") || jCatId === "cat_it" || jCatSlug.includes("technology") || jCatName.includes("technology") || jCatSlug.includes("software") || jTitle.includes("developer") || jTitle.includes("software") || jTitle.includes("frontend") || jTitle.includes("backend") || jTitle.includes("full stack"))) ||
+                      (s === "healthcare" && (jCatId.startsWith("cat_health") || jCatSlug.includes("health") || jCatName.includes("health") || jCatName.includes("nursing") || jTitle.includes("nurse") || jTitle.includes("clinical") || jTitle.includes("medical") || jTitle.includes("care"))) ||
+                      (s === "finance" && (jCatId.startsWith("cat_fin") || jCatSlug.includes("finance") || jCatName.includes("finance") || jTitle.includes("analyst") || jTitle.includes("accountant") || jTitle.includes("credit") || jTitle.includes("risk")))
+                    );
+                  });
                 });
               }
             }

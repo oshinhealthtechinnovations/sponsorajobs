@@ -97,8 +97,8 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
             jobId: job.id,
             jobTitle: job.title,
             jobSlug: job.slug,
-            companyName: job.company.name,
-            companyLogo: job.company.logoUrl,
+            companyName: job.company?.name || "Verified Employer",
+            companyLogo: job.company?.logoUrl || null,
             location: job.location.formatted || job.location.country,
             salary: salary || null,
             applyUrl: job.applyUrl,
@@ -116,8 +116,8 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
               jobId: job.id,
               jobTitle: job.title,
               jobSlug: job.slug,
-              companyName: job.company.name,
-              companyLogo: job.company.logoUrl,
+              companyName: job.company?.name || "Verified Employer",
+              companyLogo: job.company?.logoUrl || null,
               location: job.location.formatted || job.location.country,
               salary: salary || null,
               applyUrl: job.applyUrl,
@@ -135,7 +135,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
             detail: {
               jobId: job.id,
               jobTitle: job.title,
-              companyName: job.company.name,
+              companyName: job.company?.name || "Verified Employer",
               location: job.location.formatted || job.location.country,
               salary: salary || null,
               applyUrl: job.applyUrl,
@@ -199,25 +199,29 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                {job.company.name.slice(0, 2).toUpperCase()}
+                {(job.company?.name || "Employer").slice(0, 2).toUpperCase()}
               </div>
               <div className="min-w-0">
                 <Link
-                  href={`/company/${job.company.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                  href={`/company/${(job.company?.name || "employer").toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                   onClick={(e) => e.stopPropagation()}
                   className="text-xs font-bold text-slate-700 hover:text-[#071522] transition-colors truncate block"
                 >
-                  {job.company.name}
+                  {job.company?.name || "Verified Employer"}
                 </Link>
                 <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
                   <MapPin className="w-3 h-3 shrink-0" />
                   <span className="truncate">
-                    {job.location.formatted || `${job.location.city || ""}, ${job.location.country}`}
+                    {typeof job.location?.formatted === "string"
+                      ? job.location.formatted
+                      : typeof job.location?.formatted === "object"
+                      ? ((job.location?.formatted as any)?.formatted || (job.location?.formatted as any)?.raw || "Global")
+                      : `${job.location?.city || ""}, ${job.location?.country || ""}`}
                   </span>
-                  {job.remoteType !== "UNKNOWN" && job.remoteType !== "ONSITE" && (
+                  {job.remoteType && job.remoteType !== "UNKNOWN" && job.remoteType !== "ONSITE" && (
                     <>
                       <span className="text-slate-300">·</span>
-                      <span className="capitalize text-[#19CBE0] font-medium">{job.remoteType.toLowerCase()}</span>
+                      <span className="capitalize text-[#19CBE0] font-medium">{(job.remoteType || "").toLowerCase()}</span>
                     </>
                   )}
                 </div>

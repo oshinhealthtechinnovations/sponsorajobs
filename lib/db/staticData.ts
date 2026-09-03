@@ -28,17 +28,48 @@ export const STATIC_COUNTRIES = INITIAL_COUNTRIES.map((c) => ({
   updated_at: "2026-01-01T00:00:00.000Z",
 }));
 
-export const STATIC_CATEGORIES = INITIAL_CATEGORIES.map((c) => ({
-  id: c.id,
-  name: c.name,
-  slug: c.slug,
-  parent_id: c.parentId || null,
-  active: 1,
-  seo_title: c.seoTitle || null,
-  seo_description: c.seoDescription || null,
-  created_at: "2026-01-01T00:00:00.000Z",
-  updated_at: "2026-01-01T00:00:00.000Z",
-}));
+const allCategories: Array<{
+  id: string;
+  name: string;
+  slug: string;
+  parent_id: string | null;
+  active: number;
+  seo_title: string | null;
+  seo_description: string | null;
+  created_at: string;
+  updated_at: string;
+}> = [];
+
+for (const c of INITIAL_CATEGORIES) {
+  allCategories.push({
+    id: c.id,
+    name: c.name,
+    slug: c.slug,
+    parent_id: c.parentId || null,
+    active: 1,
+    seo_title: c.seoTitle || null,
+    seo_description: c.seoDescription || null,
+    created_at: "2026-01-01T00:00:00.000Z",
+    updated_at: "2026-01-01T00:00:00.000Z",
+  });
+  if (c.subcategories) {
+    for (const sub of c.subcategories) {
+      allCategories.push({
+        id: sub.id,
+        name: sub.name,
+        slug: sub.slug,
+        parent_id: c.id,
+        active: 1,
+        seo_title: `${sub.name} Visa Sponsorship Jobs | SponsorAJobs`,
+        seo_description: `Browse ${sub.name} jobs with visa sponsorship signals.`,
+        created_at: "2026-01-01T00:00:00.000Z",
+        updated_at: "2026-01-01T00:00:00.000Z",
+      });
+    }
+  }
+}
+
+export const STATIC_CATEGORIES = allCategories;
 
 // Real companies extracted from live APIs (Arbeitnow, Remotive, Jooble)
 export const STATIC_COMPANIES = realData.companies || [];
