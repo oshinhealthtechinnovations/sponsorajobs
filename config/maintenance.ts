@@ -23,7 +23,9 @@ export const MAINTENANCE_CONFIG = {
     "/api/auth",
     "/api/waitlist",
     "/api/checkout",       // Razorpay order creation + verification APIs
-    "/api/webhooks",       // Razorpay webhook receiver (Razorpay's servers must reach this)
+    "/api/webhooks",       // Razorpay webhook receiver
+    "/pricing",            // Subscription plans catalog & checkout button
+    "/checkout",           // Razorpay checkout modal, success & cancel return handlers
     "/maintenance",
     "/_next",
     "/favicon.ico",
