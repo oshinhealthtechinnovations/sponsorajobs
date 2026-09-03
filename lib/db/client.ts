@@ -292,16 +292,21 @@ function createEdgeMemoryClient(): DatabaseClient {
                   const jCatSlug = (j.category_slug || "").toLowerCase();
                   const jCatName = (j.category_name || "").toLowerCase();
                   const jTitle = (j.title || "").toLowerCase();
+                  const jCompName = (j.company_name || "").toLowerCase();
 
                   return catSlugs.some((s) => {
                     return (
                       jCatSlug === s ||
                       jCatId === s ||
                       jCatName === s.replace(/-/g, " ") ||
+                      (s === "construction" && (jCatId.startsWith("cat_const") || jCatSlug.includes("construction") || jCatName.includes("construction") || jCatId === "cat_eng_civil" || jCatSlug.includes("civil") || jTitle.includes("construction") || jTitle.includes("builder") || jTitle.includes("site") || jTitle.includes("structural") || jTitle.includes("civil") || jTitle.includes("surveyor") || jTitle.includes("steel") || jCompName.includes("bluescope"))) ||
                       (s === "engineering" && (jCatId.startsWith("cat_eng") || jCatSlug.includes("engineering") || jCatName.includes("engineering") || jTitle.includes("engineer") || jTitle.includes("structural") || jTitle.includes("civil") || jTitle.includes("mechanical"))) ||
                       (s === "information-technology" && (jCatId.startsWith("cat_tech") || jCatId === "cat_it" || jCatSlug.includes("technology") || jCatName.includes("technology") || jCatSlug.includes("software") || jTitle.includes("developer") || jTitle.includes("software") || jTitle.includes("frontend") || jTitle.includes("backend") || jTitle.includes("full stack"))) ||
                       (s === "healthcare" && (jCatId.startsWith("cat_health") || jCatSlug.includes("health") || jCatName.includes("health") || jCatName.includes("nursing") || jTitle.includes("nurse") || jTitle.includes("clinical") || jTitle.includes("medical") || jTitle.includes("care"))) ||
-                      (s === "finance" && (jCatId.startsWith("cat_fin") || jCatSlug.includes("finance") || jCatName.includes("finance") || jTitle.includes("analyst") || jTitle.includes("accountant") || jTitle.includes("credit") || jTitle.includes("risk")))
+                      (s === "finance" && (jCatId.startsWith("cat_fin") || jCatSlug.includes("finance") || jCatName.includes("finance") || jTitle.includes("analyst") || jTitle.includes("accountant") || jTitle.includes("credit") || jTitle.includes("risk"))) ||
+                      (s === "logistics" && (jCatId.startsWith("cat_logistics") || jCatSlug.includes("logistics") || jCatName.includes("logistics") || jTitle.includes("supply chain") || jTitle.includes("warehouse") || jTitle.includes("logistics") || jTitle.includes("transport"))) ||
+                      (s === "hospitality" && (jCatId.startsWith("cat_hosp") || jCatSlug.includes("hospitality") || jCatName.includes("hospitality") || jTitle.includes("chef") || jTitle.includes("hotel") || jTitle.includes("restaurant"))) ||
+                      (s === "education" && (jCatId.startsWith("cat_edu") || jCatSlug.includes("education") || jCatName.includes("education") || jTitle.includes("teacher") || jTitle.includes("lecturer") || jTitle.includes("tutor")))
                     );
                   });
                 });
