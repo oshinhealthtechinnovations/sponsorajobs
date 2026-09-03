@@ -1,29 +1,44 @@
 /**
- * Smart Search Query Normalizer, Synonym Expander & Typo Corrector
- * Ensures misspelled or niche search queries (e.g. "civi enginner", "swe", "rn", "react dev", "golang")
- * match relevant real jobs just like Glassdoor, Indeed, and Google Search.
+ * Smart Search Query Normalizer, Synonym Expander & Intelligent Domain Scanner
+ * Ensures search queries (e.g. "civil engineer", "civi enginner", "structural", "swe", "rn")
+ * match all relevant real jobs and generate contextual industry recommendations.
  */
 
 const COMMON_TYPOS: Record<string, string> = {
-  // Engineering & Tech
+  // Engineering & Construction
   civi: "civil",
   civl: "civil",
   civill: "civil",
+  civils: "civil",
   enginner: "engineer",
   enginer: "engineer",
   engineerr: "engineer",
   engin: "engineer",
   eng: "engineer",
+  structual: "structural",
+  structur: "structural",
+  structral: "structural",
+  struct: "structural",
+  contruction: "construction",
+  constructon: "construction",
+  constuction: "construction",
+  infrastructre: "infrastructure",
+  infrastucture: "infrastructure",
+  archtect: "architect",
+  architecht: "architect",
+  geotech: "geotechnical",
+  geotechnic: "geotechnical",
+  survoyer: "surveyor",
+  servayor: "surveyor",
+
+  // Software & Tech
   sofware: "software",
   softwar: "software",
-  soft: "software",
   softwre: "software",
   devloper: "developer",
   develper: "developer",
   developper: "developer",
-  develoepr: "developer",
   devlpr: "developer",
-  dev: "developer",
   programer: "programmer",
   progammer: "programmer",
   frontent: "frontend",
@@ -32,7 +47,6 @@ const COMMON_TYPOS: Record<string, string> = {
   backned: "backend",
   fullstck: "fullstack",
   fulstack: "fullstack",
-  fullstackk: "fullstack",
   reactjs: "react",
   nextjs: "next.js",
   nodejs: "node",
@@ -45,7 +59,6 @@ const COMMON_TYPOS: Record<string, string> = {
   typscript: "typescript",
   typescrip: "typescript",
   golng: "golang",
-  enigneer: "engineer",
 
   // Healthcare
   nurs: "nurse",
@@ -88,50 +101,97 @@ const COMMON_TYPOS: Record<string, string> = {
  * Common abbreviations and domain synonyms that expand into broader relevant roles
  */
 const ROLE_SYNONYMS: Record<string, string[]> = {
-  // Engineering, Construction & Project Management
-  civil: ["civil", "civil engineer", "structural", "construction", "site engineer", "project manager", "design manager", "infrastructure"],
-  construction: ["construction", "site manager", "project manager", "civil", "structural", "planning", "design manager", "cost consultancy"],
-  pm: ["project manager", "programme manager", "operations director", "project director", "planning manager", "product manager"],
-  project: ["project manager", "programme manager", "project director", "planning manager", "project controls", "operations director"],
-  planning: ["planning manager", "project manager", "project controls", "operations director"],
-  director: ["operations director", "project director", "associate director", "head of", "lead"],
-  design: ["design manager", "architectural", "product design", "ui designer", "engineering"],
-  cost: ["cost consultancy", "quantity surveyor", "commercial manager", "estimator", "finance"],
-  bim: ["information manager", "bim manager", "cad", "technical services", "digital engineer"],
-  defence: ["project controls", "defence", "security", "aerospace"],
+  // Civil & Infrastructure Engineering
+  civil: [
+    "civil",
+    "civil engineer",
+    "structural",
+    "structural engineer",
+    "site engineer",
+    "civil infrastructure engineer",
+    "civil project engineer",
+    "civil design engineer",
+    "geotechnical engineer",
+    "highway engineer",
+    "water resources engineer",
+    "construction"
+  ],
+  structural: [
+    "structural",
+    "structural engineer",
+    "civil & structural engineer",
+    "senior structural engineer",
+    "structural designer",
+    "bridge engineer",
+    "civil engineer"
+  ],
+  construction: [
+    "construction",
+    "construction manager",
+    "site manager",
+    "project engineer",
+    "quantity surveyor",
+    "civil engineer",
+    "commercial manager",
+    "planning engineer"
+  ],
+  bim: [
+    "bim",
+    "bim coordinator",
+    "bim manager",
+    "cad designer",
+    "digital engineer",
+    "revit modeler"
+  ],
+  surveyor: [
+    "quantity surveyor",
+    "building surveyor",
+    "commercial manager",
+    "estimator",
+    "cost consultant"
+  ],
+  infrastructure: [
+    "infrastructure",
+    "infrastructure engineer",
+    "civil infrastructure engineer",
+    "highways engineer",
+    "rail engineer",
+    "utilities engineer"
+  ],
 
-  // Software & Tech
+  // Software & Technology
   swe: ["software engineer", "developer", "backend", "frontend", "full stack"],
-  sde: ["software development engineer", "software engineer", "developer"],
+  sde: ["software development engineer", "software engineer", "developer", "full stack"],
   sre: ["site reliability engineer", "devops", "cloud", "infrastructure", "platform"],
-  devops: ["sre", "cloud engineer", "infrastructure", "platform engineer", "kubernetes"],
+  devops: ["devops", "site reliability engineer", "cloud architect", "platform engineer", "kubernetes"],
   fullstack: ["full stack", "software engineer", "developer", "frontend", "backend"],
-  frontend: ["front end", "ui engineer", "web developer", "react", "javascript", "typescript"],
-  backend: ["back end", "software engineer", "api", "node", "python", "java", "golang", "microservices"],
-  ml: ["machine learning", "data scientist", "ai engineer", "data engineer", "deep learning"],
-  ai: ["artificial intelligence", "machine learning", "data scientist", "llm", "generative ai"],
-  qa: ["quality assurance", "test engineer", "automation engineer", "sdet"],
-  golang: ["go", "backend", "software engineer"],
-  react: ["frontend", "web developer", "javascript", "fullstack", "ui", "typescript"],
-  node: ["backend", "javascript", "fullstack", "typescript", "api"],
-  python: ["backend", "data engineer", "data science", "software engineer", "fastapi", "django"],
-  aws: ["cloud", "devops", "infrastructure", "solutions architect"],
-  cloud: ["aws", "azure", "gcp", "devops", "cloud architect", "infrastructure"],
+  frontend: ["frontend", "ui engineer", "web developer", "react", "typescript"],
+  backend: ["backend", "software engineer", "node", "python", "golang", "api"],
+  ml: ["machine learning", "data scientist", "ai engineer", "deep learning", "data engineer"],
+  ai: ["ai", "machine learning", "data scientist", "llm", "generative ai"],
+  data: ["data engineer", "data scientist", "data analyst", "analytics engineer", "database administrator"],
+  qa: ["qa", "automation test engineer", "sdet", "software tester"],
+  golang: ["golang", "go", "backend", "software engineer"],
+  react: ["react", "frontend", "next.js", "full stack", "javascript", "typescript"],
+  node: ["node", "backend", "javascript", "typescript", "api"],
+  python: ["python", "data engineer", "backend", "django", "machine learning"],
+  cloud: ["cloud", "aws", "azure", "devops", "cloud architect"],
 
   // Healthcare
   rn: ["registered nurse", "nurse", "healthcare", "clinical", "staff nurse"],
   nurse: ["registered nurse", "staff nurse", "clinical", "healthcare", "practitioner"],
-  gp: ["general practitioner", "doctor", "physician", "medical"],
-  doctor: ["physician", "general practitioner", "medical officer", "consultant"],
-  pharmacist: ["pharmacy", "clinical pharmacist", "healthcare"],
+  gp: ["general practitioner", "family physician", "medical officer", "doctor"],
+  doctor: ["medical doctor", "physician", "doctor", "consultant"],
+  pharmacist: ["pharmacist", "clinical pharmacist", "community pharmacist"],
 
   // Finance, HR & Business
   ca: ["chartered accountant", "accountant", "finance", "auditor"],
-  accountant: ["finance", "financial analyst", "auditor", "accounts manager", "payroll"],
-  payroll: ["payroll", "benefits", "human resources", "hr assistant", "compensation"],
-  hr: ["human resources", "talent acquisition", "recruiter", "people ops", "payroll"],
+  accountant: ["accountant", "financial accountant", "financial analyst", "auditor", "tax consultant"],
+  finance: ["finance", "financial analyst", "commercial", "finance manager"],
+  hr: ["human resources", "talent acquisition", "recruiter", "people ops", "hr manager"],
   recruiter: ["talent acquisition", "human resources", "recruitment", "hr"],
-  finance: ["financial analyst", "accountant", "commercial", "cost consultancy", "auditor"],
+  pm: ["project manager", "programme manager", "delivery manager", "operations"],
+  project: ["project manager", "project engineer", "project coordinator", "planning manager"]
 };
 
 /**
@@ -148,21 +208,21 @@ export function stemKeyword(word: string): string {
 }
 
 /**
- * High-demand curated alternative search pills for instant recovery
+ * High-demand curated fallback search keywords
  */
 export const POPULAR_SEARCH_KEYWORDS = [
+  "Civil Engineer",
+  "Structural Engineer",
   "Software Engineer",
   "Frontend Developer",
   "Backend Engineer",
   "Full Stack Developer",
   "DevOps Engineer",
   "Data Scientist",
-  "Cloud Architect",
-  "Civil Engineer",
   "Registered Nurse",
-  "Product Manager",
-  "Financial Analyst",
-  "Cybersecurity",
+  "Quantity Surveyor",
+  "Project Manager",
+  "Financial Analyst"
 ];
 
 const STOP_WORDS = new Set([
@@ -226,35 +286,53 @@ export function normalizeSearchQuery(rawQuery: string): {
 }
 
 /**
- * Returns alternative keyword suggestions based on current query or top defaults
+ * Returns smart, context-aware alternative search suggestions based on the user's specific domain
  */
 export function getRelatedSearchSuggestions(currentQuery?: string): string[] {
-  if (!currentQuery) {
+  if (!currentQuery || !currentQuery.trim()) {
     return POPULAR_SEARCH_KEYWORDS.slice(0, 6);
   }
 
   const { tokens, synonyms } = normalizeSearchQuery(currentQuery);
+  const cleanQ = currentQuery.toLowerCase().trim();
   const suggestions: string[] = [];
 
-  // 1. Add synonyms first if available
+  // 1. Add domain-specific synonyms matching the query
   if (synonyms.length > 0) {
-    suggestions.push(...synonyms.slice(0, 4));
-  }
-
-  // 2. Add individual token roles
-  for (const token of tokens) {
-    const capitalized = token.charAt(0).toUpperCase() + token.slice(1);
-    if (!suggestions.some((s) => s.toLowerCase() === token)) {
-      if (["engineer", "developer", "manager", "nurse", "analyst"].includes(token)) {
-        suggestions.push(`Software ${capitalized}`);
+    for (const syn of synonyms) {
+      if (suggestions.length >= 6) break;
+      if (
+        !suggestions.some((s) => s.toLowerCase() === syn.toLowerCase()) &&
+        syn.toLowerCase() !== cleanQ
+      ) {
+        suggestions.push(syn);
       }
     }
   }
 
-  // 3. Fill remaining slots with popular keywords
+  // 2. Add domain variations from matching tokens
+  for (const token of tokens) {
+    if (suggestions.length >= 6) break;
+    if (ROLE_SYNONYMS[token]) {
+      for (const role of ROLE_SYNONYMS[token]) {
+        if (suggestions.length >= 6) break;
+        if (
+          !suggestions.some((s) => s.toLowerCase() === role.toLowerCase()) &&
+          role.toLowerCase() !== cleanQ
+        ) {
+          suggestions.push(role);
+        }
+      }
+    }
+  }
+
+  // 3. Fall back to popular keywords only if we don't have enough suggestions
   for (const pop of POPULAR_SEARCH_KEYWORDS) {
     if (suggestions.length >= 6) break;
-    if (!suggestions.some((s) => s.toLowerCase() === pop.toLowerCase()) && !currentQuery.toLowerCase().includes(pop.toLowerCase())) {
+    if (
+      !suggestions.some((s) => s.toLowerCase() === pop.toLowerCase()) &&
+      !cleanQ.includes(pop.toLowerCase())
+    ) {
       suggestions.push(pop);
     }
   }

@@ -238,8 +238,8 @@ function createEdgeMemoryClient(): DatabaseClient {
               res = res.filter((j) => j.sponsorship_label === sponParam);
             }
 
-            // Company filter (only apply when a dedicated company condition is in the WHERE clause, not table joins)
-            if (q.includes("lower(c.normalized_name) like ?") || q.includes("lower(c.name) like ?") || q.includes("lower(j.company_id) like ?")) {
+            // Company filter (only apply when a dedicated company condition is in the WHERE clause, not generic keyword search)
+            if (q.includes("replace(lower(c.name)") || q.includes("lower(c.normalized_name) like ?")) {
               const compParam = boundValues.find(
                 (v) => typeof v === "string" && (
                   v.startsWith("%comp_") || 
