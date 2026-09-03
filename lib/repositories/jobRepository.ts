@@ -160,14 +160,18 @@ export class JobRepository {
     if (params.category) {
       const catSlug = params.category.toLowerCase();
       const parentCat = INITIAL_CATEGORIES.find((c) => c.slug === catSlug);
+      const catId = parentCat ? parentCat.id : `cat_${catSlug}`;
+
       if (parentCat && parentCat.subcategories && parentCat.subcategories.length > 0) {
         const matchingSlugs = [parentCat.slug, ...parentCat.subcategories.map((s) => s.slug)];
-        const placeholders = matchingSlugs.map(() => "?").join(", ");
-        conditions.push(`(cat.slug IN (${placeholders}) OR j.category_id = ?)`);
-        bindings.push(...matchingSlugs, parentCat.id);
+        const matchingIds = [catId, ...parentCat.subcategories.map((s) => s.id)];
+        const slugPlaceholders = matchingSlugs.map(() => "?").join(", ");
+        const idPlaceholders = matchingIds.map(() => "?").join(", ");
+        conditions.push(`(cat.slug IN (${slugPlaceholders}) OR j.category_id IN (${idPlaceholders}) OR j.category_id = ?)`);
+        bindings.push(...matchingSlugs, ...matchingIds, catSlug);
       } else {
-        conditions.push("(cat.slug = ? OR j.category_id = ?)");
-        bindings.push(catSlug, params.category);
+        conditions.push("(cat.slug = ? OR j.category_id = ? OR j.category_id = ?)");
+        bindings.push(catSlug, catId, params.category);
       }
     }
 
