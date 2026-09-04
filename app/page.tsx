@@ -25,7 +25,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-export const revalidate = 900;
+export const revalidate = 60;
 
 export default async function HomePage() {
   const jobRepo = new JobRepository();
@@ -56,7 +56,7 @@ export default async function HomePage() {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
               </span>
               <span className="tracking-tight text-slate-800">
-                1,850+ Live Verified Roles <span className="text-slate-300 mx-1">•</span> Direct ATS Applications <span className="text-slate-300 mx-1">•</span> Zero Middlemen
+                {totalCount > 0 ? `${totalCount.toLocaleString()}+` : "9,300+"} Live Verified Roles <span className="text-slate-300 mx-1">•</span> Direct ATS Applications <span className="text-slate-300 mx-1">•</span> Zero Middlemen
               </span>
             </div>
 
@@ -131,7 +131,7 @@ export default async function HomePage() {
                   <span>Verified Sponsors</span>
                 </div>
                 <div className="text-2xl sm:text-3xl font-black text-slate-900">
-                  472+
+                  825+
                 </div>
                 <div className="text-xs text-slate-600 font-bold">Licensed Employers</div>
               </div>
@@ -186,7 +186,7 @@ export default async function HomePage() {
                 href="/jobs"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold transition-all shadow-sm hover:shadow-md shrink-0"
               >
-                <span>View All 1,850+ Jobs</span>
+                <span>View All {totalCount > 0 ? `${totalCount.toLocaleString()}+` : "9,300+"} Jobs</span>
                 <ArrowRight className="w-4 h-4 text-sky-400" />
               </Link>
             </div>

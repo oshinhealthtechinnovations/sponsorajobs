@@ -198,7 +198,7 @@ export default function SalaryConverterPage() {
               Ready to find jobs paying in {fromCurrency}?
             </h3>
             <p className="text-xs text-slate-300 mt-1">
-              Browse over 1,850+ verified openings offering visa sponsorship signals today.
+              Browse over 9,300+ verified openings offering visa sponsorship signals today.
             </p>
           </div>
           <Link
