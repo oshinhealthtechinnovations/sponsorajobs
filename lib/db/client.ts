@@ -280,10 +280,14 @@ function createEdgeMemoryClient(): DatabaseClient {
               }
             }
 
-            // Category filter
-            if (q.includes("cat.slug in") || q.includes("cat.slug =") || q.includes("j.category_id =") || q.includes("j.category_id in")) {
+            // Category filter (require placeholder ? so JOIN ON j.category_id = cat.id does not falsely trigger)
+            if (q.includes("cat.slug in") || q.includes("cat.slug = ?") || q.includes("j.category_id in") || q.includes("j.category_id = ?")) {
               const catSlugs = boundValues.filter(
-                (v) => typeof v === "string" && !v.startsWith("%") && !["GB", "US", "AU", "CA", "NZ", "ALL"].includes(v.toUpperCase()) && !v.startsWith("comp_")
+                (v) => typeof v === "string" && 
+                       !v.startsWith("%") && 
+                       !["GB", "US", "AU", "CA", "NZ", "ALL"].includes(v.toUpperCase()) && 
+                       !v.startsWith("comp_") &&
+                       !/^\d{4}-\d{2}-\d{2}/.test(v)
               ).map((v) => String(v).toLowerCase());
 
               if (catSlugs.length > 0) {
@@ -311,6 +315,36 @@ function createEdgeMemoryClient(): DatabaseClient {
                     );
                   });
                 });
+              }
+            }
+
+            // Date freshness filter (Past 24h, 7d, 30d)
+            if (q.includes("j.published_at >=") || q.includes("j.first_seen_at >=") || q.includes("published_at >=")) {
+              const dateParam = boundValues.find(
+                (v) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v)
+              );
+              if (dateParam) {
+                const cutoffTime = new Date(String(dateParam)).getTime();
+                res = res.filter((j) => {
+                  const pubTime = new Date(j.published_at || j.first_seen_at || j.created_at || 0).getTime();
+                  return pubTime >= cutoffTime;
+                });
+              }
+            }
+
+            // Salary range filter (minSalary / maxSalary)
+            if (q.includes("salary_max >=") || q.includes("salary_min >=")) {
+              const numValues = boundValues.filter((v) => typeof v === "number" && v > 0);
+              if (numValues.length > 0) {
+                const minSal = numValues[0];
+                res = res.filter((j) => (Number(j.salary_max) || Number(j.salary_min) || 0) >= minSal);
+              }
+            }
+            if (q.includes("salary_min <=") || q.includes("salary_max <=")) {
+              const numValues = boundValues.filter((v) => typeof v === "number" && v > 0);
+              if (numValues.length > 0) {
+                const maxSal = numValues[numValues.length - 1];
+                res = res.filter((j) => (Number(j.salary_min) || 0) <= maxSal);
               }
             }
 
