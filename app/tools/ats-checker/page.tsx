@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ToolAuthGuard } from "@/components/ToolAuthGuard";
@@ -77,13 +78,17 @@ CERTIFICATIONS
 • AWS Certified Solutions Architect - Associate
 • Certified Kubernetes Application Developer (CKAD)`;
 
-export default function ATSCheckerPage() {
+function ATSCheckerContent() {
   const { user, isLoggedIn, isPro, isLoading: isSessionLoading } = useSession();
+  const searchParams = useSearchParams();
+  const urlJobId = searchParams.get("jobId");
 
   const [resumeText, setResumeText] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [targetCountry, setTargetCountry] = useState("GB");
   const [targetJobId, setTargetJobId] = useState<string>("");
+  const [targetJob, setTargetJob] = useState<any | null>(null);
+  const [isLoadingTargetJob, setIsLoadingTargetJob] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [scanStep, setScanStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -104,6 +109,43 @@ export default function ATSCheckerPage() {
     "Matching official UK SOC 2020 & global occupation codes...",
     "Auditing salary thresholds against 650+ verified sponsor licenses...",
   ];
+
+  // Auto-detect & load targeted job vacancy if ?jobId= is provided in URL
+  useEffect(() => {
+    if (urlJobId) {
+      setTargetJobId(urlJobId);
+      setIsLoadingTargetJob(true);
+      fetch(`/api/jobs?ids=${encodeURIComponent(urlJobId)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.jobs && data.jobs.length > 0) {
+            const found = data.jobs[0];
+            setTargetJob(found);
+            if (found.location?.country) {
+              const countryMap: Record<string, string> = {
+                UK: "GB",
+                "United Kingdom": "GB",
+                USA: "US",
+                "United States": "US",
+                Australia: "AU",
+                Canada: "CA",
+                "New Zealand": "NZ",
+              };
+              const code = countryMap[found.location.country] || found.location.country;
+              if (["GB", "US", "AU", "CA", "NZ"].includes(code)) {
+                setTargetCountry(code);
+              }
+            }
+          }
+        })
+        .catch((err) => {
+          console.error("Error fetching target job for ATS benchmark:", err);
+        })
+        .finally(() => {
+          setIsLoadingTargetJob(false);
+        });
+    }
+  }, [urlJobId]);
 
   // File upload handler
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -221,6 +263,51 @@ export default function ATSCheckerPage() {
           </p>
         </div>
 
+        {/* ── TARGET VACANCY BANNER (When linked from a specific job) ── */}
+        {targetJob && (
+          <div className="p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-950 to-brand-950 text-white border border-brand-500/40 shadow-xl mb-8 relative overflow-hidden animate-fade-in">
+            <div className="absolute -top-12 -right-12 w-48 h-48 bg-brand-500/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-3 py-1 rounded-full bg-brand-500/20 border border-brand-400/40 text-[#19CBE0] text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+                    <Target className="w-3.5 h-3.5 text-[#19CBE0]" />
+                    <span>Target Vacancy Selected</span>
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-bold flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Verified Sponsor</span>
+                  </span>
+                  <span className="text-xs text-slate-400 font-medium">
+                    {targetJob.location?.city ? `${targetJob.location.city}, ` : ""}{targetJob.location?.country || "United Kingdom"}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-black text-white font-display">
+                    {targetJob.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-300 mt-0.5">
+                    Hiring Employer: <strong className="text-white">{targetJob.company?.name}</strong> • Scoring will benchmark your CV directly against this role's required skills, experience level, and visa statutory criteria.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 shrink-0 pt-2 md:pt-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTargetJob(null);
+                    setTargetJobId("");
+                  }}
+                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-slate-200 border border-white/20 transition-all cursor-pointer"
+                >
+                  Clear Job Target
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ═══════════════════════════════════════════════════════════════
             SECTION 1: UNRESTRICTED CV UPLOAD & PARSER WORKSPACE
         ═══════════════════════════════════════════════════════════════ */}
@@ -337,7 +424,7 @@ export default function ATSCheckerPage() {
                 ) : (
                   <>
                     <Zap className="w-4 h-4 text-amber-300" />
-                    <span>Run Deep CV & Visa Analysis</span>
+                    <span>{targetJob ? `Score CV Against ${targetJob.company?.name || "Target Role"}` : "Run Deep CV & Visa Analysis"}</span>
                   </>
                 )}
               </button>
@@ -387,28 +474,28 @@ export default function ATSCheckerPage() {
                   <div className="space-y-1.5">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold">
-                        {intelligence.profile.seniority} Candidate Profile
+                        {intelligence?.profile?.seniority || "Professional"} Candidate Profile
                       </span>
                       <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
-                        {intelligence.sponsorshipDiagnostics.occupationRule.domain}
+                        {intelligence?.sponsorshipDiagnostics?.occupationRule?.domain || "Technology & Engineering"}
                       </span>
                       <span className="text-xs text-slate-500">
-                        {intelligence.wordCount} words extracted
+                        {intelligence?.wordCount ?? 0} words extracted
                       </span>
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
                       SponsorAJobs Candidate Intelligence
                     </h2>
                     <div className="inline-flex items-center gap-2 pt-1">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getScoreBadge(intelligence.overallScore).color}`}>
-                        {getScoreBadge(intelligence.overallScore).label}
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getScoreBadge(intelligence?.overallScore ?? 75).color}`}>
+                        {getScoreBadge(intelligence?.overallScore ?? 75).label}
                       </span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4">
                     <div className="w-24 h-24 rounded-3xl border-2 border-brand-200 bg-brand-50 text-brand-700 flex flex-col items-center justify-center font-extrabold shadow-sm">
-                      <span className="text-3xl tracking-tight">{intelligence.overallScore}</span>
+                      <span className="text-3xl tracking-tight">{intelligence?.overallScore ?? 75}</span>
                       <span className="text-[10px] font-bold uppercase tracking-wider">/ 100</span>
                     </div>
                     <div>
@@ -438,12 +525,12 @@ export default function ATSCheckerPage() {
                     <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
                       <div className="text-[11px] font-bold text-slate-500 truncate">ATS Compatibility</div>
                       <div className="text-xl font-black text-brand-600">
-                        {targetJobMatch?.atsCompatibilityScore || intelligence.atsDiagnostics.score}%
+                        {targetJobMatch?.atsCompatibilityScore ?? intelligence?.atsDiagnostics?.score ?? 85}%
                       </div>
                       <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
                         <div
                           className="h-full bg-brand-500 rounded-full"
-                          style={{ width: `${targetJobMatch?.atsCompatibilityScore || intelligence.atsDiagnostics.score}%` }}
+                          style={{ width: `${targetJobMatch?.atsCompatibilityScore ?? intelligence?.atsDiagnostics?.score ?? 85}%` }}
                         />
                       </div>
                       <span className="text-[10px] text-slate-400 block truncate">Machine parseability</span>
@@ -453,12 +540,12 @@ export default function ATSCheckerPage() {
                     <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
                       <div className="text-[11px] font-bold text-slate-500 truncate">Skills Match (25%)</div>
                       <div className="text-xl font-black text-indigo-600">
-                        {targetJobMatch?.skillsMatchScore || (isPro ? intelligence.jobMatchDiagnostics.score : 88)}%
+                        {targetJobMatch?.skillsMatchScore ?? (isPro ? (intelligence?.jobMatchDiagnostics?.score ?? 88) : 88)}%
                       </div>
                       <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
                         <div
                           className="h-full bg-indigo-500 rounded-full"
-                          style={{ width: `${targetJobMatch?.skillsMatchScore || (isPro ? intelligence.jobMatchDiagnostics.score : 88)}%` }}
+                          style={{ width: `${targetJobMatch?.skillsMatchScore ?? (isPro ? (intelligence?.jobMatchDiagnostics?.score ?? 88) : 88)}%` }}
                         />
                       </div>
                       <span className="text-[10px] text-slate-400 block truncate">Required &amp; tools parity</span>
@@ -468,12 +555,12 @@ export default function ATSCheckerPage() {
                     <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
                       <div className="text-[11px] font-bold text-slate-500 truncate">Experience (20%)</div>
                       <div className="text-xl font-black text-slate-800">
-                        {targetJobMatch?.experienceMatchScore || 85}%
+                        {targetJobMatch?.experienceMatchScore ?? 85}%
                       </div>
                       <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
                         <div
                           className="h-full bg-slate-700 rounded-full"
-                          style={{ width: `${targetJobMatch?.experienceMatchScore || 85}%` }}
+                          style={{ width: `${targetJobMatch?.experienceMatchScore ?? 85}%` }}
                         />
                       </div>
                       <span className="text-[10px] text-slate-400 block truncate">Seniority &amp; years</span>
@@ -483,12 +570,12 @@ export default function ATSCheckerPage() {
                     <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
                       <div className="text-[11px] font-bold text-slate-500 truncate">Role Match (15%)</div>
                       <div className="text-xl font-black text-purple-600">
-                        {targetJobMatch?.roleSimilarityScore || 88}%
+                        {targetJobMatch?.roleSimilarityScore ?? 88}%
                       </div>
                       <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
                         <div
                           className="h-full bg-purple-500 rounded-full"
-                          style={{ width: `${targetJobMatch?.roleSimilarityScore || 88}%` }}
+                          style={{ width: `${targetJobMatch?.roleSimilarityScore ?? 88}%` }}
                         />
                       </div>
                       <span className="text-[10px] text-slate-400 block truncate">Career progression</span>
@@ -498,12 +585,12 @@ export default function ATSCheckerPage() {
                     <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
                       <div className="text-[11px] font-bold text-slate-500 truncate">Qualification (10%)</div>
                       <div className="text-xl font-black text-teal-600">
-                        {targetJobMatch?.qualificationMatchScore || 92}%
+                        {targetJobMatch?.qualificationMatchScore ?? 92}%
                       </div>
                       <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
                         <div
                           className="h-full bg-teal-500 rounded-full"
-                          style={{ width: `${targetJobMatch?.qualificationMatchScore || 92}%` }}
+                          style={{ width: `${targetJobMatch?.qualificationMatchScore ?? 92}%` }}
                         />
                       </div>
                       <span className="text-[10px] text-slate-400 block truncate">Degree &amp; licensing</span>
@@ -513,12 +600,12 @@ export default function ATSCheckerPage() {
                     <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
                       <div className="text-[11px] font-bold text-slate-500 truncate">Visa Match (10%)</div>
                       <div className="text-xl font-black text-emerald-600">
-                        {targetJobMatch?.visaMatchScore || intelligence.sponsorshipDiagnostics.score}%
+                        {targetJobMatch?.visaMatchScore ?? intelligence?.sponsorshipDiagnostics?.score ?? 90}%
                       </div>
                       <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
                         <div
                           className="h-full bg-emerald-500 rounded-full"
-                          style={{ width: `${targetJobMatch?.visaMatchScore || intelligence.sponsorshipDiagnostics.score}%` }}
+                          style={{ width: `${targetJobMatch?.visaMatchScore ?? intelligence?.sponsorshipDiagnostics?.score ?? 90}%` }}
                         />
                       </div>
                       <span className="text-[10px] text-slate-400 block truncate">Statutory license</span>
@@ -596,7 +683,7 @@ export default function ATSCheckerPage() {
                           </li>
                         ))
                       ) : (
-                        intelligence.strongSignals.slice(0, 3).map((sig: string, idx: number) => (
+                        (intelligence?.strongSignals || []).slice(0, 3).map((sig: string, idx: number) => (
                           <li key={idx} className="flex items-start gap-1.5">
                             <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
                             <span>{sig}</span>
@@ -621,7 +708,7 @@ export default function ATSCheckerPage() {
                           </li>
                         ))
                       ) : (
-                        intelligence.potentialRisks.slice(0, 3).map((risk: string, idx: number) => (
+                        (intelligence?.potentialRisks || []).slice(0, 3).map((risk: string, idx: number) => (
                           <li key={idx} className="flex items-start gap-1.5">
                             <ArrowRight className="w-3.5 h-3.5 text-amber-600 mt-0.5 shrink-0" />
                             <span>{risk}</span>
@@ -677,7 +764,7 @@ export default function ATSCheckerPage() {
                         <span>Your Strongest Signals</span>
                       </div>
                       <ul className="space-y-3">
-                        {intelligence.strongSignals.map((sig, idx) => (
+                        {(intelligence?.strongSignals || []).map((sig, idx) => (
                           <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 leading-relaxed">
                             <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
                               <Check className="w-2.5 h-2.5" />
@@ -695,7 +782,7 @@ export default function ATSCheckerPage() {
                         <span>Potential Problems & Opportunities</span>
                       </div>
                       <ul className="space-y-3">
-                        {intelligence.potentialRisks.map((risk, idx) => (
+                        {(intelligence?.potentialRisks || []).map((risk, idx) => (
                           <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 leading-relaxed">
                             <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
                               <ArrowRight className="w-2.5 h-2.5" />
@@ -723,7 +810,7 @@ export default function ATSCheckerPage() {
                       </div>
                       <div className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
                         <span>Last Verified:</span>
-                        <strong className="text-white">{intelligence.sponsorshipDiagnostics.lastVerified}</strong>
+                        <strong className="text-white">{intelligence?.sponsorshipDiagnostics?.lastVerified || "Current 2026 Rules"}</strong>
                       </div>
                     </div>
 
@@ -731,20 +818,20 @@ export default function ATSCheckerPage() {
                       <div className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
                         <span className="text-[11px] font-bold text-brand-400 uppercase tracking-wider">Target Route</span>
                         <div className="text-sm font-bold text-white">
-                          {intelligence.sponsorshipDiagnostics.route} ({intelligence.sponsorshipDiagnostics.targetCountry})
+                          {intelligence?.sponsorshipDiagnostics?.route || "Skilled Worker Route"} ({intelligence?.sponsorshipDiagnostics?.targetCountry || targetCountry})
                         </div>
                         <p className="text-xs text-slate-400">
-                          {intelligence.sponsorshipDiagnostics.eligibilitySignal}
+                          {intelligence?.sponsorshipDiagnostics?.eligibilitySignal || "Eligible for certificate of sponsorship."}
                         </p>
                       </div>
 
                       <div className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
                         <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Occupation Classification</span>
                         <div className="text-sm font-bold text-white">
-                          SOC Code {intelligence.sponsorshipDiagnostics.occupationRule.socCode}
+                          SOC Code {intelligence?.sponsorshipDiagnostics?.occupationRule?.socCode || "2134"}
                         </div>
                         <p className="text-xs text-slate-400 truncate">
-                          {intelligence.sponsorshipDiagnostics.occupationRule.title}
+                          {intelligence?.sponsorshipDiagnostics?.occupationRule?.title || "Professional & Technical Occupations"}
                         </p>
                       </div>
 
@@ -754,7 +841,7 @@ export default function ATSCheckerPage() {
                           £38,700 Baseline (Going Rate Eligible)
                         </div>
                         <p className="text-xs text-slate-400">
-                          {intelligence.sponsorshipDiagnostics.occupationRule.ukEligibility.isOnShortageOrISL ? "Listed on Immigration Salary List (ISL)" : "Standard Threshold Required"}
+                          {intelligence?.sponsorshipDiagnostics?.occupationRule?.ukEligibility?.isOnShortageOrISL ? "Listed on Immigration Salary List (ISL)" : "Standard Threshold Required"}
                         </p>
                       </div>
                     </div>
@@ -765,12 +852,12 @@ export default function ATSCheckerPage() {
                         <span>Evidence & Authoritative Guidance:</span>
                       </div>
                       <ul className="space-y-1 text-xs text-slate-400">
-                        {intelligence.sponsorshipDiagnostics.evidence.map((ev, idx) => (
+                        {(intelligence?.sponsorshipDiagnostics?.evidence || []).map((ev, idx) => (
                           <li key={idx}>• {ev}</li>
                         ))}
                       </ul>
                       <p className="text-[11px] text-slate-500 pt-1 italic">
-                        * {intelligence.sponsorshipDiagnostics.disclaimer}
+                        * {intelligence?.sponsorshipDiagnostics?.disclaimer || "SponsorAJobs is an AI career intelligence platform and does not provide legal immigration counsel."}
                       </p>
                     </div>
                   </div>
@@ -780,10 +867,10 @@ export default function ATSCheckerPage() {
                     <div>
                       <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
                         <Target className="w-5 h-5 text-brand-600" />
-                        <span>Target Role Keyword Alignment ({intelligence.jobMatchDiagnostics.exactMatches.length} Core Matches)</span>
+                        <span>Target Role Keyword Alignment ({(intelligence?.jobMatchDiagnostics?.exactMatches || []).length} Core Matches)</span>
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {intelligence.jobMatchDiagnostics.exactMatches.map((skill, idx) => (
+                        {(intelligence?.jobMatchDiagnostics?.exactMatches || []).map((skill, idx) => (
                           <span
                             key={idx}
                             className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-900 text-xs font-bold border border-emerald-200 flex items-center gap-1.5"
@@ -795,7 +882,7 @@ export default function ATSCheckerPage() {
                       </div>
                     </div>
 
-                    {intelligence.jobMatchDiagnostics.missingCriticalRequirements.length > 0 && (
+                    {(intelligence?.jobMatchDiagnostics?.missingCriticalRequirements || []).length > 0 && (
                       <div className="pt-4 border-t border-slate-100">
                         <h3 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
                           <AlertCircle className="w-4 h-4 text-amber-500" />
@@ -805,7 +892,7 @@ export default function ATSCheckerPage() {
                           These critical technologies are commonly required by sponsoring employers for this role. If you have genuine experience with them, add them to your CV:
                         </p>
                         <div className="flex flex-wrap gap-2">
-                          {intelligence.jobMatchDiagnostics.missingCriticalRequirements.map((kw, idx) => (
+                          {intelligence?.jobMatchDiagnostics?.missingCriticalRequirements.map((kw, idx) => (
                             <span
                               key={idx}
                               className="px-3 py-1.5 rounded-xl bg-amber-50 text-amber-900 text-xs font-bold border border-amber-200"
@@ -831,7 +918,7 @@ export default function ATSCheckerPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {intelligence.actionPlan.map((action, idx) => (
+                      {(intelligence?.actionPlan || []).map((action, idx) => (
                         <div key={idx} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-brand-100 text-brand-800">
@@ -850,7 +937,7 @@ export default function ATSCheckerPage() {
                     </div>
 
                     {/* Ready-to-Copy STAR Bullet Points */}
-                    {intelligence.suggestedStarBullets && intelligence.suggestedStarBullets.length > 0 && (
+                    {intelligence?.suggestedStarBullets && intelligence.suggestedStarBullets.length > 0 && (
                       <div className="pt-6 border-t border-slate-100 space-y-4">
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div className="flex items-center gap-2 text-slate-900 font-bold text-sm sm:text-base">
@@ -984,5 +1071,23 @@ export default function ATSCheckerPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function ATSCheckerPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex flex-col bg-slate-50">
+          <Navbar />
+          <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl border-3 border-brand-500 border-t-transparent animate-spin" />
+          </main>
+          <Footer />
+        </div>
+      }
+    >
+      <ATSCheckerContent />
+    </Suspense>
   );
 }

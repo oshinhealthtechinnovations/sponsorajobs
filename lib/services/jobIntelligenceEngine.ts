@@ -607,10 +607,12 @@ export class JobIntelligenceEngine {
     const salaryMax = anyJob.salary?.max ?? anyJob.salary_max ?? null;
     const salaryCurrency = anyJob.salary?.currency ?? anyJob.salary_currency ?? "GBP";
 
-    if (hasExplicitVisaClause || anyJob.has_sponsorship === 1 || anyJob.sponsorship?.label === "Strong" || anyJob.sponsorship_label === "Strong") {
+    const hasNegativeRightToWork = /\b(must have (the )?right to work|no visa sponsorship|not eligible for (visa )?sponsorship|cannot sponsor)\b/i.test(textDesc);
+
+    if (!hasNegativeRightToWork && anyJob.has_sponsorship !== 0 && (hasExplicitVisaClause || anyJob.has_sponsorship === 1 || anyJob.sponsorship?.label === "Strong" || anyJob.sponsorship_label === "Strong")) {
       sponsorshipCertainty = "CONFIRMED_IN_LISTING";
       sponsorshipEvidence = "Explicit visa sponsorship eligibility confirmed in this job listing with statutory employer accreditation.";
-    } else if (anyJob.is_direct || (anyJob.sponsorship_score && anyJob.sponsorship_score >= 80) || anyJob.sponsorshipConfidence >= 80) {
+    } else if (!hasNegativeRightToWork && anyJob.has_sponsorship !== 0 && (anyJob.is_direct || (anyJob.sponsorship_score && anyJob.sponsorship_score >= 80) || anyJob.sponsorshipConfidence >= 80)) {
       sponsorshipCertainty = "HISTORICAL_EMPLOYER_SPONSOR";
       sponsorshipEvidence = `${companyName} is an active licensed sponsor on the official government sponsor register, though sponsorship for this specific vacancy must be verified with the employer.`;
     }
