@@ -89,9 +89,50 @@ export class EmailService {
   }
 
   /**
-   * Helper to dispatch email via direct SMTP Relay (Gmail SMTP)
+  /**
+   * Helper to dispatch email via direct SMTP Relay (Domain SMTP mail.sponsorajobs.com & Gmail SMTP Fallback)
    */
   private async sendMailViaSmtp(toEmail: string, subject: string, html: string): Promise<EmailDispatchResult | null> {
+    // 1. First Priority: Direct Domain Mail Server (support@sponsorajobs.com via mail.sponsorajobs.com:587)
+    const domainHost = process.env.DOMAIN_SMTP_HOST || "mail.sponsorajobs.com";
+    const domainPort = parseInt(process.env.DOMAIN_SMTP_PORT || "587", 10);
+    const domainUser = process.env.DOMAIN_SMTP_USER || "support@sponsorajobs.com";
+    const domainPass = process.env.DOMAIN_SMTP_PASS || "Os@626461";
+
+    if (domainUser && domainPass) {
+      try {
+        const domainTransporter = nodemailer.createTransport({
+          host: domainHost,
+          port: domainPort,
+          secure: domainPort === 465,
+          auth: {
+            user: domainUser,
+            pass: domainPass,
+          },
+          tls: {
+            rejectUnauthorized: false,
+          },
+        });
+
+        const info = await domainTransporter.sendMail({
+          from: `"SponsorAJobs Support" <${domainUser}>`,
+          to: toEmail,
+          subject,
+          html,
+        });
+
+        console.log(`[EmailService:DomainSMTP] Dispatched to ${toEmail} via ${domainUser} (ID: ${info.messageId})`);
+        return {
+          success: true,
+          messageId: info.messageId || `domain_smtp_${Date.now()}`,
+          provider: "smtp",
+        };
+      } catch (domainErr) {
+        console.warn("[EmailService:DomainSMTP] Domain SMTP failed, trying Gmail SMTP relay:", domainErr);
+      }
+    }
+
+    // 2. Second Priority: Gmail SMTP Relay Fallback
     const host = process.env.SMTP_HOST || "smtp.gmail.com";
     const port = parseInt(process.env.SMTP_PORT || "465", 10);
     const user = process.env.SMTP_USER || "oshinhealthtechinnovations@gmail.com";
