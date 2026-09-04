@@ -81,10 +81,10 @@ export class PaymentService {
 
   // Razorpay Credentials (dynamic getters with fallback to live credentials)
   private static get razorpayKeyId(): string {
-    return process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_live_TXYfdA2zXTEidN";
+    return process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "";
   }
   private static get razorpayKeySecret(): string {
-    return process.env.RAZORPAY_KEY_SECRET || "6QQuBWD5ZuEKTp8lFj0ISFn2";
+    return process.env.RAZORPAY_KEY_SECRET || "";
   }
   private static get razorpayWebhookSecret(): string {
     return process.env.RAZORPAY_WEBHOOK_SECRET || "";

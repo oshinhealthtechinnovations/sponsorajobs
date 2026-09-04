@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
   // 2. Fetch Real Razorpay Payments
   let razorpayPayments: any[] = [];
   let razorpayConnected = false;
-  const rzpKey = process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_live_TXYfdA2zXTEidN";
-  const rzpSecret = process.env.RAZORPAY_KEY_SECRET || "6QQuBWD5ZuEKTp8lFj0ISFn2";
+  const rzpKey = process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "";
+  const rzpSecret = process.env.RAZORPAY_KEY_SECRET || "";
 
   if (rzpKey && rzpSecret) {
     try {
