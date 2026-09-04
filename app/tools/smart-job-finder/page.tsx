@@ -58,6 +58,15 @@ export default function SmartJobFinderPage() {
     setError(null);
   };
 
+  const detectPromptCountry = (text: string): string => {
+    if (/\b(uk|united kingdom|london|england|skilled worker|britain)\b/i.test(text)) return "GB";
+    if (/\b(us|usa|united states|america|h-1b|h1b)\b/i.test(text)) return "US";
+    if (/\b(australia|sydney|melbourne|tss 482)\b/i.test(text)) return "AU";
+    if (/\b(canada|toronto|vancouver)\b/i.test(text)) return "CA";
+    if (/\b(new zealand|auckland)\b/i.test(text)) return "NZ";
+    return "ALL";
+  };
+
   const handleMatch = async (overridePrompt?: string) => {
     const textToSearch = overridePrompt || prompt;
 
@@ -76,11 +85,12 @@ export default function SmartJobFinderPage() {
 
     try {
       let res: Response;
+      const effectiveCountry = country !== "ALL" ? country : detectPromptCountry(textToSearch);
 
       if (activeTab === "upload" && selectedFile) {
         const formData = new FormData();
         formData.append("file", selectedFile);
-        if (country !== "ALL") formData.append("country", country);
+        if (effectiveCountry !== "ALL") formData.append("country", effectiveCountry);
         formData.append("limit", "8");
 
         res = await fetch("/api/tools/smart-job-match", {
@@ -93,7 +103,7 @@ export default function SmartJobFinderPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             prompt: textToSearch,
-            country: country !== "ALL" ? country : undefined,
+            country: effectiveCountry !== "ALL" ? effectiveCountry : undefined,
             limit: 8,
           }),
         });
@@ -298,6 +308,10 @@ export default function SmartJobFinderPage() {
                     onClick={() => {
                       setActiveTab("prompt");
                       setPrompt(p);
+                      const detectedC = detectPromptCountry(p);
+                      if (detectedC !== "ALL") {
+                        setCountry(detectedC);
+                      }
                       handleMatch(p);
                     }}
                     className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-[11px] font-medium transition-colors text-left cursor-pointer"

@@ -56,17 +56,20 @@ export async function POST(request: NextRequest) {
 
     // 1. Intelligent Candidate Profile Extraction
     const candidateProfile = JobIntelligenceEngine.extractCandidateProfile(rawInput);
+    const effectiveCountry = (country && country !== "ALL")
+      ? country
+      : (candidateProfile.targetCountry || undefined);
 
     // 2. Rank Opportunities across Database using Deep Intelligence
     const rankedOpportunities = await JobIntelligenceEngine.rankMatchingJobsForCandidate(
       candidateProfile,
       {
-        country: country && country !== "ALL" ? country : undefined,
+        country: effectiveCountry,
         limit,
       }
     );
 
-    // Fallback to legacy suggestion engine if database returns fewer than 3 results
+    // Fallback to suggestion engine if database returns fewer than 3 results
     let matchedJobs = rankedOpportunities.map((opp) => ({
       job: opp.job,
       matchScore: opp.matchScore,
@@ -83,7 +86,7 @@ export async function POST(request: NextRequest) {
     if (matchedJobs.length < 3) {
       try {
         const fallback = await JobSuggestionEngine.smartMatch(rawInput, {
-          country: country && country !== "ALL" ? country : undefined,
+          country: effectiveCountry,
           minSalary,
           limit,
         });
@@ -94,6 +97,12 @@ export async function POST(request: NextRequest) {
             if (!existingIds.has(fallbackJob.job.id)) {
               const intel = JobIntelligenceEngine.extractJobIntelligence(fallbackJob.job);
               const breakdown = JobIntelligenceEngine.calculateDetailedMatch(candidateProfile, intel);
+
+              // Don't add obvious cross-domain mismatches
+              if (breakdown.overallMatchScore < 30 || (breakdown.skillsMatchScore === 0 && breakdown.roleSimilarityScore < 20)) {
+                continue;
+              }
+
               matchedJobs.push({
                 job: fallbackJob.job,
                 matchScore: fallbackJob.matchScore || breakdown.overallMatchScore,
@@ -122,7 +131,7 @@ export async function POST(request: NextRequest) {
         detectedIntent: {
           targetRole: candidateProfile.normalizedRole,
           skills: candidateProfile.coreSkills,
-          targetCountry: country,
+          targetCountry: effectiveCountry,
           experienceLevel: candidateProfile.seniority,
         },
         matchedJobs,

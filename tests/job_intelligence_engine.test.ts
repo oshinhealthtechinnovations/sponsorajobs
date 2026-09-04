@@ -205,5 +205,51 @@ Key Requirements:
       const jobIntel = JobIntelligenceEngine.extractJobIntelligence(nonSponsoredJob);
       expect(jobIntel.sponsorshipCertainty).toBe("NO_SPONSORSHIP_FOUND");
     });
+
+    it("should reject cross-domain false positives (e.g. Construction PM vs SDET / Banking)", () => {
+      const candidateProfile = JobIntelligenceEngine.extractCandidateProfile(
+        "Assistant Project Manager with 4 years experience in civil construction looking for UK Skilled Worker sponsorship"
+      );
+
+      // Verify natural language target country extraction
+      expect(candidateProfile.targetCountry).toBe("GB");
+      expect(candidateProfile.normalizedRole).toBe("Assistant Project Manager");
+
+      // Verify that 'development' in title does NOT falsely match 'pm'
+      const sdetRoleCanonical = JobIntelligenceEngine.findCanonicalRole("Software Development Engineer in Test");
+      expect(sdetRoleCanonical).not.toBe("Project Manager");
+
+      const bankingRoleCanonical = JobIntelligenceEngine.findCanonicalRole("Middle-Market Commercial Banking Business Development Market Lead");
+      expect(bankingRoleCanonical).not.toBe("Project Manager");
+
+      // Role similarity between Construction APM and unrelated roles should be very low
+      const sdetSimilarity = JobIntelligenceEngine.computeRoleSimilarity(
+        candidateProfile.normalizedRole,
+        "Software Development Engineer in Test"
+      );
+      expect(sdetSimilarity).toBeLessThan(30);
+
+      const bankingSimilarity = JobIntelligenceEngine.computeRoleSimilarity(
+        candidateProfile.normalizedRole,
+        "Middle-Market Commercial Banking Business Development Market Lead"
+      );
+      expect(bankingSimilarity).toBeLessThan(30);
+
+      // Detailed match against an unrelated SDET job should score low (<= 30%)
+      const unrelatedJob: PublicJobDTO = {
+        ...mockProjectManagerJob,
+        id: "job_sdet_cibc",
+        title: "Software Development Engineer in Test",
+        category_slug: "technology",
+        category_name: "Technology",
+        description: "Testing API microservices with Java and Selenium. 3+ years experience required.",
+      };
+
+      const jobIntel = JobIntelligenceEngine.extractJobIntelligence(unrelatedJob);
+      const match = JobIntelligenceEngine.calculateDetailedMatch(candidateProfile, jobIntel);
+
+      expect(match.overallMatchScore).toBeLessThanOrEqual(30);
+      expect(match.skillsMatchScore).toBe(0);
+    });
   });
 });

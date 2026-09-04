@@ -40,6 +40,7 @@ export interface CandidateProfile {
   degreeField?: string;
   certifications: string[];
   transferablePotentialRoles: string[];
+  targetCountry?: string;
   rawTextSummary: string;
 }
 
@@ -236,7 +237,7 @@ export const ROLE_GRAPH: Record<string, RoleNode> = {
   },
   "devops engineer": {
     canonical: "DevOps Engineer",
-    synonyms: ["cloud engineer", "site reliability engineer", "sre", "platform engineer", "infrastructure engineer"],
+    synonyms: ["cloud engineer", "site reliability engineer", "sre", "platform engineer", "infrastructure engineer", "cloud architect", "solutions architect"],
     parentRoles: ["senior devops engineer", "lead cloud architect"],
     lateralRoles: ["cloud architect", "sysadmin", "software engineer", "sre", "cybersecurity engineer"],
     juniorRoles: ["junior devops engineer", "cloud support engineer"],
@@ -362,6 +363,17 @@ export const SKILL_TAXONOMY: Record<string, { category: string; synonyms: string
 
 // ── CENTRAL JOB INTELLIGENCE ENGINE IMPLEMENTATION ─────────────────────────
 
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function matchesWordOrPhrase(text: string, phrase: string): boolean {
+  if (!text || !phrase) return false;
+  const escaped = escapeRegex(phrase.trim().toLowerCase());
+  const regex = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, "i");
+  return regex.test(text.toLowerCase());
+}
+
 export class JobIntelligenceEngine {
   /**
    * 1. Extract Structured Candidate Profile from CV (text, paste, or parsed stream)
@@ -381,6 +393,20 @@ export class JobIntelligenceEngine {
     const phoneMatch = text.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}/);
     const linkedInMatch = text.match(/linkedin\.com\/in\/[a-zA-Z0-9_-]+/i);
 
+    // Detect Target Destination Country from Natural Language Prompt or CV text
+    let targetCountry: string | undefined = undefined;
+    if (/\b(uk|united kingdom|london|england|britain|skilled worker|cos|tier 2)\b/i.test(text)) {
+      targetCountry = "GB";
+    } else if (/\b(us|usa|united states|america|h-1b|h1b)\b/i.test(text)) {
+      targetCountry = "US";
+    } else if (/\b(australia|sydney|melbourne|brisbane|tss 482|subclass 482)\b/i.test(text)) {
+      targetCountry = "AU";
+    } else if (/\b(canada|toronto|vancouver|lmia|gts)\b/i.test(text)) {
+      targetCountry = "CA";
+    } else if (/\b(new zealand|auckland|aewv)\b/i.test(text)) {
+      targetCountry = "NZ";
+    }
+
     // Detect Current / Primary Role
     let detectedRole = "General Professional";
     const sortedRoleEntries = Object.entries(ROLE_GRAPH).sort((a, b) => b[0].length - a[0].length);
@@ -389,7 +415,7 @@ export class JobIntelligenceEngine {
     for (let i = 0; i < Math.min(5, lines.length); i++) {
       const lineLower = lines[i].toLowerCase();
       for (const [key, node] of sortedRoleEntries) {
-        if (lineLower.includes(key) || node.synonyms.some((s) => lineLower.includes(s))) {
+        if (matchesWordOrPhrase(lineLower, key) || node.synonyms.some((s) => matchesWordOrPhrase(lineLower, s))) {
           detectedRole = node.canonical;
           break;
         }
@@ -400,7 +426,7 @@ export class JobIntelligenceEngine {
     // 2. If not detected in headline, search entire document with longest specific keys first
     if (detectedRole === "General Professional") {
       for (const [key, node] of sortedRoleEntries) {
-        if (lower.includes(key) || node.synonyms.some((s) => lower.includes(s))) {
+        if (matchesWordOrPhrase(lower, key) || node.synonyms.some((s) => matchesWordOrPhrase(lower, s))) {
           detectedRole = node.canonical;
           break;
         }
@@ -411,7 +437,15 @@ export class JobIntelligenceEngine {
     if (detectedRole === "General Professional") {
       for (let i = 0; i < Math.min(5, lines.length); i++) {
         const line = lines[i].toLowerCase();
-        if (line.includes("engineer") || line.includes("developer") || line.includes("manager") || line.includes("nurse") || line.includes("analyst") || line.includes("chef")) {
+        if (
+          line.includes("engineer") ||
+          line.includes("developer") ||
+          line.includes("manager") ||
+          line.includes("nurse") ||
+          line.includes("analyst") ||
+          line.includes("chef") ||
+          line.includes("architect")
+        ) {
           detectedRole = lines[i];
           break;
         }
@@ -518,6 +552,7 @@ export class JobIntelligenceEngine {
       degreeField,
       certifications: certs,
       transferablePotentialRoles,
+      targetCountry,
       rawTextSummary: text.slice(0, 300),
     };
   }
@@ -732,7 +767,7 @@ export class JobIntelligenceEngine {
     // G. Overall Weighted Score (100% total)
     // Formula: Skills (25%) + Experience (20%) + Role (15%) + Qual (10%) + Responsibilities/ATS (10%) + Industry (10%) + Visa (10%)
     const industryAlignment = candidate.primaryIndustry.toLowerCase().includes(jobIntel.industry.toLowerCase().slice(0, 5)) ? 100 : 80;
-    const overallScore = Math.round(
+    let overallScore = Math.round(
       skillsScore * 0.25 +
       experienceScore * 0.20 +
       roleScore * 0.15 +
@@ -741,6 +776,15 @@ export class JobIntelligenceEngine {
       industryAlignment * 0.10 +
       visaScore * 0.10
     );
+
+    // Cross-Domain & Unrelated Role Protection:
+    // If candidate has 0 matching skills AND role similarity < 45, or role similarity < 25,
+    // prevent false positive score inflation across completely unrelated professions.
+    if (skillsScore === 0 && roleScore < 45) {
+      overallScore = Math.min(overallScore, 24);
+    } else if (roleScore < 25) {
+      overallScore = Math.min(overallScore, 30);
+    }
 
     // Generate Human-Readable Explainability
     const whyYouMatch: string[] = [];
@@ -834,17 +878,83 @@ export class JobIntelligenceEngine {
     options?: { country?: string; limit?: number }
   ): Promise<RankedJobOpportunity[]> {
     const limit = options?.limit || 6;
-    const country = options?.country && options.country !== "ALL" ? options.country : undefined;
+    const country = options?.country && options.country !== "ALL"
+      ? options.country
+      : (candidate.targetCountry || undefined);
 
-    // Pull jobs from database
     const db = getDatabase();
-    const query = country
-      ? "SELECT * FROM jobs WHERE status = 'active' AND country_code = ? LIMIT 300"
-      : "SELECT * FROM jobs WHERE status = 'active' LIMIT 300";
 
-    const stmt = country ? db.prepare(query).bind(country) : db.prepare(query);
-    const result = await stmt.all<any>();
-    const allJobs = result.results || [];
+    // Build targeted keywords to match relevant vacancies across the entire database
+    const roleKeywords = new Set<string>();
+    [candidate.normalizedRole, candidate.currentRole, ...candidate.transferablePotentialRoles]
+      .filter(Boolean)
+      .forEach((r) => {
+        const clean = r.toLowerCase().trim();
+        roleKeywords.add(clean);
+        clean.split(/\s+/).forEach((w) => {
+          if (w.length >= 4 && !["assistant", "associate", "junior", "senior", "lead", "general"].includes(w)) {
+            roleKeywords.add(w);
+          }
+        });
+      });
+
+    // Add candidate primary industry terms
+    if (candidate.primaryIndustry) {
+      candidate.primaryIndustry.toLowerCase().split(/[\s/&,]+/).forEach((term) => {
+        if (term.length >= 5 && !["general", "services", "technology"].includes(term)) {
+          roleKeywords.add(term);
+        }
+      });
+    }
+
+    // Add candidate core skills
+    candidate.coreSkills.forEach((skill) => {
+      const clean = skill.toLowerCase().trim();
+      if (clean.length >= 3) {
+        roleKeywords.add(clean);
+      }
+    });
+
+    const keywordList = Array.from(roleKeywords).slice(0, 10);
+    let allJobs: any[] = [];
+
+    if (keywordList.length > 0) {
+      const likeClauses = keywordList.map(() => "(LOWER(title) LIKE ? OR LOWER(category_name) LIKE ?)").join(" OR ");
+      const likeParams: string[] = [];
+      keywordList.forEach((kw) => {
+        likeParams.push(`%${kw}%`, `%${kw}%`);
+      });
+
+      const targetedQuery = country
+        ? `SELECT * FROM jobs WHERE status = 'active' AND UPPER(country_code) = ? AND (${likeClauses}) ORDER BY has_sponsorship DESC, sponsorship_score DESC, published_at DESC LIMIT 250`
+        : `SELECT * FROM jobs WHERE status = 'active' AND (${likeClauses}) ORDER BY has_sponsorship DESC, sponsorship_score DESC, published_at DESC LIMIT 250`;
+
+      const stmt = country
+        ? db.prepare(targetedQuery).bind(country.toUpperCase(), ...likeParams)
+        : db.prepare(targetedQuery).bind(...likeParams);
+
+      const res = await stmt.all<any>();
+      allJobs = res.results || [];
+    }
+
+    // Fallback: If targeted query yielded fewer than 15 jobs, fetch general top-sponsored jobs in the target country
+    if (allJobs.length < 15) {
+      const fallbackQuery = country
+        ? "SELECT * FROM jobs WHERE status = 'active' AND UPPER(country_code) = ? ORDER BY has_sponsorship DESC, sponsorship_score DESC, published_at DESC LIMIT 200"
+        : "SELECT * FROM jobs WHERE status = 'active' ORDER BY has_sponsorship DESC, sponsorship_score DESC, published_at DESC LIMIT 200";
+
+      const stmt = country
+        ? db.prepare(fallbackQuery).bind(country.toUpperCase())
+        : db.prepare(fallbackQuery);
+
+      const fallbackRes = await stmt.all<any>();
+      const existingIds = new Set(allJobs.map((j) => j.id));
+      for (const j of fallbackRes.results || []) {
+        if (!existingIds.has(j.id)) {
+          allJobs.push(j);
+        }
+      }
+    }
 
     const scoredOpportunities: RankedJobOpportunity[] = [];
 
@@ -853,28 +963,31 @@ export class JobIntelligenceEngine {
       const jobIntel = this.extractJobIntelligence(anyJob);
       const breakdown = this.calculateDetailedMatch(candidate, jobIntel);
 
-      // Boost score for fresh jobs & verified direct employers
+      // Hard gate against cross-domain false positives:
+      // Reject jobs with low overall score OR zero skill overlap with low role similarity
+      if (breakdown.overallMatchScore < 50 || (breakdown.skillsMatchScore === 0 && breakdown.roleSimilarityScore < 45)) {
+        continue;
+      }
+
+      // Boost score for confirmed sponsorship & direct employers
       let priorityScore = breakdown.overallMatchScore;
       if (jobIntel.sponsorshipCertainty === "CONFIRMED_IN_LISTING") priorityScore += 5;
       if (anyJob.is_direct) priorityScore += 3;
 
-      // Filter out total mismatches (below 40% role or skill compatibility)
-      if (breakdown.overallMatchScore >= 50 || breakdown.roleSimilarityScore >= 60) {
-        let recommendation = `Recommended based on ${breakdown.matchedSkills.length} matching skills and strong role continuity.`;
-        if (breakdown.roleSimilarityScore >= 80) {
-          recommendation = `Direct role progression from "${candidate.currentRole}" with verified employer sponsorship.`;
-        } else if (breakdown.whyYouMatch.length > 0) {
-          recommendation = breakdown.whyYouMatch[0];
-        }
-
-        scoredOpportunities.push({
-          job,
-          matchScore: Math.min(99, priorityScore),
-          atsScore: breakdown.atsCompatibilityScore,
-          breakdown,
-          recommendationReason: recommendation,
-        });
+      let recommendation = `Recommended based on ${breakdown.matchedSkills.length} matching skills and strong role continuity.`;
+      if (breakdown.roleSimilarityScore >= 80) {
+        recommendation = `Direct role alignment with "${candidate.currentRole}" with verified employer sponsorship.`;
+      } else if (breakdown.whyYouMatch.length > 0) {
+        recommendation = breakdown.whyYouMatch[0];
       }
+
+      scoredOpportunities.push({
+        job,
+        matchScore: Math.min(99, priorityScore),
+        atsScore: breakdown.atsCompatibilityScore,
+        breakdown,
+        recommendationReason: recommendation,
+      });
     }
 
     // Sort descending by match score
@@ -889,7 +1002,7 @@ export class JobIntelligenceEngine {
     const lower = title.toLowerCase();
     const sortedEntries = Object.entries(ROLE_GRAPH).sort((a, b) => b[0].length - a[0].length);
     for (const [key, node] of sortedEntries) {
-      if (lower.includes(key) || node.synonyms.some((s) => lower.includes(s))) {
+      if (matchesWordOrPhrase(lower, key) || node.synonyms.some((s) => matchesWordOrPhrase(lower, s))) {
         return node.canonical;
       }
     }
@@ -918,24 +1031,61 @@ export class JobIntelligenceEngine {
     const b = roleB.toLowerCase().trim();
 
     if (a === b) return 100;
-    if (a.includes(b) || b.includes(a)) return 90;
 
     // Check Role Graph relationships
     const nodeA = Object.entries(ROLE_GRAPH).find(([k, n]) => k === a || n.canonical.toLowerCase() === a)?.[1];
+    const nodeB = Object.entries(ROLE_GRAPH).find(([k, n]) => k === b || n.canonical.toLowerCase() === b)?.[1];
+
     if (nodeA) {
-      if (nodeA.synonyms.some((s) => b.includes(s))) return 95;
-      if (nodeA.seniorRoles.some((s) => s.toLowerCase() === b || b.includes(s.toLowerCase()))) return 88;
-      if (nodeA.lateralRoles.some((s) => s.toLowerCase() === b || b.includes(s.toLowerCase()))) return 85;
-      if (nodeA.juniorRoles.some((s) => s.toLowerCase() === b || b.includes(s.toLowerCase()))) return 82;
+      if (nodeA.canonical.toLowerCase() === b) return 100;
+      if (nodeA.synonyms.some((s) => matchesWordOrPhrase(b, s))) return 95;
+      if (nodeA.seniorRoles.some((s) => matchesWordOrPhrase(b, s) || matchesWordOrPhrase(s, b))) return 88;
+      if (nodeA.lateralRoles.some((s) => matchesWordOrPhrase(b, s) || matchesWordOrPhrase(s, b))) return 85;
+      if (nodeA.juniorRoles.some((s) => matchesWordOrPhrase(b, s) || matchesWordOrPhrase(s, b))) return 82;
+      if (nodeA.parentRoles.some((s) => matchesWordOrPhrase(b, s) || matchesWordOrPhrase(s, b))) return 88;
     }
 
-    // Jaccard word token similarity
-    const tokensA = new Set(a.split(/\s+/));
-    const tokensB = new Set(b.split(/\s+/));
+    if (nodeB) {
+      if (nodeB.canonical.toLowerCase() === a) return 100;
+      if (nodeB.synonyms.some((s) => matchesWordOrPhrase(a, s))) return 95;
+      if (nodeB.seniorRoles.some((s) => matchesWordOrPhrase(a, s) || matchesWordOrPhrase(s, a))) return 88;
+      if (nodeB.lateralRoles.some((s) => matchesWordOrPhrase(a, s) || matchesWordOrPhrase(s, a))) return 85;
+      if (nodeB.juniorRoles.some((s) => matchesWordOrPhrase(a, s) || matchesWordOrPhrase(s, a))) return 82;
+      if (nodeB.parentRoles.some((s) => matchesWordOrPhrase(a, s) || matchesWordOrPhrase(s, a))) return 88;
+    }
+
+    // Sub-phrase match if multi-word (e.g. "project manager" inside "assistant project manager")
+    if (a.length >= 8 && b.length >= 8) {
+      if (matchesWordOrPhrase(a, b) || matchesWordOrPhrase(b, a)) {
+        return 88;
+      }
+    }
+
+    // Jaccard token similarity with domain modifier filtering
+    const genericModifiers = new Set([
+      "junior", "senior", "lead", "assistant", "associate", "specialist", "coordinator",
+      "manager", "engineer", "analyst", "officer", "consultant", "director", "head",
+      "and", "or", "in", "of", "for", "&", "the", "a", "an", "at", "to", "ii", "iii", "sr", "jr"
+    ]);
+
+    const rawTokensA = a.split(/[^a-z0-9]+/).filter(Boolean);
+    const rawTokensB = b.split(/[^a-z0-9]+/).filter(Boolean);
+
+    const tokensA = new Set(rawTokensA);
+    const tokensB = new Set(rawTokensB);
+
     const intersection = new Set([...tokensA].filter((x) => tokensB.has(x)));
     const union = new Set([...tokensA, ...tokensB]);
 
+    if (intersection.size === 0) return 0;
+
+    // If the only overlapping token is a generic modifier (e.g. both only have "manager")
+    const domainOverlap = [...intersection].filter((t) => !genericModifiers.has(t));
+    if (domainOverlap.length === 0) {
+      return 15;
+    }
+
     const jaccard = union.size > 0 ? intersection.size / union.size : 0;
-    return Math.max(50, Math.round(jaccard * 100));
+    return Math.round(jaccard * 100);
   }
 }
