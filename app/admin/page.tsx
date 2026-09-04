@@ -23,7 +23,9 @@ import {
   Sparkles,
   Send,
   Zap,
+  Crown,
 } from "lucide-react";
+import { complaintRepository } from "@/lib/repositories/complaintRepository";
 
 export const revalidate = 0;
 
@@ -59,6 +61,10 @@ export default async function AdminDashboardPage() {
     "SELECT * FROM source_runs ORDER BY started_at DESC LIMIT 4"
   ).all<any>();
 
+  // VIP complaints
+  const allComplaints = await complaintRepository.getAllComplaints();
+  const openComplaintsCount = allComplaints.filter((c) => c.status !== "RESOLVED").length;
+
   return (
     <div className="space-y-8">
       {/* ── Top Header ── */}
@@ -74,10 +80,23 @@ export default async function AdminDashboardPage() {
 
         <div className="flex items-center gap-2.5">
           <Link
-            href="/admin/blog"
+            href="/admin/subscribers"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-bold text-xs transition-colors border border-amber-500/30"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Crown className="w-3.5 h-3.5 text-amber-400" />
+            <span>Paid VIP Users</span>
+            {openComplaintsCount > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[10px] font-black animate-pulse">
+                {openComplaintsCount}
+              </span>
+            )}
+          </Link>
+
+          <Link
+            href="/admin/blog"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-colors border border-slate-700"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>Generate SEO Post</span>
           </Link>
 

@@ -28,10 +28,12 @@ import {
   RefreshCw,
   Lock,
   Zap,
+  LifeBuoy,
 } from "lucide-react";
 
 import { JobApplication, ApplicationStatus } from "@/lib/repositories/applicationRepository";
 import { AuthGateModal } from "@/components/AuthGateModal";
+import { VIPComplaintModal } from "@/components/VIPComplaintModal";
 import {
   getLocalApplications,
   saveLocalApplication,
@@ -43,6 +45,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [complaintModalOpen, setComplaintModalOpen] = useState(false);
 
   // Applications state
   const [applications, setApplications] = useState<JobApplication[]>([]);
@@ -625,19 +628,26 @@ export default function DashboardPage() {
               </div>
 
               {user?.subscriptionTier === "PRO" || user?.isTrial ? (
-                <div className="space-y-3 w-full">
+                <div className="space-y-2.5 w-full">
                   <div>
                     <div className="text-xs font-black text-slate-900">VIP Pass Active</div>
                     <p className="text-[11px] text-slate-500 mt-0.5">
-                      Need to extend your subscription or change duration?
+                      Need assistance with unlocks, CV matches, or have feedback?
                     </p>
                   </div>
+                  <button
+                    onClick={() => setComplaintModalOpen(true)}
+                    className="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-rose-600 via-purple-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <LifeBuoy className="w-3.5 h-3.5 text-white shrink-0" />
+                    <span>⚡ VIP Support / Submit Complaint</span>
+                  </button>
                   <Link
                     href="/pricing"
-                    className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5"
+                    className="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] transition-colors flex items-center justify-center gap-1"
                   >
                     <span>Extend / Renew Plan</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-3 h-3 text-slate-400" />
                   </Link>
                 </div>
               ) : (
@@ -1123,6 +1133,12 @@ export default function DashboardPage() {
           </form>
         </div>
       )}
+
+      <VIPComplaintModal
+        isOpen={complaintModalOpen}
+        onClose={() => setComplaintModalOpen(false)}
+        user={user}
+      />
 
       <Footer />
     </div>

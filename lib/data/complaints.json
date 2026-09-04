@@ -1,0 +1,36 @@
+[
+  {
+    "id": "cmp_1788504167586_uilln",
+    "ticketId": "VIP-TCK-9494",
+    "userId": "",
+    "userEmail": "paying_customer@sponsorajobs.com",
+    "userName": "Valued Subscriber",
+    "userPhone": "+919867520424",
+    "planLabel": "Candidate Pro",
+    "category": "PAYMENT",
+    "subject": "Invoice receipt for ₹199 plan",
+    "message": "Can you provide a GST compliant invoice receipt for my company reimbursement?",
+    "priority": "NORMAL",
+    "status": "RESOLVED",
+    "createdAt": "2026-09-04T06:42:47.586Z",
+    "resolvedAt": "2026-09-04T06:42:47.596Z",
+    "adminNotes": "Handled by support lead"
+  },
+  {
+    "id": "cmp_1788504163469_7kh0c",
+    "ticketId": "VIP-TCK-8943",
+    "userId": "usr_test_123",
+    "userEmail": "test_subscriber@example.com",
+    "userName": "John VIP",
+    "userPhone": "+919876543210",
+    "planLabel": "1 Month VIP (Candidate Pro)",
+    "category": "UNLOCK_ISSUE",
+    "subject": "Direct apply link not opening for London job",
+    "message": "When clicking the unlocked direct link, it leads to a 404 on the employer career site.",
+    "priority": "URGENT",
+    "status": "RESOLVED",
+    "createdAt": "2026-09-04T06:42:43.469Z",
+    "resolvedAt": "2026-09-04T06:42:43.473Z",
+    "adminNotes": "Link verified and corrected"
+  }
+]
