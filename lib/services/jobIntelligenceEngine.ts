@@ -1269,7 +1269,9 @@ export class JobIntelligenceEngine {
           : "SELECT * FROM jobs WHERE status = 'active' ORDER BY has_sponsorship DESC, sponsorship_score DESC, published_at DESC LIMIT 100";
       }
 
-      const stmt = db.prepare(fallbackQuery).bind(...fallbackParams);
+      const stmt = fallbackParams.length > 0
+        ? db.prepare(fallbackQuery).bind(...fallbackParams)
+        : db.prepare(fallbackQuery);
       const fallbackRes = await stmt.all<any>();
       const existingIds = new Set(allJobs.map((j) => j.id));
       for (const j of fallbackRes.results || []) {

@@ -1,5 +1,4 @@
 import zlib from "zlib";
-import { PDFParse } from "pdf-parse";
 
 /**
  * Checks if a string looks predominantly like raw PDF syntax / stream dictionary markers
@@ -42,24 +41,35 @@ export function isRawPdfSyntax(text: string): boolean {
 export async function extractTextFromPDFBuffer(buffer: Buffer): Promise<string> {
   if (!buffer || buffer.length === 0) return "";
 
-  // 1. Primary Engine: PDFParse (pdf-parse v2)
+  // 1. Primary Engine: pdf-parse (dynamic require for Node/Vercel runtime compatibility)
   try {
-    const parser = new PDFParse({ data: buffer });
-    try {
-      const parsed = await parser.getText();
-      if (parsed && typeof parsed.text === "string") {
-        // Strip default page joiner comments like '-- 1 of 2 --'
-        const rawText = parsed.text.replace(/--\s*\d+\s*of\s*\d+\s*--/gi, " ");
-        const cleaned = sanitizeExtractedText(rawText);
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const pdfParse = require("pdf-parse");
+    const PDFParseClass = pdfParse.PDFParse || pdfParse.default?.PDFParse || pdfParse.default;
+    if (PDFParseClass && (typeof PDFParseClass === "function" || typeof PDFParseClass?.getText === "function")) {
+      // Class-based API (pdf-parse v2)
+      const parser = new PDFParseClass({ data: buffer });
+      try {
+        const parsed = await parser.getText();
+        if (parsed && typeof parsed.text === "string") {
+          const rawText = parsed.text.replace(/--\s*\d+\s*of\s*\d+\s*--/gi, " ");
+          const cleaned = sanitizeExtractedText(rawText);
+          if (cleaned.length >= 25 && !isRawPdfSyntax(cleaned)) {
+            return cleaned;
+          }
+        }
+      } finally {
+        try { await parser.destroy(); } catch { /* ignore */ }
+      }
+    } else if (typeof pdfParse === "function" || typeof pdfParse.default === "function") {
+      // Function-based API (pdf-parse v1 compatibility)
+      const parseFn = typeof pdfParse === "function" ? pdfParse : pdfParse.default;
+      const result = await parseFn(buffer);
+      if (result && typeof result.text === "string") {
+        const cleaned = sanitizeExtractedText(result.text.replace(/--\s*\d+\s*of\s*\d+\s*--/gi, " "));
         if (cleaned.length >= 25 && !isRawPdfSyntax(cleaned)) {
           return cleaned;
         }
-      }
-    } finally {
-      try {
-        await parser.destroy();
-      } catch {
-        // Ignore destroy error
       }
     }
   } catch (err) {
