@@ -181,6 +181,26 @@ export const ROLE_GRAPH: Record<string, RoleNode> = {
     industry: "Engineering & Construction",
     typicalSkills: ["revit", "tekla", "etabs", "staad pro", "concrete design", "steel design", "eurocodes", "structural calculations"],
   },
+  "quantity surveyor": {
+    canonical: "Quantity Surveyor",
+    synonyms: ["qs", "cost manager", "commercial manager", "estimator", "cost consultant", "assistant quantity surveyor", "senior quantity surveyor"],
+    parentRoles: ["commercial director", "head of commercial"],
+    lateralRoles: ["estimator", "commercial manager", "project manager", "contracts manager"],
+    juniorRoles: ["assistant quantity surveyor", "graduate quantity surveyor", "trainee qs"],
+    seniorRoles: ["senior quantity surveyor", "managing quantity surveyor", "commercial director"],
+    industry: "Construction & Commercial Management",
+    typicalSkills: ["cost management", "nec4", "procurement", "tendering", "contract administration", "bills of quantities", "budget control"],
+  },
+  "site engineer": {
+    canonical: "Site Engineer",
+    synonyms: ["setting out engineer", "field engineer", "site civil engineer", "construction site engineer"],
+    parentRoles: ["site manager", "project engineer"],
+    lateralRoles: ["civil engineer", "assistant site manager", "section engineer"],
+    juniorRoles: ["graduate site engineer", "junior site engineer"],
+    seniorRoles: ["senior site engineer", "site agent", "project manager"],
+    industry: "Construction & Civil Engineering",
+    typicalSkills: ["setting out", "total station", "autocad", "site supervision", "health & safety", "quality control"],
+  },
 
   // ── MECHANICAL & ELECTRICAL ENGINEERING ──
   "mechanical engineer": {
@@ -203,6 +223,16 @@ export const ROLE_GRAPH: Record<string, RoleNode> = {
     industry: "Engineering / Automotive / Aerospace / Product Design",
     typicalSkills: ["solidworks", "cad", "creo", "catia", "3d modeling", "prototyping", "tolerance analysis", "fea"],
   },
+  "electrical engineer": {
+    canonical: "Electrical Engineer",
+    synonyms: ["electrical design engineer", "building services electrical engineer", "power systems engineer", "mep electrical engineer"],
+    parentRoles: ["senior electrical engineer", "principal electrical engineer"],
+    lateralRoles: ["mechanical engineer", "building services engineer", "mep engineer", "automation engineer"],
+    juniorRoles: ["graduate electrical engineer", "junior electrical engineer"],
+    seniorRoles: ["senior electrical engineer", "lead electrical engineer", "associate electrical director"],
+    industry: "Engineering & Building Services",
+    typicalSkills: ["autocad", "revit mep", "electrical design", "18th edition", "power distribution", "building services"],
+  },
   "maintenance engineer": {
     canonical: "Maintenance Engineer",
     synonyms: ["reliability engineer", "plant maintenance engineer", "multi-skilled engineer"],
@@ -215,14 +245,86 @@ export const ROLE_GRAPH: Record<string, RoleNode> = {
   },
 
   // ── SOFTWARE & TECHNOLOGY ──
+  "full stack developer": {
+    canonical: "Full Stack Developer",
+    synonyms: [
+      "full stack engineer",
+      "full-stack developer",
+      "full-stack engineer",
+      "fullstack developer",
+      "fullstack engineer",
+      "full stack web developer",
+      "mern developer",
+      "mern stack developer",
+      "mean stack developer",
+      "web developer",
+      "lead full stack developer",
+      "full stack software engineer"
+    ],
+    parentRoles: ["lead full stack developer", "engineering manager", "tech lead"],
+    lateralRoles: ["software engineer", "frontend developer", "backend developer", "devops engineer", "cloud engineer"],
+    juniorRoles: ["junior full stack developer", "junior web developer", "graduate software engineer"],
+    seniorRoles: ["senior full stack developer", "principal full stack engineer", "lead developer", "staff software engineer"],
+    industry: "Information Technology & Software",
+    typicalSkills: ["react", "node.js", "typescript", "javascript", "sql", "git", "docker", "rest api", "next.js", "postgresql", "mongodb"],
+  },
+  "frontend developer": {
+    canonical: "Frontend Developer",
+    synonyms: [
+      "frontend engineer",
+      "front end developer",
+      "front end engineer",
+      "front-end developer",
+      "front-end engineer",
+      "react developer",
+      "ui developer",
+      "javascript developer"
+    ],
+    parentRoles: ["lead frontend engineer", "tech lead"],
+    lateralRoles: ["full stack developer", "ui/ux designer", "software engineer"],
+    juniorRoles: ["junior frontend developer", "junior web developer"],
+    seniorRoles: ["senior frontend developer", "principal frontend engineer", "lead frontend developer"],
+    industry: "Information Technology & Software",
+    typicalSkills: ["react", "typescript", "javascript", "html", "css", "tailwind", "next.js", "vue", "angular", "figma"],
+  },
+  "backend developer": {
+    canonical: "Backend Developer",
+    synonyms: [
+      "backend engineer",
+      "back end developer",
+      "back end engineer",
+      "back-end developer",
+      "back-end engineer",
+      "api developer",
+      "node.js developer",
+      "node developer",
+      "python developer",
+      "java developer",
+      "golang developer"
+    ],
+    parentRoles: ["lead backend engineer", "tech lead", "engineering manager"],
+    lateralRoles: ["full stack developer", "software engineer", "cloud engineer", "devops engineer", "data engineer"],
+    juniorRoles: ["junior backend developer", "associate software engineer"],
+    seniorRoles: ["senior backend developer", "principal backend engineer", "staff software engineer"],
+    industry: "Information Technology & Software",
+    typicalSkills: ["node.js", "python", "sql", "java", "golang", "postgresql", "docker", "rest api", "graphql", "microservices", "redis", "aws"],
+  },
   "software engineer": {
     canonical: "Software Engineer",
-    synonyms: ["software developer", "full stack engineer", "programmer", "software architect"],
+    synonyms: [
+      "software developer",
+      "software development engineer",
+      "sde",
+      "programmer",
+      "software architect",
+      "application developer",
+      "computer programmer"
+    ],
     parentRoles: ["senior software engineer", "tech lead", "engineering manager"],
-    lateralRoles: ["full stack developer", "backend engineer", "frontend engineer", "devops engineer", "mobile developer", "cloud engineer"],
+    lateralRoles: ["full stack developer", "backend developer", "frontend developer", "devops engineer", "mobile developer", "cloud engineer"],
     juniorRoles: ["junior software engineer", "associate developer", "graduate software engineer"],
     seniorRoles: ["senior software engineer", "staff software engineer", "principal engineer", "tech lead", "architect"],
-    industry: "Information Technology",
+    industry: "Information Technology & Software",
     typicalSkills: ["javascript", "typescript", "python", "react", "node.js", "sql", "git", "rest api", "docker", "unit testing", "system design"],
   },
   "data analyst": {
@@ -234,6 +336,64 @@ export const ROLE_GRAPH: Record<string, RoleNode> = {
     seniorRoles: ["senior data analyst", "lead analytics consultant", "head of bi"],
     industry: "Technology / Finance / Healthcare / Consulting",
     typicalSkills: ["sql", "python", "excel", "power bi", "tableau", "data analysis", "data visualization", "statistical modeling", "reporting"],
+  },
+  "data engineer": {
+    canonical: "Data Engineer",
+    synonyms: ["big data engineer", "data platform engineer", "etl developer", "analytics engineer", "data pipeline engineer"],
+    parentRoles: ["lead data engineer", "head of data", "data architect"],
+    lateralRoles: ["data analyst", "data scientist", "backend developer", "cloud engineer"],
+    juniorRoles: ["junior data engineer", "graduate data engineer"],
+    seniorRoles: ["senior data engineer", "principal data engineer", "data architect"],
+    industry: "Technology & Data",
+    typicalSkills: ["python", "sql", "spark", "hadoop", "etl", "data modeling", "aws", "snowflake", "bigquery", "airflow", "kafka"],
+  },
+  "data scientist": {
+    canonical: "Data Scientist",
+    synonyms: ["machine learning engineer", "ml engineer", "ai engineer", "applied scientist", "data science consultant"],
+    parentRoles: ["lead data scientist", "head of ai", "chief data officer"],
+    lateralRoles: ["data analyst", "data engineer", "machine learning engineer", "statistician"],
+    juniorRoles: ["junior data scientist", "graduate data scientist"],
+    seniorRoles: ["senior data scientist", "principal data scientist", "lead ai engineer"],
+    industry: "Technology & Artificial Intelligence",
+    typicalSkills: ["python", "machine learning", "sql", "tensorflow", "pytorch", "deep learning", "statistical modeling", "scikit-learn", "data analysis"],
+  },
+  "qa automation engineer": {
+    canonical: "QA Automation Engineer",
+    synonyms: [
+      "qa engineer",
+      "quality assurance engineer",
+      "sdet",
+      "software development engineer in test",
+      "test engineer",
+      "automation tester",
+      "qa tester"
+    ],
+    parentRoles: ["qa lead", "head of quality assurance"],
+    lateralRoles: ["software engineer", "devops engineer", "systems analyst"],
+    juniorRoles: ["junior qa tester", "manual tester"],
+    seniorRoles: ["senior qa engineer", "lead sdet", "principal test engineer"],
+    industry: "Information Technology",
+    typicalSkills: ["selenium", "cypress", "playwright", "test automation", "jest", "unit testing", "jira", "ci/cd", "javascript", "python"],
+  },
+  "product manager": {
+    canonical: "Product Manager",
+    synonyms: ["product owner", "technical product manager", "associate product manager", "product lead", "senior product manager"],
+    parentRoles: ["group product manager", "head of product", "vp of product"],
+    lateralRoles: ["project manager", "business analyst", "scrum master", "product designer"],
+    juniorRoles: ["associate product manager", "junior product owner"],
+    seniorRoles: ["senior product manager", "lead product manager", "director of product"],
+    industry: "Technology & Product",
+    typicalSkills: ["product management", "user research", "roadmapping", "agile", "jira", "data analysis", "stakeholder management"],
+  },
+  "business analyst": {
+    canonical: "Business Analyst",
+    synonyms: ["business systems analyst", "technical business analyst", "functional analyst", "it business analyst"],
+    parentRoles: ["lead business analyst", "consulting manager"],
+    lateralRoles: ["data analyst", "product manager", "project manager", "pmo analyst"],
+    juniorRoles: ["junior business analyst", "graduate analyst"],
+    seniorRoles: ["senior business analyst", "principal business analyst", "lead consultant"],
+    industry: "Technology / Consulting / Finance",
+    typicalSkills: ["requirements gathering", "process mapping", "sql", "stakeholder management", "jira", "agile", "user stories", "data analysis"],
   },
   "devops engineer": {
     canonical: "DevOps Engineer",
@@ -311,12 +471,41 @@ export const SKILL_TAXONOMY: Record<string, { category: string; synonyms: string
   typescript: { category: "technical", synonyms: ["ts"] },
   react: { category: "technical", synonyms: ["react.js", "reactjs"] },
   "node.js": { category: "technical", synonyms: ["nodejs", "node"] },
+  "next.js": { category: "technical", synonyms: ["nextjs", "next js"] },
+  "vue.js": { category: "technical", synonyms: ["vue", "vuejs", "vue 3", "nuxt"] },
+  angular: { category: "technical", synonyms: ["angularjs", "angular 2+"] },
+  tailwind: { category: "technical", synonyms: ["tailwindcss", "tailwind css"] },
+  html: { category: "technical", synonyms: ["html5"] },
+  css: { category: "technical", synonyms: ["css3", "sass", "scss"] },
+  figma: { category: "tool", synonyms: ["ui design", "wireframing", "prototyping"] },
+  java: { category: "technical", synonyms: ["spring", "spring boot", "jvm", "j2ee"] },
+  "c#": { category: "technical", synonyms: ["csharp", ".net", "dotnet", "asp.net"] },
+  golang: { category: "technical", synonyms: ["go", "golang developer"] },
+  "c++": { category: "technical", synonyms: ["cpp", "c/c++"] },
+  express: { category: "technical", synonyms: ["express.js", "expressjs"] },
+  django: { category: "technical", synonyms: ["django rest framework"] },
+  fastapi: { category: "technical", synonyms: [] },
+  graphql: { category: "technical", synonyms: ["apollo graphql"] },
+  "rest api": { category: "technical", synonyms: ["restful api", "rest apis", "rest web services", "api development"] },
+  microservices: { category: "technical", synonyms: ["distributed architecture", "service oriented architecture"] },
+  postgresql: { category: "technical", synonyms: ["postgres"] },
+  mongodb: { category: "technical", synonyms: ["mongo", "nosql", "mongoose"] },
+  redis: { category: "technical", synonyms: ["in-memory cache", "caching"] },
+  git: { category: "tool", synonyms: ["github", "gitlab", "version control", "bitbucket"] },
+  linux: { category: "technical", synonyms: ["unix", "bash", "shell scripting", "ubuntu", "centos"] },
+  azure: { category: "technical", synonyms: ["microsoft azure", "azure devops"] },
+  gcp: { category: "technical", synonyms: ["google cloud", "google cloud platform"] },
   aws: { category: "technical", synonyms: ["amazon web services", "ec2", "s3", "lambda", "ecs"] },
   kubernetes: { category: "technical", synonyms: ["k8s"] },
   docker: { category: "technical", synonyms: ["containerization", "containers"] },
   terraform: { category: "technical", synonyms: ["iac", "infrastructure as code"] },
   "ci/cd": { category: "technical", synonyms: ["continuous integration", "github actions", "jenkins", "gitlab ci"] },
   "system design": { category: "technical", synonyms: ["software architecture", "distributed systems"] },
+  selenium: { category: "technical", synonyms: ["selenium webdriver"] },
+  cypress: { category: "technical", synonyms: [] },
+  playwright: { category: "technical", synonyms: [] },
+  jest: { category: "technical", synonyms: ["vitest", "mocha", "chai"] },
+  "unit testing": { category: "technical", synonyms: ["test driven development", "tdd", "automated testing"] },
   
   // Data & AI
   "power bi": { category: "technical", synonyms: ["powerbi", "dax", "power query"] },
@@ -407,6 +596,23 @@ export class JobIntelligenceEngine {
       targetCountry = "NZ";
     }
 
+    // Extract Skills & Software early so they can be used for domain role inference
+    const matchedSkills = new Set<string>();
+    const techSkills = new Set<string>();
+    const softSkills = new Set<string>();
+    const tools = new Set<string>();
+
+    for (const [skillKey, meta] of Object.entries(SKILL_TAXONOMY)) {
+      const regex = new RegExp(`\\b${skillKey.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")}\\b`, "i");
+      const synonymMatch = meta.synonyms.some((s) => lower.includes(s.toLowerCase()));
+      if (regex.test(lower) || synonymMatch) {
+        matchedSkills.add(skillKey);
+        if (meta.category === "technical") techSkills.add(skillKey);
+        else if (meta.category === "soft") softSkills.add(skillKey);
+        else if (meta.category === "tool") tools.add(skillKey);
+      }
+    }
+
     // Detect Current / Primary Role
     let detectedRole = "General Professional";
     const sortedRoleEntries = Object.entries(ROLE_GRAPH).sort((a, b) => b[0].length - a[0].length);
@@ -433,13 +639,13 @@ export class JobIntelligenceEngine {
       }
     }
 
-    // Fallback: check first 5 lines for role titles
+    // 3. Fallback: check first 5 lines for role keyword indicators
     if (detectedRole === "General Professional") {
       for (let i = 0; i < Math.min(5, lines.length); i++) {
         const line = lines[i].toLowerCase();
         if (
-          line.includes("engineer") ||
           line.includes("developer") ||
+          line.includes("engineer") ||
           line.includes("manager") ||
           line.includes("nurse") ||
           line.includes("analyst") ||
@@ -449,6 +655,50 @@ export class JobIntelligenceEngine {
           detectedRole = lines[i];
           break;
         }
+      }
+    }
+
+    // 4. Intelligent Skill-Based Role Deduction: If detectedRole is still General Professional,
+    // infer the candidate's canonical role from their concrete skill footprint!
+    if (detectedRole === "General Professional" && matchedSkills.size > 0) {
+      if (
+        matchedSkills.has("react") ||
+        matchedSkills.has("node.js") ||
+        matchedSkills.has("typescript") ||
+        matchedSkills.has("javascript") ||
+        matchedSkills.has("next.js") ||
+        matchedSkills.has("vue.js") ||
+        matchedSkills.has("angular")
+      ) {
+        if (matchedSkills.has("node.js") || matchedSkills.has("sql") || matchedSkills.has("docker") || matchedSkills.has("mongodb") || matchedSkills.has("postgresql")) {
+          detectedRole = "Full Stack Developer";
+        } else {
+          detectedRole = "Frontend Developer";
+        }
+      } else if (matchedSkills.has("python") || matchedSkills.has("java") || matchedSkills.has("golang") || matchedSkills.has("c#")) {
+        if (matchedSkills.has("machine learning") || matchedSkills.has("data modeling")) {
+          detectedRole = "Data Scientist";
+        } else if (matchedSkills.has("sql") || matchedSkills.has("power bi") || matchedSkills.has("tableau")) {
+          detectedRole = "Data Analyst";
+        } else {
+          detectedRole = "Software Engineer";
+        }
+      } else if (matchedSkills.has("aws") || matchedSkills.has("kubernetes") || matchedSkills.has("terraform") || matchedSkills.has("docker") || matchedSkills.has("ci/cd")) {
+        detectedRole = "DevOps Engineer";
+      } else if (matchedSkills.has("selenium") || matchedSkills.has("cypress") || matchedSkills.has("playwright")) {
+        detectedRole = "QA Automation Engineer";
+      } else if (matchedSkills.has("autocad") || matchedSkills.has("civil 3d") || matchedSkills.has("bim")) {
+        detectedRole = "Civil Engineer";
+      } else if (matchedSkills.has("revit") || matchedSkills.has("structural analysis")) {
+        detectedRole = "Structural Engineer";
+      } else if (matchedSkills.has("solidworks") || matchedSkills.has("catia")) {
+        detectedRole = "Mechanical Engineer";
+      } else if (matchedSkills.has("patient care") || matchedSkills.has("clinical assessment") || matchedSkills.has("medication administration")) {
+        detectedRole = "Registered Nurse";
+      } else if (matchedSkills.has("food preparation") || matchedSkills.has("culinary arts") || matchedSkills.has("kitchen hygiene")) {
+        detectedRole = "Chef de Partie";
+      } else if (matchedSkills.has("project management") || matchedSkills.has("jira") || matchedSkills.has("ms project") || matchedSkills.has("agile")) {
+        detectedRole = "Project Manager";
       }
     }
 
@@ -462,10 +712,18 @@ export class JobIntelligenceEngine {
       const nums = yearMatches.map((m) => parseInt(m.replace(/\D/g, ""), 10)).filter((n) => n > 0 && n < 45);
       if (nums.length > 0) years = Math.max(...nums);
     } else {
-      // Count date ranges like (2018 - 2023)
+      // Parse date ranges like (2018 - 2023) or (2020 - Present)
       const dateRanges = text.match(/\b(200\d|201\d|202\d)\s*[-–—to]+\s*(200\d|201\d|202\d|present|current)\b/gi);
       if (dateRanges && dateRanges.length > 0) {
         years = Math.min(25, Math.max(2, dateRanges.length * 2));
+      }
+      // Also check chronological start and end years
+      const allFoundYears = (text.match(/\b(201\d|202\d)\b/g) || []).map((y) => parseInt(y, 10));
+      if (allFoundYears.length >= 2) {
+        const span = Math.max(...allFoundYears) - Math.min(...allFoundYears);
+        if (span >= 1 && span <= 30) {
+          years = Math.max(years, span);
+        }
       }
     }
 
@@ -477,23 +735,6 @@ export class JobIntelligenceEngine {
       seniority = "Senior";
     } else if (years <= 2 || /\b(junior|jr\.|graduate|intern|entry|assistant)\b/i.test(lower)) {
       seniority = "Entry";
-    }
-
-    // Extract Skills & Software
-    const matchedSkills = new Set<string>();
-    const techSkills = new Set<string>();
-    const softSkills = new Set<string>();
-    const tools = new Set<string>();
-
-    for (const [skillKey, meta] of Object.entries(SKILL_TAXONOMY)) {
-      const regex = new RegExp(`\\b${skillKey.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")}\\b`, "i");
-      const synonymMatch = meta.synonyms.some((s) => lower.includes(s.toLowerCase()));
-      if (regex.test(lower) || synonymMatch) {
-        matchedSkills.add(skillKey);
-        if (meta.category === "technical") techSkills.add(skillKey);
-        else if (meta.category === "soft") softSkills.add(skillKey);
-        else if (meta.category === "tool") tools.add(skillKey);
-      }
     }
 
     // Extract Education & Qualifications
@@ -524,11 +765,52 @@ export class JobIntelligenceEngine {
 
     // Primary Industry
     let primaryIndustry = "Cross-Functional Technology & Engineering";
-    if (/\b(civil|construction|infrastructure|structural|site|building|bim)\b/i.test(lower)) primaryIndustry = "Construction & Civil Engineering";
-    else if (/\b(software|full stack|frontend|backend|cloud|devops|data|ai)\b/i.test(lower)) primaryIndustry = "Information Technology & Software";
-    else if (/\b(nurse|clinical|patient|hospital|medical|healthcare|hca)\b/i.test(lower)) primaryIndustry = "Healthcare & Nursing";
-    else if (/\b(chef|hotel|culinary|food|beverage|restaurant|hospitality)\b/i.test(lower)) primaryIndustry = "Hospitality & Culinary";
-    else if (/\b(finance|accounting|audit|tax|banking|financial)\b/i.test(lower)) primaryIndustry = "Finance & Banking";
+    const roleLower = normalizedRole.toLowerCase();
+    if (
+      roleLower.includes("software") ||
+      roleLower.includes("developer") ||
+      roleLower.includes("frontend") ||
+      roleLower.includes("backend") ||
+      roleLower.includes("full stack") ||
+      roleLower.includes("devops") ||
+      roleLower.includes("data") ||
+      roleLower.includes("cloud") ||
+      roleLower.includes("qa") ||
+      /\b(software|full stack|frontend|backend|cloud|devops|data|ai|web)\b/i.test(lower)
+    ) {
+      primaryIndustry = "Information Technology & Software";
+    } else if (
+      roleLower.includes("civil") ||
+      roleLower.includes("structural") ||
+      roleLower.includes("construction") ||
+      roleLower.includes("quantity surveyor") ||
+      roleLower.includes("site engineer") ||
+      /\b(civil|construction|infrastructure|structural|site|building|bim)\b/i.test(lower)
+    ) {
+      primaryIndustry = "Construction & Civil Engineering";
+    } else if (
+      roleLower.includes("nurse") ||
+      roleLower.includes("healthcare") ||
+      /\b(nurse|clinical|patient|hospital|medical|healthcare|hca)\b/i.test(lower)
+    ) {
+      primaryIndustry = "Healthcare & Nursing";
+    } else if (
+      roleLower.includes("chef") ||
+      roleLower.includes("hotel") ||
+      roleLower.includes("hospitality") ||
+      /\b(chef|hotel|culinary|food|beverage|restaurant|hospitality)\b/i.test(lower)
+    ) {
+      primaryIndustry = "Hospitality & Culinary";
+    } else if (
+      roleLower.includes("mechanical") ||
+      roleLower.includes("electrical") ||
+      roleLower.includes("maintenance") ||
+      /\b(mechanical|electrical|maintenance|solidworks|cad)\b/i.test(lower)
+    ) {
+      primaryIndustry = "Engineering & Manufacturing";
+    } else if (/\b(finance|accounting|audit|tax|banking|financial)\b/i.test(lower)) {
+      primaryIndustry = "Finance & Banking";
+    }
 
     // Transferable Potential Roles (Graph Traverse)
     const transferablePotentialRoles = this.getTransferableRoles(normalizedRole);

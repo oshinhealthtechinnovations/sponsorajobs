@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { JobIntelligenceEngine } from "@/lib/services/jobIntelligenceEngine";
 import { JobSuggestionEngine } from "@/lib/services/jobSuggestionEngine";
-import { extractTextFromPDFBuffer } from "@/lib/services/pdfExtractor";
+import { extractTextFromPDFBuffer, isRawPdfSyntax } from "@/lib/services/pdfExtractor";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
         const buffer = Buffer.from(await file.arrayBuffer());
         const fileName = file.name.toLowerCase();
         if (fileName.endsWith(".pdf") || file.type === "application/pdf") {
-          rawInput = extractTextFromPDFBuffer(buffer);
+          rawInput = await extractTextFromPDFBuffer(buffer);
         } else {
           rawInput = buffer.toString("utf-8");
         }
@@ -47,9 +47,12 @@ export async function POST(request: NextRequest) {
 
     rawInput = rawInput.trim();
 
-    if (!rawInput || rawInput.length < 10) {
+    if (!rawInput || rawInput.length < 15 || isRawPdfSyntax(rawInput)) {
       return NextResponse.json(
-        { success: false, error: "Candidate background, skills, or CV text is required (minimum 10 characters)." },
+        {
+          success: false,
+          error: "Could not extract readable text from this document. Please ensure your PDF has an embedded text layer (not a scanned flat image) or paste your background/skills directly.",
+        },
         { status: 400 }
       );
     }

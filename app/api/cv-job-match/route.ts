@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { JobRepository } from "@/lib/repositories/jobRepository";
-import { extractTextFromPDFBuffer } from "@/lib/services/pdfExtractor";
+import { extractTextFromPDFBuffer, isRawPdfSyntax } from "@/lib/services/pdfExtractor";
 import { analyzeCVIntelligence, detectCandidateOccupationFromCV } from "@/lib/services/atsIntelligenceEngine";
 import { rankJobsForCandidate, CandidateMatchingPreferences } from "@/lib/services/cvJobMatchEngine";
 import { CandidateProfileRecord } from "@/lib/types/database";
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       const fileName = file.name.toLowerCase();
 
       if (fileName.endsWith(".pdf") || file.type === "application/pdf") {
-        extractedText = extractTextFromPDFBuffer(buffer);
+        extractedText = await extractTextFromPDFBuffer(buffer);
       } else {
         extractedText = buffer.toString("utf-8");
       }
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       extractedText = rawTextParam;
     }
 
-    if (!extractedText || extractedText.trim().length < 20) {
+    if (!extractedText || extractedText.trim().length < 20 || isRawPdfSyntax(extractedText)) {
       return NextResponse.json(
         { success: false, error: "Could not extract readable text from document. Please upload a clear PDF, DOCX, or paste text." },
         { status: 400 }

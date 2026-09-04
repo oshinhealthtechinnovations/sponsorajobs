@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { analyzeCVIntelligence, analyzeResumeATS, matchResumeToJobs } from "@/lib/services/atsScanner";
-import { extractTextFromPDFBuffer } from "@/lib/services/pdfExtractor";
+import { extractTextFromPDFBuffer, isRawPdfSyntax } from "@/lib/services/pdfExtractor";
 import { JobRepository } from "@/lib/repositories/jobRepository";
 import { JobIntelligenceEngine } from "@/lib/services/jobIntelligenceEngine";
 
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       const fileName = file.name.toLowerCase();
 
       if (fileName.endsWith(".pdf") || file.type === "application/pdf") {
-        extractedText = extractTextFromPDFBuffer(buffer);
+        extractedText = await extractTextFromPDFBuffer(buffer);
       } else {
         extractedText = buffer.toString("utf-8");
       }
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       extractedText = rawTextParam;
     }
 
-    if (!extractedText || extractedText.trim().length < 15) {
+    if (!extractedText || extractedText.trim().length < 15 || isRawPdfSyntax(extractedText)) {
       return NextResponse.json(
         { success: false, error: "Could not extract readable text from the uploaded document. Please upload a clear PDF, DOCX, or paste your resume text." },
         { status: 400 }
