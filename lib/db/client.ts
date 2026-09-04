@@ -242,22 +242,15 @@ function createEdgeMemoryClient(): DatabaseClient {
             if (q.includes("replace(lower(c.name)") || q.includes("lower(c.normalized_name) like ?") || q.includes("lower(j.company_id) like ?")) {
               const compParam = boundValues.find(
                 (v) => typeof v === "string" && (
-                  v.startsWith("%comp_") || 
-                  v.startsWith("comp_") || 
                   (v.startsWith("%") && !/^\d{4}-\d{2}-\d{2}/.test(v.replace(/%/g, "")) && !["GB", "US", "AU", "CA", "NZ", "ALL"].includes(v.replace(/%/g, "").toUpperCase())) ||
+                  v.startsWith("comp_") ||
                   inMemoryCompanies.some((c) => {
                     const cleanV = String(v).replace(/%/g, "").toLowerCase().trim();
                     if (!cleanV) return false;
                     const cName = (c.name || "").toLowerCase().trim();
                     const cNorm = (c.normalized_name || "").toLowerCase().trim();
                     const cId = (c.id || "").toLowerCase().trim();
-                    return (
-                      cName === cleanV ||
-                      cNorm === cleanV ||
-                      cName.replace(/-/g, " ") === cleanV.replace(/-/g, " ") ||
-                      cId === cleanV ||
-                      (cleanV.length >= 3 && (cName.includes(cleanV) || cNorm.includes(cleanV) || cId.includes(cleanV)))
-                    );
+                    return cName === cleanV || cNorm === cleanV || cId === cleanV;
                   })
                 )
               );
@@ -279,8 +272,7 @@ function createEdgeMemoryClient(): DatabaseClient {
                       jCompName.includes(termSpaced) ||
                       jCompName.replace(/[^a-z0-9]/g, "").includes(termStripped) ||
                       jTitle.includes(`(${term})`) ||
-                      jTitle.includes(`- ${term}`) ||
-                      jTitle.includes(term)
+                      jTitle.includes(`- ${term}`)
                     );
                   });
                 }

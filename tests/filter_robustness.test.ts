@@ -1,8 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll } from "vitest";
 import { JobRepository } from "@/lib/repositories/jobRepository";
+import { runSeed } from "@/scripts/seed";
 
 describe("Job Filter Robustness & Cross-Sector Category Intelligence Suite", () => {
   const jobRepo = new JobRepository();
+
+  beforeAll(async () => {
+    await runSeed();
+  });
 
   describe("1. Construction & Civil Infrastructure Multi-Sector Resolution", () => {
     it("should return abundant jobs for 'construction' category (crossing civil, structural & infrastructure)", async () => {
@@ -52,6 +57,7 @@ describe("Job Filter Robustness & Cross-Sector Category Intelligence Suite", () 
       // Must NEVER return 0 or fall back to other employers like Reynolds/Walker/Luddon
       expect(res.total).toBeGreaterThan(0);
       expect(res.jobs.length).toBeGreaterThan(0);
+
       expect(
         res.jobs.every((j) =>
           /morgan sindall/i.test(j.company.name) ||

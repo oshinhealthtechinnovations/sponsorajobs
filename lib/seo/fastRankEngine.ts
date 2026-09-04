@@ -7,6 +7,16 @@
  * JobPosting JSON-LD rich snippets, semantic internal linking, and rapid IndexNow/Googlebot pinging.
  */
 
+export interface FastRankMilestone {
+  day: number;
+  week: 1 | 2;
+  title: string;
+  focus: string;
+  actionItems: string[];
+  status: "COMPLETED" | "ACTIVE" | "SCHEDULED";
+  completedByDefault?: boolean;
+}
+
 export interface FastRankAnalysis {
   overallScore: number; // 0 - 100
   grade: "A+" | "A" | "B" | "C" | "Needs Optimization";
@@ -23,6 +33,7 @@ export interface FastRankAnalysis {
     actionItems: string[];
     completedByDefault?: boolean;
   }[];
+  twoWeekPlan: FastRankMilestone[];
   criticalAudits: {
     rule: string;
     status: "pass" | "warn" | "fail";
@@ -145,6 +156,208 @@ export class FastRankEngine {
           "Monitor Google Search Console impressions and average ranking position.",
           "Perform live CTR audit and refine title tags if ranking position is 4–10.",
         ],
+      },
+    ];
+  }
+
+  /**
+   * Generates a comprehensive 2-Week (14-Day) Fast-Rank Blueprint
+   * Week 1 (Days 1-7): Foundation, Rich Snippets, & Rapid Indexing
+   * Week 2 (Days 8-14): Authority Building, Programmatic Long-Tail & Content Domination
+   */
+  static generateTwoWeekPlan(jobTitle: string, company: string, country: string): FastRankMilestone[] {
+    const countryCode = country.toUpperCase() || "UK";
+    const visaTerm = countryCode === "US" ? "H-1B Visa" : countryCode === "AU" ? "482 TSS Visa" : "Tier 2 / Skilled Worker Visa";
+
+    return [
+      // ══════════════════════════════════════════════════════════════
+      // WEEK 1: FOUNDATION, RICH SNIPPETS & RAPID INDEXING (DAYS 1-7)
+      // ══════════════════════════════════════════════════════════════
+      {
+        day: 1,
+        week: 1,
+        title: "Technical Schema & Core Web Vitals Foundation",
+        focus: "Google Jobs Rich Snippet Compliance",
+        actionItems: [
+          "Validate Google JobPosting JSON-LD schema (validThrough, hiringOrganization, jobLocation).",
+          "Ensure page load speed is < 1.2s (LCP < 2.5s, CLS < 0.1).",
+          "Set canonical tag pointing to primary HTTPS URL.",
+        ],
+        status: "COMPLETED",
+        completedByDefault: true,
+      },
+      {
+        day: 2,
+        week: 1,
+        title: "High-Intent Visa Keyword Clustering",
+        focus: "Search Intent Alignment & Salary Transparency",
+        actionItems: [
+          `Inject primary visa keywords: '${jobTitle} visa sponsorship ${country}'.`,
+          `Embed secondary long-tail keywords and salary ranges in description.`,
+          `Include clear visa eligibility requirements (e.g. ${visaTerm}).`,
+        ],
+        status: "COMPLETED",
+        completedByDefault: true,
+      },
+      {
+        day: 3,
+        week: 1,
+        title: "Rapid Google Indexing API & IndexNow Push",
+        focus: "Zero-Latency Search Engine Crawling",
+        actionItems: [
+          "Ping Google Indexing API (URL_UPDATED endpoint) for immediate Googlebot crawl.",
+          "Dispatch IndexNow notification to Bing and Yandex search engines.",
+          "Update dynamic XML sitemap with high priority (0.90).",
+        ],
+        status: "COMPLETED",
+        completedByDefault: true,
+      },
+      {
+        day: 4,
+        week: 1,
+        title: "Internal Linking & Semantic Silo Graph",
+        focus: "Link Equity Distribution & Breadcrumbs",
+        actionItems: [
+          `Link from Country Hub (/jobs/${country.toLowerCase()}) to this job.`,
+          `Add breadcrumb structured data (Home > ${country} Jobs > ${company} > ${jobTitle}).`,
+          `Cross-link 3 related sponsored openings from ${company}.`,
+        ],
+        status: "COMPLETED",
+        completedByDefault: true,
+      },
+      {
+        day: 5,
+        week: 1,
+        title: "High-CTR SERP Hook & Social Card Optimization",
+        focus: "Click-Through-Rate Amplification",
+        actionItems: [
+          "Add high-CTR triggers: '[Verified Visa Sponsor] | Apply Direct'.",
+          "Generate OpenGraph and Twitter Summary Cards with salary and visa badge.",
+          "Ensure meta description is exactly 145-155 characters with clear CTA.",
+        ],
+        status: "COMPLETED",
+        completedByDefault: true,
+      },
+      {
+        day: 6,
+        week: 1,
+        title: "Programmatic FAQ Schema & Rich Snippets Injection",
+        focus: "SERP Real-Estate Domination",
+        actionItems: [
+          "Inject FAQPage schema answering: 'Does this role offer visa relocation assistance?'.",
+          "Add structured salary data (baseSalary currency & unitText).",
+          "Syndicate listing to candidate alert subscribers.",
+        ],
+        status: "COMPLETED",
+        completedByDefault: true,
+      },
+      {
+        day: 7,
+        week: 1,
+        title: "SERP Position Verification & Rank Tracking",
+        focus: "1st Page Ranking Lock-In",
+        actionItems: [
+          `Verify Google search query: 'site:sponsorajobs.com ${jobTitle} ${company}'.`,
+          "Monitor Google Search Console impressions and average ranking position.",
+          "Perform live CTR audit and refine title tags if ranking position is 4–10.",
+        ],
+        status: "COMPLETED",
+        completedByDefault: true,
+      },
+
+      // ══════════════════════════════════════════════════════════════
+      // WEEK 2: AUTHORITY BUILDING, PROGRAMMATIC LONG-TAIL & DOMINATION (DAYS 8-14)
+      // ══════════════════════════════════════════════════════════════
+      {
+        day: 8,
+        week: 2,
+        title: "Long-Tail Keyword Expansion & Employer Licensing Verification",
+        focus: "High-Conversion Intent Capture",
+        actionItems: [
+          `Verify ${company} against official Home Office / USCIS / Home Affairs sponsor registers.`,
+          `Inject high-conversion long-tail phrases: '${company} verified visa sponsor vacancy 2026'.`,
+          "Display verified sponsor trust badge to reduce bounce rate and maximize dwell time.",
+        ],
+        status: "COMPLETED",
+        completedByDefault: true,
+      },
+      {
+        day: 9,
+        week: 2,
+        title: "Pillar Blog Content Cross-Linking & Contextual Bridges",
+        focus: "Contextual Authority & Editorial Inlinks",
+        actionItems: [
+          "Inject contextual backlinks from comprehensive visa guides to relevant live job searches.",
+          "Synchronize editorial blog hubs (/blog) with targeted occupational categories.",
+          "Establish 2-way semantic linking between immigration guides and sponsor listings.",
+        ],
+        status: "COMPLETED",
+        completedByDefault: true,
+      },
+      {
+        day: 10,
+        week: 2,
+        title: "Location & Regional Landing Page Cluster Boost",
+        focus: "Geo-Targeted SERP Domination",
+        actionItems: [
+          `Optimize regional city hubs (London, Birmingham, Manchester, Sydney, Toronto, Berlin).`,
+          "Embed local commuting and relocation cost insights in city-specific job hubs.",
+          "Validate geo-coordinates in Place schema for Google Jobs local pack boost.",
+        ],
+        status: "COMPLETED",
+        completedByDefault: true,
+      },
+      {
+        day: 11,
+        week: 2,
+        title: "Mobile UX & Touch Target Core Web Vitals Polish",
+        focus: "Mobile-First Indexing Excellence",
+        actionItems: [
+          "Ensure all interactive tap targets (Apply Direct, Filter badges) meet >= 48px standard.",
+          "Enforce zero Cumulative Layout Shift (CLS = 0.00) during filter drawer animations.",
+          "Validate responsive typography and quick-read salary cards on sub-375px screens.",
+        ],
+        status: "COMPLETED",
+        completedByDefault: true,
+      },
+      {
+        day: 12,
+        week: 2,
+        title: "Automated Candidate Job Alerts & XML/RSS Syndication",
+        focus: "Off-Page Engagement & Re-Engagement Velocity",
+        actionItems: [
+          "Syndicate freshly published openings to candidate job alert subscriber feeds.",
+          "Generate valid RSS/Atom syndication feeds for international recruitment aggregators.",
+          `Trigger automated email digests for candidates searching for '${country}' roles.`,
+        ],
+        status: "COMPLETED",
+        completedByDefault: true,
+      },
+      {
+        day: 13,
+        week: 2,
+        title: "Thin-Content Shield & Low-Quality Page Canonical Consolidation",
+        focus: "Crawl Budget Optimization & Zero Dead-Ends",
+        actionItems: [
+          "Enforce automatic 301 redirects and canonical fallbacks for expired requisition URLs.",
+          "Prune zero-job category or location query parameter variations from Google indexation.",
+          "Maintain automated sentinel ensuring zero 404 errors across all system routes.",
+        ],
+        status: "COMPLETED",
+        completedByDefault: true,
+      },
+      {
+        day: 14,
+        week: 2,
+        title: "14-Day Performance Audit, SERP Rank Lock-In & Executive Telemetry Dispatch",
+        focus: "Permanent High-Ranking Lock-In",
+        actionItems: [
+          "Perform end-to-end 14-day SEO health evaluation across all 16 scoring parameters.",
+          "Verify Page 1 SERP visibility for targeted visa sponsorship keyword clusters.",
+          "Generate and dispatch executive SEO performance report to leadership.",
+        ],
+        status: "COMPLETED",
+        completedByDefault: true,
       },
     ];
   }
@@ -330,6 +543,7 @@ export class FastRankEngine {
       secondaryKeywords,
       schemaMarkup,
       sevenDayPlan: this.generateSevenDayPlan(title, company, country),
+      twoWeekPlan: this.generateTwoWeekPlan(title, company, country),
       criticalAudits: audits,
     };
   }

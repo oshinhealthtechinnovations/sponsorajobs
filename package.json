@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit",
     "pages:build": "next build",
     "seo:run": "npx tsx scripts/run-seo-automation.ts --once",
+    "seo:two-week": "npx tsx scripts/run-2week-seo-automation.ts",
     "seo:daemon": "npx tsx scripts/run-seo-automation.ts --daemon",
     "admin:supervise": "npx tsx scripts/run-backend-supervisor.ts",
     "harvest:construction": "npx tsx scripts/harvest-construction-daily.ts --once",

@@ -27,10 +27,11 @@ import {
   Info,
   ChevronRight,
   Zap,
+  Calendar,
 } from "lucide-react";
 
 export default function AdminSeoPage() {
-  const [activeTab, setActiveTab] = useState<"directory" | "parameters" | "tester">("directory");
+  const [activeTab, setActiveTab] = useState<"directory" | "parameters" | "tester" | "two_week_plan">("directory");
   const [seoData, setSeoData] = useState<any | null>(null);
   const [pagesData, setPagesData] = useState<any[]>([]);
   const [parameters, setParameters] = useState<any[]>([]);
@@ -51,6 +52,29 @@ export default function AdminSeoPage() {
   const [pinging, setPinging] = useState(false);
   const [pingMessage, setPingMessage] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // 2-Week Plan Execution State
+  const [twoWeekRunning, setTwoWeekRunning] = useState(false);
+  const [twoWeekResult, setTwoWeekResult] = useState<any | null>(null);
+
+  const handleTriggerTwoWeekCycle = async () => {
+    setTwoWeekRunning(true);
+    try {
+      const res = await fetch("/api/admin/seo/trigger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dryRun: false, notify: false }),
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        setTwoWeekResult(data.data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setTwoWeekRunning(false);
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -272,6 +296,21 @@ export default function AdminSeoPage() {
         >
           <Zap className="w-4 h-4 text-emerald-400" />
           <span>Live URL Tester & GSC Tools</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("two_week_plan")}
+          className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 cursor-pointer ${
+            activeTab === "two_week_plan"
+              ? "bg-slate-800 text-white border border-slate-700 shadow-xs"
+              : "text-slate-400 hover:text-white hover:bg-slate-900"
+          }`}
+        >
+          <Calendar className="w-4 h-4 text-sky-400" />
+          <span>2-Week Fast-Rank Blueprint</span>
+          <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">
+            14 Days Active
+          </span>
         </button>
       </div>
 
@@ -593,6 +632,279 @@ export default function AdminSeoPage() {
                     <ExternalLink className="w-3.5 h-3.5" />
                   </Link>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* TAB 4: 2-WEEK (14-DAY) FAST-RANK BLUEPRINT */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      {activeTab === "two_week_plan" && (
+        <div className="space-y-8">
+          {/* Header Banner */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-sky-950/40 border border-sky-500/20 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20 text-xs font-bold uppercase tracking-wider mb-2">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Sumit Raj Fast-Rank Protocol</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                  2-Week (14-Day) Autonomous Fast-Rank SEO Master Blueprint
+                </h2>
+                <p className="text-xs text-slate-400 mt-1 max-w-2xl">
+                  Comprehensive 14-day protocol designed to take newly harvested visa sponsorship job requisitions from zero to Page 1 of Google Search, Yahoo, and Bing.
+                </p>
+              </div>
+
+              <button
+                onClick={handleTriggerTwoWeekCycle}
+                disabled={twoWeekRunning}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-sky-600 to-brand-500 hover:from-sky-500 hover:to-brand-400 text-white font-bold text-xs shadow-lg transition-all cursor-pointer disabled:opacity-50 shrink-0"
+              >
+                <RefreshCw className={`w-4 h-4 ${twoWeekRunning ? "animate-spin" : ""}`} />
+                <span>{twoWeekRunning ? "Executing 14-Day Protocol..." : "Run 14-Day Verification Cycle"}</span>
+              </button>
+            </div>
+
+            {/* Execution Result Alert */}
+            {twoWeekResult && (
+              <div className="mt-4 p-4 rounded-2xl bg-slate-900 border border-emerald-500/40 text-xs text-white space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Autonomous Cycle Verified: Score {twoWeekResult.healthScore}/100 ({twoWeekResult.grade})</span>
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-mono">Cycle ID: {twoWeekResult.cycleId}</span>
+                </div>
+                <p className="text-slate-300">
+                  Broadcasted {twoWeekResult.searchEnginePings?.indexNowSubmitted} URLs via IndexNow. {twoWeekResult.routeSummary?.healthy} routes healthy (Zero 404s).
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* 14-Day Blueprint Grid: Week 1 & Week 2 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* WEEK 1: DAYS 1 - 7 */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-sky-400"></div>
+                  <h3 className="text-sm font-extrabold text-white uppercase tracking-wider font-display">
+                    Week 1: Foundation, Rich Snippets & Rapid Indexing
+                  </h3>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20 text-[10px] font-bold">
+                  Days 1–7
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  {
+                    day: 1,
+                    title: "Technical Schema & Core Web Vitals Foundation",
+                    focus: "Google Jobs Rich Snippet Compliance",
+                    items: [
+                      "Validate Google JobPosting JSON-LD schema (validThrough, hiringOrganization, jobLocation).",
+                      "Ensure page load speed is < 1.2s (LCP < 2.5s, CLS < 0.1).",
+                      "Set canonical tag pointing to primary HTTPS URL.",
+                    ],
+                  },
+                  {
+                    day: 2,
+                    title: "High-Intent Visa Keyword Clustering",
+                    focus: "Search Intent Alignment & Salary Transparency",
+                    items: [
+                      "Inject primary visa keywords: 'Tier 2 / Skilled Worker visa sponsorship'.",
+                      "Embed secondary long-tail keywords and salary ranges in description.",
+                      "Include clear visa eligibility requirements (e.g. Tier 2 / H-1B / 482 TSS / LMIA).",
+                    ],
+                  },
+                  {
+                    day: 3,
+                    title: "Rapid Google Indexing API & IndexNow Push",
+                    focus: "Zero-Latency Search Engine Crawling",
+                    items: [
+                      "Ping Google Indexing API (URL_UPDATED endpoint) for immediate Googlebot crawl.",
+                      "Dispatch IndexNow notification to Bing and Yandex search engines.",
+                      "Update dynamic XML sitemap with high priority (0.90).",
+                    ],
+                  },
+                  {
+                    day: 4,
+                    title: "Internal Linking & Semantic Silo Graph",
+                    focus: "Link Equity Distribution & Breadcrumbs",
+                    items: [
+                      "Link from Country Hub (/jobs/uk) to individual job requisitions.",
+                      "Add breadcrumb structured data (Home > UK Jobs > Company > Role).",
+                      "Cross-link 3 related sponsored openings from verified employer.",
+                    ],
+                  },
+                  {
+                    day: 5,
+                    title: "High-CTR SERP Hook & Social Card Optimization",
+                    focus: "Click-Through-Rate Amplification",
+                    items: [
+                      "Add high-CTR triggers: '[Verified Visa Sponsor] | Apply Direct'.",
+                      "Generate OpenGraph and Twitter Summary Cards with salary and visa badge.",
+                      "Ensure meta description is exactly 145-155 characters with clear CTA.",
+                    ],
+                  },
+                  {
+                    day: 6,
+                    title: "Programmatic FAQ Schema & Rich Snippets",
+                    focus: "SERP Real-Estate Domination",
+                    items: [
+                      "Inject FAQPage schema answering visa relocation assistance questions.",
+                      "Add structured salary data (baseSalary currency & unitText).",
+                      "Syndicate listing to candidate alert subscribers.",
+                    ],
+                  },
+                  {
+                    day: 7,
+                    title: "SERP Position Verification & Rank Tracking",
+                    focus: "1st Page Ranking Lock-In",
+                    items: [
+                      "Verify Google search query: 'site:sponsorajobs.com [role] [company]'.",
+                      "Monitor Google Search Console impressions and average ranking position.",
+                      "Perform live CTR audit and refine title tags if ranking position is 4–10.",
+                    ],
+                  },
+                ].map((m) => (
+                  <div key={m.day} className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 hover:border-slate-700 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-lg bg-sky-500/20 text-sky-400 font-mono text-xs font-black">
+                          Day {m.day < 10 ? `0${m.day}` : m.day}
+                        </span>
+                        <span className="text-xs font-bold text-white">{m.title}</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
+                        ACTIVE
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400"><strong>Focus:</strong> {m.focus}</p>
+                    <ul className="space-y-1 pl-4 text-[11px] text-slate-400 list-disc">
+                      {m.items.map((it, idx) => (
+                        <li key={idx}>{it}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* WEEK 2: DAYS 8 - 14 */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                  <h3 className="text-sm font-extrabold text-white uppercase tracking-wider font-display">
+                    Week 2: Authority Building, Programmatic Long-Tail & Domination
+                  </h3>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
+                  Days 8–14
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  {
+                    day: 8,
+                    title: "Long-Tail Keyword Expansion & Employer Licensing",
+                    focus: "High-Conversion Intent Capture",
+                    items: [
+                      "Verify employer against official Home Office / USCIS sponsor registers.",
+                      "Inject high-conversion long-tail phrases: '[Company] verified visa sponsor 2026'.",
+                      "Display verified sponsor trust badge to reduce bounce rate and maximize dwell time.",
+                    ],
+                  },
+                  {
+                    day: 9,
+                    title: "Pillar Blog Content Cross-Linking & Contextual Bridges",
+                    focus: "Contextual Authority & Editorial Inlinks",
+                    items: [
+                      "Inject contextual backlinks from comprehensive visa guides to relevant live job searches.",
+                      "Synchronize editorial blog hubs (/blog) with targeted occupational categories.",
+                      "Establish 2-way semantic linking between immigration guides and sponsor listings.",
+                    ],
+                  },
+                  {
+                    day: 10,
+                    title: "Location & Regional Landing Page Cluster Boost",
+                    focus: "Geo-Targeted SERP Domination",
+                    items: [
+                      "Optimize regional city hubs (London, Birmingham, Manchester, Sydney, Toronto).",
+                      "Embed local commuting and relocation cost insights in city-specific job hubs.",
+                      "Validate geo-coordinates in Place schema for Google Jobs local pack boost.",
+                    ],
+                  },
+                  {
+                    day: 11,
+                    title: "Mobile UX & Touch Target Core Web Vitals Polish",
+                    focus: "Mobile-First Indexing Excellence",
+                    items: [
+                      "Ensure all interactive tap targets (Apply Direct, Filter badges) meet >= 48px standard.",
+                      "Enforce zero Cumulative Layout Shift (CLS = 0.00) during filter drawer animations.",
+                      "Validate responsive typography and quick-read salary cards on sub-375px screens.",
+                    ],
+                  },
+                  {
+                    day: 12,
+                    title: "Automated Candidate Job Alerts & XML/RSS Syndication",
+                    focus: "Off-Page Engagement & Re-Engagement Velocity",
+                    items: [
+                      "Syndicate freshly published openings to candidate job alert subscriber feeds.",
+                      "Generate valid RSS/Atom syndication feeds for international recruitment aggregators.",
+                      "Trigger automated email digests for candidates searching for relevant roles.",
+                    ],
+                  },
+                  {
+                    day: 13,
+                    title: "Thin-Content Shield & Low-Quality Page Consolidation",
+                    focus: "Crawl Budget Optimization & Zero Dead-Ends",
+                    items: [
+                      "Enforce automatic 301 redirects and canonical fallbacks for expired requisition URLs.",
+                      "Prune zero-job category or location query parameter variations from Google indexation.",
+                      "Maintain automated sentinel ensuring zero 404 errors across all system routes.",
+                    ],
+                  },
+                  {
+                    day: 14,
+                    title: "14-Day Performance Audit, SERP Lock-In & Telemetry Dispatch",
+                    focus: "Permanent High-Ranking Lock-In",
+                    items: [
+                      "Perform end-to-end 14-day SEO health evaluation across all 16 scoring parameters.",
+                      "Verify Page 1 SERP visibility for targeted visa sponsorship keyword clusters.",
+                      "Generate and dispatch executive SEO performance report to leadership.",
+                    ],
+                  },
+                ].map((m) => (
+                  <div key={m.day} className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 hover:border-slate-700 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-400 font-mono text-xs font-black">
+                          Day {m.day < 10 ? `0${m.day}` : m.day}
+                        </span>
+                        <span className="text-xs font-bold text-white">{m.title}</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
+                        ACTIVE
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400"><strong>Focus:</strong> {m.focus}</p>
+                    <ul className="space-y-1 pl-4 text-[11px] text-slate-400 list-disc">
+                      {m.items.map((it, idx) => (
+                        <li key={idx}>{it}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
