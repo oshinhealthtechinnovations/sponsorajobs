@@ -4,6 +4,7 @@ import { SubscriberPopup } from "@/components/SubscriberPopup";
 import { AuthGateModal } from "@/components/AuthGateModal";
 import { AppliedVerificationModal } from "@/components/AppliedVerificationModal";
 import { CandidateProGateModal } from "@/components/CandidateProGateModal";
+import { FloatingSupportChatbox } from "@/components/FloatingSupportChatbox";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://sponsorajobs.com";
 
@@ -152,6 +153,7 @@ export default function RootLayout({
         <AuthGateModal />
         <AppliedVerificationModal />
         <CandidateProGateModal />
+        <FloatingSupportChatbox />
       </body>
     </html>
   );

@@ -1491,6 +1491,215 @@ ${complaint.message}
 
     return { success: true, messageId, provider: "simulated" };
   }
+
+  /**
+   * Dispatches instant email notification to Admin Gmail when a user/visitor asks a question via Chatbox
+   */
+  async sendVisitorChatNotification(data: {
+    name?: string;
+    email: string;
+    topic?: string;
+    message: string;
+    pageUrl?: string;
+  }): Promise<EmailDispatchResult> {
+    const apiKey = this.getApiKey();
+    const messageId = `chat_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const recipients = [
+      "oshinhealthtechinnovations@gmail.com",
+      process.env.ADMIN_NOTIFICATION_EMAIL || "sumit@sponsorajobs.com",
+    ];
+
+    const emailSubject = `💬 [Live Question] ${data.topic || "User Question"} from ${data.name || data.email}`;
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Live Website Question</title>
+</head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#070d19;color:#e2e8f0;margin:0;padding:24px;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:620px;margin:0 auto;background-color:#0b1528;border-radius:16px;border:1px solid #1e293b;overflow:hidden;box-shadow:0 12px 36px rgba(0,0,0,0.5);">
+    <tr>
+      <td style="padding:28px 32px;background:linear-gradient(135deg,#0284c7 0%,#6366f1 50%,#8b5cf6 100%);text-align:left;">
+        <div style="display:inline-block;padding:4px 10px;background:rgba(0,0,0,0.3);border-radius:20px;font-size:11px;font-weight:800;color:#e0f2fe;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
+          💬 LIVE WEBSITE CHAT INQUIRY
+        </div>
+        <h1 style="color:#ffffff;font-size:22px;font-weight:900;margin:0;letter-spacing:-0.5px;">
+          New Question from ${data.name || "Website Visitor"}
+        </h1>
+        <p style="color:#e0f2fe;font-size:13px;margin:6px 0 0 0;">
+          A candidate just submitted a question on SponsorAJobs.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:30px 32px;">
+        <table width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:24px;background:#0f1d38;border-radius:12px;border:1px solid #1e293b;">
+          <tr>
+            <td style="padding:16px;border-bottom:1px solid #1e293b;width:50%;">
+              <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;font-weight:700;">Visitor Email</div>
+              <div style="font-size:14px;color:#38bdf8;font-weight:700;margin-top:2px;">
+                <a href="mailto:${data.email}" style="color:#38bdf8;text-decoration:none;">${data.email}</a>
+              </div>
+            </td>
+            <td style="padding:16px;border-bottom:1px solid #1e293b;width:50%;">
+              <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;font-weight:700;">Visitor Name</div>
+              <div style="font-size:14px;color:#ffffff;font-weight:700;margin-top:2px;">${data.name || "Candidate"}</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:16px;width:50%;">
+              <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;font-weight:700;">Inquiry Topic</div>
+              <div style="font-size:13px;color:#e2e8f0;font-weight:700;margin-top:2px;">${data.topic || "General Question"}</div>
+            </td>
+            <td style="padding:16px;width:50%;">
+              <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;font-weight:700;">Submitted At</div>
+              <div style="font-size:13px;color:#10b981;font-weight:700;margin-top:2px;">${new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })} IST</div>
+            </td>
+          </tr>
+        </table>
+        <div style="margin-bottom:28px;">
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;font-weight:700;margin-bottom:6px;">Question / Message</div>
+          <div style="font-size:14px;line-height:1.6;color:#ffffff;background:#0d1830;padding:18px;border-radius:10px;border:1px solid #1e293b;white-space:pre-wrap;">${data.message}</div>
+        </div>
+        <div style="text-align:center;margin-bottom:12px;">
+          <a href="mailto:${data.email}?subject=${encodeURIComponent(`Re: ${data.topic || "Your Question"} - SponsorAJobs Support`)}&body=${encodeURIComponent(`Hi ${data.name || "there"},\n\nThank you for reaching out to SponsorAJobs.\n\n`)}"
+             style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#0284c7 0%,#2563eb 100%);color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;border-radius:10px;box-shadow:0 4px 14px rgba(37,99,235,0.4);">
+            ✉️ Click to Reply to ${data.name || data.email}
+          </a>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:20px 32px;background:#07101f;border-top:1px solid #1e293b;text-align:center;">
+        <p style="font-size:11px;color:#64748b;margin:0;">
+          SponsorAJobs Live Helpdesk &bull; Direct Notification to ${recipients.join(", ")}
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `;
+
+    let lastResult: EmailDispatchResult = {
+      success: true,
+      messageId,
+      provider: "simulated",
+    };
+
+    for (const recipient of recipients) {
+      if (apiKey && this.canUseResend()) {
+        try {
+          const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs Support <auth@sponsorajobs.com>";
+          const res = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+              from: fromEmail,
+              to: [recipient],
+              subject: emailSubject,
+              html,
+            }),
+          });
+
+          if (res.ok) {
+            const resData = (await res.json()) as { id?: string };
+            const used = incrementDailyCount();
+            lastResult = {
+              success: true,
+              messageId: resData.id || messageId,
+              provider: "resend",
+              quotaRemaining: Math.max(0, RESEND_DAILY_LIMIT - used),
+            };
+            continue;
+          }
+        } catch (err) {
+          console.error("[EmailService:VisitorChat] Resend error:", err);
+        }
+      }
+
+      const smtpRes = await this.sendMailViaSmtp(recipient, emailSubject, html);
+      if (smtpRes) {
+        lastResult = smtpRes;
+      }
+    }
+
+    return lastResult;
+  }
+
+  /**
+   * Sends polite confirmation to visitor that their question is being reviewed
+   */
+  async sendVisitorChatConfirmation(data: { name?: string; email: string; message: string }): Promise<EmailDispatchResult> {
+    const apiKey = this.getApiKey();
+    const messageId = `chat_ack_${Date.now()}`;
+    const emailSubject = `We've Received Your Question — SponsorAJobs Support`;
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#0f172a;color:#e2e8f0;margin:0;padding:24px;">
+  <div style="max-width:560px;margin:0 auto;background:#1e293b;border-radius:16px;padding:32px;border:1px solid #334155;">
+    <div style="font-size:12px;font-weight:800;color:#38bdf8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
+      SponsorAJobs Support
+    </div>
+    <h2 style="color:#ffffff;margin:0 0 16px 0;font-size:20px;font-weight:800;">
+      We've Received Your Question
+    </h2>
+    <p style="color:#cbd5e1;font-size:14px;line-height:1.6;margin:0 0 16px 0;">
+      Hello ${data.name || "there"},
+    </p>
+    <p style="color:#cbd5e1;font-size:14px;line-height:1.6;margin:0 0 20px 0;">
+      Thank you for reaching out. Your question has been delivered directly to our support team. We review every candidate message and will reply back to this email shortly.
+    </p>
+    <div style="background:#0f172a;border-radius:10px;padding:16px;margin-bottom:24px;border:1px solid #334155;">
+      <div style="font-size:11px;color:#94a3b8;font-weight:700;">YOUR INQUIRY</div>
+      <div style="font-size:13px;color:#cbd5e1;margin-top:6px;white-space:pre-wrap;">${data.message}</div>
+    </div>
+    <div style="border-top:1px solid #334155;padding-top:16px;font-size:11px;color:#64748b;text-align:center;">
+      SponsorAJobs Concierge &bull; support@sponsorajobs.com
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    if (apiKey && this.canUseResend()) {
+      try {
+        const fromEmail = process.env.EMAIL_FROM || "SponsorAJobs Support <auth@sponsorajobs.com>";
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            from: fromEmail,
+            to: [data.email],
+            subject: emailSubject,
+            html,
+          }),
+        });
+        if (res.ok) {
+          const resData = (await res.json()) as { id?: string };
+          incrementDailyCount();
+          return { success: true, messageId: resData.id || messageId, provider: "resend" };
+        }
+      } catch (err) {
+        console.error("[EmailService:VisitorAck] Resend error:", err);
+      }
+    }
+
+    const smtpRes = await this.sendMailViaSmtp(data.email, emailSubject, html);
+    if (smtpRes) return smtpRes;
+
+    return { success: true, messageId, provider: "simulated" };
+  }
 }
 
 
