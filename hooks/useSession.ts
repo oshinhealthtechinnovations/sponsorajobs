@@ -8,7 +8,8 @@ export interface SessionUser {
   email: string;
   profession?: string;
   isEmailVerified?: boolean;
-  subscriptionTier?: "FREE" | "PRO";
+  isTrial?: boolean;
+  subscriptionTier?: "FREE" | "PRO" | string;
   subscriptionStatus?: string;
   subscriptionStartedAt?: string;
   proExpiresAt?: string;
@@ -17,6 +18,26 @@ export interface SessionUser {
   amountPaid?: number;
   currencyPaid?: string;
   createdAt?: string;
+}
+
+export function checkUserIsPro(user: SessionUser | null | undefined): boolean {
+  if (!user) return false;
+  const tier = (user.subscriptionTier || "").toUpperCase();
+  if (tier === "PRO") return true;
+  if (Boolean(user.isTrial)) return true;
+  if (
+    user.subscriptionStatus === "ACTIVE" &&
+    (Boolean(user.planCode) || Boolean(user.amountPaid) || Boolean(user.proExpiresAt))
+  ) {
+    return true;
+  }
+  if (user.proExpiresAt) {
+    const expiryTime = new Date(user.proExpiresAt).getTime();
+    if (!isNaN(expiryTime) && expiryTime > Date.now()) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export interface UseSessionResult {
@@ -108,6 +129,6 @@ export function useSession(): UseSessionResult {
     };
   }, []);
 
-  const isPro = user?.subscriptionTier === "PRO";
+  const isPro = checkUserIsPro(user);
   return { user, isLoggedIn: !!user, isPro, isLoading };
 }

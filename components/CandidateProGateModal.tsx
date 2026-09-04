@@ -46,6 +46,8 @@ const FEATURES = [
   { icon: Sparkles, label: "Daily Priority Job Alerts" },
 ];
 
+import { checkUserIsPro } from "@/hooks/useSession";
+
 export function CandidateProGateModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [featureName, setFeatureName] = useState<string | null>(null);
@@ -55,15 +57,36 @@ export function CandidateProGateModal() {
   useEffect(() => {
     // Listen for the open event dispatched by any premium feature gate
     const handleOpen = (e: Event) => {
+      // 1. Check local session storage first — do NOT open paywall for existing VIPs
+      try {
+        const stored = localStorage.getItem("sa_user");
+        if (stored) {
+          const u = JSON.parse(stored);
+          if (checkUserIsPro(u)) {
+            return;
+          }
+        }
+      } catch {}
+
       const detail = (e as CustomEvent).detail;
       setFeatureName(detail?.featureName || null);
-      setIsOpen(true);
 
-      // Grab current user session
+      // Grab current user session from server
       fetch("/api/auth/me")
         .then((r) => r.json())
-        .then((d) => { if (d.success) setUser(d.user); })
-        .catch(() => {});
+        .then((d) => {
+          if (d.success && d.user) {
+            setUser(d.user);
+            if (checkUserIsPro(d.user)) {
+              setIsOpen(false);
+              return;
+            }
+          }
+          setIsOpen(true);
+        })
+        .catch(() => {
+          setIsOpen(true);
+        });
     };
 
     window.addEventListener("open-pro-gate", handleOpen);

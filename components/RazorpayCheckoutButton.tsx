@@ -138,12 +138,18 @@ export function RazorpayCheckoutButton({
               const verifyData = await verifyRes.json();
               if (verifyRes.ok && verifyData.success) {
                 setState("success");
+                if (verifyData.user) {
+                  try {
+                    localStorage.setItem("sa_user", JSON.stringify(verifyData.user));
+                  } catch {}
+                }
                 onSuccess?.({
                   paymentId: response.razorpay_payment_id,
                   orderId: response.razorpay_order_id,
                 });
-                // Refresh session so the UI reflects premium status
+                // Refresh session so the UI reflects premium status immediately
                 window.dispatchEvent(new Event("user-session-changed"));
+                window.dispatchEvent(new Event("storage"));
               } else {
                 throw new Error(verifyData.error || "Payment verification failed. Contact support.");
               }

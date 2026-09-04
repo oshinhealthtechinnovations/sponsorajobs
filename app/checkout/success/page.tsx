@@ -37,6 +37,9 @@ function CheckoutSuccessContent() {
           if (d.success) {
             setStatus("success");
             if (d.user) {
+              try {
+                localStorage.setItem("sa_user", JSON.stringify(d.user));
+              } catch {}
               setPlanDetails({
                 planLabel: d.user.planLabel || "Candidate Pro (12 Months VIP Access)",
                 startedAt: d.user.subscriptionStartedAt || new Date().toISOString(),
@@ -44,6 +47,7 @@ function CheckoutSuccessContent() {
               });
             }
             window.dispatchEvent(new Event("user-session-changed"));
+            window.dispatchEvent(new Event("storage"));
           } else {
             setStatus("error");
             setErrorMsg(d.error || "Payment could not be verified.");
