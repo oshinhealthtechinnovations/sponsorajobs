@@ -12,6 +12,8 @@ export const viewport: Viewport = {
   themeColor: "#0284c7",
   width: "device-width",
   initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
 };
 
 export const metadata: Metadata = {
@@ -83,6 +85,11 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: SITE_URL,
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "SponsorAJobs",
   },
   category: "jobs",
 };

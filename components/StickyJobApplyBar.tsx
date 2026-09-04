@@ -162,7 +162,7 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
   return (
     <>
       {/* Desktop & Mobile Floating Conversion Bar */}
-      <div className="fixed bottom-3 sm:bottom-4 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:max-w-4xl z-50 animate-fade-in">
+      <div className="fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:bottom-4 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:max-w-4xl z-40 animate-fade-in">
         <div className="p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-slate-950/95 backdrop-blur-xl border border-slate-800 shadow-2xl shadow-black/40 text-white flex items-center justify-between gap-2.5 sm:gap-6">
           {/* Company & Role Details */}
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
@@ -195,7 +195,8 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
             <button
               onClick={toggleSave}
               title={isSaved ? "Saved" : "Save this job"}
-              className={`p-2 sm:p-3 rounded-xl border transition-all cursor-pointer ${
+              aria-label={isSaved ? "Saved" : "Save this job"}
+              className={`p-2.5 sm:p-3 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl border transition-all cursor-pointer touch-manipulation ${
                 isSaved
                   ? "bg-rose-500/20 border-rose-500/40 text-rose-400"
                   : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800"
@@ -207,7 +208,8 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
             <button
               onClick={() => setShareOpen(true)}
               title="Share job"
-              className="p-2 sm:p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white transition-all cursor-pointer hidden sm:flex items-center justify-center"
+              aria-label="Share job"
+              className="p-2 sm:p-3 min-h-[44px] min-w-[44px] rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white transition-all cursor-pointer hidden sm:flex items-center justify-center touch-manipulation"
             >
               <Share2 className="w-4 h-4 text-brand-400" />
             </button>
@@ -215,7 +217,7 @@ export const StickyJobApplyBar: React.FC<StickyJobApplyBarProps> = ({
             <button
               onClick={handleApply}
               title="Start Application"
-              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 active:scale-[0.98] text-white font-black text-xs sm:text-sm shadow-lg shadow-brand-600/30 transition-all cursor-pointer group touch-manipulation"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-2.5 sm:py-3.5 min-h-[44px] rounded-xl sm:rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 active:scale-[0.98] text-white font-black text-xs sm:text-sm shadow-lg shadow-brand-600/30 transition-all cursor-pointer group touch-manipulation"
             >
               <span>Start Application</span>
               <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#18D6E5] group-hover:translate-x-1 transition-transform shrink-0" />

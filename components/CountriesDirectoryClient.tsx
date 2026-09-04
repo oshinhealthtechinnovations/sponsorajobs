@@ -307,7 +307,7 @@ export function CountriesDirectoryClient({ initialCounts }: { initialCounts: Rec
             </div>
             <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
               <div className="text-xs text-slate-400 font-medium">Licensed Sponsors</div>
-              <div className="text-xl sm:text-2xl font-black text-cyan-300 mt-0.5">470+ A-Rated</div>
+              <div className="text-xl sm:text-2xl font-black text-cyan-300 mt-0.5">825+ A-Rated</div>
             </div>
             <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
               <div className="text-xs text-slate-400 font-medium">Apply Link Integrity</div>

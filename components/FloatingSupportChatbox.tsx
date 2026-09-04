@@ -143,18 +143,18 @@ export function FloatingSupportChatbox() {
   return (
     <>
       {/* Floating Launcher Button */}
-      <div className="fixed bottom-5 right-5 z-50">
+      <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40">
         {!isOpen && (
           <button
             onClick={() => setIsOpen(true)}
-            className="group relative flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-brand-600 via-indigo-600 to-sky-600 hover:from-brand-500 hover:to-sky-500 text-white shadow-xl shadow-brand-600/30 hover:shadow-brand-600/50 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border border-white/20"
+            className="group relative flex items-center justify-center p-3.5 sm:px-4 sm:py-3 rounded-full bg-gradient-to-r from-brand-600 via-indigo-600 to-sky-600 hover:from-brand-500 hover:to-sky-500 text-white shadow-xl shadow-brand-600/30 hover:shadow-brand-600/50 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border border-white/20 touch-manipulation min-h-[48px] min-w-[48px]"
             aria-label="Open support chat and instant answers"
           >
             <div className="relative">
               <MessageSquare className="w-5 h-5 text-white" />
               <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-white animate-pulse" />
             </div>
-            <div className="flex flex-col text-left">
+            <div className="hidden sm:flex flex-col text-left ml-2.5">
               <span className="text-xs font-black tracking-tight leading-tight">
                 Ask a Question
               </span>
@@ -168,7 +168,7 @@ export function FloatingSupportChatbox() {
 
       {/* Floating Chat Modal / Drawer */}
       {isOpen && (
-        <div className="fixed bottom-5 right-5 z-50 w-[calc(100vw-2.5rem)] sm:w-[440px] max-h-[90vh] bg-slate-900 border border-slate-700/80 rounded-3xl shadow-2xl shadow-black/80 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-x-3 bottom-3 sm:inset-x-auto sm:bottom-6 sm:right-6 z-50 sm:w-[440px] max-h-[85vh] bg-slate-900 border border-slate-700/80 rounded-3xl shadow-2xl shadow-black/80 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {/* Header */}
           <div className="px-5 py-4 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950/90 border-b border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-3">

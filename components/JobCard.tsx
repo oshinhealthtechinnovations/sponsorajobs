@@ -310,16 +310,16 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
           )}
 
           {/* Footer: Date + CTAs */}
-          <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1 text-xs text-slate-400">
+          <div className="mt-auto pt-3 border-t border-slate-100 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+            <div className="flex items-center gap-1 text-xs text-slate-400 shrink-0">
               <Clock className="w-3 h-3 shrink-0" />
               <span>{formatPostedDate(job.postedAt)}</span>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               <Link
                 href={`/job/${job.slug}`}
-                className="min-h-[38px] px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center justify-center touch-manipulation"
+                className="flex-1 sm:flex-none min-h-[40px] px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center justify-center touch-manipulation text-center"
               >
                 View Details
               </Link>
@@ -329,7 +329,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, compact = false }) => {
                 type="button"
                 onClick={handleApplyClick}
                 title={!isPro ? "Upgrade to VIP to access direct apply links" : "Start application"}
-                className={`min-h-[38px] px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs hover:shadow-md active:scale-[0.98] cursor-pointer relative touch-manipulation group ${
+                className={`flex-1 sm:flex-none min-h-[40px] px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs hover:shadow-md active:scale-[0.98] cursor-pointer relative touch-manipulation group ${
                   !isPro
                     ? "bg-amber-500 hover:bg-amber-400 text-slate-950 font-black"
                     : "bg-[#071421] hover:bg-slate-800 text-white"

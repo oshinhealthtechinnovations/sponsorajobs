@@ -126,6 +126,18 @@ export const Navbar: React.FC = () => {
     setMobileMenuOpen(false);
   }, [pathname]);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
@@ -340,7 +352,7 @@ export const Navbar: React.FC = () => {
 
         {/* ── Mobile Navigation Drawer ── */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-100 bg-white px-4 pt-3 pb-6 space-y-4 shadow-xl">
+          <div className="md:hidden border-t border-slate-100 bg-white px-4 pt-3 pb-8 space-y-4 shadow-xl max-h-[calc(100vh-4.5rem)] overflow-y-auto overscroll-contain pb-safe">
             {/* User status card on mobile */}
             {user ? (
               <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">

@@ -15,7 +15,6 @@ import { generateJobSlug } from "@/lib/seo/slugs";
 import { getCountryDisplayName } from "@/config/countries";
 import Link from "next/link";
 import { StickyJobApplyBar } from "@/components/StickyJobApplyBar";
-import { StickyBottomProBanner } from "@/components/StickyBottomProBanner";
 import { JobApplyButton } from "@/components/JobApplyButton";
 import { JobDetailSidebarActions } from "@/components/JobDetailSidebarActions";
 import { SalaryCurrencyConverter } from "@/components/SalaryCurrencyConverter";
@@ -604,7 +603,6 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           </div>
         )}
       </main>
-      <StickyBottomProBanner />
       <Footer />
     </div>
   );
