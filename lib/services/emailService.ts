@@ -73,7 +73,18 @@ export class EmailService {
     };
   }
 
+  private isTestEnvironment(): boolean {
+    return (
+      process.env.NODE_ENV === "test" ||
+      Boolean(process.env.VITEST) ||
+      Boolean(process.env.CI_TEST)
+    );
+  }
+
   private canUseResend(): boolean {
+    if (this.isTestEnvironment()) {
+      return false;
+    }
     const count = getDailyCount();
     if (count >= RESEND_DAILY_LIMIT) {
       console.log(`[EmailService:Quota] Resend daily cap reached (${count}/${RESEND_DAILY_LIMIT}). Auto-routed to Gmail SMTP Relay.`);
@@ -89,10 +100,16 @@ export class EmailService {
   }
 
   /**
-  /**
    * Helper to dispatch email via direct SMTP Relay (Domain SMTP mail.sponsorajobs.com & Gmail SMTP Fallback)
    */
   private async sendMailViaSmtp(toEmail: string, subject: string, html: string): Promise<EmailDispatchResult | null> {
+    if (this.isTestEnvironment()) {
+      return {
+        success: true,
+        messageId: `simulated_test_${Date.now()}`,
+        provider: "simulated",
+      };
+    }
     // 1. First Priority: Direct Domain Mail Server (support@sponsorajobs.com via mail.sponsorajobs.com:587)
     const domainHost = process.env.DOMAIN_SMTP_HOST || "mail.sponsorajobs.com";
     const domainPort = parseInt(process.env.DOMAIN_SMTP_PORT || "587", 10);
@@ -1369,6 +1386,10 @@ ${complaint.message}
       provider: "simulated",
     };
 
+    if (this.isTestEnvironment()) {
+      return lastResult;
+    }
+
     // Dispatch to all designated admin emails
     for (const recipient of recipients) {
       if (apiKey && this.canUseResend()) {
@@ -1459,6 +1480,10 @@ ${complaint.message}
 </body>
 </html>
     `;
+
+    if (this.isTestEnvironment()) {
+      return { success: true, messageId, provider: "simulated" };
+    }
 
     if (apiKey && this.canUseResend()) {
       try {
