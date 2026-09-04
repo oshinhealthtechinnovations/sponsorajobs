@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { analyzeCVIntelligence, analyzeResumeATS, matchResumeToJobs } from "@/lib/services/atsScanner";
 import { extractTextFromPDFBuffer } from "@/lib/services/pdfExtractor";
 import { JobRepository } from "@/lib/repositories/jobRepository";
+import { JobIntelligenceEngine } from "@/lib/services/jobIntelligenceEngine";
 
 export const dynamic = "force-dynamic";
 
@@ -46,30 +47,53 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. Run Comprehensive 5-Layer Deterministic Intelligence Analysis
+    // 2. Central Job Intelligence Engine: Candidate Profile & Target Job Matching
+    const candidateProfile = JobIntelligenceEngine.extractCandidateProfile(extractedText);
+    let targetJobMatch = null;
+    let targetJobIntel = null;
+    if (targetJob) {
+      targetJobIntel = JobIntelligenceEngine.extractJobIntelligence(targetJob);
+      targetJobMatch = JobIntelligenceEngine.calculateDetailedMatch(candidateProfile, targetJobIntel);
+    }
+
+    // 3. Central Job Intelligence Engine: Deep Ranking across Job Database
+    let rankedOpportunities: any[] = [];
+    try {
+      rankedOpportunities = await JobIntelligenceEngine.rankMatchingJobsForCandidate(
+        candidateProfile,
+        {
+          country: targetCountry !== "all" ? targetCountry : undefined,
+          limit: 10,
+        }
+      );
+    } catch (rankErr) {
+      console.warn("[ATS API] Deep ranking error:", rankErr);
+    }
+
+    // 4. Run Legacy Scanner for backward compatibility
     const intelligence = analyzeCVIntelligence(
       extractedText,
       targetJob,
       targetCountry === "all" ? "GB" : targetCountry
     );
-
-    // 3. Backward-compatible legacy analysis structure
     const legacyAnalysis = analyzeResumeATS(extractedText);
 
-    // 4. Fetch Live Matching Verified Jobs from Database
-    let matches: any[] = [];
-    try {
-      const searchRes = await jobRepo.search({
-        country: targetCountry !== "all" ? targetCountry : undefined,
-        limit: 30,
-        sort: "sponsorship",
-      });
-      matches = matchResumeToJobs(legacyAnalysis, searchRes.jobs, targetCountry);
-    } catch (searchErr) {
-      console.warn("[ATS API] Job match query failed:", searchErr);
-    }
+    // 5. Build unified matches list
+    const unifiedMatches = rankedOpportunities.length > 0
+      ? rankedOpportunities.map((r) => ({
+          job: r.job,
+          matchScore: r.matchScore,
+          atsScore: r.atsScore,
+          breakdown: r.breakdown,
+          matchedSkills: r.breakdown.matchedSkills,
+          missingSkills: r.breakdown.missingRequiredSkills,
+          reasons: r.breakdown.whyYouMatch.length > 0 ? r.breakdown.whyYouMatch : [r.recommendationReason],
+          recommendationReason: r.recommendationReason,
+          visaStatus: r.breakdown.sponsorshipStatus,
+        }))
+      : [];
 
-    // 5. Persist Scan into CV Intelligence Database
+    // 6. Persist Scan into CV Intelligence Database
     const { CVAnalysisRepository } = await import("@/lib/repositories/cvAnalysisRepository");
     const cvRepo = new CVAnalysisRepository();
     let savedRecord = null;
@@ -89,9 +113,13 @@ export async function POST(req: NextRequest) {
       shareToken: savedRecord?.share_token || null,
       extractedTextLength: extractedText.length,
       wordCount: intelligence.wordCount,
+      candidateProfile,
+      targetJobMatch,
+      targetJobIntel,
+      rankedOpportunities,
       intelligence,
       analysis: legacyAnalysis,
-      matches,
+      matches: unifiedMatches.length > 0 ? unifiedMatches : [],
     });
   } catch (error: any) {
     console.error("[ATS Intelligence API Error]:", error);

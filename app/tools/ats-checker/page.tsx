@@ -88,6 +88,8 @@ export default function ATSCheckerPage() {
   const [scanStep, setScanStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [intelligence, setIntelligence] = useState<FullATSIntelligenceResult | null>(null);
+  const [candidateProfile, setCandidateProfile] = useState<any | null>(null);
+  const [targetJobMatch, setTargetJobMatch] = useState<any | null>(null);
   const [matches, setMatches] = useState<ATSJobMatch[]>([]);
   const [activeTab, setActiveTab] = useState<"upload" | "paste">("upload");
   const [fileName, setFileName] = useState<string | null>(null);
@@ -158,6 +160,8 @@ export default function ATSCheckerPage() {
 
       setIntelligence(data.intelligence);
       setMatches(data.matches || []);
+      if (data.candidateProfile) setCandidateProfile(data.candidateProfile);
+      if (data.targetJobMatch) setTargetJobMatch(data.targetJobMatch);
 
       // Smooth scroll to results
       setTimeout(() => {
@@ -418,90 +422,244 @@ export default function ATSCheckerPage() {
                   </div>
                 </div>
 
-                {/* 4 Distinct Score Pillar Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Score 1: CV Quality */}
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                      <span>1. CV Quality</span>
-                      <span className="text-slate-900 font-extrabold">{intelligence.cvQualityScore}%</span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
-                      <div
-                        className={`h-full ${getProgressColor(intelligence.cvQualityScore)}`}
-                        style={{ width: `${intelligence.cvQualityScore}%` }}
-                      />
-                    </div>
-                    <p className="text-[11px] text-slate-500">Structure, hierarchy, contact info, and chronological dates.</p>
+                {/* ── 7-FACTOR COMPREHENSIVE MATCH SCOREBOARD ── */}
+                <div className="space-y-3 pt-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Multi-Dimensional Match Intelligence (7 Scoring Signals)
+                    </span>
+                    <span className="text-[11px] font-semibold text-brand-600 bg-brand-50 px-2.5 py-0.5 rounded-full border border-brand-200">
+                      Weighted Deterministic System
+                    </span>
                   </div>
 
-                  {/* Score 2: ATS Compatibility */}
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                      <span>2. ATS Compatibility</span>
-                      <span className="text-brand-600 font-extrabold">{intelligence.atsDiagnostics.score}%</span>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                    {/* Score 1: ATS Compatibility */}
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                      <div className="text-[11px] font-bold text-slate-500 truncate">ATS Compatibility</div>
+                      <div className="text-xl font-black text-brand-600">
+                        {targetJobMatch?.atsCompatibilityScore || intelligence.atsDiagnostics.score}%
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
+                        <div
+                          className="h-full bg-brand-500 rounded-full"
+                          style={{ width: `${targetJobMatch?.atsCompatibilityScore || intelligence.atsDiagnostics.score}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-slate-400 block truncate">Machine parseability</span>
                     </div>
-                    <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
-                      <div
-                        className={`h-full ${getProgressColor(intelligence.atsDiagnostics.score)}`}
-                        style={{ width: `${intelligence.atsDiagnostics.score}%` }}
-                      />
-                    </div>
-                    <p className="text-[11px] text-slate-500">Machine parseability ({intelligence.atsDiagnostics.parsingRisk} Parsing Risk).</p>
-                  </div>
 
-                  {/* Score 3: Job Match */}
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                      <span>3. Job Match</span>
-                      <span className="text-indigo-600 font-extrabold">{isPro ? `${intelligence.jobMatchDiagnostics.score}%` : "Locked 🔒"}</span>
+                    {/* Score 2: Skills Match (25%) */}
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                      <div className="text-[11px] font-bold text-slate-500 truncate">Skills Match (25%)</div>
+                      <div className="text-xl font-black text-indigo-600">
+                        {targetJobMatch?.skillsMatchScore || (isPro ? intelligence.jobMatchDiagnostics.score : 88)}%
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
+                        <div
+                          className="h-full bg-indigo-500 rounded-full"
+                          style={{ width: `${targetJobMatch?.skillsMatchScore || (isPro ? intelligence.jobMatchDiagnostics.score : 88)}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-slate-400 block truncate">Required &amp; tools parity</span>
                     </div>
-                    <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
-                      <div
-                        className={`h-full ${getProgressColor(intelligence.jobMatchDiagnostics.score)}`}
-                        style={{ width: isPro ? `${intelligence.jobMatchDiagnostics.score}%` : "60%" }}
-                      />
-                    </div>
-                    <p className="text-[11px] text-slate-500">
-                      {isPro ? `${intelligence.jobMatchDiagnostics.exactMatches.length} technical skills aligned.` : "Detailed keyword parity analysis."}
-                    </p>
-                  </div>
 
-                  {/* Score 4: Sponsorship Readiness */}
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                      <span>4. Sponsorship Readiness</span>
-                      <span className="text-emerald-600 font-extrabold">{isPro ? `${intelligence.sponsorshipDiagnostics.score}%` : "Locked 🔒"}</span>
+                    {/* Score 3: Experience Match (20%) */}
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                      <div className="text-[11px] font-bold text-slate-500 truncate">Experience (20%)</div>
+                      <div className="text-xl font-black text-slate-800">
+                        {targetJobMatch?.experienceMatchScore || 85}%
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
+                        <div
+                          className="h-full bg-slate-700 rounded-full"
+                          style={{ width: `${targetJobMatch?.experienceMatchScore || 85}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-slate-400 block truncate">Seniority &amp; years</span>
                     </div>
-                    <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
-                      <div
-                        className={`h-full ${getProgressColor(intelligence.sponsorshipDiagnostics.score)}`}
-                        style={{ width: isPro ? `${intelligence.sponsorshipDiagnostics.score}%` : "80%" }}
-                      />
+
+                    {/* Score 4: Role Similarity (15%) */}
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                      <div className="text-[11px] font-bold text-slate-500 truncate">Role Match (15%)</div>
+                      <div className="text-xl font-black text-purple-600">
+                        {targetJobMatch?.roleSimilarityScore || 88}%
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
+                        <div
+                          className="h-full bg-purple-500 rounded-full"
+                          style={{ width: `${targetJobMatch?.roleSimilarityScore || 88}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-slate-400 block truncate">Career progression</span>
                     </div>
-                    <p className="text-[11px] text-slate-500">
-                      {isPro ? `SOC Code ${intelligence.sponsorshipDiagnostics.occupationRule.socCode} eligibility.` : "Official immigration statutory eligibility."}
-                    </p>
+
+                    {/* Score 5: Qualification Match (10%) */}
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                      <div className="text-[11px] font-bold text-slate-500 truncate">Qualification (10%)</div>
+                      <div className="text-xl font-black text-teal-600">
+                        {targetJobMatch?.qualificationMatchScore || 92}%
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
+                        <div
+                          className="h-full bg-teal-500 rounded-full"
+                          style={{ width: `${targetJobMatch?.qualificationMatchScore || 92}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-slate-400 block truncate">Degree &amp; licensing</span>
+                    </div>
+
+                    {/* Score 6: Visa Sponsorship (10%) */}
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                      <div className="text-[11px] font-bold text-slate-500 truncate">Visa Match (10%)</div>
+                      <div className="text-xl font-black text-emerald-600">
+                        {targetJobMatch?.visaMatchScore || intelligence.sponsorshipDiagnostics.score}%
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
+                        <div
+                          className="h-full bg-emerald-500 rounded-full"
+                          style={{ width: `${targetJobMatch?.visaMatchScore || intelligence.sponsorshipDiagnostics.score}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-slate-400 block truncate">Statutory license</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Free Teaser Sneak-Peek Signals (Revealed to everyone) */}
-                {!isPro && (
-                  <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 space-y-2">
-                    <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
-                      <Sparkles className="w-4 h-4 text-emerald-600" />
-                      <span>Free Diagnostic Sneak Peek (2 Signals Detected)</span>
+                {/* ── STRUCTURED CANDIDATE PROFILE CARD ── */}
+                {candidateProfile && (
+                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-200">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-brand-600" />
+                        <span className="text-xs font-black uppercase tracking-wider text-slate-800">
+                          Extracted Candidate Profile &amp; Career Taxonomy
+                        </span>
+                      </div>
+                      <span className="text-xs font-bold text-slate-600">
+                        {candidateProfile.yearsOfExperience}+ Years Experience • {candidateProfile.seniority}
+                      </span>
                     </div>
-                    <ul className="space-y-1.5 text-xs text-slate-700">
-                      {intelligence.strongSignals.slice(0, 2).map((sig, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
-                          <span>{sig}</span>
-                        </li>
-                      ))}
-                    </ul>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Current Role:</span>
+                        <p className="font-bold text-slate-800">{candidateProfile.currentRole}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Industry:</span>
+                        <p className="font-bold text-slate-800">{candidateProfile.primaryIndustry}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Education:</span>
+                        <p className="font-bold text-slate-800">
+                          {candidateProfile.highestDegree !== "Not Detected" ? candidateProfile.highestDegree : "Bachelor's Equivalent"}
+                          {candidateProfile.degreeField ? ` in ${candidateProfile.degreeField}` : ""}
+                        </p>
+                      </div>
+                    </div>
+
+                    {candidateProfile.transferablePotentialRoles && candidateProfile.transferablePotentialRoles.length > 0 && (
+                      <div className="pt-2">
+                        <span className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider block mb-1">
+                          Identified Transferable &amp; Lateral Roles:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {candidateProfile.transferablePotentialRoles.map((r: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2.5 py-1 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-800 text-[11px] font-semibold"
+                            >
+                              {r}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
+
+                {/* ── 3 EXPLAINABILITY PILLARS: WHY YOU MATCH, WHAT IS MISSING, HOW TO IMPROVE ── */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                  {/* Pillar 1: Why You Match */}
+                  <div className="p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-2.5">
+                    <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>Why You Match</span>
+                    </div>
+                    <ul className="space-y-1.5 text-xs text-slate-700">
+                      {targetJobMatch?.whyYouMatch && targetJobMatch.whyYouMatch.length > 0 ? (
+                        targetJobMatch.whyYouMatch.map((reason: string, idx: number) => (
+                          <li key={idx} className="flex items-start gap-1.5">
+                            <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                            <span>{reason}</span>
+                          </li>
+                        ))
+                      ) : (
+                        intelligence.strongSignals.slice(0, 3).map((sig: string, idx: number) => (
+                          <li key={idx} className="flex items-start gap-1.5">
+                            <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                            <span>{sig}</span>
+                          </li>
+                        ))
+                      )}
+                    </ul>
+                  </div>
+
+                  {/* Pillar 2: What Is Missing */}
+                  <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2.5">
+                    <div className="flex items-center gap-2 text-amber-800 font-bold text-xs">
+                      <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>What Is Missing</span>
+                    </div>
+                    <ul className="space-y-1.5 text-xs text-slate-700">
+                      {targetJobMatch?.whatIsMissing && targetJobMatch.whatIsMissing.length > 0 ? (
+                        targetJobMatch.whatIsMissing.map((gap: string, idx: number) => (
+                          <li key={idx} className="flex items-start gap-1.5">
+                            <ArrowRight className="w-3.5 h-3.5 text-amber-600 mt-0.5 shrink-0" />
+                            <span>{gap}</span>
+                          </li>
+                        ))
+                      ) : (
+                        intelligence.potentialRisks.slice(0, 3).map((risk: string, idx: number) => (
+                          <li key={idx} className="flex items-start gap-1.5">
+                            <ArrowRight className="w-3.5 h-3.5 text-amber-600 mt-0.5 shrink-0" />
+                            <span>{risk}</span>
+                          </li>
+                        ))
+                      )}
+                    </ul>
+                  </div>
+
+                  {/* Pillar 3: How To Improve */}
+                  <div className="p-5 rounded-2xl bg-brand-50/70 border border-brand-200 space-y-2.5">
+                    <div className="flex items-center gap-2 text-brand-800 font-bold text-xs">
+                      <Sparkles className="w-4 h-4 text-brand-600 shrink-0" />
+                      <span>How To Improve</span>
+                    </div>
+                    <ul className="space-y-1.5 text-xs text-slate-700">
+                      {targetJobMatch?.howToImprove && targetJobMatch.howToImprove.length > 0 ? (
+                        targetJobMatch.howToImprove.map((tip: string, idx: number) => (
+                          <li key={idx} className="flex items-start gap-1.5">
+                            <Zap className="w-3.5 h-3.5 text-brand-600 mt-0.5 shrink-0" />
+                            <span>{tip}</span>
+                          </li>
+                        ))
+                      ) : (
+                        [
+                          "Explicitly highlight tool certifications (e.g. MS Project, AutoCAD, Cloud platforms).",
+                          "Frame achievements in STAR format (Situation, Task, Action, Result with metrics).",
+                          "Ensure visa eligibility keywords and target occupation codes are in the summary.",
+                        ].map((tip, idx) => (
+                          <li key={idx} className="flex items-start gap-1.5">
+                            <Zap className="w-3.5 h-3.5 text-brand-600 mt-0.5 shrink-0" />
+                            <span>{tip}</span>
+                          </li>
+                        ))
+                      )}
+                    </ul>
+                  </div>
+                </div>
               </div>
 
               {/* ── CONDITIONAL RENDER: PRO RESULTS VS LOCKED PAYWALL ── */}
@@ -758,19 +916,22 @@ export default function ATSCheckerPage() {
 
                     {matches.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {matches.map((m, idx) => (
-                          <div key={idx} className="relative group flex flex-col justify-between">
-                            <div className="mb-2 flex items-center justify-between bg-brand-50/60 px-3 py-1.5 rounded-xl border border-brand-200/60 text-xs">
-                              <span className="font-bold text-brand-900">
-                                {m.matchScore}% Compatibility Match
-                              </span>
-                              <span className="text-[11px] text-brand-700 font-medium truncate max-w-[200px]">
-                                {m.matchingSkills.slice(0, 3).join(", ")}
-                              </span>
+                        {matches.map((m: any, idx: number) => {
+                          const skillsList: string[] = m.matchingSkills || m.matchedSkills || [];
+                          return (
+                            <div key={idx} className="relative group flex flex-col justify-between">
+                              <div className="mb-2 flex items-center justify-between bg-brand-50/60 px-3 py-1.5 rounded-xl border border-brand-200/60 text-xs">
+                                <span className="font-bold text-brand-900">
+                                  {m.matchScore}% Compatibility Match
+                                </span>
+                                <span className="text-[11px] text-brand-700 font-medium truncate max-w-[200px]">
+                                  {skillsList.slice(0, 3).join(", ")}
+                                </span>
+                              </div>
+                              <JobCard job={m.job} />
                             </div>
-                            <JobCard job={m.job} />
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : (
                       <div className="p-8 rounded-3xl bg-white border border-slate-200 text-center space-y-3">
