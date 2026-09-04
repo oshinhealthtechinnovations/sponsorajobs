@@ -2,8 +2,8 @@ name: Automated Job Extraction & Ingestion Pipeline
 
 on:
   schedule:
-    # Runs automatically twice every day at 00:00 UTC and 12:00 UTC
-    - cron: '0 0,12 * * *'
+    # Runs automatically 4 times every day at 00:00, 06:00, 12:00, and 18:00 UTC
+    - cron: '0 0,6,12,18 * * *'
   workflow_dispatch: # Allows manual trigger from GitHub Actions UI anytime with 1 click
 
 jobs:
@@ -54,7 +54,7 @@ jobs:
         continue-on-error: true
         run: npx tsx scripts/harvest-multi-country-daily.ts --once
 
-      - name: Commit and push updated job dataset
+      - name: Commit and push updated job dataset to trigger auto-deployment
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -62,9 +62,9 @@ jobs:
           # Check if realJobsData.json was modified
           if [ -n "$(git status --porcelain lib/db/realJobsData.json)" ]; then
             git add lib/db/realJobsData.json
-            git commit -m "chore(auto-harvest): automated live jobs ingestion $(date -u +'%Y-%m-%d %H:%M UTC') [skip ci]"
+            git commit -m "chore(auto-harvest): automated live jobs ingestion $(date -u +'%Y-%m-%d %H:%M UTC')"
             git push
-            echo "New jobs successfully pushed to main!"
+            echo "New jobs successfully pushed to main! Vercel auto-deploy triggered."
           else
             echo "No new jobs detected in this cycle."
           fi

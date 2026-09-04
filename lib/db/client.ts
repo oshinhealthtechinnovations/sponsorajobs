@@ -239,11 +239,12 @@ function createEdgeMemoryClient(): DatabaseClient {
             }
 
             // Company filter (only apply when a dedicated company condition is in the WHERE clause, not generic keyword search)
-            if (q.includes("replace(lower(c.name)") || q.includes("lower(c.normalized_name) like ?")) {
+            if (q.includes("replace(lower(c.name)") || q.includes("lower(c.normalized_name) like ?") || q.includes("lower(j.company_id) like ?")) {
               const compParam = boundValues.find(
                 (v) => typeof v === "string" && (
                   v.startsWith("%comp_") || 
                   v.startsWith("comp_") || 
+                  (v.startsWith("%") && !/^\d{4}-\d{2}-\d{2}/.test(v.replace(/%/g, "")) && !["GB", "US", "AU", "CA", "NZ", "ALL"].includes(v.replace(/%/g, "").toUpperCase())) ||
                   inMemoryCompanies.some((c) => {
                     const cleanV = String(v).replace(/%/g, "").toLowerCase().trim();
                     if (!cleanV) return false;
@@ -265,18 +266,24 @@ function createEdgeMemoryClient(): DatabaseClient {
                 const termSpaced = term.replace(/-/g, " ");
                 const termHyphen = term.replace(/\s+/g, "-");
                 const termStripped = term.replace(/[^a-z0-9]/g, "");
-                res = res.filter((j) => {
-                  const jCompId = (j.company_id || "").toLowerCase();
-                  const jCompName = (j.company_name || "").toLowerCase();
-                  return (
-                    jCompId.includes(term) ||
-                    jCompId.includes(termHyphen) ||
-                    jCompId.includes(termStripped) ||
-                    jCompName.includes(term) ||
-                    jCompName.includes(termSpaced) ||
-                    jCompName.replace(/[^a-z0-9]/g, "").includes(termStripped)
-                  );
-                });
+                if (term) {
+                  res = res.filter((j) => {
+                    const jCompId = (j.company_id || "").toLowerCase();
+                    const jCompName = (j.company_name || "").toLowerCase();
+                    const jTitle = (j.title || "").toLowerCase();
+                    return (
+                      jCompId.includes(term) ||
+                      jCompId.includes(termHyphen) ||
+                      jCompId.includes(termStripped) ||
+                      jCompName.includes(term) ||
+                      jCompName.includes(termSpaced) ||
+                      jCompName.replace(/[^a-z0-9]/g, "").includes(termStripped) ||
+                      jTitle.includes(`(${term})`) ||
+                      jTitle.includes(`- ${term}`) ||
+                      jTitle.includes(term)
+                    );
+                  });
+                }
               }
             }
 
@@ -291,20 +298,49 @@ function createEdgeMemoryClient(): DatabaseClient {
               ).map((v) => String(v).toLowerCase());
 
               if (catSlugs.length > 0) {
-                res = res.filter((j) => {
+                const filteredByCat = res.filter((j) => {
                   const jCatId = (j.category_id || "").toLowerCase();
                   const jCatSlug = (j.category_slug || "").toLowerCase();
                   const jCatName = (j.category_name || "").toLowerCase();
                   const jTitle = (j.title || "").toLowerCase();
                   const jCompName = (j.company_name || "").toLowerCase();
+                  const jCompInd = (j.company_industry || "").toLowerCase();
 
                   return catSlugs.some((s) => {
                     return (
                       jCatSlug === s ||
                       jCatId === s ||
                       jCatName === s.replace(/-/g, " ") ||
-                      (s === "construction" && (jCatId.startsWith("cat_const") || jCatSlug.includes("construction") || jCatName.includes("construction") || jCatId === "cat_eng_civil" || jCatSlug.includes("civil") || jTitle.includes("construction") || jTitle.includes("builder") || jTitle.includes("site") || jTitle.includes("structural") || jTitle.includes("civil") || jTitle.includes("surveyor") || jTitle.includes("steel") || jCompName.includes("bluescope"))) ||
-                      (s === "engineering" && (jCatId.startsWith("cat_eng") || jCatSlug.includes("engineering") || jCatName.includes("engineering") || jTitle.includes("engineer") || jTitle.includes("structural") || jTitle.includes("civil") || jTitle.includes("mechanical"))) ||
+                      (s === "construction" && (
+                        jCatId.startsWith("cat_const") || 
+                        jCatSlug.includes("construction") || 
+                        jCatName.includes("construction") || 
+                        jCatId === "cat_eng_civil" || 
+                        jCatId === "cat_eng_struct" || 
+                        jCatSlug.includes("civil") || 
+                        jCatSlug.includes("structural") || 
+                        jTitle.includes("construction") || 
+                        jTitle.includes("builder") || 
+                        jTitle.includes("site") || 
+                        jTitle.includes("structural") || 
+                        jTitle.includes("civil") || 
+                        jTitle.includes("surveyor") || 
+                        jTitle.includes("steel") || 
+                        jTitle.includes("infrastructure") || 
+                        jTitle.includes("planner") || 
+                        /construction|infrastructure|civil/i.test(jCompInd) ||
+                        /morgan sindall|costain|kier|laing|skanska|bam|galliford|balfour|mace|wsp|jacobs|reynolds|walker|luddon|bluescope/i.test(jCompName)
+                      )) ||
+                      (s === "engineering" && (
+                        jCatId.startsWith("cat_eng") || 
+                        jCatSlug.includes("engineering") || 
+                        jCatName.includes("engineering") || 
+                        jTitle.includes("engineer") || 
+                        jTitle.includes("structural") || 
+                        jTitle.includes("civil") || 
+                        jTitle.includes("mechanical") ||
+                        jTitle.includes("electrical")
+                      )) ||
                       (s === "information-technology" && (jCatId.startsWith("cat_tech") || jCatId === "cat_it" || jCatSlug.includes("technology") || jCatName.includes("technology") || jCatSlug.includes("software") || jTitle.includes("developer") || jTitle.includes("software") || jTitle.includes("frontend") || jTitle.includes("backend") || jTitle.includes("full stack"))) ||
                       (s === "healthcare" && (jCatId.startsWith("cat_health") || jCatSlug.includes("health") || jCatName.includes("health") || jCatName.includes("nursing") || jTitle.includes("nurse") || jTitle.includes("clinical") || jTitle.includes("medical") || jTitle.includes("care"))) ||
                       (s === "finance" && (jCatId.startsWith("cat_fin") || jCatSlug.includes("finance") || jCatName.includes("finance") || jTitle.includes("analyst") || jTitle.includes("accountant") || jTitle.includes("credit") || jTitle.includes("risk"))) ||
@@ -315,6 +351,11 @@ function createEdgeMemoryClient(): DatabaseClient {
                     );
                   });
                 });
+
+                // If user specifically requested a company and category matching yields 0, preserve company matching jobs
+                if (filteredByCat.length > 0 || !q.includes("replace(lower(c.name)")) {
+                  res = filteredByCat;
+                }
               }
             }
 

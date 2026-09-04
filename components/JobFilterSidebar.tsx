@@ -72,6 +72,15 @@ export const JobFilterSidebar: React.FC = () => {
     setMaxSalaryInput(maxSalary);
   }, [city, company, minSalary, maxSalary]);
 
+  // Debounced auto-search when typing company name
+  useEffect(() => {
+    if (companyInput === company) return;
+    const timer = setTimeout(() => {
+      updateFilters({ company: companyInput.trim() || null });
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [companyInput, company]);
+
   const updateFilters = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
     for (const [key, value] of Object.entries(updates)) {
@@ -130,7 +139,10 @@ export const JobFilterSidebar: React.FC = () => {
           {company && (
             <button
               type="button"
-              onClick={() => updateFilters({ company: null })}
+              onClick={() => {
+                setCompanyInput("");
+                updateFilters({ company: null });
+              }}
               className="text-[11px] font-semibold text-rose-500 hover:underline"
             >
               Clear
@@ -140,7 +152,11 @@ export const JobFilterSidebar: React.FC = () => {
         
         <select
           value={company}
-          onChange={(e) => updateFilters({ company: e.target.value })}
+          onChange={(e) => {
+            const val = e.target.value;
+            setCompanyInput(val);
+            updateFilters({ company: val || null });
+          }}
           className="w-full p-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none transition-all cursor-pointer mb-2"
         >
           <option value="">All Companies ({allCompanies.length > 0 ? `${allCompanies.length}+` : "472+"})</option>
@@ -168,7 +184,7 @@ export const JobFilterSidebar: React.FC = () => {
         <form onSubmit={handleCompanySubmit} className="flex gap-1.5">
           <input
             type="text"
-            placeholder="Or type company name..."
+            placeholder="Type company name (auto-updates)..."
             value={companyInput}
             onChange={(e) => setCompanyInput(e.target.value)}
             className="flex-1 px-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-slate-50 focus:bg-white focus:border-brand-500 outline-none"

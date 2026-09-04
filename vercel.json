@@ -7,6 +7,10 @@
   },
   "crons": [
     {
+      "path": "/api/cron/auto-harvest",
+      "schedule": "0 */6 * * *"
+    },
+    {
       "path": "/api/cron/harvest-construction",
       "schedule": "0 4 * * *"
     },

@@ -156,13 +156,45 @@ export class JobRepository {
       bindings.push(params.country.toUpperCase());
     }
 
-    // 3. Category filter (with hierarchical parent-child resolution)
+    // 3. Category filter (with hierarchical parent-child resolution & intelligent industry cross-matching)
     if (params.category) {
       const catSlug = params.category.toLowerCase();
       const parentCat = INITIAL_CATEGORIES.find((c) => c.slug === catSlug);
       const catId = parentCat ? parentCat.id : `cat_${catSlug}`;
 
-      if (parentCat && parentCat.subcategories && parentCat.subcategories.length > 0) {
+      if (catSlug === "construction" || catSlug === "civil-engineering") {
+        // Construction & Civil Infrastructure are inherently intertwined in statutory sponsorship
+        const constSlugs = ["construction", "construction-project-management", "skilled-trades", "civil-engineering", "structural-engineering"];
+        const constIds = ["cat_const", "cat_const_mgmt", "cat_const_trades", "cat_eng_civil", "cat_eng_struct"];
+        const slugPlaceholders = constSlugs.map(() => "?").join(", ");
+        const idPlaceholders = constIds.map(() => "?").join(", ");
+
+        conditions.push(`(
+          cat.slug IN (${slugPlaceholders}) OR 
+          j.category_id IN (${idPlaceholders}) OR 
+          j.category_id = ? OR
+          LOWER(j.title) LIKE '%civil%' OR LOWER(j.title) LIKE '%structural%' OR 
+          LOWER(j.title) LIKE '%construction%' OR LOWER(j.title) LIKE '%site%' OR 
+          LOWER(j.title) LIKE '%surveyor%' OR LOWER(j.title) LIKE '%planner%' OR 
+          LOWER(j.title) LIKE '%infrastructure%' OR
+          LOWER(c.industry) LIKE '%construction%' OR LOWER(c.industry) LIKE '%infrastructure%' OR LOWER(c.industry) LIKE '%civil%'
+        )`);
+        bindings.push(...constSlugs, ...constIds, "cat_const");
+      } else if (catSlug === "engineering") {
+        // Engineering includes civil, structural, mechanical, electrical roles
+        const engSlugs = ["engineering", "civil-engineering", "mechanical-engineering", "structural-engineering", "electrical-engineering"];
+        const engIds = ["cat_eng", "cat_eng_civil", "cat_eng_mech", "cat_eng_struct", "cat_eng_elec"];
+        const slugPlaceholders = engSlugs.map(() => "?").join(", ");
+        const idPlaceholders = engIds.map(() => "?").join(", ");
+
+        conditions.push(`(
+          cat.slug IN (${slugPlaceholders}) OR 
+          j.category_id IN (${idPlaceholders}) OR 
+          j.category_id = ? OR
+          LOWER(j.title) LIKE '%engineer%' OR LOWER(j.title) LIKE '%engineering%'
+        )`);
+        bindings.push(...engSlugs, ...engIds, "cat_eng");
+      } else if (parentCat && parentCat.subcategories && parentCat.subcategories.length > 0) {
         const matchingSlugs = [parentCat.slug, ...parentCat.subcategories.map((s) => s.slug)];
         const matchingIds = [catId, ...parentCat.subcategories.map((s) => s.id)];
         const slugPlaceholders = matchingSlugs.map(() => "?").join(", ");
@@ -567,6 +599,11 @@ export class JobRepository {
     params: { q?: string; country?: string; category?: string; company?: string },
     limit: number = 6
   ): Promise<PublicJobDTO[]> {
+    // 0. If company provided, prioritize jobs from that verified sponsor first (relaxing category if needed)
+    if (params.company) {
+      const res = await this.search({ company: params.company, limit, sort: "sponsorship", isFallback: true });
+      if (res.jobs.length > 0) return res.jobs;
+    }
     // 1. If category provided, find top jobs in category
     if (params.category && params.category !== "all") {
       const res = await this.search({ category: params.category, limit, sort: "sponsorship", isFallback: true });
