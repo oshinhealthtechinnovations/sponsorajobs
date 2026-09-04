@@ -305,8 +305,17 @@ export class BackendAdminSupervisor {
    * Executes the full system inspection and dispatches the rich hourly executive update
    */
   async dispatchHourlyExecutiveUpdate(toEmail?: string): Promise<{ success: boolean; audit: FullBackendSystemAudit; dispatchResult?: any }> {
-    const targetRecipient = toEmail || process.env.ADMIN_EMAIL || "oshinhealthtechinnovations@gmail.com";
-    console.log(`[BackendAdminSupervisor] Running hourly system audit and dispatching update to ${targetRecipient}...`);
+    const recipients = toEmail
+      ? [toEmail]
+      : Array.from(
+          new Set([
+            process.env.ADMIN_EMAIL,
+            "sumit@sponsorajobs.com",
+            "oshinhealthtechinnovations@gmail.com",
+          ])
+        ).filter((e): e is string => Boolean(e));
+
+    console.log(`[BackendAdminSupervisor] Running hourly system audit and dispatching update to ${recipients.join(", ")}...`);
 
     const audit = await this.performFullSystemInspection();
     const formattedTimestamp = new Date(audit.timestamp).toLocaleString("en-US", {
@@ -315,84 +324,91 @@ export class BackendAdminSupervisor {
       timeStyle: "short",
     });
 
-    const reportData = {
-      toEmail: targetRecipient,
-      timestamp: formattedTimestamp,
-      metrics: {
-        totalJobs: audit.liveMetrics.activeJobs,
-        totalCompanies: audit.liveMetrics.totalCompanies,
-        activeApplications: audit.liveMetrics.recentApplicationsCount,
-        systemErrors: audit.liveMetrics.brokenRoutesCount,
-        apiHealth: `100% Operational (${audit.pillars.database.latencyMs || 8}ms Latency)`,
-        supabaseHealth: audit.pillars.usersAndAuth.details.supabaseHealth || "200 OK",
-        routeHealth: `🟢 ${audit.overallGrade} (${audit.liveMetrics.totalRoutesAudited} Routes Verified)`,
-      },
-      employeeActivities: [
-        {
-          name: "Backend Admin Supervisor Bot",
-          role: "Autonomous Executive System Sentinel",
-          currentAction: "Audited all 6 core backend pillars (DB, Ingestion, SEO, Auth, Email Relay, Security).",
-          progress: `100% System Health (Score: ${audit.overallHealthScore}/100, Grade: ${audit.overallGrade}). 0 broken routes across ${audit.liveMetrics.totalRoutesAudited} audited URLs.`,
-        },
-        {
-          name: "Sumit Raj",
-          role: "Chief SEO & Growth Strategist",
-          currentAction: "Automated JobPosting JSON-LD rich schema audit across 1,853 active job listings & topical keyword mesh verification.",
-          progress: "7-Day Fast-Rank Protocol active; all Tier-2/H-1B pages optimized with zero-latency IndexNow crawlers queued.",
-        },
-        {
-          name: "Automated 404 & Broken URL Sentinel",
-          role: "Route Integrity & Link Health Monitor",
-          currentAction: "Audited all 42+ country codes (/jobs/us, /jobs/usa, /jobs/uk, /jobs/gb, /jobs/au, /jobs/ca, /jobs/nz), category paths, and visa guides.",
-          progress: `100% Route Health (${audit.liveMetrics.brokenRoutesCount} broken links detected across ${audit.liveMetrics.totalRoutesAudited} audited paths).`,
-        },
-        {
-          name: "AI Candidate Matcher Engine",
-          role: "ATS & Resume Parsing Specialist",
-          currentAction: "Realtime resume vector cosine parsing and international sponsorship compatibility validation.",
-          progress: "Sub-150ms candidate scoring online with 94.8% sponsorship signal confidence.",
-        },
-        {
-          name: "Data Ingestion & Verification Bot",
-          role: "Automated Data Ingestion & Deduplication Pipeline",
-          currentAction: "Continuous multi-country adapter heartbeat check across UK, US, Australia, Canada, and New Zealand sources.",
-          progress: "Zero duplicate entries; stale job auto-purge threshold set to 30 days.",
-        },
-      ],
-      activeCandidateLogs: [
-        {
-          name: "Candidate (Active Session)",
-          email: "candidate.session@sponsorajobs.com",
-          profession: "Senior Software Engineer",
-          action: "Applied & Tracked 3 Verified Position(s) (Status: APPLIED)",
-          time: `${formattedTimestamp} IST`,
-          company: "Verified UK Sponsor",
-          jobTitle: "Software Engineer (CoS Tier 2)",
-          status: "VERIFIED",
-        },
-      ],
-      userActivitySummary: {
-        totalActiveCandidates: audit.liveMetrics.supabaseCandidateCount,
-        recentApplications: audit.liveMetrics.recentApplicationsCount,
-        recentLogins: Math.round(audit.liveMetrics.supabaseCandidateCount * 0.75),
-        topSearchedTerms: [
-          "Balfour Beatty UK",
-          "NHS Tier 2 Healthcare",
-          "Software Engineer H-1B",
-          "Australia TSS 482 Construction",
-          "Data Analyst London",
-        ],
-      },
-      suggestions: audit.operationalRecommendations,
-    };
+    let primaryDispatchResult: any = null;
 
-    const dispatchResult = await this.emailService.sendHourlyOperationalReportEmail(reportData);
-    console.log(`[BackendAdminSupervisor] Dispatched hourly update:`, dispatchResult);
+    for (const recipient of recipients) {
+      const reportData = {
+        toEmail: recipient,
+        timestamp: formattedTimestamp,
+        metrics: {
+          totalJobs: audit.liveMetrics.activeJobs,
+          totalCompanies: audit.liveMetrics.totalCompanies,
+          activeApplications: audit.liveMetrics.recentApplicationsCount,
+          systemErrors: audit.liveMetrics.brokenRoutesCount,
+          apiHealth: `100% Operational (${audit.pillars.database.latencyMs || 8}ms Latency)`,
+          supabaseHealth: audit.pillars.usersAndAuth.details.supabaseHealth || "200 OK",
+          routeHealth: `🟢 ${audit.overallGrade} (${audit.liveMetrics.totalRoutesAudited} Routes Verified)`,
+        },
+        employeeActivities: [
+          {
+            name: "Backend Admin Supervisor Bot",
+            role: "Autonomous Executive System Sentinel",
+            currentAction: "Audited all 6 core backend pillars (DB, Ingestion, SEO, Auth, Email Relay, Security).",
+            progress: `100% System Health (Score: ${audit.overallHealthScore}/100, Grade: ${audit.overallGrade}). 0 broken routes across ${audit.liveMetrics.totalRoutesAudited} audited URLs.`,
+          },
+          {
+            name: "Sumit Raj",
+            role: "Chief SEO & Growth Strategist",
+            currentAction: "Automated JobPosting JSON-LD rich schema audit across 1,853 active job listings & topical keyword mesh verification.",
+            progress: "7-Day Fast-Rank Protocol active; all Tier-2/H-1B pages optimized with zero-latency IndexNow crawlers queued.",
+          },
+          {
+            name: "Automated 404 & Broken URL Sentinel",
+            role: "Route Integrity & Link Health Monitor",
+            currentAction: "Audited all 42+ country codes (/jobs/us, /jobs/usa, /jobs/uk, /jobs/gb, /jobs/au, /jobs/ca, /jobs/nz), category paths, and visa guides.",
+            progress: `100% Route Health (${audit.liveMetrics.brokenRoutesCount} broken links detected across ${audit.liveMetrics.totalRoutesAudited} audited paths).`,
+          },
+          {
+            name: "AI Candidate Matcher Engine",
+            role: "ATS & Resume Parsing Specialist",
+            currentAction: "Realtime resume vector cosine parsing and international sponsorship compatibility validation.",
+            progress: "Sub-150ms candidate scoring online with 94.8% sponsorship signal confidence.",
+          },
+          {
+            name: "Data Ingestion & Verification Bot",
+            role: "Automated Data Ingestion & Deduplication Pipeline",
+            currentAction: "Continuous multi-country adapter heartbeat check across UK, US, Australia, Canada, and New Zealand sources.",
+            progress: "Zero duplicate entries; stale job auto-purge threshold set to 30 days.",
+          },
+        ],
+        activeCandidateLogs: [
+          {
+            name: "Candidate (Active Session)",
+            email: "candidate.session@sponsorajobs.com",
+            profession: "Senior Software Engineer",
+            action: "Applied & Tracked 3 Verified Position(s) (Status: APPLIED)",
+            time: `${formattedTimestamp} IST`,
+            company: "Verified UK Sponsor",
+            jobTitle: "Software Engineer (CoS Tier 2)",
+            status: "VERIFIED",
+          },
+        ],
+        userActivitySummary: {
+          totalActiveCandidates: audit.liveMetrics.supabaseCandidateCount,
+          recentApplications: audit.liveMetrics.recentApplicationsCount,
+          recentLogins: Math.round(audit.liveMetrics.supabaseCandidateCount * 0.75),
+          topSearchedTerms: [
+            "Balfour Beatty UK",
+            "NHS Tier 2 Healthcare",
+            "Software Engineer H-1B",
+            "Australia TSS 482 Construction",
+            "Data Analyst London",
+          ],
+        },
+        suggestions: audit.operationalRecommendations,
+      };
+
+      const dispatchResult = await this.emailService.sendHourlyOperationalReportEmail(reportData);
+      console.log(`[BackendAdminSupervisor] Dispatched hourly update to ${recipient}:`, dispatchResult);
+      if (!primaryDispatchResult) {
+        primaryDispatchResult = dispatchResult;
+      }
+    }
 
     return {
       success: true,
       audit,
-      dispatchResult,
+      dispatchResult: primaryDispatchResult,
     };
   }
 }

@@ -46,7 +46,13 @@ async function run() {
     console.warn("Could not fetch users/apps from Supabase:", e);
   }
 
-  const targetRecipient = process.env.ADMIN_EMAIL || "oshinhealthtechinnovations@gmail.com";
+  const adminRecipients = Array.from(
+    new Set([
+      process.env.ADMIN_EMAIL,
+      "sumit@sponsorajobs.com",
+      "oshinhealthtechinnovations@gmail.com",
+    ])
+  ).filter((e): e is string => Boolean(e));
   const now = new Date();
   const formattedTimestamp = now.toLocaleString("en-US", {
     timeZone: "Asia/Kolkata",
@@ -124,7 +130,7 @@ async function run() {
     const routeAudit = await routeHealthMonitor.auditAllSystemRoutes();
 
     const hourlyData = {
-      toEmail: targetRecipient,
+      toEmail: adminRecipients[0],
       timestamp: formattedTimestamp,
       metrics: {
         totalJobs: totalJobs || 1408,
@@ -207,7 +213,7 @@ async function run() {
       ],
     };
 
-    const supervisorResult = await backendAdminSupervisor.dispatchHourlyExecutiveUpdate(targetRecipient);
+    const supervisorResult = await backendAdminSupervisor.dispatchHourlyExecutiveUpdate();
     console.log(`[ScheduledReports] Backend Admin Supervisor Hourly Update Result:`, supervisorResult.success ? "SUCCESS" : "FAILED", supervisorResult.dispatchResult);
   }
 
@@ -295,30 +301,32 @@ async function run() {
       { country: "New Zealand", flag: "🇳🇿", activeCount: 92, visaType: "Accredited Employer Work Visa" },
     ];
 
-    const dailyParams = {
-      toEmail: targetRecipient,
-      dateStr: formattedDate,
-      newJobsToday: 142,
-      totalCumulativeJobs: totalJobs || 1408,
-      totalCompanies: totalCompanies || 472,
-      growthPercent: "+18.4% (Net 7-Day Growth)",
-      sevenDayHistory,
-      sourceBreakdown,
-      countryBreakdown,
-      seoAuditSummary: {
-        schemaValidPct: "100%",
-        indexNowPings: 1408,
-        googlebotCrawlRate: "< 4 Hours",
-      },
-      recommendations: [
-        "Sponsorship Quality: High ratio of verified engineering & healthcare positions added in today's run.",
-        "SEO Indexing: Sumit Raj's Fast-Rank protocol queued all 142 new job URLs for instant IndexNow crawler dispatch.",
-        "Candidate Traffic: UK Tier 2 and US H-1B sectors represent 68% of total candidate search volume.",
-      ],
-    };
+    for (const recipient of adminRecipients) {
+      const dailyParams = {
+        toEmail: recipient,
+        dateStr: formattedDate,
+        newJobsToday: 142,
+        totalCumulativeJobs: totalJobs || 1408,
+        totalCompanies: totalCompanies || 472,
+        growthPercent: "+18.4% (Net 7-Day Growth)",
+        sevenDayHistory,
+        sourceBreakdown,
+        countryBreakdown,
+        seoAuditSummary: {
+          schemaValidPct: "100%",
+          indexNowPings: 1408,
+          googlebotCrawlRate: "< 4 Hours",
+        },
+        recommendations: [
+          "Sponsorship Quality: High ratio of verified engineering & healthcare positions added in today's run.",
+          "SEO Indexing: Sumit Raj's Fast-Rank protocol queued all 142 new job URLs for instant IndexNow crawler dispatch.",
+          "Candidate Traffic: UK Tier 2 and US H-1B sectors represent 68% of total candidate search volume.",
+        ],
+      };
 
-    const dailyResult = await emailService.sendDailyJobIngestionReportEmail(dailyParams);
-    console.log(`[ScheduledReports] Daily Report result:`, dailyResult);
+      const dailyResult = await emailService.sendDailyJobIngestionReportEmail(dailyParams);
+      console.log(`[ScheduledReports] Daily Report result for ${recipient}:`, dailyResult);
+    }
   }
 
   console.log(`[ScheduledReports] All requested dispatches complete.`);
