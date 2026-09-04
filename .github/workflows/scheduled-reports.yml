@@ -31,16 +31,21 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install --prefer-offline --no-audit
 
       - name: Determine dispatch mode and execute report
         continue-on-error: true
         env:
-          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL || 'oshinhealthtechinnovations@gmail.com' }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL || 'sumit@sponsorajobs.com' }}
+          DOMAIN_SMTP_HOST: ${{ secrets.DOMAIN_SMTP_HOST || 'mail.sponsorajobs.com' }}
+          DOMAIN_SMTP_PORT: ${{ secrets.DOMAIN_SMTP_PORT || '587' }}
+          DOMAIN_SMTP_USER: ${{ secrets.DOMAIN_SMTP_USER || 'support@sponsorajobs.com' }}
+          DOMAIN_SMTP_PASS: ${{ secrets.DOMAIN_SMTP_PASS || 'Os@626461' }}
+          DOMAIN_ADMIN_EMAIL: ${{ secrets.DOMAIN_ADMIN_EMAIL || 'sumit@sponsorajobs.com' }}
           SMTP_HOST: ${{ secrets.SMTP_HOST || 'smtp.gmail.com' }}
           SMTP_PORT: ${{ secrets.SMTP_PORT || '465' }}
           SMTP_USER: ${{ secrets.SMTP_USER || 'oshinhealthtechinnovations@gmail.com' }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS || 'kltldstgpmpvhdnm' }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://tyijulgmluvlxkfgsszd.supabase.co' }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY || 'sb_publishable_bjRsLme6-pwayZBk95Kikw_d6_lexjm' }}

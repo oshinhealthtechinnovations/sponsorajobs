@@ -35,16 +35,20 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install --prefer-offline --no-audit
 
       - name: Execute Autonomous SEO Cycle
         env:
           NEXT_PUBLIC_SITE_URL: "https://sponsorajobs.com"
-          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL || 'sumit@sponsorajobs.com' }}
+          DOMAIN_SMTP_HOST: ${{ secrets.DOMAIN_SMTP_HOST || 'mail.sponsorajobs.com' }}
+          DOMAIN_SMTP_PORT: ${{ secrets.DOMAIN_SMTP_PORT || '587' }}
+          DOMAIN_SMTP_USER: ${{ secrets.DOMAIN_SMTP_USER || 'support@sponsorajobs.com' }}
+          DOMAIN_SMTP_PASS: ${{ secrets.DOMAIN_SMTP_PASS || 'Os@626461' }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST || 'smtp.gmail.com' }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT || '465' }}
+          SMTP_USER: ${{ secrets.SMTP_USER || 'oshinhealthtechinnovations@gmail.com' }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS || 'kltldstgpmpvhdnm' }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           INDEXNOW_API_KEY: ${{ secrets.INDEXNOW_API_KEY || 'sponsorajobs2026seo' }}
           GOOGLE_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
