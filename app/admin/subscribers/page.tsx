@@ -186,8 +186,12 @@ export default async function AdminSubscribersPage() {
         healthNotes.push("Email not yet OTP-verified");
       }
 
+      const resolvedAmount = typeof subData.amount === "number"
+        ? subData.amount
+        : (paymentInfo?.amount ? (paymentInfo.amount / 100) : 199);
+
       subscribersMap.set(email, {
-        id: u.id,
+        id: u.id || `usr_${Date.now()}`,
         email: u.email,
         name: displayName,
         phone,
@@ -199,15 +203,15 @@ export default async function AdminSubscribersPage() {
         subscriptionTier: "PRO",
         subscriptionStatus: subData.status || (daysRemaining > 0 ? "ACTIVE" : "EXPIRED"),
         planLabel: subData.planLabel || "1 Month VIP (Candidate Pro)",
-        amountPaid: subData.amount || paymentInfo?.amount ? (paymentInfo.amount / 100) : 199,
+        amountPaid: resolvedAmount,
         currencyPaid: subData.currency || "INR",
         paymentId,
-        gateway: paymentInfo ? "Razorpay" : "Online Gateway",
+        gateway: paymentInfo ? "Razorpay" : (subData.gateway || "Online Gateway"),
         startedAt,
         expiresAt,
         daysRemaining,
-        lastLoginAt: u.last_login_at || u.created_at,
-        createdAt: u.created_at,
+        lastLoginAt: u.last_login_at || u.created_at || new Date().toISOString(),
+        createdAt: u.created_at || new Date().toISOString(),
         applicationsCount: userApps.length,
         interviewingCount,
         offersCount,
@@ -234,12 +238,14 @@ export default async function AdminSubscribersPage() {
   // 7. Telemetry & Quota Status
   const emailService = new EmailService();
   const quota = emailService.getDailyQuotaStatus();
-  const openTicketsTotal = allComplaints.filter((c) => c.status !== "RESOLVED").length;
+  const openTicketsTotal = Array.isArray(allComplaints)
+    ? allComplaints.filter((c) => c.status !== "RESOLVED").length
+    : 0;
 
   return (
     <PaidUsersAdminClient
       subscribers={subscribers}
-      complaints={allComplaints}
+      complaints={allComplaints || []}
       telemetry={{
         totalRevenueInr,
         activeCount: subscribers.filter((s) => s.daysRemaining > 0).length,
