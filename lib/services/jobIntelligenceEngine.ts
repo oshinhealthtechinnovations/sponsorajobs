@@ -854,14 +854,25 @@ export class JobIntelligenceEngine {
     const normalizedTitle = this.findCanonicalRole(title);
     const alternativeTitles = this.getTransferableRoles(normalizedTitle);
 
-    // Extract required vs preferred skills
+    // Extract required vs preferred skills using proper word-boundary regex (same as CV extraction)
     const requiredSkills: string[] = [];
     const preferredSkills: string[] = [];
     const toolsAndTech: string[] = [];
 
     for (const [skillKey, meta] of Object.entries(SKILL_TAXONOMY)) {
-      if (lower.includes(skillKey)) {
-        if (lower.includes(`preferred: ${skillKey}`) || lower.includes(`nice to have: ${skillKey}`) || lower.includes(`bonus: ${skillKey}`)) {
+      // Use word-boundary regex to avoid false substring matches (e.g., "go" inside "django")
+      const skillRegex = new RegExp(`(^|[^a-z0-9])${escapeRegex(skillKey)}([^a-z0-9]|$)`, "i");
+      const synonymMatch = meta.synonyms.some((s) => {
+        const synRegex = new RegExp(`(^|[^a-z0-9])${escapeRegex(s)}([^a-z0-9]|$)`, "i");
+        return synRegex.test(lower);
+      });
+      if (skillRegex.test(lower) || synonymMatch) {
+        // Check if explicitly marked as preferred
+        const isPreferred = [
+          `preferred: ${skillKey}`, `nice to have: ${skillKey}`, `bonus: ${skillKey}`,
+          `preferred: ${meta.synonyms[0] || ""}`, `nice to have: ${meta.synonyms[0] || ""}`
+        ].some((phrase) => lower.includes(phrase));
+        if (isPreferred) {
           preferredSkills.push(skillKey);
         } else {
           requiredSkills.push(skillKey);
@@ -1048,7 +1059,13 @@ export class JobIntelligenceEngine {
 
     // G. Overall Weighted Score (100% total)
     // Formula: Skills (25%) + Experience (20%) + Role (15%) + Qual (10%) + Responsibilities/ATS (10%) + Industry (10%) + Visa (10%)
-    const industryAlignment = candidate.primaryIndustry.toLowerCase().includes(jobIntel.industry.toLowerCase().slice(0, 5)) ? 100 : 80;
+    
+    // Proper industry alignment: check if key domain words overlap (not just first 5 chars)
+    const candidateIndustryTokens = candidate.primaryIndustry.toLowerCase().split(/[\s/&,]+/).filter((t) => t.length >= 4);
+    const jobIndustryTokens = jobIntel.industry.toLowerCase().split(/[\s/&,]+/).filter((t) => t.length >= 4);
+    const industryOverlapCount = candidateIndustryTokens.filter((t) => jobIndustryTokens.some((jt) => jt.includes(t) || t.includes(jt))).length;
+    const industryAlignment = industryOverlapCount >= 1 ? 100 : 55;
+
     let overallScore = Math.round(
       skillsScore * 0.25 +
       experienceScore * 0.20 +
@@ -1059,13 +1076,14 @@ export class JobIntelligenceEngine {
       visaScore * 0.10
     );
 
-    // Cross-Domain & Unrelated Role Protection:
-    // If candidate has 0 matching skills AND role similarity < 45, or role similarity < 25,
-    // prevent false positive score inflation across completely unrelated professions.
-    if (skillsScore === 0 && roleScore < 45) {
-      overallScore = Math.min(overallScore, 24);
-    } else if (roleScore < 25) {
-      overallScore = Math.min(overallScore, 30);
+    // Aggressive Cross-Domain Protection:
+    // Hard block: if role similarity is very low AND skills don't match, it's a cross-domain mismatch
+    if (skillsScore === 0 && roleScore < 50) {
+      overallScore = Math.min(overallScore, 20); // Hard block irrelevant jobs
+    } else if (roleScore < 25 && skillsScore < 20) {
+      overallScore = Math.min(overallScore, 28); // Strong block for unrelated roles
+    } else if (industryAlignment < 60 && roleScore < 50) {
+      overallScore = Math.min(overallScore, 35); // Cross-industry guard
     }
 
     // Generate Human-Readable Explainability
@@ -1189,15 +1207,16 @@ export class JobIntelligenceEngine {
       });
     }
 
-    // Add candidate core skills
-    candidate.coreSkills.forEach((skill) => {
+    // Add candidate core skills (technical skills take priority for matching)
+    [...candidate.coreSkills, ...candidate.technicalSkills].forEach((skill) => {
       const clean = skill.toLowerCase().trim();
       if (clean.length >= 3) {
         roleKeywords.add(clean);
       }
     });
 
-    const keywordList = Array.from(roleKeywords).slice(0, 10);
+    // Cap keyword list at 20 for a wider but still targeted fetch
+    const keywordList = Array.from(roleKeywords).slice(0, 20);
     let allJobs: any[] = [];
 
     if (keywordList.length > 0) {
@@ -1219,16 +1238,38 @@ export class JobIntelligenceEngine {
       allJobs = res.results || [];
     }
 
-    // Fallback: If targeted query yielded fewer than 15 jobs, fetch general top-sponsored jobs in the target country
-    if (allJobs.length < 15) {
-      const fallbackQuery = country
-        ? "SELECT * FROM jobs WHERE status = 'active' AND UPPER(country_code) = ? ORDER BY has_sponsorship DESC, sponsorship_score DESC, published_at DESC LIMIT 200"
-        : "SELECT * FROM jobs WHERE status = 'active' ORDER BY has_sponsorship DESC, sponsorship_score DESC, published_at DESC LIMIT 200";
+    // Fallback: If targeted query yielded fewer than 10 jobs, fetch domain-restricted sponsored jobs
+    // CRITICAL: Do NOT fall back to completely random jobs — always restrict by industry/category
+    if (allJobs.length < 10) {
+      // Build domain-specific LIKE terms from industry (e.g. "technology", "healthcare", "construction")
+      const industryTerms = candidate.primaryIndustry
+        .toLowerCase()
+        .split(/[\s/&,]+/)
+        .filter((t) => t.length >= 4 && !["services", "cross", "functional"].includes(t))
+        .slice(0, 3);
 
-      const stmt = country
-        ? db.prepare(fallbackQuery).bind(country.toUpperCase())
-        : db.prepare(fallbackQuery);
+      let fallbackQuery: string;
+      let fallbackParams: string[];
 
+      if (industryTerms.length > 0) {
+        // Use industry terms in category_name for domain-aware fallback
+        const industryClauses = industryTerms.map(() => "LOWER(category_name) LIKE ?").join(" OR ");
+        fallbackParams = industryTerms.map((t) => `%${t}%`);
+        if (country) {
+          fallbackQuery = `SELECT * FROM jobs WHERE status = 'active' AND UPPER(country_code) = ? AND (${industryClauses}) ORDER BY has_sponsorship DESC, sponsorship_score DESC, published_at DESC LIMIT 150`;
+          fallbackParams = [country.toUpperCase(), ...fallbackParams];
+        } else {
+          fallbackQuery = `SELECT * FROM jobs WHERE status = 'active' AND (${industryClauses}) ORDER BY has_sponsorship DESC, sponsorship_score DESC, published_at DESC LIMIT 150`;
+        }
+      } else {
+        // Only if industry is completely unknown, fall back to country-scoped top jobs
+        fallbackParams = country ? [country.toUpperCase()] : [];
+        fallbackQuery = country
+          ? "SELECT * FROM jobs WHERE status = 'active' AND UPPER(country_code) = ? ORDER BY has_sponsorship DESC, sponsorship_score DESC, published_at DESC LIMIT 100"
+          : "SELECT * FROM jobs WHERE status = 'active' ORDER BY has_sponsorship DESC, sponsorship_score DESC, published_at DESC LIMIT 100";
+      }
+
+      const stmt = db.prepare(fallbackQuery).bind(...fallbackParams);
       const fallbackRes = await stmt.all<any>();
       const existingIds = new Set(allJobs.map((j) => j.id));
       for (const j of fallbackRes.results || []) {
@@ -1246,8 +1287,12 @@ export class JobIntelligenceEngine {
       const breakdown = this.calculateDetailedMatch(candidate, jobIntel);
 
       // Hard gate against cross-domain false positives:
-      // Reject jobs with low overall score OR zero skill overlap with low role similarity
-      if (breakdown.overallMatchScore < 50 || (breakdown.skillsMatchScore === 0 && breakdown.roleSimilarityScore < 45)) {
+      // Reject jobs with low overall score OR zero skill overlap with low role similarity.
+      // Also guard against industry mismatch jobs sneaking in via fallback.
+      const isCrossDomainMismatch =
+        breakdown.skillsMatchScore === 0 && breakdown.roleSimilarityScore < 40;
+      const isTooWeak = breakdown.overallMatchScore < 50;
+      if (isTooWeak || isCrossDomainMismatch) {
         continue;
       }
 
