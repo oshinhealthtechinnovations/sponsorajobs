@@ -317,7 +317,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               />
 
               <Link
-                href={`/tools/ats-checker?jobId=${job.id}`}
+                href={`/tools/ats-checker?jobId=${encodeURIComponent(job.id)}`}
                 className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm border border-white/20 transition-all cursor-pointer backdrop-blur-md"
               >
                 <FileSearch className="w-4 h-4 text-[#18D6E5]" />
@@ -441,7 +441,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               </div>
 
               <Link
-                href={`/tools/ats-checker?jobId=${job.id}`}
+                href={`/tools/ats-checker?jobId=${encodeURIComponent(job.id)}`}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#18D6E5] hover:bg-[#15c0ce] text-[#071421] font-black text-xs transition-colors shrink-0 shadow-sm"
               >
                 <span>Scan Resume Free</span>
@@ -556,7 +556,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               </p>
               <div className="flex flex-col gap-2 pt-1">
                 <Link
-                  href={`/tools/ats-checker?jobId=${job.id}`}
+                  href={`/tools/ats-checker?jobId=${encodeURIComponent(job.id)}`}
                   className="block w-full py-2.5 px-4 rounded-xl bg-[#18D6E5] hover:bg-[#15c0ce] text-[#071421] font-black text-xs text-center transition-colors shadow-xs"
                 >
                   Scan Resume for ATS Free

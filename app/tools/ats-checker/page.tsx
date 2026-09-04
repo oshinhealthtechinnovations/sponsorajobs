@@ -81,7 +81,7 @@ CERTIFICATIONS
 function ATSCheckerContent() {
   const { user, isLoggedIn, isPro, isLoading: isSessionLoading } = useSession();
   const searchParams = useSearchParams();
-  const urlJobId = searchParams.get("jobId");
+  const urlJobId = searchParams ? searchParams.get("jobId") : null;
 
   const [resumeText, setResumeText] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -112,16 +112,34 @@ function ATSCheckerContent() {
 
   // Auto-detect & load targeted job vacancy if ?jobId= is provided in URL
   useEffect(() => {
-    if (urlJobId) {
-      setTargetJobId(urlJobId);
-      setIsLoadingTargetJob(true);
-      fetch(`/api/jobs?ids=${encodeURIComponent(urlJobId)}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.jobs && data.jobs.length > 0) {
-            const found = data.jobs[0];
+    if (!urlJobId) return;
+
+    const sanitizedJobId = String(urlJobId).trim();
+    if (!sanitizedJobId) return;
+
+    let isMounted = true;
+    setTargetJobId(sanitizedJobId);
+    setIsLoadingTargetJob(true);
+
+    fetch(`/api/jobs?ids=${encodeURIComponent(sanitizedJobId)}`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (!isMounted) return;
+        if (data && Array.isArray(data.jobs) && data.jobs.length > 0) {
+          const found = data.jobs[0];
+          if (found && typeof found === "object" && found.id) {
             setTargetJob(found);
-            if (found.location?.country) {
+
+            const rawCountry =
+              (typeof found.location === "object" && found.location?.country) ||
+              found.country_code ||
+              found.countryCode ||
+              "GB";
+
+            if (typeof rawCountry === "string") {
               const countryMap: Record<string, string> = {
                 UK: "GB",
                 "United Kingdom": "GB",
@@ -131,20 +149,26 @@ function ATSCheckerContent() {
                 Canada: "CA",
                 "New Zealand": "NZ",
               };
-              const code = countryMap[found.location.country] || found.location.country;
+              const code = (countryMap[rawCountry] || rawCountry).toUpperCase();
               if (["GB", "US", "AU", "CA", "NZ"].includes(code)) {
                 setTargetCountry(code);
               }
             }
           }
-        })
-        .catch((err) => {
-          console.error("Error fetching target job for ATS benchmark:", err);
-        })
-        .finally(() => {
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not load target job for ATS benchmark:", err);
+      })
+      .finally(() => {
+        if (isMounted) {
           setIsLoadingTargetJob(false);
-        });
-    }
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [urlJobId]);
 
   // File upload handler
@@ -264,7 +288,7 @@ function ATSCheckerContent() {
         </div>
 
         {/* ── TARGET VACANCY BANNER (When linked from a specific job) ── */}
-        {targetJob && (
+        {targetJob && typeof targetJob === "object" && (
           <div className="p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-950 to-brand-950 text-white border border-brand-500/40 shadow-xl mb-8 relative overflow-hidden animate-fade-in">
             <div className="absolute -top-12 -right-12 w-48 h-48 bg-brand-500/15 rounded-full blur-3xl pointer-events-none" />
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -279,15 +303,16 @@ function ATSCheckerContent() {
                     <span>Verified Sponsor</span>
                   </span>
                   <span className="text-xs text-slate-400 font-medium">
-                    {targetJob.location?.city ? `${targetJob.location.city}, ` : ""}{targetJob.location?.country || "United Kingdom"}
+                    {typeof targetJob.location === "object" && targetJob.location?.city ? `${targetJob.location.city}, ` : ""}
+                    {typeof targetJob.location === "object" ? (targetJob.location?.country || "United Kingdom") : (typeof targetJob.location === "string" ? targetJob.location : "United Kingdom")}
                   </span>
                 </div>
                 <div>
                   <h3 className="text-xl sm:text-2xl font-black text-white font-display">
-                    {targetJob.title}
+                    {targetJob.title || "Target Vacancy"}
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-300 mt-0.5">
-                    Hiring Employer: <strong className="text-white">{targetJob.company?.name}</strong> • Scoring will benchmark your CV directly against this role's required skills, experience level, and visa statutory criteria.
+                    Hiring Employer: <strong className="text-white">{typeof targetJob.company === "object" ? (targetJob.company?.name || "Verified Employer") : (targetJob.company || "Verified Employer")}</strong> • Scoring will benchmark your CV directly against this role&apos;s required skills, experience level, and visa statutory criteria.
                   </p>
                 </div>
               </div>
@@ -298,6 +323,13 @@ function ATSCheckerContent() {
                   onClick={() => {
                     setTargetJob(null);
                     setTargetJobId("");
+                    if (typeof window !== "undefined") {
+                      try {
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete("jobId");
+                        window.history.replaceState({}, "", url.pathname);
+                      } catch {}
+                    }
                   }}
                   className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-slate-200 border border-white/20 transition-all cursor-pointer"
                 >
@@ -424,7 +456,7 @@ function ATSCheckerContent() {
                 ) : (
                   <>
                     <Zap className="w-4 h-4 text-amber-300" />
-                    <span>{targetJob ? `Score CV Against ${targetJob.company?.name || "Target Role"}` : "Run Deep CV & Visa Analysis"}</span>
+                    <span>{targetJob ? `Score CV Against ${typeof targetJob.company === "object" ? (targetJob.company?.name || "Target Vacancy") : (targetJob.company || "Target Vacancy")}` : "Run Deep CV & Visa Analysis"}</span>
                   </>
                 )}
               </button>
@@ -1074,20 +1106,100 @@ function ATSCheckerContent() {
   );
 }
 
-export default function ATSCheckerPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex flex-col bg-slate-50">
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ATSCheckerErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.warn("ATSChecker local error boundary intercepted an error:", error, errorInfo);
+  }
+
+  handleClearJobTarget = () => {
+    if (typeof window !== "undefined") {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("jobId");
+        window.history.replaceState({}, "", url.pathname);
+      } catch {}
+    }
+    this.setState({ hasError: false, error: null });
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
           <Navbar />
-          <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 flex items-center justify-center">
-            <div className="w-10 h-10 rounded-2xl border-3 border-brand-500 border-t-transparent animate-spin" />
+          <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-16 flex items-center justify-center">
+            <div className="w-full p-8 sm:p-10 rounded-3xl bg-white border border-slate-200 shadow-xl text-center space-y-5">
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
+                <AlertTriangle className="w-8 h-8" />
+              </div>
+              <div className="space-y-1.5">
+                <h2 className="text-2xl font-black text-slate-900 font-display">
+                  ATS Scanner Notice
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+                  We could not initialize the benchmark for this vacancy ID. You can continue using the ATS Checker directly with any CV.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={this.handleClearJobTarget}
+                  className="px-6 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+                >
+                  Continue to ATS Checker
+                </button>
+                <Link
+                  href="/jobs"
+                  className="px-5 py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
+                >
+                  Browse Verified Jobs
+                </Link>
+              </div>
+            </div>
           </main>
           <Footer />
         </div>
-      }
-    >
-      <ATSCheckerContent />
-    </Suspense>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export default function ATSCheckerPage() {
+  return (
+    <ATSCheckerErrorBoundary>
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex flex-col bg-slate-50">
+            <Navbar />
+            <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl border-3 border-brand-500 border-t-transparent animate-spin" />
+            </main>
+            <Footer />
+          </div>
+        }
+      >
+        <ATSCheckerContent />
+      </Suspense>
+    </ATSCheckerErrorBoundary>
   );
 }
+

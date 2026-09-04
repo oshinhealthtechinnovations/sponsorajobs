@@ -435,6 +435,7 @@ export class JobRepository {
   async getBySlug(slug: string): Promise<{ job: PublicJobDTO; fullDescription: string } | null> {
     if (!slug) return null;
     const cleanSlug = slug.toLowerCase().trim();
+    if (cleanSlug.length < 3) return null;
 
     // 1. Generate candidate IDs from slug
     const candidateIds: string[] = [cleanSlug, slug];
@@ -624,8 +625,9 @@ export class JobRepository {
     const results: PublicJobDTO[] = [];
     const seen = new Set<string>();
 
-    for (const id of ids) {
-      if (!id || seen.has(id)) continue;
+    for (const rawId of ids) {
+      const id = typeof rawId === "string" ? rawId.trim() : "";
+      if (!id || id.length < 3 || seen.has(id)) continue;
       let job = await this.getById(id);
       if (!job) {
         const slugResult = await this.getBySlug(id);

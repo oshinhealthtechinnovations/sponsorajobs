@@ -27,17 +27,29 @@ export async function GET(request: NextRequest) {
   // Direct ID lookup support for Saved Jobs
   const rawIds = searchParams.get("ids");
   if (rawIds) {
-    const idList = rawIds.split(",").map((s) => s.trim()).filter(Boolean);
-    const jobRepo = new JobRepository();
-    const jobs = await jobRepo.findByIds(idList);
-    return NextResponse.json({
-      jobs,
-      total: jobs.length,
-      page: 1,
-      limit: jobs.length,
-      totalPages: 1,
-    });
+    try {
+      const idList = rawIds.split(",").map((s) => s.trim()).filter(Boolean);
+      const jobRepo = new JobRepository();
+      const jobs = await jobRepo.findByIds(idList);
+      return NextResponse.json({
+        jobs: jobs || [],
+        total: (jobs || []).length,
+        page: 1,
+        limit: (jobs || []).length,
+        totalPages: 1,
+      });
+    } catch (err) {
+      console.error("Error looking up jobs by ID list:", err);
+      return NextResponse.json({
+        jobs: [],
+        total: 0,
+        page: 1,
+        limit: 0,
+        totalPages: 0,
+      });
+    }
   }
+
 
   const rawQ = searchParams.get("q") || undefined;
   const q = rawQ ? sanitizeSearchQuery(rawQ) : undefined;
