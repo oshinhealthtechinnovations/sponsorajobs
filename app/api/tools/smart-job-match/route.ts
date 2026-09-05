@@ -36,7 +36,12 @@ export async function POST(request: NextRequest) {
         rawInput = promptParam;
       }
     } else {
-      const body = await request.json();
+      let body: any = {};
+      try {
+        body = await request.json();
+      } catch {
+        body = {};
+      }
       const { prompt, cvText, country: countryBody, minSalary: minSalaryBody, limit: limitBody } = body;
       rawInput = (cvText || prompt || "").trim();
       country = countryBody;

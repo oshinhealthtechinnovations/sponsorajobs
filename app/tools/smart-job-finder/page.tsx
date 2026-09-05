@@ -109,7 +109,19 @@ export default function SmartJobFinderPage() {
         });
       }
 
-      const data = await res.json();
+      let data: any;
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const errorText = await res.text();
+        throw new Error(
+          res.status === 500
+            ? "The server encountered a temporary issue processing this document. Please try again or paste your background directly."
+            : `Request failed (${res.status}): ${errorText.slice(0, 100)}`
+        );
+      }
+
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Failed to find matching opportunities.");
       }

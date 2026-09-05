@@ -1,12 +1,5 @@
 import zlib from "zlib";
-import { PDFParse as NamedPDFParse } from "pdf-parse";
-import * as pdfParseMod from "pdf-parse";
-
-const PDFParseClass: any =
-  NamedPDFParse ||
-  (pdfParseMod as any)?.PDFParse ||
-  (pdfParseMod as any)?.default?.PDFParse ||
-  (pdfParseMod as any)?.default;
+import { extractText } from "unpdf";
 
 /**
  * Checks if a string looks predominantly like raw PDF syntax / stream dictionary markers
@@ -60,44 +53,29 @@ export function isValidHumanLanguageText(text: string): boolean {
 
 /**
  * Robust Multi-Engine PDF Text Extractor
- * 1. Primary: Uses pdf-parse v2 (Mozilla PDF.js engine) to decompress Object Streams (/ObjStm),
- *    resolve /ToUnicode CMaps, TrueType/CID fonts, and multi-page text layouts.
+ * 1. Primary: Uses unpdf (cross-platform, zero-dependency, serverless-native engine)
+ *    to decompress Object Streams (/ObjStm), resolve /ToUnicode CMaps, TrueType/CID fonts,
+ *    and multi-page text layouts without any native canvas/DOM dependencies.
  * 2. Secondary: Deep flate-stream parser for literal strings, array TJ tokens, and hex-encoded font glyphs.
  * 3. Sanitizes and strips raw PDF binary debris to ensure only real resume content reaches AI tools.
  */
 export async function extractTextFromPDFBuffer(buffer: Buffer): Promise<string> {
   if (!buffer || buffer.length === 0) return "";
 
-  // 1. Primary Engine: pdf-parse v2
+  // 1. Primary Engine: unpdf
   try {
-    if (PDFParseClass && typeof PDFParseClass === "function") {
-      try {
-        const parser = new PDFParseClass({ data: buffer });
-        try {
-          const parsed = await parser.getText();
-          if (parsed && typeof parsed.text === "string") {
-            const rawText = parsed.text.replace(/--\s*\d+\s*of\s*\d+\s*--/gi, " ");
-            const cleaned = sanitizeExtractedText(rawText);
-            if (isValidHumanLanguageText(cleaned)) {
-              return cleaned;
-            }
-          }
-        } finally {
-          try { await parser.destroy(); } catch { /* ignore */ }
-        }
-      } catch (innerErr) {
-        // Function-style fallback if PDFParse is not a constructor
-        const funcResult = await (PDFParseClass as any)(buffer);
-        if (funcResult && typeof funcResult.text === "string") {
-          const cleaned = sanitizeExtractedText(funcResult.text.replace(/--\s*\d+\s*of\s*\d+\s*--/gi, " "));
-          if (isValidHumanLanguageText(cleaned)) {
-            return cleaned;
-          }
-        }
+    const uint8 = new Uint8Array(buffer);
+    const parsed = await extractText(uint8);
+    if (parsed) {
+      const pageStrings = Array.isArray(parsed.text) ? parsed.text : [String(parsed.text || "")];
+      const joined = pageStrings.join("\n").replace(/--\s*\d+\s*of\s*\d+\s*--/gi, " ");
+      const cleaned = sanitizeExtractedText(joined);
+      if (isValidHumanLanguageText(cleaned)) {
+        return cleaned;
       }
     }
   } catch (err) {
-    console.warn("[PDFExtractor] Primary pdf-parse failed, attempting stream fallback:", err);
+    console.warn("[PDFExtractor] Primary unpdf extraction failed, attempting stream fallback:", err);
   }
 
   // 2. Secondary Engine: Decompress Flate streams and extract Tj / TJ operators
