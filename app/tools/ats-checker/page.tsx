@@ -42,10 +42,23 @@ import {
   Crown,
   Eye,
   FileSearch,
+  ChevronLeft,
+  Lightbulb,
+  Clock,
+  Cpu,
 } from "lucide-react";
 import Link from "next/link";
+import { ATSWaitingStudio } from "@/components/ATSWaitingStudio";
 
-const SAMPLE_RESUME = `Alex Rivera
+// ── 4 CURATED DOMAIN RESUMES FOR INSTANT TESTING ──
+const SAMPLE_RESUMES = {
+  software: {
+    id: "software",
+    label: "Software Engineer",
+    icon: "💻",
+    country: "GB",
+    fileName: "sample_senior_fullstack_engineer.pdf",
+    text: `Alex Rivera
 Senior Full Stack Engineer
 London, UK | alex.rivera@example.com | linkedin.com/in/alexrivera-tech | github.com/alexrivera-dev
 
@@ -76,7 +89,116 @@ University of Manchester (2015 - 2018)
 
 CERTIFICATIONS
 • AWS Certified Solutions Architect - Associate
-• Certified Kubernetes Application Developer (CKAD)`;
+• Certified Kubernetes Application Developer (CKAD)`,
+  },
+  civil: {
+    id: "civil",
+    label: "Civil Engineer",
+    icon: "🏗️",
+    country: "GB",
+    fileName: "sample_senior_civil_engineer.pdf",
+    text: `David Campbell
+Senior Civil & Structural Engineer
+Birmingham, UK | david.campbell@engineer-pro.co.uk | +44 7700 900821 | linkedin.com/in/dcampbell-civil
+
+PROFESSIONAL SUMMARY
+Chartered Senior Civil & Structural Engineer (CEng MICE) with 7+ years of experience leading major infrastructure projects, reinforced concrete design, and highway drainage schemes across the UK. Proven capability in structural modeling, Eurocode compliance (EC2/EC3), and managing on-site contractor operations.
+
+TECHNICAL COMPETENCIES & SOFTWARE
+• Engineering Design: AutoCAD Civil 3D, Revit Structure, Tekla Structural Designer, MicroDrainage, STAAD.Pro
+• Project Delivery: Site Supervision, Structural Inspections, NEC4 ECC Management, Temporary Works, CDM 2015
+• Statutory & Standards: Eurocodes (EC1, EC2, EC3), DMRB, British Standards (BS EN 1990)
+
+PROFESSIONAL EXPERIENCE
+Senior Civil Engineer | Balfour Beatty Infrastructure | Birmingham, UK (2021 - Present)
+• Delivered multi-million pound highway infrastructure and bridge deck rehabilitation schemes under NEC4 Option A contracts.
+• Conducted non-linear finite element structural calculations using Tekla, optimizing reinforced concrete tonnage by 18% (£95,000 saving).
+• Supervised 25+ subcontractors and site engineers, enforcing strict CDM 2015 health, safety, and environmental standards with zero reportable incidents.
+• Prepared Section 278 and Section 38 technical submission packages for local highway authorities.
+
+Civil Design Engineer | Mott MacDonald | Manchester, UK (2018 - 2021)
+• Produced detailed structural drawings, foundation designs, and drainage models using AutoCAD Civil 3D and MicroDrainage.
+• Liaised with statutory undertakers, water utility authorities, and local council planning officers to achieve full regulatory technical approvals.
+• Authored comprehensive structural inspection and risk assessment reports for aging rail viaduct assets.
+
+EDUCATION & PROFESSIONAL CREDENTIALS
+• Master of Engineering (MEng) in Civil & Structural Engineering (First Class Honours) — University of Birmingham (2014 - 2018)
+• Chartered Engineer (CEng) — Institution of Civil Engineers (MICE, 2022)
+• CSCS Professionally Qualified Person (PQP) Card`,
+  },
+  controls: {
+    id: "controls",
+    label: "Project Controls",
+    icon: "📋",
+    country: "GB",
+    fileName: "sample_project_controls_planning.pdf",
+    text: `Sumit Patel
+Senior Project Controls & Planning Specialist
+Manchester, UK | sumit.patel@controls-delivery.co.uk | +44 7911 123456 | linkedin.com/in/spatel-controls
+
+PROFESSIONAL SUMMARY
+Dedicated Lead Project Controls & Planning Specialist with 6+ years of expertise managing Tier-1 rail and civil infrastructure project schedules. Expert in Primavera P6, Earned Value Management (EVM), critical path delay analysis, and quantitative schedule risk modeling (QSRA).
+
+CORE CAPABILITIES & TOOLS
+• Systems & Software: Oracle Primavera P6 (EPPM), Microsoft Project, Power BI, Advanced Excel, Deltek Acumen Fuse
+• Controls Methodologies: Earned Value Management (EVM), Critical Path Method (CPM), WBS Formulation, S-Curves, Milestone Tracking
+• Project Governance: Schedule Risk Analysis (QSRA), Time Impact Analysis (TIA), Change Control, APM PMQ
+
+PROFESSIONAL EXPERIENCE
+Lead Planning Engineer | Mace Major Programmes | Manchester, UK (2022 - Present)
+• Formulated and baseline-managed Level 4 integrated EPC master schedules across a £140M station redevelopment portfolio in Primavera P6.
+• Implemented monthly EVM performance dashboards in Power BI, identifying schedule variance (SV) and cost variance (CV) trends 6 weeks ahead of critical path impacts.
+• Authored forensic delay analysis reports using Time Impact Analysis (TIA) to resolve contractor extension-of-time (EOT) claims.
+• Directed weekly schedule alignment meetings with multidisciplinary client engineering leads and project managers.
+
+Project Planner & Controls Analyst | Kier Group | Leeds, UK (2019 - 2022)
+• Maintained resource-loaded baseline construction schedules, tracking weekly progress against planned S-curves and key project milestones.
+• Conducted quantitative Monte Carlo schedule risk analysis using Deltek Acumen, establishing 80% confidence level delivery dates.
+• Coordinated change management workflows, evaluating subcontractor compensation events and schedule revisions.
+
+EDUCATION & CERTIFICATIONS
+• MSc in Project & Infrastructure Management — Brunel University London (Distinction, 2018 - 2019)
+• BEng in Mechanical & Industrial Engineering — University of Leeds (2015 - 2018)
+• APM Project Management Qualification (PMQ) — Association for Project Management
+• Oracle Primavera P6 Professional Certified`,
+  },
+  data: {
+    id: "data",
+    label: "Data & AI Engineer",
+    icon: "📊",
+    country: "GB",
+    fileName: "sample_data_ai_engineer.pdf",
+    text: `Priya Sharma
+Lead Data & Machine Learning Engineer
+London, UK | priya.sharma@aiml-dev.com | +44 7400 554433 | github.com/priyasharma-ai
+
+PROFESSIONAL SUMMARY
+Innovative Lead Data & AI Engineer with 5+ years of production experience architecting end-to-end machine learning pipelines, distributed data platforms, and generative AI microservices. Proven track record in high-scale feature engineering, cloud infrastructure (AWS/GCP), and MLOps automation.
+
+CORE SKILLS & TECH STACK
+• Programming: Python, SQL, Scala, TypeScript
+• Data & ML: PyTorch, TensorFlow, Scikit-learn, Spark/PySpark, Databricks, BigQuery, Snowflake, dbt
+• MLOps & Cloud: AWS (SageMaker, Lambda, EKS), Docker, Kubernetes, MLflow, Terraform, CI/CD, Airflow
+
+WORK EXPERIENCE
+Lead Machine Learning Engineer | Quantum AI FinTech | London, UK (2022 - Present)
+• Architected real-time fraud detection ML inference engine processing 15,000 transactions per second with sub-40ms latency.
+• Built automated CI/CD MLOps pipelines using MLflow and Docker on AWS EKS, reducing model deployment cycle times from 3 weeks to 2 hours.
+• Deployed LLM fine-tuning pipelines using LoRA and PyTorch for financial document classification with 94.8% F1 accuracy.
+
+Senior Data Engineer | DataSphere Analytics | Cambridge, UK (2019 - 2022)
+• Designed scalable Lakehouse pipelines in Databricks and Apache Spark processing 4TB+ daily clickstream and telemetry data.
+• Implemented automated dbt data quality test suites achieving 99.9% pipeline reliability and reducing query compute costs by 35%.
+
+EDUCATION & CREDENTIALS
+• MSc in Artificial Intelligence & Machine Learning (Distinction) — Imperial College London (2018 - 2019)
+• BSc (Hons) in Computer Science — University of Bristol (2015 - 2018)
+• AWS Certified Machine Learning - Specialty
+• Databricks Certified Data Engineer Professional`,
+  },
+};
+
+const SAMPLE_RESUME = SAMPLE_RESUMES.software.text;
 
 function ATSCheckerContent() {
   const { user, isLoggedIn, isPro, isLoading: isSessionLoading } = useSession();
@@ -90,7 +212,9 @@ function ATSCheckerContent() {
   const [targetJob, setTargetJob] = useState<any | null>(null);
   const [isLoadingTargetJob, setIsLoadingTargetJob] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [scanStep, setScanStep] = useState(0);
+  const [progressPercent, setProgressPercent] = useState(12);
+  const [activeStage, setActiveStage] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [intelligence, setIntelligence] = useState<FullATSIntelligenceResult | null>(null);
   const [candidateProfile, setCandidateProfile] = useState<any | null>(null);
@@ -102,19 +226,12 @@ function ATSCheckerContent() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const SCAN_STEPS = [
-    "Decompressing & extracting text streams...",
-    "Validating document hierarchy & contact metadata...",
-    "Cross-referencing 250+ canonical technical skills...",
-    "Matching official UK SOC 2020 & global occupation codes...",
-    "Auditing salary thresholds against 650+ verified sponsor licenses...",
-  ];
-
   // Auto-detect & load targeted job vacancy if ?jobId= is provided in URL
   useEffect(() => {
-    if (!urlJobId) return;
+    const rawId = urlJobId || (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("jobId") : null);
+    if (!rawId) return;
 
-    const sanitizedJobId = String(urlJobId).trim();
+    const sanitizedJobId = String(rawId).trim();
     if (!sanitizedJobId) return;
 
     let isMounted = true;
@@ -181,6 +298,28 @@ function ATSCheckerContent() {
     setError(null);
   };
 
+  // Drag & Drop Handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setFileName(file.name);
+      setError(null);
+    }
+  };
+
   const handleRunAnalysis = async () => {
     if (!selectedFile && (!resumeText || resumeText.trim().length < 15)) {
       setError("Please select a file or paste your resume text (at least 15 characters).");
@@ -188,12 +327,34 @@ function ATSCheckerContent() {
     }
 
     setIsAnalyzing(true);
-    setScanStep(0);
+    setProgressPercent(14);
+    setActiveStage(0);
     setError(null);
 
-    const stepTimer = setInterval(() => {
-      setScanStep((prev) => (prev < SCAN_STEPS.length - 1 ? prev + 1 : prev));
-    }, 400);
+    // Realistic smooth asymptotic progress increments during waiting time
+    const startTime = Date.now();
+    const progressTimer = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 2200) {
+        setActiveStage(0);
+        setProgressPercent(Math.min(26, 14 + Math.floor((elapsed / 2200) * 12)));
+      } else if (elapsed < 4500) {
+        setActiveStage(1);
+        setProgressPercent(Math.min(48, 26 + Math.floor(((elapsed - 2200) / 2300) * 22)));
+      } else if (elapsed < 7000) {
+        setActiveStage(2);
+        setProgressPercent(Math.min(68, 48 + Math.floor(((elapsed - 4500) / 2500) * 20)));
+      } else if (elapsed < 9800) {
+        setActiveStage(3);
+        setProgressPercent(Math.min(84, 68 + Math.floor(((elapsed - 7000) / 2800) * 16)));
+      } else if (elapsed < 13000) {
+        setActiveStage(4);
+        setProgressPercent(Math.min(92, 84 + Math.floor(((elapsed - 9800) / 3200) * 8)));
+      } else {
+        setActiveStage(5);
+        setProgressPercent((prev) => (prev < 96 ? prev + 1 : 96));
+      }
+    }, 250);
 
     try {
       const formData = new FormData();
@@ -224,28 +385,40 @@ function ATSCheckerContent() {
         throw new Error(data.error || "Failed to analyze resume.");
       }
 
+      // Complete progress smoothly
+      setProgressPercent(100);
+      setActiveStage(5);
+
       setIntelligence(data.intelligence);
       setMatches(data.matches || []);
       if (data.candidateProfile) setCandidateProfile(data.candidateProfile);
       if (data.targetJobMatch) setTargetJobMatch(data.targetJobMatch);
 
-      // Smooth scroll to results
+      // Brief delay to let the user see the 100% completion badge before smooth scroll
       setTimeout(() => {
+        setIsAnalyzing(false);
         resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
+      }, 450);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred during analysis.");
-    } finally {
-      clearInterval(stepTimer);
       setIsAnalyzing(false);
+    } finally {
+      clearInterval(progressTimer);
     }
   };
 
-  const handleLoadSample = () => {
-    setResumeText(SAMPLE_RESUME);
+  const handleSelectSample = (key: keyof typeof SAMPLE_RESUMES) => {
+    const sample = SAMPLE_RESUMES[key];
+    setResumeText(sample.text);
     setSelectedFile(null);
-    setFileName("sample_senior_engineer_cv.txt");
+    setFileName(sample.fileName);
+    setTargetCountry(sample.country);
     setActiveTab("paste");
+    setError(null);
+  };
+
+  const handleLoadSample = () => {
+    handleSelectSample("software");
   };
 
   const handleCopyBullet = (text: string, idx: number) => {
@@ -273,46 +446,86 @@ function ATSCheckerContent() {
       <Navbar />
 
       <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Header Hero */}
-        <div className="text-center max-w-3xl mx-auto mb-10 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-100/70 border border-brand-200 text-brand-800 text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-brand-600" />
+        {/* ── HEADER HERO SECTION ── */}
+        <div className="text-center max-w-3xl mx-auto mb-10 space-y-4 relative">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-brand-50 via-indigo-50 to-emerald-50 border border-brand-200/80 text-brand-800 text-xs font-bold uppercase tracking-wider shadow-xs">
+            <Sparkles className="w-3.5 h-3.5 text-brand-600 animate-pulse" />
             <span>Visa-Aware ATS & Sponsorship Intelligence Engine</span>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
-            ATS Compatibility & <span className="text-brand-600">Visa Sponsorship Scorer</span>
+            ATS Compatibility & <span className="bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">Visa Sponsorship Scorer</span>
           </h1>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
-            Upload your CV to run deterministic document parsing, UK SOC 2020 occupation code mapping, and sponsorship readiness evaluated against 650+ verified employer visa licenses.
+            Upload your CV to run deterministic document parsing, UK SOC 2020 occupation code mapping, and sponsorship readiness evaluated against 110,000+ verified employer visa licenses.
           </p>
+
+          {/* Value Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1 text-xs text-slate-600 font-semibold">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>110,000+ Licensed Sponsors</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs">
+              <Building className="w-3.5 h-3.5 text-brand-600" />
+              <span>UK SOC 2020 Mapped</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs">
+              <Cpu className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Workday & Taleo Emulation</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs">
+              <Zap className="w-3.5 h-3.5 text-amber-500" />
+              <span>Skilled Worker Salary Audit</span>
+            </span>
+          </div>
         </div>
 
         {/* ── TARGET VACANCY BANNER (When linked from a specific job) ── */}
+        {isLoadingTargetJob && (
+          <div className="p-6 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl mb-8 animate-pulse flex items-center justify-between gap-4">
+            <div className="space-y-2">
+              <div className="w-36 h-5 rounded-full bg-slate-800" />
+              <div className="w-64 h-7 rounded-xl bg-slate-800" />
+              <div className="w-96 h-4 rounded-md bg-slate-800" />
+            </div>
+            <div className="w-24 h-8 rounded-xl bg-slate-800 shrink-0" />
+          </div>
+        )}
+
         {targetJob && typeof targetJob === "object" && (
-          <div className="p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-950 to-brand-950 text-white border border-brand-500/40 shadow-xl mb-8 relative overflow-hidden animate-fade-in">
-            <div className="absolute -top-12 -right-12 w-48 h-48 bg-brand-500/15 rounded-full blur-3xl pointer-events-none" />
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="space-y-2">
+          <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-950 to-brand-950 text-white border border-brand-500/40 shadow-xl mb-8 relative overflow-hidden animate-fade-in">
+            <div className="absolute -top-12 -right-12 w-56 h-56 bg-brand-500/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+              <div className="space-y-2.5">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="px-3 py-1 rounded-full bg-brand-500/20 border border-brand-400/40 text-[#19CBE0] text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
                     <Target className="w-3.5 h-3.5 text-[#19CBE0]" />
-                    <span>Target Vacancy Selected</span>
+                    <span>Target Vacancy Benchmark Active</span>
                   </span>
                   <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-bold flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Verified Sponsor</span>
+                    <span>Verified Licensed Sponsor</span>
                   </span>
-                  <span className="text-xs text-slate-400 font-medium">
+                  <span className="text-xs text-slate-300 font-medium flex items-center gap-1">
+                    <Globe2 className="w-3 h-3 text-slate-400" />
                     {typeof targetJob.location === "object" && targetJob.location?.city ? `${targetJob.location.city}, ` : ""}
                     {typeof targetJob.location === "object" ? (targetJob.location?.country || "United Kingdom") : (typeof targetJob.location === "string" ? targetJob.location : "United Kingdom")}
                   </span>
                 </div>
                 <div>
-                  <h3 className="text-xl sm:text-2xl font-black text-white font-display">
+                  <h3 className="text-xl sm:text-2xl font-black text-white font-display flex items-center gap-2">
                     {targetJob.title || "Target Vacancy"}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-300 mt-0.5">
-                    Hiring Employer: <strong className="text-white">{typeof targetJob.company === "object" ? (targetJob.company?.name || "Verified Employer") : (targetJob.company || "Verified Employer")}</strong> • Scoring will benchmark your CV directly against this role&apos;s required skills, experience level, and visa statutory criteria.
+                  <p className="text-xs sm:text-sm text-slate-300 mt-1">
+                    Hiring Employer: <strong className="text-white">{typeof targetJob.company === "object" ? (targetJob.company?.name || "Verified Employer") : (targetJob.company || "Verified Employer")}</strong>
+                    {targetJob.salary && (targetJob.salary.min || targetJob.salary.max) && (
+                      <span className="text-emerald-400 ml-2 font-semibold">
+                        • {targetJob.salary.currency || "£"}{targetJob.salary.min?.toLocaleString()} - {targetJob.salary.currency || "£"}{targetJob.salary.max?.toLocaleString()}
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-[11px] text-brand-200/80 mt-1">
+                    Your CV will be benchmarked directly against this role&apos;s specific skills, required tenure, and immigration eligibility criteria.
                   </p>
                 </div>
               </div>
@@ -331,9 +544,10 @@ function ATSCheckerContent() {
                       } catch {}
                     }
                   }}
-                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-slate-200 border border-white/20 transition-all cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-slate-200 border border-white/20 transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  Clear Job Target
+                  <X className="w-3.5 h-3.5" />
+                  <span>Clear Target Job</span>
                 </button>
               </div>
             </div>
@@ -344,77 +558,147 @@ function ATSCheckerContent() {
             SECTION 1: UNRESTRICTED CV UPLOAD & PARSER WORKSPACE
         ═══════════════════════════════════════════════════════════════ */}
         <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm mb-10 space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setActiveTab("upload")}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === "upload"
-                    ? "bg-brand-600 text-white shadow-xs"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                Upload File (PDF / DOCX / TXT)
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("paste")}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === "paste"
-                    ? "bg-brand-600 text-white shadow-xs"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                Paste Text
-              </button>
+          
+          {/* Top Bar: Tabs + 1-Click Sample Resumes */}
+          <div className="space-y-4 border-b border-slate-100 pb-5">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-2 bg-slate-100/80 p-1 rounded-2xl border border-slate-200/60">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("upload")}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    activeTab === "upload"
+                      ? "bg-white text-brand-700 shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <UploadCloud className="w-3.5 h-3.5" />
+                  <span>Upload File (PDF / DOCX / TXT)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("paste")}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    activeTab === "paste"
+                      ? "bg-white text-brand-700 shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Paste Text Directly</span>
+                </button>
+              </div>
+
+              <div className="text-xs text-slate-500 font-medium hidden sm:block">
+                Max file size: <span className="font-semibold text-slate-700">10 MB</span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={handleLoadSample}
-                className="text-xs font-semibold text-brand-600 hover:text-brand-700 underline cursor-pointer"
-              >
-                Try With Sample Senior Engineer CV
-              </button>
+            {/* Quick 1-Click Sample Resumes */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <span className="text-xs font-bold text-slate-500 mr-1 flex items-center gap-1">
+                <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+                <span>Test with realistic sample profiles:</span>
+              </span>
+              {(Object.keys(SAMPLE_RESUMES) as (keyof typeof SAMPLE_RESUMES)[]).map((key) => {
+                const sample = SAMPLE_RESUMES[key];
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => handleSelectSample(key)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-brand-50 border border-slate-200 hover:border-brand-300 text-slate-700 hover:text-brand-700 text-xs font-semibold transition-all cursor-pointer shadow-2xs hover:scale-[1.02]"
+                  >
+                    <span>{sample.icon}</span>
+                    <span>{sample.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
+          {/* Tab Content: Upload Drag & Drop or Text Area */}
           {activeTab === "upload" ? (
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-slate-300 hover:border-brand-500 rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all bg-slate-50/50 hover:bg-brand-50/20 group"
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.docx,.txt,text/plain,application/pdf"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-              <div className="w-14 h-14 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform">
-                <UploadCloud className="w-7 h-7" />
+            <div>
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-3xl p-8 sm:p-12 text-center cursor-pointer transition-all group relative overflow-hidden ${
+                  isDragging
+                    ? "border-brand-500 bg-brand-50/50 scale-[1.01]"
+                    : selectedFile
+                    ? "border-emerald-300 bg-emerald-50/20 hover:border-emerald-400"
+                    : "border-slate-300 hover:border-brand-500 bg-slate-50/50 hover:bg-brand-50/20"
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.docx,.txt,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+
+                {selectedFile ? (
+                  <div className="space-y-3">
+                    <div className="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-sm">
+                      <FileCheck2 className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <p className="text-base font-bold text-slate-900">{selectedFile.name}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {(selectedFile.size / 1024).toFixed(1)} KB • Ready for deep ATS parsing &amp; visa audit
+                      </p>
+                    </div>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Document Loaded Successfully</span>
+                    </div>
+                    <div className="pt-2">
+                      <span className="text-xs font-semibold text-brand-600 hover:text-brand-700 underline">
+                        Click or drop a different file to replace
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-100 to-indigo-100 text-brand-700 flex items-center justify-center mx-auto group-hover:scale-105 transition-transform shadow-xs">
+                      <UploadCloud className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <p className="text-base font-bold text-slate-800">
+                        {isDragging ? "Drop your file to upload" : "Click or Drag & Drop your Resume / CV here"}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+                        Supports standard PDF (with text layer), Word Documents (.docx), and plain text (.txt)
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-center gap-2 pt-1 text-[11px] font-semibold text-slate-400">
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100">PDF</span>
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100">DOCX</span>
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100">TXT</span>
+                    </div>
+                  </div>
+                )}
               </div>
-              <p className="text-base font-bold text-slate-800">
-                {fileName ? `Selected: ${fileName}` : "Click or Drag & Drop your Resume / CV here"}
-              </p>
-              <p className="text-xs text-slate-500 mt-1">
-                Supports modern compressed PDF, Word Documents (.docx), and plain text (.txt)
-              </p>
-              {selectedFile && (
-                <p className="text-xs text-emerald-600 font-bold mt-2 flex items-center justify-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Document loaded for multi-pillar analysis ({Math.round(selectedFile.size / 1024)} KB)</span>
-                </p>
-              )}
             </div>
           ) : (
             <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-bold text-slate-700">Paste Full CV Text:</label>
+                {fileName && (
+                  <span className="text-xs text-brand-600 font-semibold flex items-center gap-1">
+                    <FileText className="w-3 h-3" />
+                    <span>Loaded: {fileName}</span>
+                  </span>
+                )}
+              </div>
               <textarea
                 value={resumeText}
                 onChange={(e) => setResumeText(e.target.value)}
-                placeholder="Paste the full text of your resume or CV here (including summary, skills, experience, and education)..."
+                placeholder="Paste the full text of your resume or CV here (including summary, skills, work experience, and education)..."
                 rows={10}
                 className="w-full p-4 rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 text-xs sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all font-mono leading-relaxed"
               />
@@ -431,14 +715,21 @@ function ATSCheckerContent() {
                 id="countrySelect"
                 value={targetCountry}
                 onChange={(e) => setTargetCountry(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="w-full px-3.5 py-3 rounded-xl bg-slate-100/90 border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
-                <option value="GB">🇬🇧 United Kingdom (Skilled Worker & CoS)</option>
-                <option value="US">🇺🇸 United States (H-1B & Specialty Occupation)</option>
-                <option value="AU">🇦🇺 Australia (TSS 482 / PR 186)</option>
+                <option value="GB">🇬🇧 United Kingdom (Skilled Worker Visa &amp; Defined CoS)</option>
+                <option value="US">🇺🇸 United States (H-1B &amp; Specialty Occupation)</option>
+                <option value="AU">🇦🇺 Australia (TSS 482 / PR 186 Subclasses)</option>
                 <option value="CA">🇨🇦 Canada (Global Talent Stream / LMIA)</option>
                 <option value="NZ">🇳🇿 New Zealand (Accredited Employer Work Visa)</option>
               </select>
+              <p className="text-[11px] text-slate-500">
+                {targetCountry === "GB" && "Auditing against UK Home Office Skilled Worker route, £38,700 threshold & SOC 2020 codes."}
+                {targetCountry === "US" && "Auditing against US DOL Prevailing Wage levels, H-1B specialty degree requirements."}
+                {targetCountry === "CA" && "Auditing against Canadian NOC 2021 codes and Global Talent Stream fast-track eligibility."}
+                {targetCountry === "AU" && "Auditing against ANZSCO 6-digit occupation codes and TSS 482 Medium-Term shortage list."}
+                {targetCountry === "NZ" && "Auditing against Immigration New Zealand Green List tier-1 and tier-2 fast-track roles."}
+              </p>
             </div>
 
             <div className="flex items-end">
@@ -446,47 +737,41 @@ function ATSCheckerContent() {
                 type="button"
                 disabled={isAnalyzing || (!selectedFile && !resumeText.trim())}
                 onClick={handleRunAnalysis}
-                className="w-full px-8 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full px-8 py-3.5 rounded-xl bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-700 hover:from-brand-500 hover:to-indigo-500 disabled:opacity-50 text-white text-sm font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isAnalyzing ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Analyzing ATS & Sponsorship Readiness...</span>
+                    <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                    <span>Running Multi-Pillar Diagnostic Scan...</span>
                   </>
                 ) : (
                   <>
                     <Zap className="w-4 h-4 text-amber-300" />
-                    <span>{targetJob ? `Score CV Against ${typeof targetJob.company === "object" ? (targetJob.company?.name || "Target Vacancy") : (targetJob.company || "Target Vacancy")}` : "Run Deep CV & Visa Analysis"}</span>
+                    <span>
+                      {targetJob
+                        ? `Score CV Against ${typeof targetJob.company === "object" ? (targetJob.company?.name || "Target Vacancy") : (targetJob.company || "Target Vacancy")}`
+                        : "Run Deep ATS & Visa Analysis"}
+                    </span>
                   </>
                 )}
               </button>
             </div>
           </div>
 
-          {/* Real-time Multi-Stage Scanning Animation */}
+          {/* ═══════════════════════════════════════════════════════════════
+              MAKE USE OF WAITING TIME: LIVE DIAGNOSTIC & INSIGHTS STUDIO
+          ═══════════════════════════════════════════════════════════════ */}
           {isAnalyzing && (
-            <div className="p-4 rounded-2xl bg-slate-900 text-white border border-slate-800 space-y-3 animate-fade-in">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-brand-400 flex items-center gap-2">
-                  <FileSearch className="w-4 h-4 animate-pulse" />
-                  <span>Step {scanStep + 1} of {SCAN_STEPS.length}</span>
-                </span>
-                <span className="text-slate-400 font-mono text-[11px]">{Math.round(((scanStep + 1) / SCAN_STEPS.length) * 100)}%</span>
-              </div>
-              <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-brand-500 to-emerald-400 transition-all duration-300 rounded-full"
-                  style={{ width: `${((scanStep + 1) / SCAN_STEPS.length) * 100}%` }}
-                />
-              </div>
-              <p className="text-xs text-slate-300 font-mono">
-                &gt; {SCAN_STEPS[scanStep]}
-              </p>
-            </div>
+            <ATSWaitingStudio
+              progressPercent={progressPercent}
+              activeStage={activeStage}
+              targetJobTitle={targetJob?.title}
+              targetCompanyName={typeof targetJob?.company === "object" ? targetJob?.company?.name : targetJob?.company}
+            />
           )}
 
           {error && (
-            <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2.5">
+            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2.5 animate-fade-in">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
