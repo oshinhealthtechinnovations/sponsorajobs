@@ -77,32 +77,74 @@ export default async function HomePage() {
               <JobSearchBar variant="hero" />
             </div>
 
-            {/* Verified Sponsor Logos Row */}
-            <div className="mt-8 w-full max-w-4xl pt-5 border-t border-slate-200/80 flex flex-col items-center">
-              <div className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Verified Licensed Sponsor Employers</span>
+            {/* ── Executive Verified Sponsor Showcase Card ── */}
+            <div className="mt-10 w-full max-w-4xl p-5 sm:p-6 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_8px_30px_rgba(15,23,42,0.04)] text-left space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200/80 shadow-2xs shrink-0">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                      <span>Official Licensed Sponsor Directory</span>
+                      <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200/60">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        Live Registry
+                      </span>
+                    </h3>
+                    <p className="text-[11px] text-slate-500 font-medium">
+                      110,000+ cross-referenced employer licenses • Official Home Office &amp; USCIS Registers
+                    </p>
+                  </div>
+                </div>
+
+                <Link
+                  href="/companies"
+                  className="hidden md:inline-flex items-center gap-1 text-xs font-bold text-sky-600 hover:text-sky-700 group transition-colors self-start sm:self-auto"
+                >
+                  <span>View All Licensed Employers</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
               </div>
-              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+
+              {/* 10 Employers in Symmetrical 5-Column Grid (Zero Orphans) */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
                 {[
-                  { name: "Google", tag: "Tech" },
-                  { name: "Balfour Beatty", tag: "Engineering" },
-                  { name: "Amazon", tag: "Tech" },
-                  { name: "NHS England", tag: "Healthcare" },
-                  { name: "Mace Group", tag: "Construction" },
-                  { name: "Atlassian", tag: "Tech" },
-                  { name: "Microsoft", tag: "Tech" },
-                  { name: "Deloitte", tag: "Finance" },
-                  { name: "Monzo Bank", tag: "Fintech" },
-                  { name: "Siemens", tag: "Engineering" },
+                  { name: "Google", sector: "Cloud & AI", initials: "G", color: "from-blue-500 to-emerald-500" },
+                  { name: "Balfour Beatty", sector: "Infrastructure", initials: "BB", color: "from-amber-500 to-orange-600" },
+                  { name: "Amazon", sector: "Distributed Tech", initials: "A", color: "from-amber-600 to-yellow-500" },
+                  { name: "NHS England", sector: "Healthcare", initials: "NHS", color: "from-blue-600 to-cyan-500" },
+                  { name: "Mace Group", sector: "Construction", initials: "M", color: "from-slate-700 to-slate-900" },
+                  { name: "Atlassian", sector: "Enterprise DevOps", initials: "AT", color: "from-sky-500 to-blue-600" },
+                  { name: "Microsoft", sector: "Software & AI", initials: "MS", color: "from-blue-600 to-indigo-600" },
+                  { name: "Deloitte", sector: "Finance & Audit", initials: "D", color: "from-emerald-600 to-teal-700" },
+                  { name: "Monzo Bank", sector: "Fintech Leader", initials: "MZ", color: "from-rose-500 to-orange-500" },
+                  { name: "Siemens", sector: "Industrial Tech", initials: "S", color: "from-teal-500 to-cyan-600" },
                 ].map((comp) => (
-                  <span
+                  <Link
                     key={comp.name}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border border-slate-200/90 shadow-2xs text-xs font-bold text-slate-700 hover:text-sky-600 hover:border-sky-300 hover:shadow-xs transition-all"
+                    href={`/jobs?company=${encodeURIComponent(comp.name)}`}
+                    className="group p-3 rounded-2xl bg-slate-50/80 hover:bg-white border border-slate-200/80 hover:border-sky-300 hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-2 cursor-pointer hover:-translate-y-0.5"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    <span>{comp.name}</span>
-                  </span>
+                    <div className="flex items-center justify-between">
+                      <span className={`w-7 h-7 rounded-xl bg-gradient-to-br ${comp.color} text-white font-black text-[10px] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform`}>
+                        {comp.initials}
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-200/60">
+                        <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                        <span>Sponsor</span>
+                      </span>
+                    </div>
+
+                    <div>
+                      <div className="text-xs font-bold text-slate-900 group-hover:text-sky-700 transition-colors truncate">
+                        {comp.name}
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-medium truncate mt-0.5">
+                        {comp.sector}
+                      </div>
+                    </div>
+                  </Link>
                 ))}
               </div>
             </div>

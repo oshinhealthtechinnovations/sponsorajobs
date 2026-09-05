@@ -14,6 +14,7 @@ import {
   Code2,
   HardHat,
   BarChart3,
+  HeartPulse,
 } from "lucide-react";
 import { INITIAL_COUNTRIES } from "@/config/countries";
 
@@ -91,12 +92,14 @@ const PRESET_SUGGESTIONS: SearchSuggestion[] = [
 ];
 
 const POPULAR_TAGS = [
-  { label: "Software Engineer", icon: <Code2 className="w-3.5 h-3.5 text-sky-600" />, type: "q", value: "Software Engineer" },
-  { label: "Civil Engineer", icon: <HardHat className="w-3.5 h-3.5 text-amber-600" />, type: "q", value: "Civil Engineer" },
-  { label: "Data & AI", icon: <BarChart3 className="w-3.5 h-3.5 text-indigo-600" />, type: "q", value: "Data Engineer" },
-  { label: "UK CoS Roles", flagKey: "gb", type: "country", value: "gb" },
-  { label: "Australia TSS 482", flagKey: "au", type: "country", value: "au" },
-  { label: "USA H-1B", flagKey: "us", type: "country", value: "us" },
+  { label: "Software & Cloud", icon: <Code2 className="w-3.5 h-3.5 text-sky-600" />, type: "q", value: "Software Engineer", subtitle: "Full Stack & Cloud" },
+  { label: "Civil & Structural", icon: <HardHat className="w-3.5 h-3.5 text-amber-600" />, type: "q", value: "Civil Engineer", subtitle: "Infrastructure & Site" },
+  { label: "Data & AI Systems", icon: <BarChart3 className="w-3.5 h-3.5 text-indigo-600" />, type: "q", value: "Data Engineer", subtitle: "ML & Analytics" },
+  { label: "Healthcare & NHS", icon: <HeartPulse className="w-3.5 h-3.5 text-rose-500" />, type: "q", value: "Nurse", subtitle: "Clinical & Nursing" },
+  { label: "UK Skilled Worker", flagKey: "gb", type: "country", value: "gb", subtitle: "Defined CoS Roles" },
+  { label: "USA H-1B / O-1", flagKey: "us", type: "country", value: "us", subtitle: "Specialty Positions" },
+  { label: "Australia TSS 482", flagKey: "au", type: "country", value: "au", subtitle: "Core Skills Shortage" },
+  { label: "Canada GTS / LMIA", flagKey: "ca", type: "country", value: "ca", subtitle: "Fast-Track Stream" },
 ];
 
 interface JobSearchBarProps {
@@ -318,24 +321,43 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
           </button>
         </form>
 
-        {/* High-Contrast Popular Search Tags */}
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs">
-          <span className="inline-flex items-center gap-1.5 font-bold text-slate-500 mr-1">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Popular:</span>
-          </span>
-          {POPULAR_TAGS.map((tag) => (
-            <button
-              key={tag.label}
-              type="button"
-              onClick={() => handleTagClick(tag)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-sky-50 text-slate-700 font-semibold border border-slate-200/90 hover:border-sky-300 hover:text-sky-800 transition-all cursor-pointer shadow-2xs hover:shadow-xs"
-            >
-              {tag.icon}
-              {tag.flagKey && MiniFlags[tag.flagKey]}
-              <span>{tag.label}</span>
-            </button>
-          ))}
+        {/* ── Modern Symmetrical Quick Discovery Launchpad ── */}
+        <div className="mt-6 w-full max-w-4xl mx-auto space-y-2.5">
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-slate-500">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>Trending Discovery Portals</span>
+            </div>
+            <span className="text-[11px] font-semibold text-slate-400">
+              1-Click Verified Search
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
+            {POPULAR_TAGS.map((tag) => (
+              <button
+                key={tag.label}
+                type="button"
+                onClick={() => handleTagClick(tag)}
+                className="group relative flex items-center gap-2.5 p-2.5 rounded-2xl bg-white/90 hover:bg-white text-slate-700 hover:text-sky-700 border border-slate-200/90 hover:border-sky-300 shadow-2xs hover:shadow-md transition-all duration-200 cursor-pointer text-left hover:-translate-y-0.5 active:translate-y-0"
+              >
+                <span className="w-7 h-7 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  {tag.icon}
+                  {tag.flagKey && MiniFlags[tag.flagKey]}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-bold text-slate-800 group-hover:text-sky-800 truncate">
+                    {tag.label}
+                  </div>
+                  {tag.subtitle && (
+                    <div className="text-[10px] text-slate-400 truncate">
+                      {tag.subtitle}
+                    </div>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Smart Autocomplete Dropdown */}
