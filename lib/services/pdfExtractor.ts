@@ -1,5 +1,12 @@
 import zlib from "zlib";
-import { createRequire } from "module";
+import { PDFParse as NamedPDFParse } from "pdf-parse";
+import * as pdfParseMod from "pdf-parse";
+
+const PDFParseClass: any =
+  NamedPDFParse ||
+  (pdfParseMod as any)?.PDFParse ||
+  (pdfParseMod as any)?.default?.PDFParse ||
+  (pdfParseMod as any)?.default;
 
 /**
  * Checks if a string looks predominantly like raw PDF syntax / stream dictionary markers
@@ -51,20 +58,9 @@ export function isValidHumanLanguageText(text: string): boolean {
   return commonWords.test(text);
 }
 
-function loadPdfParseModule(): any {
-  try {
-    const esmRequire = typeof require !== "undefined" ? require : createRequire(import.meta.url);
-    const mod = esmRequire("pdf-parse");
-    return mod.default || mod;
-  } catch (err) {
-    console.warn("[PDFExtractor] Failed to load pdf-parse via require/createRequire:", err);
-    return null;
-  }
-}
-
 /**
  * Robust Multi-Engine PDF Text Extractor
- * 1. Primary: Uses pdf-parse v2 (Mozilla PDF.js engine) via ESM createRequire to decompress Object Streams (/ObjStm),
+ * 1. Primary: Uses pdf-parse v2 (Mozilla PDF.js engine) to decompress Object Streams (/ObjStm),
  *    resolve /ToUnicode CMaps, TrueType/CID fonts, and multi-page text layouts.
  * 2. Secondary: Deep flate-stream parser for literal strings, array TJ tokens, and hex-encoded font glyphs.
  * 3. Sanitizes and strips raw PDF binary debris to ensure only real resume content reaches AI tools.
@@ -72,12 +68,10 @@ function loadPdfParseModule(): any {
 export async function extractTextFromPDFBuffer(buffer: Buffer): Promise<string> {
   if (!buffer || buffer.length === 0) return "";
 
-  // 1. Primary Engine: pdf-parse
+  // 1. Primary Engine: pdf-parse v2
   try {
-    const pdfParse = loadPdfParseModule();
-    if (pdfParse) {
-      const PDFParseClass = pdfParse.PDFParse || pdfParse.default?.PDFParse;
-      if (PDFParseClass && (typeof PDFParseClass === "function" || typeof PDFParseClass?.getText === "function")) {
+    if (PDFParseClass && typeof PDFParseClass === "function") {
+      try {
         const parser = new PDFParseClass({ data: buffer });
         try {
           const parsed = await parser.getText();
@@ -91,10 +85,11 @@ export async function extractTextFromPDFBuffer(buffer: Buffer): Promise<string> 
         } finally {
           try { await parser.destroy(); } catch { /* ignore */ }
         }
-      } else if (typeof pdfParse === "function") {
-        const result = await pdfParse(buffer);
-        if (result && typeof result.text === "string") {
-          const cleaned = sanitizeExtractedText(result.text.replace(/--\s*\d+\s*of\s*\d+\s*--/gi, " "));
+      } catch (innerErr) {
+        // Function-style fallback if PDFParse is not a constructor
+        const funcResult = await (PDFParseClass as any)(buffer);
+        if (funcResult && typeof funcResult.text === "string") {
+          const cleaned = sanitizeExtractedText(funcResult.text.replace(/--\s*\d+\s*of\s*\d+\s*--/gi, " "));
           if (isValidHumanLanguageText(cleaned)) {
             return cleaned;
           }
