@@ -91,6 +91,42 @@ CERTIFICATIONS
 • AWS Certified Solutions Architect - Associate
 • Certified Kubernetes Application Developer (CKAD)`,
   },
+  mechanical: {
+    id: "mechanical",
+    label: "Mechanical Engineer",
+    icon: "⚙️",
+    country: "US",
+    fileName: "sample_senior_mechanical_engineer.pdf",
+    text: `Marcus Vance
+Senior Mechanical Systems & Design Engineer
+Natick, MA | marcus.vance@eng-solutions.com | +1 (508) 555-0192 | linkedin.com/in/mvance-mechanical
+
+PROFESSIONAL SUMMARY
+Dedicated Senior Mechanical Systems & Design Engineer with 7+ years of experience in thermal-fluid analysis, electro-mechanical hardware packaging, finite element modeling (FEA), and high-reliability defense and robotics systems. Proven track record leading multidisciplinary teams through the ASME and DoD product development lifecycle from concept validation to initial production.
+
+TECHNICAL COMPETENCIES & SOFTWARE
+• Mechanical CAD & Simulation: SolidWorks, PTC Creo, Autodesk Inventor, ANSYS Mechanical, ANSYS Fluent (CFD), Abaqus FEA
+• Standards & Geometric Tolerancing: ASME Y14.5 (GD&T), MIL-STD-810H, ASTM, ISO 9001, DFMA, Root Cause Analysis (8D)
+• Fabrication & Testing: CNC Machining, Additive Manufacturing (DMLS), Injection Molding, Vibration & Shock Testing, Thermal Cycling
+
+PROFESSIONAL EXPERIENCE
+Senior Mechanical Systems Engineer | Raytheon Defense Technologies | Natick, MA (2021 - Present)
+• Led mechanical packaging and structural FEA for ruggedized electronic control enclosures conforming to MIL-STD-810H vibration and temperature specs.
+• Modeled thermal distribution profiles using ANSYS Fluent, reducing peak junction temperatures by 18°C and extending MTBF by 35%.
+• Formulated detailed engineering drawings with strict ASME Y14.5 GD&T tolerance stack-up studies, reducing prototype machining revisions by 28%.
+• Directed cross-functional reviews with quality assurance, systems engineering, and machine shops to deliver 12 mission-critical test articles on schedule.
+
+Mechanical Design Engineer | Boston Dynamics & Robotic Systems | Waltham, MA (2018 - 2021)
+• Designed lightweight structural aluminum components, precision gear assemblies, and actuator mounts using SolidWorks and Creo.
+• Conducted static, modal, and non-linear dynamic stress analysis using ANSYS, reducing total structural weight by 14% while exceeding safety factors.
+• Collaborated with manufacturing vendors to optimize tooling and DFM guidelines, achieving a $75,000 annual production cost saving.
+
+EDUCATION & CREDENTIALS
+• Master of Science (MS) in Mechanical Engineering — Northeastern University (2016 - 2018)
+• Bachelor of Science (BS) in Mechanical Engineering — University of Massachusetts Amherst (2012 - 2016)
+• Certified SolidWorks Professional (CSWP)
+• Fundamentals of Engineering (FE / EIT Certified - Massachusetts Board)`,
+  },
   civil: {
     id: "civil",
     label: "Civil Engineer",
@@ -198,6 +234,77 @@ EDUCATION & CREDENTIALS
   },
 };
 
+// ── 5 INTERACTIVE BENCHMARK ROLE PRESETS ──
+const BENCHMARK_ROLE_PRESETS = [
+  {
+    id: "mechanical",
+    label: "Mechanical Engineer",
+    icon: "⚙️",
+    country: "US",
+    employerName: "Aerospace, Defense & Advanced Robotics",
+    city: "Natick, MA",
+    salary: { min: 98000, max: 135000, currency: "USD" },
+    socDesc: "Mechanical Engineering Systems (ASME, CAD & Thermal Analysis)",
+  },
+  {
+    id: "civil",
+    label: "Civil & Structural Engineer",
+    icon: "🏗️",
+    country: "GB",
+    employerName: "Balfour Beatty / AtkinsRéalis / Tier-1 Infrastructure",
+    city: "Birmingham, UK",
+    salary: { min: 48000, max: 68000, currency: "GBP" },
+    socDesc: "UK SOC 2121 (Civil & Structural Engineering)",
+  },
+  {
+    id: "software",
+    label: "Software & Cloud Engineer",
+    icon: "💻",
+    country: "GB",
+    employerName: "FinTech, Cloud Platforms & Enterprise SaaS",
+    city: "London, UK",
+    salary: { min: 65000, max: 95000, currency: "GBP" },
+    socDesc: "UK SOC 2136 (Programmers & Software Development)",
+  },
+  {
+    id: "controls",
+    label: "Project Controls Specialist",
+    icon: "📋",
+    country: "GB",
+    employerName: "Mace / Kier / Major Capital Delivery",
+    city: "Manchester, UK",
+    salary: { min: 55000, max: 78000, currency: "GBP" },
+    socDesc: "UK SOC 2424 (Business & Project Controls)",
+  },
+  {
+    id: "data",
+    label: "Data & AI Systems Engineer",
+    icon: "📊",
+    country: "GB",
+    employerName: "AI Research Labs & Enterprise Lakehouse Platforms",
+    city: "Cambridge, UK",
+    salary: { min: 70000, max: 105000, currency: "GBP" },
+    socDesc: "UK SOC 2135 (IT Analytics & Machine Learning)",
+  },
+];
+
+// ── SAFE SALARY FORMATTER ──
+function formatSalaryDisplay(salary: any): string | null {
+  if (!salary || typeof salary !== "object") return null;
+  const min = typeof salary.min === "number" ? salary.min : Number(salary.min) || 0;
+  const max = typeof salary.max === "number" ? salary.max : Number(salary.max) || 0;
+  if (!min && !max) return null;
+
+  const rawCurr = String(salary.currency || "GBP").toUpperCase();
+  const symbol = rawCurr === "USD" ? "$" : rawCurr === "EUR" ? "€" : "£";
+
+  if (min && max) {
+    return `${symbol}${min.toLocaleString()} - ${symbol}${max.toLocaleString()}`;
+  }
+  if (min) return `From ${symbol}${min.toLocaleString()}`;
+  return `Up to ${symbol}${max.toLocaleString()}`;
+}
+
 const SAMPLE_RESUME = SAMPLE_RESUMES.software.text;
 
 function ATSCheckerContent() {
@@ -211,6 +318,11 @@ function ATSCheckerContent() {
   const [targetJobId, setTargetJobId] = useState<string>("");
   const [targetJob, setTargetJob] = useState<any | null>(null);
   const [isLoadingTargetJob, setIsLoadingTargetJob] = useState(false);
+  const [targetJobStatus, setTargetJobStatus] = useState<"idle" | "loading" | "loaded" | "not_found">("idle");
+  const [isRoleSelectorOpen, setIsRoleSelectorOpen] = useState(false);
+  const [roleSearchQuery, setRoleSearchQuery] = useState("");
+  const [roleSearchResults, setRoleSearchResults] = useState<any[]>([]);
+  const [isSearchingRoles, setIsSearchingRoles] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [progressPercent, setProgressPercent] = useState(12);
   const [activeStage, setActiveStage] = useState(0);
@@ -229,14 +341,21 @@ function ATSCheckerContent() {
   // Auto-detect & load targeted job vacancy if ?jobId= is provided in URL
   useEffect(() => {
     const rawId = urlJobId || (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("jobId") : null);
-    if (!rawId) return;
+    if (!rawId) {
+      setTargetJobStatus("idle");
+      return;
+    }
 
     const sanitizedJobId = String(rawId).trim();
-    if (!sanitizedJobId) return;
+    if (!sanitizedJobId) {
+      setTargetJobStatus("idle");
+      return;
+    }
 
     let isMounted = true;
     setTargetJobId(sanitizedJobId);
     setIsLoadingTargetJob(true);
+    setTargetJobStatus("loading");
 
     fetch(`/api/jobs?ids=${encodeURIComponent(sanitizedJobId)}`)
       .then((res) => {
@@ -249,6 +368,7 @@ function ATSCheckerContent() {
           const found = data.jobs[0];
           if (found && typeof found === "object" && found.id) {
             setTargetJob(found);
+            setTargetJobStatus("loaded");
 
             const rawCountry =
               (typeof found.location === "object" && found.location?.country) ||
@@ -271,11 +391,21 @@ function ATSCheckerContent() {
                 setTargetCountry(code);
               }
             }
+            return;
           }
+        }
+        // Vacancy not found or retired from index
+        if (isMounted) {
+          setTargetJob(null);
+          setTargetJobStatus("not_found");
         }
       })
       .catch((err) => {
         console.warn("Could not load target job for ATS benchmark:", err);
+        if (isMounted) {
+          setTargetJob(null);
+          setTargetJobStatus("not_found");
+        }
       })
       .finally(() => {
         if (isMounted) {
@@ -287,6 +417,73 @@ function ATSCheckerContent() {
       isMounted = false;
     };
   }, [urlJobId]);
+
+  // Live search for target role benchmark switcher
+  useEffect(() => {
+    if (!roleSearchQuery || roleSearchQuery.trim().length < 2) {
+      setRoleSearchResults([]);
+      setIsSearchingRoles(false);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      setIsSearchingRoles(true);
+      fetch(`/api/jobs?q=${encodeURIComponent(roleSearchQuery.trim())}&limit=5`)
+        .then((res) => res.json())
+        .then((data) => {
+          const jobsList = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.jobs) ? data.jobs : []);
+          setRoleSearchResults(jobsList);
+        })
+        .catch(() => setRoleSearchResults([]))
+        .finally(() => setIsSearchingRoles(false));
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [roleSearchQuery]);
+
+  const handleSelectPresetRole = (preset: typeof BENCHMARK_ROLE_PRESETS[0]) => {
+    setTargetJob({
+      id: `preset_${preset.id}`,
+      title: preset.label,
+      company: { name: preset.employerName },
+      location: { city: preset.city, country: preset.country },
+      salary: preset.salary,
+      sponsorship: { label: preset.country === "GB" ? "Confirmed Licensed Sponsor" : "Specialty Occupation" },
+      isPreset: true,
+      socDesc: preset.socDesc,
+    });
+    setTargetJobId(`preset_${preset.id}`);
+    setTargetCountry(preset.country);
+    setTargetJobStatus("loaded");
+    setIsRoleSelectorOpen(false);
+  };
+
+  const handleSelectLiveJob = (job: any) => {
+    setTargetJob(job);
+    setTargetJobId(job.id);
+    const country = (typeof job.location === "object" ? job.location?.country : null) || job.country_code || "GB";
+    if (["GB", "US", "AU", "CA", "NZ"].includes(country)) {
+      setTargetCountry(country);
+    }
+    setTargetJobStatus("loaded");
+    setIsRoleSelectorOpen(false);
+    setRoleSearchQuery("");
+    setRoleSearchResults([]);
+  };
+
+  const handleDismissBenchmark = () => {
+    setTargetJob(null);
+    setTargetJobId("");
+    setTargetJobStatus("idle");
+    setIsRoleSelectorOpen(false);
+    if (typeof window !== "undefined") {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("jobId");
+        window.history.replaceState({}, "", url.pathname);
+      } catch {}
+    }
+  };
 
   // File upload handler
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -480,7 +677,7 @@ function ATSCheckerContent() {
           </div>
         </div>
 
-        {/* ── TARGET VACANCY BANNER (When linked from a specific job) ── */}
+        {/* ── TARGET VACANCY BANNER & INTERACTIVE BENCHMARK ASSISTANT ── */}
         {isLoadingTargetJob && (
           <div className="p-6 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl mb-8 animate-pulse flex items-center justify-between gap-4">
             <div className="space-y-2">
@@ -492,7 +689,8 @@ function ATSCheckerContent() {
           </div>
         )}
 
-        {targetJob && typeof targetJob === "object" && (
+        {/* 1. ACTIVE BENCHMARK CARD (When a role is selected/loaded and selector is not open) */}
+        {targetJob && typeof targetJob === "object" && targetJobStatus === "loaded" && !isRoleSelectorOpen && (
           <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-950 to-brand-950 text-white border border-brand-500/40 shadow-xl mb-8 relative overflow-hidden animate-fade-in">
             <div className="absolute -top-12 -right-12 w-56 h-56 bg-brand-500/15 rounded-full blur-3xl pointer-events-none" />
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
@@ -504,7 +702,13 @@ function ATSCheckerContent() {
                   </span>
                   <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-bold flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Verified Licensed Sponsor</span>
+                    <span>
+                      {targetJob.isPreset
+                        ? "Role Archetype Benchmark"
+                        : (typeof targetJob.location === "object" && targetJob.location?.country === "US")
+                        ? "US Direct Employer Vacancy"
+                        : "Verified Licensed Sponsor"}
+                    </span>
                   </span>
                   <span className="text-xs text-slate-300 font-medium flex items-center gap-1">
                     <Globe2 className="w-3 h-3 text-slate-400" />
@@ -518,38 +722,161 @@ function ATSCheckerContent() {
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-300 mt-1">
                     Hiring Employer: <strong className="text-white">{typeof targetJob.company === "object" ? (targetJob.company?.name || "Verified Employer") : (targetJob.company || "Verified Employer")}</strong>
-                    {targetJob.salary && (targetJob.salary.min || targetJob.salary.max) && (
+                    {formatSalaryDisplay(targetJob.salary) && (
                       <span className="text-emerald-400 ml-2 font-semibold">
-                        • {targetJob.salary.currency || "£"}{targetJob.salary.min?.toLocaleString()} - {targetJob.salary.currency || "£"}{targetJob.salary.max?.toLocaleString()}
+                        • {formatSalaryDisplay(targetJob.salary)}
                       </span>
                     )}
                   </p>
                   <p className="text-[11px] text-brand-200/80 mt-1">
-                    Your CV will be benchmarked directly against this role&apos;s specific skills, required tenure, and immigration eligibility criteria.
+                    {targetJob.socDesc
+                      ? `Calibrated against ${targetJob.socDesc} and specific tool proficiencies.`
+                      : "Your CV will be benchmarked directly against this role's specific skills, required tenure, and immigration eligibility criteria."}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5 shrink-0 pt-2 md:pt-0">
+              <div className="flex flex-wrap items-center gap-2.5 shrink-0 pt-2 md:pt-0">
                 <button
                   type="button"
-                  onClick={() => {
-                    setTargetJob(null);
-                    setTargetJobId("");
-                    if (typeof window !== "undefined") {
-                      try {
-                        const url = new URL(window.location.href);
-                        url.searchParams.delete("jobId");
-                        window.history.replaceState({}, "", url.pathname);
-                      } catch {}
-                    }
-                  }}
+                  onClick={() => setIsRoleSelectorOpen(true)}
+                  className="px-4 py-2 rounded-xl bg-brand-500/20 hover:bg-brand-500/30 text-xs font-bold text-brand-300 border border-brand-400/30 transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Switch Role</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDismissBenchmark}
                   className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-slate-200 border border-white/20 transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <X className="w-3.5 h-3.5" />
-                  <span>Clear Target Job</span>
+                  <span>Clear Benchmark</span>
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* 2. INTERACTIVE VACANCY BENCHMARK ASSISTANT (When not found or user wants to pick a role) */}
+        {((targetJobStatus === "not_found") || isRoleSelectorOpen) && (
+          <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950 text-white border border-brand-500/40 shadow-xl mb-8 relative overflow-hidden animate-fade-in space-y-5">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-brand-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-brand-500/20 border border-brand-400/40 text-brand-400 flex items-center justify-center shrink-0">
+                  <Target className="w-5 h-5 text-[#19CBE0]" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                    <span>Role Benchmark Assistant</span>
+                    <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-brand-500/20 text-[#19CBE0] border border-brand-400/30">
+                      Tailor Your Score
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-300 mt-0.5">
+                    {targetJobStatus === "not_found"
+                      ? "The requested vacancy link is no longer active in our live catalog. You can 1-click benchmark against any engineering role below, search active vacancies, or run universal ATS scoring:"
+                      : "Choose a target role archetype or search active vacancies from our database of 110,000+ sponsors to benchmark your CV:"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleDismissBenchmark}
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 border border-slate-700 transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Run Universal Scan (No Target)</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 1-Click Role Presets */}
+            <div className="space-y-2 relative z-10">
+              <div className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>1-Click Popular Benchmark Roles:</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
+                {BENCHMARK_ROLE_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => handleSelectPresetRole(preset)}
+                    className="p-3 rounded-2xl bg-slate-800/80 hover:bg-slate-800 hover:border-brand-400/60 border border-slate-700/80 text-left transition-all cursor-pointer group hover:scale-[1.02] shadow-xs"
+                  >
+                    <div className="flex items-center justify-between text-base mb-1">
+                      <span>{preset.icon}</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-900 text-slate-400">
+                        {preset.country}
+                      </span>
+                    </div>
+                    <div className="text-xs font-bold text-white group-hover:text-brand-300 transition-colors line-clamp-1">
+                      {preset.label}
+                    </div>
+                    <div className="text-[11px] text-emerald-400 font-semibold mt-0.5">
+                      {formatSalaryDisplay(preset.salary)}
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1 truncate">
+                      {preset.employerName}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Live Search Bar for any Vacancy */}
+            <div className="space-y-2 relative z-10 pt-2">
+              <div className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <Briefcase className="w-3.5 h-3.5 text-brand-400" />
+                <span>Or search any active job in our database:</span>
+              </div>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={roleSearchQuery}
+                  onChange={(e) => setRoleSearchQuery(e.target.value)}
+                  placeholder="Type a title or company (e.g. Mechanical Engineer, Balfour Beatty, Mace, Raytheon)..."
+                  className="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all font-medium"
+                />
+                {isSearchingRoles && (
+                  <div className="absolute right-3.5 top-3.5">
+                    <RefreshCw className="w-4 h-4 animate-spin text-brand-400" />
+                  </div>
+                )}
+              </div>
+
+              {/* Search Results Dropdown */}
+              {roleSearchResults.length > 0 && (
+                <div className="p-2 rounded-2xl bg-slate-900 border border-brand-500/40 shadow-2xl space-y-1 mt-1 max-h-60 overflow-y-auto">
+                  {roleSearchResults.map((j: any) => (
+                    <div
+                      key={j.id}
+                      onClick={() => handleSelectLiveJob(j)}
+                      className="p-2.5 rounded-xl hover:bg-slate-800 cursor-pointer transition-colors flex items-center justify-between gap-3 text-xs"
+                    >
+                      <div>
+                        <span className="font-bold text-white">{j.title}</span>
+                        <span className="text-slate-400 ml-2">
+                          at {typeof j.company === "object" ? (j.company?.name || "Verified Employer") : (j.company || "Verified Employer")}
+                        </span>
+                        {typeof j.location === "object" && j.location?.formatted && (
+                          <span className="text-[11px] text-slate-500 block">
+                            📍 {j.location.formatted}
+                          </span>
+                        )}
+                      </div>
+                      <span className="px-2 py-1 rounded-lg bg-brand-500/20 text-brand-300 font-bold text-[11px] shrink-0">
+                        Select Role →
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1414,7 +1741,7 @@ class ATSCheckerErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorB
     console.warn("ATSChecker local error boundary intercepted an error:", error, errorInfo);
   }
 
-  handleClearJobTarget = () => {
+  handleRestoreCleanWorkspace = () => {
     if (typeof window !== "undefined") {
       try {
         const url = new URL(window.location.href);
@@ -1431,25 +1758,26 @@ class ATSCheckerErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorB
         <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
           <Navbar />
           <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-16 flex items-center justify-center">
-            <div className="w-full p-8 sm:p-10 rounded-3xl bg-white border border-slate-200 shadow-xl text-center space-y-5">
-              <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
-                <AlertTriangle className="w-8 h-8" />
+            <div className="w-full p-8 sm:p-10 rounded-3xl bg-white border border-slate-200 shadow-xl text-center space-y-6 animate-fade-in">
+              <div className="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto shadow-inner">
+                <Sparkles className="w-7 h-7 animate-pulse text-brand-600" />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <h2 className="text-2xl font-black text-slate-900 font-display">
-                  ATS Scanner Notice
+                  ATS &amp; Sponsorship Intelligence Workspace
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-                  We could not initialize the benchmark for this vacancy ID. You can continue using the ATS Checker directly with any CV.
+                  Your ATS checker session was refreshed to ensure clean document parsing and multi-pillar diagnostics. Click below to continue directly with your analysis.
                 </p>
               </div>
               <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={this.handleClearJobTarget}
-                  className="px-6 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+                  onClick={this.handleRestoreCleanWorkspace}
+                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
                 >
-                  Continue to ATS Checker
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Launch Clean ATS Workspace</span>
                 </button>
                 <Link
                   href="/jobs"
