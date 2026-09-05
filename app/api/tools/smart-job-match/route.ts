@@ -109,8 +109,8 @@ export async function POST(request: NextRequest) {
       } catch {
         body = {};
       }
-      const { prompt, cvText, country: countryBody, minSalary: minSalaryBody, limit: limitBody } = body;
-      rawInput = (cvText || prompt || "").trim();
+      const { prompt, cvText, text, country: countryBody, minSalary: minSalaryBody, limit: limitBody } = body;
+      rawInput = (cvText || prompt || text || "").trim();
       country = countryBody;
       minSalary = minSalaryBody;
       limit = limitBody ? Math.min(48, Math.max(4, Number(limitBody) || 24)) : 24;
