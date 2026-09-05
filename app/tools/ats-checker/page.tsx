@@ -1718,114 +1718,21 @@ function ATSCheckerContent() {
   );
 }
 
-interface ErrorBoundaryProps {
-  children: React.ReactNode;
-}
-
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error: Error | null;
-}
-
-class ATSCheckerErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
-  }
-
-  componentDidMount() {
-    if (this.state.hasError && typeof window !== "undefined") {
-      try {
-        const hasRecovered = sessionStorage.getItem("ats_auto_recovered");
-        if (!hasRecovered) {
-          sessionStorage.setItem("ats_auto_recovered", "1");
-          window.location.href = "/tools/ats-checker";
-        }
-      } catch {}
-    }
-  }
-
-  handleRestoreCleanWorkspace = () => {
-    if (typeof window !== "undefined") {
-      try {
-        sessionStorage.removeItem("ats_auto_recovered");
-        const url = new URL(window.location.href);
-        url.searchParams.delete("jobId");
-        window.location.href = url.pathname;
-        return;
-      } catch {
-        window.location.href = "/tools/ats-checker";
-        return;
-      }
-    }
-    this.setState({ hasError: false, error: null });
-  };
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+export default function ATSCheckerPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex flex-col bg-slate-50">
           <Navbar />
-          <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-16 flex items-center justify-center">
-            <div className="w-full p-8 sm:p-10 rounded-3xl bg-white border border-slate-200 shadow-xl text-center space-y-6 animate-fade-in">
-              <div className="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto shadow-inner">
-                <Sparkles className="w-7 h-7 animate-pulse text-brand-600" />
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-2xl font-black text-slate-900 font-display">
-                  ATS &amp; Sponsorship Intelligence Workspace
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-                  Your ATS checker session was refreshed to ensure clean document parsing and multi-pillar diagnostics. Click below to continue directly with your analysis.
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={this.handleRestoreCleanWorkspace}
-                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Launch Clean ATS Workspace</span>
-                </button>
-                <Link
-                  href="/jobs"
-                  className="px-5 py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
-                >
-                  Browse Verified Jobs
-                </Link>
-              </div>
-            </div>
+          <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl border-3 border-brand-500 border-t-transparent animate-spin" />
           </main>
           <Footer />
         </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-export default function ATSCheckerPage() {
-  return (
-    <ATSCheckerErrorBoundary>
-      <Suspense
-        fallback={
-          <div className="min-h-screen flex flex-col bg-slate-50">
-            <Navbar />
-            <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 flex items-center justify-center">
-              <div className="w-10 h-10 rounded-2xl border-3 border-brand-500 border-t-transparent animate-spin" />
-            </main>
-            <Footer />
-          </div>
-        }
-      >
-        <ATSCheckerContent />
-      </Suspense>
-    </ATSCheckerErrorBoundary>
+      }
+    >
+      <ATSCheckerContent />
+    </Suspense>
   );
 }
 

@@ -317,11 +317,11 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               />
 
               <Link
-                href={`/tools/ats-checker?jobId=${encodeURIComponent(job.id)}`}
-                className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm border border-white/20 transition-all cursor-pointer backdrop-blur-md"
+                href={`/tools/smart-job-finder?role=${encodeURIComponent(job.title)}&country=${encodeURIComponent(job.location.country || "GB")}`}
+                className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-gradient-to-r from-brand-600/30 via-indigo-600/30 to-purple-600/30 hover:from-brand-600/50 hover:via-indigo-600/50 hover:to-purple-600/50 text-white font-bold text-sm border border-brand-400/40 transition-all cursor-pointer backdrop-blur-md shadow-sm"
               >
-                <FileSearch className="w-4 h-4 text-[#18D6E5]" />
-                <span>Scan Resume Free</span>
+                <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+                <span>AI Smart Match</span>
               </Link>
             </div>
           </div>
@@ -424,27 +424,28 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               ) : null}
             </div>
 
-            {/* Free ATS Scanner Callout Card */}
-            <div className="p-6 rounded-3xl bg-gradient-to-r from-[#071421] via-slate-900 to-[#0D1B2A] text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-5 border border-slate-800">
+            {/* AI Smart Match Callout Card */}
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-[#071421] via-slate-900 to-indigo-950/80 text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-5 border border-indigo-900/40">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#18D6E5]/10 border border-[#18D6E5]/30 flex items-center justify-center text-[#18D6E5] shrink-0">
-                  <FileSearch className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-2xl bg-brand-500/15 border border-brand-400/30 flex items-center justify-center text-brand-400 shrink-0">
+                  <Sparkles className="w-6 h-6 text-amber-300 animate-pulse" />
                 </div>
                 <div>
                   <h3 className="text-base font-black text-white font-display">
-                    Scan Your Resume Against This Exact Vacancy
+                    Find More Opportunities With AI Smart Match
                   </h3>
                   <p className="text-xs text-slate-300 mt-0.5">
-                    Check keyword match, missing engineering skills, and ATS score in 10 seconds.
+                    Match your profile against 12,000+ verified visa sponsorship roles across UK, USA, Australia, and Canada.
                   </p>
                 </div>
               </div>
 
               <Link
-                href={`/tools/ats-checker?jobId=${encodeURIComponent(job.id)}`}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#18D6E5] hover:bg-[#15c0ce] text-[#071421] font-black text-xs transition-colors shrink-0 shadow-sm"
+                href={`/tools/smart-job-finder?role=${encodeURIComponent(job.title)}&country=${encodeURIComponent(job.location.country || "GB")}`}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-400 hover:to-indigo-500 text-white font-black text-xs transition-colors shrink-0 shadow-sm"
               >
-                <span>Scan Resume Free</span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>AI Smart Match</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -543,23 +544,23 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             {/* Country Relocation & Immigration Intelligence Card (Free RestCountries API) */}
             <CountryRelocationCard countryCode={job.location.country} />
 
-            {/* Free ATS Checker Promo Card in Sidebar */}
-            <div className="p-6 rounded-3xl bg-gradient-to-br from-slate-900 to-[#071421] text-white space-y-3 border border-slate-800 shadow-md">
-              <div className="w-10 h-10 rounded-xl bg-[#18D6E5]/10 border border-[#18D6E5]/30 flex items-center justify-center text-[#18D6E5]">
-                <Sparkles className="w-5 h-5" />
+            {/* AI Smart Match Promo Card in Sidebar */}
+            <div className="p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-[#071421] to-indigo-950/40 text-white space-y-3 border border-slate-800 shadow-md">
+              <div className="w-10 h-10 rounded-xl bg-brand-500/15 border border-brand-400/30 flex items-center justify-center text-brand-400">
+                <Sparkles className="w-5 h-5 text-amber-300" />
               </div>
               <h4 className="text-sm font-black text-white font-display">
-                Tailor Resume for this Position
+                AI Career Intelligence Match
               </h4>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Scan your resume against this job posting to see keyword matches and ATS compatibility score.
+                Discover adjacent roles and verified visa-sponsored positions matching your background.
               </p>
               <div className="flex flex-col gap-2 pt-1">
                 <Link
-                  href={`/tools/ats-checker?jobId=${encodeURIComponent(job.id)}`}
-                  className="block w-full py-2.5 px-4 rounded-xl bg-[#18D6E5] hover:bg-[#15c0ce] text-[#071421] font-black text-xs text-center transition-colors shadow-xs"
+                  href={`/tools/smart-job-finder?role=${encodeURIComponent(job.title)}&country=${encodeURIComponent(job.location.country || "GB")}`}
+                  className="block w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-black text-xs text-center transition-all shadow-xs"
                 >
-                  Scan Resume for ATS Free
+                  ✨ Run AI Smart Match
                 </Link>
                 <Link
                   href={`/tools/cv-cover-letter`}

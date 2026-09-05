@@ -54,6 +54,25 @@ export default function SmartJobFinderPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
+  // Pre-fill from query params if coming from a job card (e.g. ?role=Mechanical%20Engineer&country=US)
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const roleParam = params.get("role");
+        const countryParam = params.get("country");
+        if (roleParam && roleParam.trim()) {
+          setActiveTab("prompt");
+          const queryText = `${roleParam.trim()} professional seeking verified employer visa sponsorship`;
+          setPrompt(queryText);
+          if (countryParam && ["GB", "US", "AU", "CA", "NZ"].includes(countryParam.toUpperCase())) {
+            setCountry(countryParam.toUpperCase());
+          }
+        }
+      } catch {}
+    }
+  }, []);
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
