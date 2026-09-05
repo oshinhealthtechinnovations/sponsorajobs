@@ -4,6 +4,37 @@ import { extractTextFromPDFBuffer, isRawPdfSyntax } from "@/lib/services/pdfExtr
 
 export const dynamic = "force-dynamic";
 
+function extractPartsFromRawMultipart(buf: Buffer, boundary: string) {
+  const boundaryBuf = Buffer.from("--" + boundary);
+  let pos = 0;
+  const parts: { name: string; filename?: string; data: Buffer; text: string }[] = [];
+  while (pos < buf.length) {
+    const bStart = buf.indexOf(boundaryBuf, pos);
+    if (bStart === -1) break;
+    const nextB = buf.indexOf(boundaryBuf, bStart + boundaryBuf.length);
+    if (nextB === -1) break;
+    const partBuf = buf.subarray(bStart + boundaryBuf.length, nextB);
+    const headerEnd = partBuf.indexOf(Buffer.from("\r\n\r\n"));
+    if (headerEnd !== -1) {
+      const headerStr = partBuf.subarray(0, headerEnd).toString("utf-8");
+      let bodyBuf = partBuf.subarray(headerEnd + 4);
+      if (bodyBuf.length >= 2 && bodyBuf[bodyBuf.length - 2] === 13 && bodyBuf[bodyBuf.length - 1] === 10) {
+        bodyBuf = bodyBuf.subarray(0, bodyBuf.length - 2);
+      }
+      const nameMatch = headerStr.match(/name="([^"]+)"/);
+      const filenameMatch = headerStr.match(/filename="([^"]+)"/);
+      parts.push({
+        name: nameMatch ? nameMatch[1] : "",
+        filename: filenameMatch ? filenameMatch[1] : undefined,
+        data: Buffer.from(bodyBuf),
+        text: bodyBuf.toString("utf-8"),
+      });
+    }
+    pos = nextB;
+  }
+  return parts;
+}
+
 export async function POST(request: NextRequest) {
   try {
     let rawInput = "";
@@ -14,21 +45,57 @@ export async function POST(request: NextRequest) {
     const contentType = request.headers.get("content-type") || "";
 
     if (contentType.includes("multipart/form-data")) {
-      const formData = await request.formData();
-      const file = formData.get("file") as File | null;
-      const textParam = formData.get("text") as string | null;
-      const promptParam = formData.get("prompt") as string | null;
-      country = (formData.get("country") as string) || undefined;
-      const limitParam = formData.get("limit") as string | null;
-      if (limitParam) limit = Number(limitParam) || 8;
+      let fileBuffer: Buffer | null = null;
+      let fileName = "";
+      let textParam: string | null = null;
+      let promptParam: string | null = null;
 
-      if (file) {
-        const buffer = Buffer.from(await file.arrayBuffer());
-        const fileName = file.name.toLowerCase();
-        if (fileName.endsWith(".pdf") || file.type === "application/pdf") {
-          rawInput = await extractTextFromPDFBuffer(buffer);
+      try {
+        const formData = await request.formData();
+        const file = formData.get("file") as File | null;
+        textParam = formData.get("text") as string | null;
+        promptParam = formData.get("prompt") as string | null;
+        country = (formData.get("country") as string) || undefined;
+        const limitParam = formData.get("limit") as string | null;
+        if (limitParam) limit = Number(limitParam) || 8;
+
+        if (file) {
+          fileBuffer = Buffer.from(await file.arrayBuffer());
+          fileName = file.name.toLowerCase();
+        }
+      } catch (formErr) {
+        // Robust fallback to raw buffer extraction if request.formData() fails in serverless runtime
+        try {
+          const rawBuffer = Buffer.from(await request.arrayBuffer());
+          const boundaryMatch = contentType.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
+          const boundary = boundaryMatch ? (boundaryMatch[1] || boundaryMatch[2]).trim() : "";
+          if (boundary && rawBuffer.length > 0) {
+            const parts = extractPartsFromRawMultipart(rawBuffer, boundary);
+            for (const part of parts) {
+              if (part.filename || part.name === "file") {
+                fileBuffer = part.data;
+                fileName = (part.filename || "upload.pdf").toLowerCase();
+              } else if (part.name === "text") {
+                textParam = part.text.trim();
+              } else if (part.name === "prompt") {
+                promptParam = part.text.trim();
+              } else if (part.name === "country" && part.text.trim()) {
+                country = part.text.trim();
+              } else if (part.name === "limit" && part.text.trim()) {
+                limit = Number(part.text.trim()) || 8;
+              }
+            }
+          }
+        } catch (rawErr) {
+          console.warn("[SmartJobMatch API] Raw multipart fallback also failed:", rawErr);
+        }
+      }
+
+      if (fileBuffer && fileBuffer.length > 0) {
+        if (fileName.endsWith(".pdf") || fileBuffer.subarray(0, 5).toString().includes("%PDF")) {
+          rawInput = await extractTextFromPDFBuffer(fileBuffer);
         } else {
-          rawInput = buffer.toString("utf-8");
+          rawInput = fileBuffer.toString("utf-8");
         }
       } else if (textParam) {
         rawInput = textParam;
