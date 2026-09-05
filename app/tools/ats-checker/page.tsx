@@ -1737,17 +1737,30 @@ class ATSCheckerErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorB
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.warn("ATSChecker local error boundary intercepted an error:", error, errorInfo);
+  componentDidMount() {
+    if (this.state.hasError && typeof window !== "undefined") {
+      try {
+        const hasRecovered = sessionStorage.getItem("ats_auto_recovered");
+        if (!hasRecovered) {
+          sessionStorage.setItem("ats_auto_recovered", "1");
+          window.location.href = "/tools/ats-checker";
+        }
+      } catch {}
+    }
   }
 
   handleRestoreCleanWorkspace = () => {
     if (typeof window !== "undefined") {
       try {
+        sessionStorage.removeItem("ats_auto_recovered");
         const url = new URL(window.location.href);
         url.searchParams.delete("jobId");
-        window.history.replaceState({}, "", url.pathname);
-      } catch {}
+        window.location.href = url.pathname;
+        return;
+      } catch {
+        window.location.href = "/tools/ats-checker";
+        return;
+      }
     }
     this.setState({ hasError: false, error: null });
   };
