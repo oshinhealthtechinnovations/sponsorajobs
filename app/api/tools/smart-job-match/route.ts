@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { JobIntelligenceEngine } from "@/lib/services/jobIntelligenceEngine";
-import { JobSuggestionEngine } from "@/lib/services/jobSuggestionEngine";
+import { CareerIntelligenceEngine } from "@/lib/services/careerIntelligenceEngine";
 import { extractTextFromPDFBuffer, isRawPdfSyntax } from "@/lib/services/pdfExtractor";
 
 export const dynamic = "force-dynamic";
@@ -57,85 +56,74 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 1. Intelligent Candidate Profile Extraction
-    const candidateProfile = JobIntelligenceEngine.extractCandidateProfile(rawInput);
+    // 1. Universal Capability Profile Extraction via CIE-v2
+    const profile = CareerIntelligenceEngine.extractCandidateProfile(rawInput);
     const effectiveCountry = (country && country !== "ALL")
       ? country
-      : (candidateProfile.targetCountry || undefined);
+      : (profile.identity.targetCountry || undefined);
 
-    // 2. Rank Opportunities across Database using Deep Intelligence
-    const rankedOpportunities = await JobIntelligenceEngine.rankMatchingJobsForCandidate(
-      candidateProfile,
+    // 2. Rank Opportunities across Database using Universal Engine
+    const rankedOpportunities = await CareerIntelligenceEngine.rankMatchingJobs(
+      profile,
       {
         country: effectiveCountry,
         limit,
       }
     );
 
-    // Fallback to suggestion engine if database returns fewer than 3 results
-    let matchedJobs = rankedOpportunities.map((opp) => ({
+    const matchedJobs = rankedOpportunities.map((opp) => ({
       job: opp.job,
-      matchScore: opp.matchScore,
-      atsScore: opp.atsScore,
+      matchTier: opp.matchTier,
+      tierBadgeLabel: opp.tierBadgeLabel,
+      matchScore: opp.compositeRankScore,
+      careerMatchScore: opp.careerMatchScore,
+      sponsorshipViabilityScore: opp.sponsorshipViabilityScore,
+      atsScore: opp.atsCompatibilityScore,
       breakdown: opp.breakdown,
-      visaViable: opp.breakdown.visaMatchScore >= 80,
+      visaViable: opp.sponsorshipViabilityScore >= 75,
       reasons: opp.breakdown.whyYouMatch.length > 0 ? opp.breakdown.whyYouMatch : [opp.recommendationReason],
       recommendationReason: opp.recommendationReason,
-      matchedSkills: opp.breakdown.matchedSkills,
-      missingSkills: opp.breakdown.missingRequiredSkills,
-      sponsorshipStatus: opp.breakdown.sponsorshipStatus,
+      matchedSkills: Array.from(new Set([...opp.breakdown.matchedTools, ...opp.breakdown.matchedCapabilities])),
+      missingSkills: opp.breakdown.missingCapabilities,
+      sponsorshipStatus: opp.breakdown.sponsorshipStatus.certainty,
     }));
 
-    if (matchedJobs.length < 3) {
-      try {
-        const fallback = await JobSuggestionEngine.smartMatch(rawInput, {
-          country: effectiveCountry,
-          minSalary,
-          limit,
-        });
-
-        if (fallback.matchedJobs && fallback.matchedJobs.length > 0) {
-          const existingIds = new Set(matchedJobs.map((m) => m.job.id));
-          for (const fallbackJob of fallback.matchedJobs) {
-            if (!existingIds.has(fallbackJob.job.id)) {
-              const intel = JobIntelligenceEngine.extractJobIntelligence(fallbackJob.job);
-              const breakdown = JobIntelligenceEngine.calculateDetailedMatch(candidateProfile, intel);
-
-              // Don't add obvious cross-domain mismatches
-              if (breakdown.overallMatchScore < 30 || (breakdown.skillsMatchScore === 0 && breakdown.roleSimilarityScore < 20)) {
-                continue;
-              }
-
-              matchedJobs.push({
-                job: fallbackJob.job,
-                matchScore: fallbackJob.matchScore || breakdown.overallMatchScore,
-                atsScore: breakdown.atsCompatibilityScore,
-                breakdown,
-                visaViable: fallbackJob.visaViable,
-                reasons: fallbackJob.reasons,
-                recommendationReason: `Matched via semantic similarity (${intel.normalizedTitle})`,
-                matchedSkills: breakdown.matchedSkills,
-                missingSkills: breakdown.missingRequiredSkills,
-                sponsorshipStatus: breakdown.sponsorshipStatus,
-              });
-            }
-          }
-        }
-      } catch (err) {
-        // Keep rankedOpportunities
-      }
-    }
+    // Universal Candidate Profile compatibility layer for UI
+    const candidateProfile = {
+      name: profile.identity.name,
+      email: profile.identity.email,
+      phone: profile.identity.phone,
+      linkedIn: profile.identity.linkedIn,
+      currentRole: profile.headlineRole,
+      normalizedRole: profile.normalizedRole,
+      primaryFunction: profile.primaryFunction,
+      yearsOfExperience: profile.yearsOfExperience,
+      seniority: profile.seniority,
+      primaryIndustry: profile.primaryIndustry,
+      subIndustries: profile.subIndustries,
+      coreSkills: Array.from(new Set([...profile.toolsAndSoftware, ...profile.coreCapabilities])),
+      technicalSkills: profile.toolsAndSoftware,
+      softSkills: profile.coreCapabilities.filter((c) => c.includes("Management") || c.includes("Coordination")),
+      toolsAndSoftware: profile.toolsAndSoftware,
+      highestDegree: profile.highestDegree,
+      degreeField: profile.degreeField,
+      certifications: profile.certifications,
+      transferablePotentialRoles: profile.transferableRolesList,
+      transferableCareerPathways: profile.transferableCareerPathways,
+      targetCountry: profile.identity.targetCountry,
+    };
 
     return NextResponse.json({
       success: true,
       data: {
         candidateProfile,
-        transferableRoles: candidateProfile.transferablePotentialRoles,
+        transferableRoles: profile.transferableRolesList,
+        transferableCareerPathways: profile.transferableCareerPathways,
         detectedIntent: {
-          targetRole: candidateProfile.normalizedRole,
+          targetRole: profile.normalizedRole,
           skills: candidateProfile.coreSkills,
           targetCountry: effectiveCountry,
-          experienceLevel: candidateProfile.seniority,
+          experienceLevel: profile.seniority,
         },
         matchedJobs,
         totalFound: matchedJobs.length,

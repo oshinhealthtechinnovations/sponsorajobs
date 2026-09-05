@@ -1,4 +1,5 @@
 import zlib from "zlib";
+import { createRequire } from "module";
 
 /**
  * Checks if a string looks predominantly like raw PDF syntax / stream dictionary markers
@@ -27,13 +28,43 @@ export function isRawPdfSyntax(text: string): boolean {
     if (sample.includes(marker)) matches++;
   }
 
-  // If 3 or more PDF dictionary markers appear in the first 1500 chars, it's raw PDF code
   return matches >= 3;
 }
 
 /**
+ * Checks if extracted text is genuine human language text rather than
+ * decompressed binary font glyphs or garbled unicode tokens.
+ */
+export function isValidHumanLanguageText(text: string): boolean {
+  if (!text || text.trim().length < 25) return false;
+  if (isRawPdfSyntax(text)) return false;
+
+  // Check ratio of alphanumeric characters + standard punctuation to total length
+  const validChars = text.match(/[A-Za-z0-9\s.,!?;:()'"\-\/&•@+]/g) || [];
+  const ratio = validChars.length / text.length;
+
+  // If less than 70% of characters are standard alphanumeric/punctuation, it's garbled
+  if (ratio < 0.70) return false;
+
+  // Check for common English dictionary/stop words (at least 2 should appear in a real CV)
+  const commonWords = /\b(and|the|with|for|in|of|experience|skills|project|education|university|management|work|role|engineering|developer|coordinator|manager|team|responsibilities)\b/i;
+  return commonWords.test(text);
+}
+
+function loadPdfParseModule(): any {
+  try {
+    const esmRequire = typeof require !== "undefined" ? require : createRequire(import.meta.url);
+    const mod = esmRequire("pdf-parse");
+    return mod.default || mod;
+  } catch (err) {
+    console.warn("[PDFExtractor] Failed to load pdf-parse via require/createRequire:", err);
+    return null;
+  }
+}
+
+/**
  * Robust Multi-Engine PDF Text Extractor
- * 1. Primary: Uses pdf-parse v2 (Mozilla PDF.js engine) to decompress Object Streams (/ObjStm),
+ * 1. Primary: Uses pdf-parse v2 (Mozilla PDF.js engine) via ESM createRequire to decompress Object Streams (/ObjStm),
  *    resolve /ToUnicode CMaps, TrueType/CID fonts, and multi-page text layouts.
  * 2. Secondary: Deep flate-stream parser for literal strings, array TJ tokens, and hex-encoded font glyphs.
  * 3. Sanitizes and strips raw PDF binary debris to ensure only real resume content reaches AI tools.
@@ -41,34 +72,32 @@ export function isRawPdfSyntax(text: string): boolean {
 export async function extractTextFromPDFBuffer(buffer: Buffer): Promise<string> {
   if (!buffer || buffer.length === 0) return "";
 
-  // 1. Primary Engine: pdf-parse (dynamic require for Node/Vercel runtime compatibility)
+  // 1. Primary Engine: pdf-parse
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const pdfParse = require("pdf-parse");
-    const PDFParseClass = pdfParse.PDFParse || pdfParse.default?.PDFParse || pdfParse.default;
-    if (PDFParseClass && (typeof PDFParseClass === "function" || typeof PDFParseClass?.getText === "function")) {
-      // Class-based API (pdf-parse v2)
-      const parser = new PDFParseClass({ data: buffer });
-      try {
-        const parsed = await parser.getText();
-        if (parsed && typeof parsed.text === "string") {
-          const rawText = parsed.text.replace(/--\s*\d+\s*of\s*\d+\s*--/gi, " ");
-          const cleaned = sanitizeExtractedText(rawText);
-          if (cleaned.length >= 25 && !isRawPdfSyntax(cleaned)) {
+    const pdfParse = loadPdfParseModule();
+    if (pdfParse) {
+      const PDFParseClass = pdfParse.PDFParse || pdfParse.default?.PDFParse;
+      if (PDFParseClass && (typeof PDFParseClass === "function" || typeof PDFParseClass?.getText === "function")) {
+        const parser = new PDFParseClass({ data: buffer });
+        try {
+          const parsed = await parser.getText();
+          if (parsed && typeof parsed.text === "string") {
+            const rawText = parsed.text.replace(/--\s*\d+\s*of\s*\d+\s*--/gi, " ");
+            const cleaned = sanitizeExtractedText(rawText);
+            if (isValidHumanLanguageText(cleaned)) {
+              return cleaned;
+            }
+          }
+        } finally {
+          try { await parser.destroy(); } catch { /* ignore */ }
+        }
+      } else if (typeof pdfParse === "function") {
+        const result = await pdfParse(buffer);
+        if (result && typeof result.text === "string") {
+          const cleaned = sanitizeExtractedText(result.text.replace(/--\s*\d+\s*of\s*\d+\s*--/gi, " "));
+          if (isValidHumanLanguageText(cleaned)) {
             return cleaned;
           }
-        }
-      } finally {
-        try { await parser.destroy(); } catch { /* ignore */ }
-      }
-    } else if (typeof pdfParse === "function" || typeof pdfParse.default === "function") {
-      // Function-based API (pdf-parse v1 compatibility)
-      const parseFn = typeof pdfParse === "function" ? pdfParse : pdfParse.default;
-      const result = await parseFn(buffer);
-      if (result && typeof result.text === "string") {
-        const cleaned = sanitizeExtractedText(result.text.replace(/--\s*\d+\s*of\s*\d+\s*--/gi, " "));
-        if (cleaned.length >= 25 && !isRawPdfSyntax(cleaned)) {
-          return cleaned;
         }
       }
     }
@@ -78,13 +107,13 @@ export async function extractTextFromPDFBuffer(buffer: Buffer): Promise<string> 
 
   // 2. Secondary Engine: Decompress Flate streams and extract Tj / TJ operators
   const streamText = extractFromPdfStreams(buffer);
-  if (streamText && streamText.length >= 25 && !isRawPdfSyntax(streamText)) {
+  if (streamText && isValidHumanLanguageText(streamText)) {
     return sanitizeExtractedText(streamText);
   }
 
   // 3. Third Fallback: Extract continuous readable character tokens (excluding PDF structure syntax)
   const readableText = extractReadableWords(buffer);
-  if (readableText && readableText.length >= 25 && !isRawPdfSyntax(readableText)) {
+  if (readableText && isValidHumanLanguageText(readableText)) {
     return sanitizeExtractedText(readableText);
   }
 

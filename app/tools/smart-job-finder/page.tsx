@@ -346,6 +346,11 @@ export default function SmartJobFinderPage() {
                         <h3 className="text-xl font-extrabold text-slate-900 font-display">
                           {candidate.currentRole}
                         </h3>
+                        {candidate.primaryFunction && candidate.primaryFunction !== candidate.currentRole && (
+                          <p className="text-xs font-semibold text-brand-700">
+                            Functional Focus: {candidate.primaryFunction}
+                          </p>
+                        )}
                       </div>
 
                       <div className="text-left sm:text-right">
@@ -369,20 +374,20 @@ export default function SmartJobFinderPage() {
                       </div>
 
                       <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Certifications Detected</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Certifications & Accreditations</span>
                         <p className="font-bold text-slate-800">
                           {candidate.certifications && candidate.certifications.length > 0
                             ? candidate.certifications.join(", ")
-                            : "Standard Industry Qualifications"}
+                            : "Verified Practical Experience"}
                         </p>
                       </div>
                     </div>
 
-                    {/* Detected Skills */}
+                    {/* Detected Skills & Software */}
                     {candidate.coreSkills && candidate.coreSkills.length > 0 && (
                       <div className="space-y-2">
                         <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                          Verified Core &amp; Technical Skills:
+                          Verified Capabilities &amp; Software:
                         </span>
                         <div className="flex flex-wrap gap-1.5">
                           {candidate.coreSkills.map((s: string, idx: number) => (
@@ -405,7 +410,7 @@ export default function SmartJobFinderPage() {
                           <span>Identified Transferable &amp; Related Career Paths:</span>
                         </div>
                         <p className="text-xs text-indigo-800/80">
-                          Based on your skill patterns, the system searched beyond exact keywords to include these viable adjacent roles:
+                          Based on your capabilities and project deliverables, the engine evaluated opportunities beyond exact title keywords:
                         </p>
                         <div className="flex flex-wrap gap-1.5 pt-1">
                           {result.transferableRoles.map((r: string, idx: number) => (
@@ -427,10 +432,10 @@ export default function SmartJobFinderPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/80 pb-3">
                     <div>
                       <h3 className="text-xl font-extrabold text-slate-900 font-display">
-                        Your Best Sponsorship Matches ({result.matchedJobs?.length || 0})
+                        Your Best Career &amp; Sponsorship Matches ({result.matchedJobs?.length || 0})
                       </h3>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        Ranked by multi-factor compatibility (skills, experience, role similarity, and verified statutory sponsorship certainty).
+                        Ranked by multidimensional capability overlap, seniority fit, and verified statutory sponsorship certainty.
                       </p>
                     </div>
                     <span className="text-xs font-semibold text-brand-700 bg-brand-50 px-3 py-1 rounded-full border border-brand-200 w-fit">
@@ -450,15 +455,26 @@ export default function SmartJobFinderPage() {
                         ? `${job.city}, ${job.country_code}`
                         : (job.location?.country || job.country || "Direct");
 
-                      const salaryStr = job.salary_max
-                        ? `${job.salary_currency || "£"}${job.salary_max.toLocaleString()}`
-                        : job.salary_min
-                        ? `${job.salary_currency || "£"}${job.salary_min.toLocaleString()}`
+                      const salaryStr = job.salary?.max || job.salary_max
+                        ? `${job.salary?.currency || job.salary_currency || "£"}${(job.salary?.max || job.salary_max).toLocaleString()}`
+                        : job.salary?.min || job.salary_min
+                        ? `${job.salary?.currency || job.salary_currency || "£"}${(job.salary?.min || job.salary_min).toLocaleString()}`
                         : "Competitive Package";
 
                       // Determine strict sponsorship badge styling
                       const isConfirmed = item.sponsorshipStatus === "CONFIRMED_IN_LISTING" || job.has_sponsorship === 1;
                       const isHistorical = item.sponsorshipStatus === "HISTORICAL_EMPLOYER_SPONSOR" || job.sponsorship_score >= 80;
+
+                      // Match Tier Badge styling
+                      const tier = item.matchTier || "TRANSFERABLE_PATHWAY";
+                      const tierBadge =
+                        tier === "DIRECT_MATCH"
+                          ? { bg: "bg-emerald-100 text-emerald-800 border-emerald-300", label: "Direct Match" }
+                          : tier === "ADJACENT_MATCH"
+                          ? { bg: "bg-blue-100 text-blue-800 border-blue-300", label: "Adjacent Opportunity" }
+                          : tier === "TRANSFERABLE_PATHWAY"
+                          ? { bg: "bg-purple-100 text-purple-800 border-purple-300", label: "Transferable Pathway" }
+                          : { bg: "bg-amber-100 text-amber-800 border-amber-300", label: "Stretch Match" };
 
                       return (
                         <div
@@ -466,28 +482,33 @@ export default function SmartJobFinderPage() {
                           className="p-5 sm:p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:border-brand-400 transition-all flex flex-col justify-between space-y-4"
                         >
                           <div className="space-y-3">
-                            {/* Header: Company, Title, Scores */}
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="space-y-1 min-w-0">
-                                <span className="text-xs font-bold text-slate-500 flex items-center gap-1.5 truncate">
-                                  <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                  <span>{companyName}</span>
-                                </span>
-                                <h4 className="text-base font-extrabold text-slate-900 leading-snug line-clamp-2">
-                                  {job.title}
-                                </h4>
-                              </div>
+                            {/* Match Tier Badge & Scores */}
+                            <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                              <span className={`px-2.5 py-0.5 rounded-full border text-[11px] font-bold ${tierBadge.bg}`}>
+                                {item.tierBadgeLabel || tierBadge.label}
+                              </span>
 
-                              <div className="flex flex-col items-end gap-1.5 shrink-0">
-                                <span className="text-xs font-black px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0 whitespace-nowrap shadow-2xs">
-                                  {item.matchScore}% Match
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0 whitespace-nowrap">
+                                  {item.careerMatchScore || item.matchScore}% Career Match
                                 </span>
-                                {item.atsScore && (
-                                  <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">
-                                    ATS: {item.atsScore}%
+                                {item.sponsorshipViabilityScore && (
+                                  <span className="text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full shrink-0">
+                                    Visa: {item.sponsorshipViabilityScore}%
                                   </span>
                                 )}
                               </div>
+                            </div>
+
+                            {/* Header: Company & Title */}
+                            <div className="space-y-1 min-w-0">
+                              <span className="text-xs font-bold text-slate-500 flex items-center gap-1.5 truncate">
+                                <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{companyName}</span>
+                              </span>
+                              <h4 className="text-base font-extrabold text-slate-900 leading-snug line-clamp-2">
+                                {job.title}
+                              </h4>
                             </div>
 
                             {/* Location & Salary */}
@@ -502,8 +523,8 @@ export default function SmartJobFinderPage() {
                               </span>
                             </div>
 
-                            {/* Sponsorship Status Badge (Truth in Advertising) */}
-                            <div className="pt-1">
+                            {/* Sponsorship Status Badge */}
+                            <div className="pt-0.5">
                               {isConfirmed ? (
                                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">
                                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
@@ -512,7 +533,7 @@ export default function SmartJobFinderPage() {
                               ) : isHistorical ? (
                                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold">
                                   <HelpCircle className="w-3.5 h-3.5 text-amber-600" />
-                                  <span>Historical Licensed Sponsor (Verify Vacancy)</span>
+                                  <span>Verified Statutory Sponsor (Verify Vacancy)</span>
                                 </div>
                               ) : (
                                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[11px] font-semibold">
@@ -521,11 +542,21 @@ export default function SmartJobFinderPage() {
                               )}
                             </div>
 
+                            {/* Transferability Bridge Rationale */}
+                            {breakdown?.transferabilityRationale && (
+                              <div className="p-2.5 rounded-xl bg-indigo-50/60 border border-indigo-100 text-[11px] text-indigo-900 leading-snug">
+                                <span className="font-bold block text-[10px] uppercase text-indigo-600 tracking-wider">
+                                  Career Bridge Rationale:
+                                </span>
+                                {breakdown.transferabilityRationale}
+                              </div>
+                            )}
+
                             {/* Skills Matched & Missing */}
-                            <div className="space-y-1.5 pt-1">
+                            <div className="space-y-1.5 pt-0.5">
                               {item.matchedSkills && item.matchedSkills.length > 0 && (
                                 <div className="flex flex-wrap items-center gap-1">
-                                  <span className="text-[10px] font-bold text-emerald-700">Matching Skills:</span>
+                                  <span className="text-[10px] font-bold text-emerald-700">Matching Capabilities:</span>
                                   {item.matchedSkills.slice(0, 4).map((s: string, sIdx: number) => (
                                     <span
                                       key={sIdx}
@@ -539,7 +570,7 @@ export default function SmartJobFinderPage() {
 
                               {item.missingSkills && item.missingSkills.length > 0 && (
                                 <div className="flex flex-wrap items-center gap-1">
-                                  <span className="text-[10px] font-bold text-amber-700">Missing Requirements:</span>
+                                  <span className="text-[10px] font-bold text-amber-700">Key Focus Areas:</span>
                                   {item.missingSkills.slice(0, 3).map((s: string, mIdx: number) => (
                                     <span
                                       key={mIdx}
