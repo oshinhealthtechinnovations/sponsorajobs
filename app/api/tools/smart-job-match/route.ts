@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
         promptParam = formData.get("prompt") as string | null;
         country = (formData.get("country") as string) || undefined;
         const limitParam = formData.get("limit") as string | null;
-        if (limitParam) limit = Number(limitParam) || 8;
+        limit = limitParam ? Math.min(48, Math.max(4, Number(limitParam) || 24)) : 24;
 
         if (file) {
           fileBuffer = Buffer.from(await file.arrayBuffer());
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
               } else if (part.name === "country" && part.text.trim()) {
                 country = part.text.trim();
               } else if (part.name === "limit" && part.text.trim()) {
-                limit = Number(part.text.trim()) || 8;
+                limit = Math.min(48, Math.max(4, Number(part.text.trim()) || 24));
               }
             }
           }
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
       rawInput = (cvText || prompt || "").trim();
       country = countryBody;
       minSalary = minSalaryBody;
-      if (limitBody) limit = Number(limitBody) || 8;
+      limit = limitBody ? Math.min(48, Math.max(4, Number(limitBody) || 24)) : 24;
     }
 
     rawInput = rawInput.trim();
@@ -199,6 +199,13 @@ export async function POST(request: NextRequest) {
         },
         matchedJobs,
         totalFound: matchedJobs.length,
+        tierCounts: {
+          direct: matchedJobs.filter((m) => m.matchTier === "DIRECT_MATCH").length,
+          adjacent: matchedJobs.filter((m) => m.matchTier === "ADJACENT_MATCH").length,
+          transferable: matchedJobs.filter((m) => m.matchTier === "TRANSFERABLE_PATHWAY").length,
+          stretch: matchedJobs.filter((m) => m.matchTier === "STRETCH_MATCH").length,
+          confirmedSponsors: matchedJobs.filter((m) => m.visaViable).length,
+        },
       },
     });
   } catch (err: any) {

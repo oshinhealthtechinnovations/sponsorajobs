@@ -24,6 +24,7 @@ import {
   Layers,
   Check,
   HelpCircle,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -43,6 +44,9 @@ export default function SmartJobFinderPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [country, setCountry] = useState("ALL");
+  const [batchSize, setBatchSize] = useState<number>(24);
+  const [filterTier, setFilterTier] = useState<string>("ALL");
+  const [visibleCount, setVisibleCount] = useState<number>(8);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any | null>(null);
@@ -91,7 +95,7 @@ export default function SmartJobFinderPage() {
         const formData = new FormData();
         formData.append("file", selectedFile);
         if (effectiveCountry !== "ALL") formData.append("country", effectiveCountry);
-        formData.append("limit", "8");
+        formData.append("limit", String(batchSize));
 
         res = await fetch("/api/tools/smart-job-match", {
           method: "POST",
@@ -104,7 +108,7 @@ export default function SmartJobFinderPage() {
           body: JSON.stringify({
             prompt: textToSearch,
             country: effectiveCountry !== "ALL" ? effectiveCountry : undefined,
-            limit: 8,
+            limit: batchSize,
           }),
         });
       }
@@ -127,6 +131,8 @@ export default function SmartJobFinderPage() {
       }
 
       setResult(data.data);
+      setVisibleCount(8);
+      setFilterTier("ALL");
 
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -139,6 +145,13 @@ export default function SmartJobFinderPage() {
   };
 
   const candidate = result?.candidateProfile;
+  const filteredJobs = (result?.matchedJobs || []).filter((item: any) => {
+    if (filterTier === "DIRECT") return item.matchTier === "DIRECT_MATCH";
+    if (filterTier === "ADJACENT") return item.matchTier === "ADJACENT_MATCH";
+    if (filterTier === "TRANSFERABLE") return item.matchTier === "TRANSFERABLE_PATHWAY";
+    if (filterTier === "SPONSOR") return item.visaViable;
+    return true;
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
@@ -218,21 +231,38 @@ export default function SmartJobFinderPage() {
                 </button>
               </div>
 
-              <div className="flex items-center gap-2">
-                <label htmlFor="countryFilterSelect" className="text-xs font-bold text-slate-500">Destination:</label>
-                <select
-                  id="countryFilterSelect"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                  className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold bg-slate-50 text-slate-800"
-                >
-                  <option value="ALL">🌍 Any Destination</option>
-                  <option value="GB">🇬🇧 United Kingdom</option>
-                  <option value="US">🇺🇸 United States</option>
-                  <option value="AU">🇦🇺 Australia</option>
-                  <option value="CA">🇨🇦 Canada</option>
-                  <option value="NZ">🇳🇿 New Zealand</option>
-                </select>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <label htmlFor="countryFilterSelect" className="text-xs font-bold text-slate-500">Destination:</label>
+                  <select
+                    id="countryFilterSelect"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold bg-slate-50 text-slate-800"
+                  >
+                    <option value="ALL">🌍 Any Destination</option>
+                    <option value="GB">🇬🇧 United Kingdom</option>
+                    <option value="US">🇺🇸 United States</option>
+                    <option value="AU">🇦🇺 Australia</option>
+                    <option value="CA">🇨🇦 Canada</option>
+                    <option value="NZ">🇳🇿 New Zealand</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <label htmlFor="batchSizeSelect" className="text-xs font-bold text-slate-500">Extract:</label>
+                  <select
+                    id="batchSizeSelect"
+                    value={batchSize}
+                    onChange={(e) => setBatchSize(Number(e.target.value))}
+                    className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold bg-slate-50 text-slate-800"
+                  >
+                    <option value={12}>12 Opportunities</option>
+                    <option value={24}>24 Opportunities (Recommended)</option>
+                    <option value={36}>36 Opportunities</option>
+                    <option value={48}>48 Deep Harvest</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -444,10 +474,10 @@ export default function SmartJobFinderPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/80 pb-3">
                     <div>
                       <h3 className="text-xl font-extrabold text-slate-900 font-display">
-                        Your Best Career &amp; Sponsorship Matches ({result.matchedJobs?.length || 0})
+                        Your Best Career &amp; Sponsorship Matches ({filteredJobs.length}{filteredJobs.length !== (result.matchedJobs?.length || 0) ? ` of ${result.matchedJobs?.length}` : ""})
                       </h3>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        Ranked by multidimensional capability overlap, seniority fit, and verified statutory sponsorship certainty.
+                        Deep multi-tier capability extraction across 10,000+ active sponsoring vacancies.
                       </p>
                     </div>
                     <span className="text-xs font-semibold text-brand-700 bg-brand-50 px-3 py-1 rounded-full border border-brand-200 w-fit">
@@ -455,8 +485,67 @@ export default function SmartJobFinderPage() {
                     </span>
                   </div>
 
+                  {/* Interactive Match Tier Filter Tabs */}
+                  <div className="flex flex-wrap items-center gap-2 pt-1 pb-1">
+                    <button
+                      type="button"
+                      onClick={() => { setFilterTier("ALL"); setVisibleCount(8); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        filterTier === "ALL"
+                          ? "bg-slate-900 text-white shadow-xs"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      All Matches ({result.matchedJobs?.length || 0})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setFilterTier("DIRECT"); setVisibleCount(8); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                        filterTier === "DIRECT"
+                          ? "bg-emerald-600 text-white shadow-xs"
+                          : "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
+                      }`}
+                    >
+                      🎯 Direct Matches ({result.matchedJobs?.filter((m: any) => m.matchTier === "DIRECT_MATCH").length || 0})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setFilterTier("ADJACENT"); setVisibleCount(8); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                        filterTier === "ADJACENT"
+                          ? "bg-blue-600 text-white shadow-xs"
+                          : "bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"
+                      }`}
+                    >
+                      🚀 Adjacent ({result.matchedJobs?.filter((m: any) => m.matchTier === "ADJACENT_MATCH").length || 0})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setFilterTier("TRANSFERABLE"); setVisibleCount(8); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                        filterTier === "TRANSFERABLE"
+                          ? "bg-purple-600 text-white shadow-xs"
+                          : "bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100"
+                      }`}
+                    >
+                      🔄 Transferable ({result.matchedJobs?.filter((m: any) => m.matchTier === "TRANSFERABLE_PATHWAY").length || 0})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setFilterTier("SPONSOR"); setVisibleCount(8); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                        filterTier === "SPONSOR"
+                          ? "bg-indigo-600 text-white shadow-xs"
+                          : "bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100"
+                      }`}
+                    >
+                      ✅ Confirmed Sponsors ({result.matchedJobs?.filter((m: any) => m.visaViable).length || 0})
+                    </button>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {result.matchedJobs?.map((item: any, idx: number) => {
+                    {filteredJobs.slice(0, visibleCount).map((item: any, idx: number) => {
                       const job = item.job;
                       const breakdown = item.breakdown;
                       const reasons: string[] = item.reasons || [];
@@ -636,6 +725,27 @@ export default function SmartJobFinderPage() {
                       );
                     })}
                   </div>
+
+                  {/* Pagination / Load More Controls */}
+                  {visibleCount < filteredJobs.length && (
+                    <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setVisibleCount((prev) => Math.min(filteredJobs.length, prev + 8))}
+                        className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white hover:bg-slate-50 border-2 border-brand-200 hover:border-brand-500 text-brand-700 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <ChevronDown className="w-4 h-4 text-brand-600" />
+                        <span>Load More Opportunities (+8) — Showing {Math.min(visibleCount, filteredJobs.length)} of {filteredJobs.length}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setVisibleCount(filteredJobs.length)}
+                        className="text-xs font-bold text-slate-500 hover:text-slate-800 underline decoration-slate-300 cursor-pointer"
+                      >
+                        Show All ({filteredJobs.length})
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

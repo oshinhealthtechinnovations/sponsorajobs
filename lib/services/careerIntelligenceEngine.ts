@@ -605,9 +605,17 @@ export class CareerIntelligenceEngine {
    * 2. Normalize and profile any raw database Job Listing
    */
   public static extractJobProfile(job: PublicJobDTO | any): JobRequirementProfile {
-    const title = (job.title || "").trim();
+    const rawTitle = (job.title || "").trim();
+    // Clean job title of job codes, req numbers, and location prefixes
+    const title = rawTitle
+      .replace(/^(\d{4,}|\b[A-Z]{2,}\/\d+\b|req\s*\d+|job\s*id\s*[:#-]?\s*\d+)\s*[-:–|]\s*/i, "")
+      .replace(/\s*[-:–|]\s*(\d{4,}|\b[A-Z]{2,}\/\d+\b)\s*$/i, "")
+      .replace(/\s*\((?:hybrid|remote|onsite|full[- ]time|contract|permanent|\d+)\)\s*/gi, " ")
+      .trim() || rawTitle;
+
     const desc = (job.description || job.descriptionClean || "").trim();
     const lower = `${title} ${desc}`.toLowerCase();
+    const titleLower = title.toLowerCase();
 
     // Mandatory capabilities from job description
     const mandatoryCaps: string[] = [];
@@ -620,6 +628,39 @@ export class CareerIntelligenceEngine {
           tools.push(def.label);
         }
       }
+    }
+
+    // Contextual capability inference from title if vacancy description is terse
+    if (/planning engineer|project planner|scheduler|project controls/i.test(titleLower)) {
+      if (!mandatoryCaps.includes("Project Planning & Scheduling")) mandatoryCaps.push("Project Planning & Scheduling");
+      if (!mandatoryCaps.includes("Project Controls & Tracking")) mandatoryCaps.push("Project Controls & Tracking");
+      if (!tools.includes("Primavera P6")) tools.push("Primavera P6");
+    }
+    if (/bim|revit|building information/i.test(titleLower)) {
+      if (!mandatoryCaps.includes("BIM (Building Information Modeling)")) mandatoryCaps.push("BIM (Building Information Modeling)");
+      if (!tools.includes("Revit")) tools.push("Revit");
+      if (!tools.includes("AutoCAD")) tools.push("AutoCAD");
+    }
+    if (/civil engineer|structural engineer|infrastructure engineer/i.test(titleLower)) {
+      if (!mandatoryCaps.includes("Infrastructure Delivery")) mandatoryCaps.push("Infrastructure Delivery");
+      if (!mandatoryCaps.includes("Structural Analysis & Design")) mandatoryCaps.push("Structural Analysis & Design");
+      if (!tools.includes("AutoCAD")) tools.push("AutoCAD");
+    }
+    if (/construction manager|site manager|site engineer/i.test(titleLower)) {
+      if (!mandatoryCaps.includes("Site Supervision & Inspection")) mandatoryCaps.push("Site Supervision & Inspection");
+      if (!mandatoryCaps.includes("Health & Safety Compliance")) mandatoryCaps.push("Health & Safety Compliance");
+    }
+    if (/project manager|assistant project manager/i.test(titleLower)) {
+      if (!mandatoryCaps.includes("Project Management & Delivery")) mandatoryCaps.push("Project Management & Delivery");
+      if (!mandatoryCaps.includes("Stakeholder Management")) mandatoryCaps.push("Stakeholder Management");
+      if (!mandatoryCaps.includes("Risk Management")) mandatoryCaps.push("Risk Management");
+    }
+    if (/full stack|software engineer|frontend|backend/i.test(titleLower)) {
+      if (!mandatoryCaps.includes("Software Engineering & Architecture")) mandatoryCaps.push("Software Engineering & Architecture");
+    }
+    if (/data analyst|bi analyst|data engineer/i.test(titleLower)) {
+      if (!mandatoryCaps.includes("Data Analysis & Insights")) mandatoryCaps.push("Data Analysis & Insights");
+      if (!tools.includes("SQL & Relational Databases")) tools.push("SQL & Relational Databases");
     }
 
     // Min Years experience
@@ -920,65 +961,113 @@ export class CareerIntelligenceEngine {
     candidate: CandidateCapabilityProfile,
     options?: { country?: string; limit?: number }
   ): Promise<MatchOpportunity[]> {
-    const limit = options?.limit || 8;
+    const limit = options?.limit || 24;
     const country = options?.country && options.country !== "ALL"
       ? options.country
       : (candidate.identity.targetCountry || undefined);
 
     const db = getDatabase();
+    const candidateJobsMap = new Map<string, any>();
 
-    // ── Stage 1: Dynamic Query Synthesis ──
-    const searchTerms = new Set<string>();
+    // ── Phase 1: High-Precision Direct & Transferable Role Archetypes ──
+    const roleTitles = [
+      candidate.headlineRole,
+      candidate.normalizedRole,
+      ...candidate.transferableRolesList,
+    ].filter(Boolean);
 
-    // 1. Candidate Headline & Role Tokens
-    candidate.headlineRole.toLowerCase().split(/[\s|/•\-]+/).forEach((term) => {
-      const clean = term.replace(/[^a-z0-9]/g, "");
-      if (clean.length >= 4 && !["assistant", "senior", "lead", "general", "with", "years"].includes(clean)) {
-        searchTerms.add(clean);
-      }
-    });
-
-    // 2. Transferable Target Role Tokens
-    candidate.transferableRolesList.forEach((role) => {
-      role.toLowerCase().split(/[\s/]+/).forEach((term) => {
-        const clean = term.replace(/[^a-z0-9]/g, "");
-        if (clean.length >= 4 && !["specialist", "specialists", "manager", "engineer"].includes(clean)) {
-          searchTerms.add(clean);
+    const roleTokens = new Set<string>();
+    roleTitles.forEach((r) => {
+      const clean = r.toLowerCase().replace(/[^a-z0-9\s]/g, " ").trim();
+      roleTokens.add(clean);
+      clean.split(/\s+/).forEach((w) => {
+        if (w.length >= 4 && !["senior", "assistant", "lead", "with", "years", "general", "specialist", "manager", "engineer"].includes(w)) {
+          roleTokens.add(w);
         }
       });
     });
 
-    // 3. Tools and Core Capabilities
-    [...candidate.toolsAndSoftware, ...candidate.coreCapabilities].forEach((tool) => {
-      const clean = tool.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim();
-      if (clean.length >= 3 && clean.length <= 20) {
-        searchTerms.add(clean);
+    const roleKeywords = Array.from(roleTokens).slice(0, 20);
+    if (roleKeywords.length > 0) {
+      const likeClauses = roleKeywords.map(() => "(LOWER(j.title) LIKE ?)").join(" OR ");
+      const params = roleKeywords.map((k) => `%${k}%`);
+      const sql = country
+        ? `SELECT j.*, c.name as company_name, c.logo_url as company_logo, c.industry as company_industry,
+                  cat.name as category_name, cat.slug as category_slug
+           FROM jobs j
+           LEFT JOIN companies c ON j.company_id = c.id
+           LEFT JOIN categories cat ON j.category_id = cat.id
+           WHERE j.status = 'active' AND UPPER(j.country_code) = ? AND (${likeClauses})
+           ORDER BY j.has_sponsorship DESC, j.sponsorship_score DESC, j.published_at DESC
+           LIMIT 350`
+        : `SELECT j.*, c.name as company_name, c.logo_url as company_logo, c.industry as company_industry,
+                  cat.name as category_name, cat.slug as category_slug
+           FROM jobs j
+           LEFT JOIN companies c ON j.company_id = c.id
+           LEFT JOIN categories cat ON j.category_id = cat.id
+           WHERE j.status = 'active' AND (${likeClauses})
+           ORDER BY j.has_sponsorship DESC, j.sponsorship_score DESC, j.published_at DESC
+           LIMIT 350`;
+
+      try {
+        const stmt = country ? db.prepare(sql).bind(country.toUpperCase(), ...params) : db.prepare(sql).bind(...params);
+        const res = await stmt.all<any>();
+        for (const j of res.results || []) {
+          candidateJobsMap.set(j.id, j);
+        }
+      } catch (err) {
+        console.warn("[CareerIntelligenceEngine] Phase 1 query error:", err);
       }
-    });
+    }
 
-    // 4. Industry Keywords
-    candidate.primaryIndustry.toLowerCase().split(/[\s/&,]+/).forEach((ind) => {
-      const clean = ind.replace(/[^a-z0-9]/g, "");
-      if (clean.length >= 5 && !["services", "functional", "cross"].includes(clean)) {
-        searchTerms.add(clean);
-      }
-    });
+    // ── Phase 2: High-Value Capability & Tool Clusters ──
+    const toolKeywords = [...candidate.toolsAndSoftware, ...candidate.coreCapabilities]
+      .map((t) => t.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim())
+      .filter((t) => t.length >= 3 && t.length <= 25)
+      .slice(0, 16);
 
-    // Cap keyword list at 24 terms
-    const queryKeywords = Array.from(searchTerms).slice(0, 24);
-
-    let candidateJobs: any[] = [];
-
-    if (queryKeywords.length > 0) {
-      // Build index-friendly query with table alias j. to match client.ts logic
-      const likeClauses = queryKeywords
-        .map(() => "(LOWER(j.title) LIKE ? OR LOWER(j.description) LIKE ? OR LOWER(cat.name) LIKE ?)")
+    if (toolKeywords.length > 0) {
+      const likeClauses = toolKeywords
+        .map(() => "(LOWER(j.title) LIKE ? OR LOWER(j.description) LIKE ?)")
         .join(" OR ");
-
       const params: string[] = [];
-      queryKeywords.forEach((kw) => {
-        params.push(`%${kw}%`, `%${kw}%`, `%${kw}%`);
-      });
+      toolKeywords.forEach((tk) => params.push(`%${tk}%`, `%${tk}%`));
+
+      const sql = country
+        ? `SELECT j.*, c.name as company_name, c.logo_url as company_logo, c.industry as company_industry,
+                  cat.name as category_name, cat.slug as category_slug
+           FROM jobs j
+           LEFT JOIN companies c ON j.company_id = c.id
+           LEFT JOIN categories cat ON j.category_id = cat.id
+           WHERE j.status = 'active' AND UPPER(j.country_code) = ? AND (${likeClauses})
+           ORDER BY j.has_sponsorship DESC, j.sponsorship_score DESC, j.published_at DESC
+           LIMIT 350`
+        : `SELECT j.*, c.name as company_name, c.logo_url as company_logo, c.industry as company_industry,
+                  cat.name as category_name, cat.slug as category_slug
+           FROM jobs j
+           LEFT JOIN companies c ON j.company_id = c.id
+           LEFT JOIN categories cat ON j.category_id = cat.id
+           WHERE j.status = 'active' AND (${likeClauses})
+           ORDER BY j.has_sponsorship DESC, j.sponsorship_score DESC, j.published_at DESC
+           LIMIT 350`;
+
+      try {
+        const stmt = country ? db.prepare(sql).bind(country.toUpperCase(), ...params) : db.prepare(sql).bind(...params);
+        const res = await stmt.all<any>();
+        for (const j of res.results || []) {
+          if (!candidateJobsMap.has(j.id)) candidateJobsMap.set(j.id, j);
+        }
+      } catch (err) {
+        console.warn("[CareerIntelligenceEngine] Phase 2 query error:", err);
+      }
+    }
+
+    // ── Phase 3: Functional Discipline & Category Query ──
+    const industryTokens = candidate.primaryIndustry.toLowerCase().split(/[\s/&,]+/).filter((w) => w.length >= 4);
+    if (industryTokens.length > 0) {
+      const likeClauses = industryTokens.map(() => "(LOWER(cat.name) LIKE ? OR LOWER(cat.slug) LIKE ?)").join(" OR ");
+      const params: string[] = [];
+      industryTokens.forEach((it) => params.push(`%${it}%`, `%${it}%`));
 
       const sql = country
         ? `SELECT j.*, c.name as company_name, c.logo_url as company_logo, c.industry as company_industry,
@@ -998,37 +1087,48 @@ export class CareerIntelligenceEngine {
            ORDER BY j.has_sponsorship DESC, j.sponsorship_score DESC, j.published_at DESC
            LIMIT 250`;
 
-      const stmt = country
-        ? db.prepare(sql).bind(country.toUpperCase(), ...params)
-        : db.prepare(sql).bind(...params);
-
-      const res = await stmt.all<any>();
-      candidateJobs = res.results || [];
-    }
-
-    // Fallback: If query returned fewer than 15 jobs, fetch country top active jobs
-    if (candidateJobs.length < 15) {
-      const fallbackSql = country
-        ? `SELECT j.*, c.name as company_name, cat.name as category_name
-           FROM jobs j
-           LEFT JOIN companies c ON j.company_id = c.id
-           LEFT JOIN categories cat ON j.category_id = cat.id
-           WHERE j.status = 'active' AND UPPER(j.country_code) = ?
-           ORDER BY j.has_sponsorship DESC, j.sponsorship_score DESC, j.published_at DESC LIMIT 100`
-        : `SELECT j.*, c.name as company_name, cat.name as category_name
-           FROM jobs j
-           LEFT JOIN companies c ON j.company_id = c.id
-           LEFT JOIN categories cat ON j.category_id = cat.id
-           WHERE j.status = 'active'
-           ORDER BY j.has_sponsorship DESC, j.sponsorship_score DESC, j.published_at DESC LIMIT 100`;
-
-      const fallbackStmt = country ? db.prepare(fallbackSql).bind(country.toUpperCase()) : db.prepare(fallbackSql);
-      const fallbackRes = await fallbackStmt.all<any>();
-      const existingIds = new Set(candidateJobs.map((j) => j.id));
-      for (const j of fallbackRes.results || []) {
-        if (!existingIds.has(j.id)) candidateJobs.push(j);
+      try {
+        const stmt = country ? db.prepare(sql).bind(country.toUpperCase(), ...params) : db.prepare(sql).bind(...params);
+        const res = await stmt.all<any>();
+        for (const j of res.results || []) {
+          if (!candidateJobsMap.has(j.id)) candidateJobsMap.set(j.id, j);
+        }
+      } catch (err) {
+        console.warn("[CareerIntelligenceEngine] Phase 3 query error:", err);
       }
     }
+
+    // ── Phase 4: Freshly Ingested & Newly Listed Vacancy Pipeline ──
+    // Guarantees that any recently listed or newly scraped vacancies in the destination are continuously discovered
+    const freshSql = country
+      ? `SELECT j.*, c.name as company_name, c.logo_url as company_logo, c.industry as company_industry,
+                cat.name as category_name, cat.slug as category_slug
+         FROM jobs j
+         LEFT JOIN companies c ON j.company_id = c.id
+         LEFT JOIN categories cat ON j.category_id = cat.id
+         WHERE j.status = 'active' AND UPPER(j.country_code) = ?
+         ORDER BY j.published_at DESC, j.id DESC
+         LIMIT 200`
+      : `SELECT j.*, c.name as company_name, c.logo_url as company_logo, c.industry as company_industry,
+                cat.name as category_name, cat.slug as category_slug
+         FROM jobs j
+         LEFT JOIN companies c ON j.company_id = c.id
+         LEFT JOIN categories cat ON j.category_id = cat.id
+         WHERE j.status = 'active'
+         ORDER BY j.published_at DESC, j.id DESC
+         LIMIT 200`;
+
+    try {
+      const freshStmt = country ? db.prepare(freshSql).bind(country.toUpperCase()) : db.prepare(freshSql);
+      const freshRes = await freshStmt.all<any>();
+      for (const j of freshRes.results || []) {
+        if (!candidateJobsMap.has(j.id)) candidateJobsMap.set(j.id, j);
+      }
+    } catch (err) {
+      console.warn("[CareerIntelligenceEngine] Phase 4 fresh query error:", err);
+    }
+
+    const candidateJobs = Array.from(candidateJobsMap.values());
 
     // ── Stage 2 & 3: Deep Profiling & 5-Axis Relevance Scoring ──
     const opportunities: MatchOpportunity[] = [];
@@ -1126,8 +1226,9 @@ export class CareerIntelligenceEngine {
     const finalSelected: MatchOpportunity[] = [];
     const employerCount = new Map<string, number>();
     const seenTitleKeys = new Set<string>();
+    const maxPerEmployer = limit <= 12 ? 2 : (limit <= 24 ? 3 : 4);
 
-    // Pass 1: Select high-scoring opportunities with diversity caps (max 2 per company, 1 per near-identical title)
+    // Pass 1: Select high-scoring opportunities with diversity caps
     for (const opp of opportunities) {
       const employerKey = (opp.job.company.name || "company").toLowerCase().trim();
       // Normalized title key: remove locations in parens, job numbers, etc.
@@ -1140,8 +1241,8 @@ export class CareerIntelligenceEngine {
         continue;
       }
 
-      // Allow max 2 vacancies per company in top portfolio
-      if (empCount >= 2) {
+      // Allow max vacancies per company in top portfolio
+      if (empCount >= maxPerEmployer) {
         continue;
       }
 
